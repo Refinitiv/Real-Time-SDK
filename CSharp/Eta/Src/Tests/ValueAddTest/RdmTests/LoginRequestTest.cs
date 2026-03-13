@@ -2,24 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 using System;
-
-using Xunit;
-using Xunit.Categories;
-
+using System.Diagnostics;
+using System.IO;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
-
+using Xunit;
+using Xunit.Categories;
 using static LSEG.Eta.Rdm.Login;
-
 using Buffer = LSEG.Eta.Codec.Buffer;
-using System.Diagnostics;
 
 namespace LSEG.Eta.Tests.ValueAddTest
 {
@@ -940,6 +937,58 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Assert.Equal(rttMsg1.ProviderDriven, rttMsg2.ProviderDriven);
 
             Console.WriteLine("Done.");
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void LoginRTTWithoutTicksDecodingProducesError()
+        {
+            IGenericMsg genMsg = new Msg();
+            ElementEntry elementEntry = new();
+            ElementList elementList = new();
+            UInt tmpUInt = new();
+            LoginRTT decLoginRTTMsg = new();
+
+            Buffer membuf = new();
+            membuf.Data(new ByteBuffer(1024));
+            encIter.Clear();
+            encIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+            genMsg.Clear();
+            genMsg.MsgClass = MsgClasses.GENERIC;
+            genMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+            genMsg.StreamId = 1;
+            genMsg.ContainerType = DataTypes.ELEMENT_LIST;
+
+            genMsg.Flags |= GenericMsgFlags.PROVIDER_DRIVEN;
+
+            CodecReturnCode ret = genMsg.EncodeInit(encIter, 0);
+            if (ret != CodecReturnCode.ENCODE_CONTAINER)
+                Assert.False(true);
+
+            elementEntry.Clear();
+            elementList.Clear();
+            elementList.Flags = ElementListFlags.HAS_STANDARD_DATA;
+
+            if (elementList.EncodeInit(encIter, null, 0) < CodecReturnCode.SUCCESS)
+            {
+                Assert.False(true);
+            }
+
+            elementEntry.DataType = DataTypes.UINT;
+            elementEntry.Name = ElementNames.ROUND_TRIP_LATENCY;
+            tmpUInt.Value(25);
+
+            elementEntry.Encode(encIter, tmpUInt);
+
+            elementList.EncodeComplete(encIter, true);
+
+            dIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            ret = msg.Decode(dIter);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            ret = decLoginRTTMsg.Decode(dIter, msg);
+            Assert.Equal(CodecReturnCode.FAILURE, ret); // No Ticks field was encoded inot the incoming message, produce FAILURE!
         }
 
         #endregion

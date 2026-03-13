@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -22,7 +22,7 @@ using Enum = LSEG.Eta.Codec.Enum;
 namespace LSEG.Eta.Tests
 {
 
-    class CodecTestUtil
+    static class CodecTestUtil
     {
         public static int length = 5;
         public static int defaultArrayDataType = DataTypes.QOS;
@@ -1848,8 +1848,299 @@ namespace LSEG.Eta.Tests
             EncodeDefaultContainer(payloadIter, msgParameters.PayloadType);
             msg.EncodedDataBody = buffer;
             Assert.Equal(CodecReturnCode.SUCCESS, msg.Encode(encIter));
-        }  
-        
+        }
+
+        public static void EncodeGroupId(EncodeIterator encIter,
+                                            MsgParameters msgParameters, Buffer groupId)
+        {
+            Msg msg = new Msg()
+            {
+                MsgClass = msgParameters.MsgClass,
+                StreamId = msgParameters.StreamId,
+                ContainerType = msgParameters.PayloadType,
+                DomainType = msgParameters.MsgDomainType
+            };
+
+            EncodeMessageWithVariableGroupId(encIter, msgParameters, msg, groupId);
+        }
+
+        public static void EncodeMessageWithVariableGroupId(EncodeIterator encIter,
+                                               MsgParameters msgParameters, Msg msg, Buffer groupId)
+        {
+
+            if (msgParameters.HasExtendedHeader)
+            {
+                msg.ApplyHasExtendedHdr();
+                msg.ExtendedHeader = extendedHeaderBuffer;
+            }
+            if (msgParameters.HasPermData)
+            {
+                msg.ApplyHasPermData();
+                msg.PermData.Data("PermData");
+            }
+            if (msgParameters.HasMsgKey)
+            {
+                msg.ApplyHasMsgKey();
+                msg.MsgKey.ApplyHasName();
+                msg.MsgKey.Name = msgKeyBuffer;
+                msg.MsgKey.ServiceId = msgKeyServiceId;
+                if (msgParameters.HasMsgKeyType)
+                {
+                    msg.MsgKey.ApplyHasNameType();
+                    msg.MsgKey.NameType = InstrumentNameTypes.RIC;
+                }
+            }
+            if (msgParameters.DoNotCache)
+            {
+                msg.ApplyDoNotCache();
+            }
+            if (msgParameters.DoNotConflate)
+            {
+                msg.ApplyDoNotConflate();
+            }
+            if (msgParameters.DoNotRipple)
+            {
+                msg.ApplyDoNotRipple();
+            }
+            if (msgParameters.SeqNum != 0)
+            {
+                msg.ApplyHasSeqNum();
+                msg.SeqNum = msgParameters.SeqNum;
+            }
+            if (msgParameters.HasState)
+            {
+                msg.ApplyHasState();
+                State state = new State();
+                state.DataState(DataStates.OK);
+                state.StreamState(StreamStates.OPEN);
+                msg.State = state;
+            }
+            if (msgParameters.NackCode != 0)
+            {
+                msg.ApplyHasNakCode();
+                msg.NakCode = msgParameters.NackCode;
+            }
+            if (msgParameters.HasText)
+            {
+                msg.Text = ascii;
+            }
+            if (msgParameters.HasQos)
+            {
+                msg.ApplyHasQos();
+                msg.Qos.Timeliness(qos.Timeliness());
+                msg.Qos.Rate(qos.Rate());
+            }
+            if (msgParameters.HasWorstQos)
+            {
+                msg.ApplyHasWorstQos();
+                msg.WorstQos.Timeliness(qos.Timeliness());
+                msg.WorstQos.Rate(qos.Rate());
+            }
+            if (msgParameters.RefreshComplete)
+            {
+                msg.ApplyRefreshComplete();
+            }
+            if (msgParameters.NoRefresh)
+            {
+                msg.ApplyNoRefresh();
+            }
+            if (msgParameters.PostComplete)
+            {
+                msg.ApplyPostComplete();
+            }
+            if (msgParameters.Streaming)
+            {
+                msg.ApplyStreaming();
+            }
+            if (msgParameters.PrivateStream)
+            {
+                msg.ApplyPrivateStream();
+            }
+            if (msgParameters.HasPriority)
+            {
+                msg.ApplyHasPriority();
+                msg.Priority.Count = 1;
+                msg.Priority.PriorityClass = 1;
+            }
+            if (msgParameters.Ack)
+            {
+                msg.ApplyAck();
+            }
+            if (msgParameters.HasPartNum)
+            {
+                msg.ApplyHasPartNum();
+                msg.PartNum = defaultPartNum;
+            }
+            if (msgParameters.HasPostUserInfo)
+            {
+                msg.ApplyHasPostUserInfo();
+                msg.PostUserInfo.UserAddrFromString(defaultUserAddr);
+                msg.PostUserInfo.UserId = defaultUserId;
+            }
+            if (msgParameters.HasPostUserRights)
+            {
+                msg.ApplyHasPostUserRights();
+                msg.PostUserRights = defaultPostUserRights;
+            }
+            if (msgParameters.QualifiedStream)
+            {
+                msg.ApplyQualifiedStream();
+            }
+            if (msgParameters.SecondarySeqNum != 0)
+            {
+                msg.ApplyHasSecondarySeqNum();
+                msg.SecondarySeqNum = msgParameters.SecondarySeqNum;
+            }
+            if (msgParameters.Solicited)
+            {
+                msg.ApplySolicited();
+            }
+            if (msgParameters.ClearCache)
+            {
+                msg.ApplyClearCache();
+            }
+            if (msgParameters.MessageComplete)
+            {
+                msg.ApplyMessageComplete();
+            }
+            if (msgParameters.Discardable)
+            {
+                msg.ApplyDiscardable();
+            }
+            if (msgParameters.HasGroupId)
+            {
+                msg.ApplyHasGroupId();
+                msg.GroupId = groupId;
+            }
+            if (msgParameters.HasConfInfo)
+            {
+                msg.ApplyHasConfInfo();
+                msg.ConflationCount = 1;
+                msg.ConflationTime = 1;
+            }
+            if (msgParameters.HasMsgKeyInUpdates)
+            {
+                msg.ApplyMsgKeyInUpdates();
+            }
+            if (msgParameters.HasConfInfoInUpdates)
+            {
+                msg.ApplyConfInfoInUpdates();
+            }
+
+            EncodeIterator payloadIter = new EncodeIterator();
+            Buffer buffer = new Buffer();
+            buffer.Data(new ByteBuffer(500));
+            payloadIter.Clear();
+            payloadIter.SetBufferAndRWFVersion(buffer, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            EncodeDefaultContainer(payloadIter, msgParameters.PayloadType);
+            msg.EncodedDataBody = buffer;
+            Assert.Equal(CodecReturnCode.SUCCESS, msg.Encode(encIter));
+        }
+
+        public static void DecodeMsgWithVariableGroupIdToXMLAndCheck(Buffer msg, MsgParameters msgParameters, Buffer groupId, string expectedResult)
+        {
+            Msg message = new Msg();
+            DecodeIterator decIter = new DecodeIterator();
+            decIter.SetBufferAndRWFVersion(msg, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            String xml = message.DecodeToXml(decIter);
+            var document = new XmlDocument();
+            document.LoadXml(xml);
+            var comments = document.FirstChild;
+            Assert.Equal(XmlNodeType.Comment, comments.NodeType);
+            var msgNode = comments.NextSibling;
+            CheckMsgClass(msgParameters.MsgClass, msgNode.Name);
+
+            Assert.True(msgNode.Attributes.Count > 0);
+
+            var domainType = msgNode.Attributes["domainType"];
+            Assert.NotNull(domainType);
+            Assert.Equal(domainType.Value, DomainTypeToString(msgParameters.MsgDomainType));
+
+            var payloadType = msgNode.Attributes["containerType"];
+            Assert.NotNull(payloadType);
+            Assert.Equal(payloadType.Value, PayloadTypeToStirng(msgParameters.PayloadType));
+
+            Assert.NotNull(msgNode.Attributes["dataSize"]);
+
+            var flagsNode = msgNode.Attributes["flags"];
+            if (flagsNode != null)
+            {
+                var flags = flagsNode.Value;
+
+                Assert.Equal(msgParameters.HasExtendedHeader, flags.Contains("HAS_EXTENDED_HEADER"));
+                Assert.Equal(msgParameters.HasPriority, flags.Contains("HAS_PRIORITY"));
+                Assert.Equal(msgParameters.HasPriority, msgNode.Attributes["priorityCount"] != null);
+                Assert.Equal(msgParameters.HasPriority, msgNode.Attributes["priorityClass"] != null);
+                Assert.Equal(msgParameters.Streaming, flags.Contains("STREAMING"));
+                Assert.Equal(msgParameters.HasQos, flags.Contains("HAS_QOS"));
+                Assert.Equal(msgParameters.HasQos, msgNode.Attributes["qos"] != null);
+                Assert.Equal(msgParameters.HasState || msgParameters.MsgClass == MsgClasses.REFRESH, msgNode.Attributes["state"] != null);
+                Assert.Equal(msgParameters.SeqNum != 0, flags.Contains("HAS_SEQ_NUM"));
+                Assert.Equal(msgParameters.SeqNum != 0, msgNode.Attributes["seqNum"] != null && msgNode.Attributes["seqNum"].Value.Equals(msgParameters.SeqNum.ToString()));
+                Assert.Equal(msgParameters.PostComplete, flags.Contains("POST_COMPLETE"));
+                Assert.Equal(msgParameters.Ack, flags.Contains("ACK"));
+                Assert.Equal(msgParameters.HasPermData, flags.Contains("HAS_PERM_DATA"));
+                Assert.Equal(msgParameters.HasPermData, msgNode.Attributes["permData"] != null);
+                Assert.Equal(msgParameters.DoNotCache, flags.Contains("DO_NOT_CACHE"));
+                Assert.Equal(msgParameters.DoNotConflate, flags.Contains("DO_NOT_CONFLATE"));
+                Assert.Equal(msgParameters.DoNotRipple, flags.Contains("DO_NOT_RIPPLE"));
+                Assert.Equal(msgParameters.RefreshComplete, flags.Contains("REFRESH_COMPLETE"));
+                Assert.Equal(msgParameters.HasMsgKeyInUpdates, flags.Contains("MSG_KEY_IN_UPDATES"));
+                Assert.Equal(msgParameters.HasConfInfoInUpdates, flags.Contains("CONF_INFO_IN_UPDATES"));
+                Assert.Equal(msgParameters.HasWorstQos, flags.Contains("HAS_WORST_QOS"));
+                Assert.Equal(msgParameters.HasWorstQos, msgNode.Attributes["worstQos"] != null);
+                Assert.Equal(msgParameters.QualifiedStream, flags.Contains("QUALIFIED_STREAM"));
+                Assert.Equal(msgParameters.HasConfInfo, flags.Contains("HAS_CONF_INFO"));
+                Assert.Equal(msgParameters.HasPostUserInfo, flags.Contains("HAS_POST_USER_INFO"));
+                Assert.Equal(msgParameters.HasPostUserInfo || msgParameters.MsgClass == MsgClasses.POST, msgNode.Attributes["postUserId"] != null && msgNode.Attributes["postUserId"].Value.Equals(defaultUserId.ToString()));
+                Assert.Equal(msgParameters.HasPostUserInfo || msgParameters.MsgClass == MsgClasses.POST, msgNode.Attributes["postUserAddr"] != null && msgNode.Attributes["postUserAddr"].Value.Equals(defaultUserAddr.ToString()));
+                Assert.Equal(msgParameters.Discardable, flags.Contains("DISCARDABLE"));
+                Assert.Equal(msgParameters.ClearCache, flags.Contains("CLEAR_CACHE"));
+                Assert.Equal(msgParameters.Solicited, flags.Contains("SOLICITED"));
+                Assert.Equal(msgParameters.MessageComplete, flags.Contains("MESSAGE_COMPLETE"));
+                Assert.Equal(msgParameters.HasGroupId && msgParameters.MsgClass != MsgClasses.REFRESH, flags.Contains("HAS_GROUP_ID"));
+                Assert.Equal(msgParameters.HasGroupId || msgParameters.MsgClass == MsgClasses.REFRESH, msgNode.Attributes["groupId"] != null);
+                Assert.Equal(msgParameters.HasGroupId && msgParameters.MsgClass != MsgClasses.REFRESH, msgNode.Attributes["groupId"].Value.Equals(expectedResult));
+                Assert.Equal(msgParameters.MsgClass == MsgClasses.ACK, msgNode.Attributes["ackId"] != null && defaultAckId.ToString().Equals(msgNode.Attributes["ackId"].Value));
+                Assert.Equal(msgParameters.HasPartNum, flags.Contains("HAS_PART_NUM"));
+                Assert.Equal(msgParameters.HasPartNum, msgNode.Attributes["partNum"] != null);
+                Assert.Equal(msgParameters.SecondarySeqNum != 0, flags.Contains("HAS_SECONDARY_SEQ_NUM"));
+                Assert.Equal(msgParameters.HasPartNum, msgNode.Attributes["partNum"] != null);
+                Assert.Equal(msgParameters.HasPostId, flags.Contains("HAS_POST_ID"));
+                Assert.Equal(msgParameters.HasPostId, msgNode.Attributes["postId"] != null && msgNode.Attributes["postId"].Value.Equals(defaultPostId.ToString()));
+            }
+
+            var nodesEnumer = msgNode.ChildNodes.GetEnumerator();
+            Boolean hasNext = nodesEnumer.MoveNext();
+            if (msgParameters.HasMsgKey || msgParameters.MsgClass == MsgClasses.REQUEST)
+            {
+                Assert.True(hasNext);
+                var node = (XmlNode)nodesEnumer.Current;
+                Assert.Equal("key", node.Name);
+                Assert.True(node.Attributes.Count > 0);
+                var keyName = node.Attributes["name"];
+                Assert.NotNull(keyName);
+                Assert.Equal(msgKeyBuffer.ToString(), keyName.Value);
+                hasNext = nodesEnumer.MoveNext();
+            }
+            if (msgParameters.HasExtendedHeader)
+            {
+                Assert.True(hasNext);
+                var node = (XmlNode)nodesEnumer.Current;
+                Assert.Equal("extendedHeader", node.Name);
+                hasNext = nodesEnumer.MoveNext();
+            }
+            if (msgParameters.PayloadType != DataTypes.NO_DATA)
+            {
+                Assert.True(hasNext);
+                var node = (XmlNode)nodesEnumer.Current;
+                Assert.Equal("dataBody", node.Name);
+                var body = node.FirstChild;
+                Assert.Equal(body.Name, DataBodyPayload(msgParameters.PayloadType));
+            }
+
+        }
+
 
         public static void DecodeXMLArrayAndCheck(Buffer arrayBuf, int dataType)
         {
@@ -2540,6 +2831,28 @@ namespace LSEG.Eta.Tests
                 default:
                     break;
             }
+        }
+
+        /// <summary>
+        /// Converts any message to XML.
+        /// </summary>
+        /// <remarks>Pretty slow for production use.</remarks>
+        /// <param name="msg"></param>
+        /// <returns>Returns string with XML representation of <paramref name="msg"/>.</returns>
+        public static string ToXml(this IMsg msg)
+        {
+            var buf = new Buffer();
+            var byteBuf = new ByteBuffer(1024);
+            buf.Data(byteBuf);
+
+            var encIter = new EncodeIterator();
+            encIter.SetBufferAndRWFVersion(buf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            msg.Encode(encIter);
+
+            var decIter = new DecodeIterator();
+            decIter.SetBufferAndRWFVersion(buf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            var dummyMsg = new Msg();
+            return dummyMsg.DecodeToXml(decIter);
         }
     }
 

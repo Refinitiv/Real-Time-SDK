@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -245,7 +245,7 @@ namespace LSEG.Ema.Access
 
                             if(!AcceptMessageSameKeyButDiffStream)
                             {
-                                if(clientSession.CheckingExistingReq(itemInfo))
+                                if(clientSession.CheckingExistingReq(itemInfo) && !itemInfo.IsPrivateStream)
                                 {
                                     using var lockScope = m_OmmServerBaseImpl.GetUserLocker().EnterLockScope();
                                     StringBuilder text = m_OmmServerBaseImpl.GetStrBuilder()

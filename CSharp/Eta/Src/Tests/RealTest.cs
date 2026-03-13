@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -423,5 +423,118 @@ namespace LSGE.Eta.Tests.Codecs
 
         }
 
+        [Fact]
+        [Category("Unit")]
+        public void RealBoundaryTests()
+        {
+            Real real = new Real();
+            CodecReturnCode ret = real.Value("9223372036854775807"); // long.MaxValue
+
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(9223372036854775807L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, real.Hint);
+            Assert.Equal("9223372036854775807", real.ToString());
+
+            real.Clear();
+            ret = real.Value("9223372036854775807.0");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("-9223372036854775808"); // long.MinValue
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(-9223372036854775808L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, real.Hint);
+            Assert.Equal("-9223372036854775808", real.ToString());
+
+            real.Clear();
+            ret = real.Value("-9223372036854775808.0");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("-9223372036854775808.00");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("-9223372036854775.808");
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(-9223372036854775808L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_3, real.Hint);
+            Assert.Equal("-9223372036854776", real.ToString());
+
+            real.Clear();
+            ret = real.Value("-9223372036854775.8080");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("9223372036854775.807");
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(9223372036854775807L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_3, real.Hint);
+            Assert.Equal("9223372036854776", real.ToString());
+
+            real.Clear();
+            ret = real.Value("9223372036854775.8070");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("-9223372036854775809");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value("9223372036854775808");
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value(ulong.MaxValue.ToString());
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value(9223372036854775.7, RealHints.EXPONENT_1);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(92233720368547760L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_1, real.Hint);
+            Assert.Equal("9223372036854776", real.ToString());
+
+            real.Clear();
+            ret = real.Value(-9223372036854775.8, RealHints.EXPONENT_1);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(-92233720368547760L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_1, real.Hint);
+            Assert.Equal("-9223372036854776", real.ToString());
+
+            real.Clear();
+            ret = real.Value(9223372036854778.808, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            ret = real.Value(-9223372036854779.900, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            float floatValue = 92233720368.55f;
+            ret = real.Value(floatValue, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(92233719808000L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_3, real.Hint);
+            Assert.Equal("92233719808", real.ToString());
+
+            real.Clear();
+            floatValue = -92233720368.54f;
+            ret = real.Value(floatValue, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+            Assert.Equal(-92233719808000L, real.ToLong());
+            Assert.Equal(RealHints.EXPONENT_3, real.Hint);
+            Assert.Equal("-92233719808", real.ToString());
+
+            real.Clear();
+            floatValue = 9223372036854775807.7f;
+            ret = real.Value(floatValue, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+
+            real.Clear();
+            floatValue = -9223372036854775808.8f;
+            ret = real.Value(floatValue, RealHints.EXPONENT_3);
+            Assert.Equal(CodecReturnCode.INVALID_ARGUMENT, ret);
+        }
     }
 }

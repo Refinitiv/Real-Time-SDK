@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023 LSEG. All rights reserved.
+ *|           Copyright (C) 2023,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Categories;
+using Xunit.Sdk;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.Tests
@@ -378,6 +379,38 @@ namespace LSEG.Eta.Tests
                             CodecTestUtil.EncodeMessage(encIter, msgParameters);
                             CodecTestUtil.DecodeMsgToXMLAndCheck(buffer, msgParameters);
                         }
+        }
+
+        [Fact]
+        public void CanXMLDecodeGroupId()
+        {
+            string[] groupIds = { "10", "5", "12345", "10.20.30" };
+            string[] expectedResults = { "12592", "13576", "12594.13108.13576", "12592.11826.12334.13104" };
+            int count = 0;
+            foreach (string id in groupIds)
+            {
+                EncodeIterator encIter = new EncodeIterator();
+                Buffer buffer = new Buffer();
+                buffer.Data(new ByteBuffer(10000));
+                encIter.SetBufferAndRWFVersion(buffer, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+                MsgParameters msgParameters = new MsgParameters()
+                {
+                    MsgClass = MsgClasses.STATUS,
+                    MsgDomainType = (int)DomainType.SOURCE,
+                    StreamId = 1,
+                    HasGroupId = true,
+                    PayloadType = DataTypes.ELEMENT_LIST
+                };
+
+                Buffer groupId = new Buffer();
+                groupId.Data(id);
+
+                CodecTestUtil.EncodeGroupId(encIter, msgParameters, groupId);
+                CodecTestUtil.DecodeMsgWithVariableGroupIdToXMLAndCheck(buffer, msgParameters, groupId, expectedResults[count]);
+
+                count++;
+            }
         }
 
         [Fact]

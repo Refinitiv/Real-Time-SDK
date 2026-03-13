@@ -41,6 +41,10 @@
 				<RestProxyPort value="3128" />
 				<UpdateTypeFilter value="2"/>
 				<NegativeUpdateTypeFilter value="4"/>
+				<CatchUnhandledExceptions value="1" />
+				<EmaObjectManagerDataTypeLimit value="5" />
+				<EmaObjectManagerComplexTypeLimit value="6" />
+				<EmaObjectManagerMsgTypeLimit value="7" />
 			</Consumer>
 			<!-- ChannelSet should override Channel here. -->
 			<Consumer>
@@ -88,6 +92,10 @@
 				<RemoveItemsOnDisconnect value="0"/>
 				<ServiceCountHint value="160"/>
 				<XmlTraceToStdout value="1"/>
+				<CatchUnhandledExceptions value="1" />
+				<EmaObjectManagerDataTypeLimit value="5" />
+				<EmaObjectManagerComplexTypeLimit value="6" />
+				<EmaObjectManagerMsgTypeLimit value="7" />
 			</NiProvider>
 				<!-- ChannelSet should override Channel here. -->
 			<NiProvider>
@@ -127,6 +135,10 @@
 				<EnforceAckIDValidation value="1"/>
 				<EnumTypeFragmentSize value="90"/>
 				<FieldDictionaryFragmentSize value="100"/>
+				<CatchUnhandledExceptions value="1" />
+				<EmaObjectManagerDataTypeLimit value="5" />
+				<EmaObjectManagerComplexTypeLimit value="6" />
+				<EmaObjectManagerMsgTypeLimit value="7" />
 			</IProvider>
 			<!-- default values -->
 			<IProvider>

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -274,6 +274,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             if (msg.ContainerType != DataTypes.ELEMENT_LIST)
                 return CodecReturnCode.FAILURE;
 
+            bool ticksPresent = false;
             Clear();
             StreamId = msg.StreamId;
             if ((msg.Flags & GenericMsgFlags.PROVIDER_DRIVEN) != 0)
@@ -302,6 +303,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     if (ret != CodecReturnCode.SUCCESS)
                         return ret;
                     Ticks = tmpUInt.ToLong();
+                    ticksPresent = true;
                 }
                 else if (elementEntry.Name.Equals(ElementNames.ROUND_TRIP_LATENCY))
                 {
@@ -326,6 +328,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     TCPRetrans = tmpUInt.ToLong();
                 }
             }
+
+            if (!ticksPresent) return CodecReturnCode.FAILURE;
 
             return CodecReturnCode.SUCCESS;
         }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -214,7 +214,7 @@ public class OAuth2RenewalTests
     /// to establish a network connection to the servers.</para>
     ///
     /// </remarks>
-    [Fact(Skip = "Test depends on provider that refuses to connect")]
+    [Fact]
     public void SimpleRenewal_Test()
     {
         output.WriteLine("SimpleRenewal_Test() BEGIN");

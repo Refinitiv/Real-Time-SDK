@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -76,6 +76,10 @@ namespace LSEG.Ema.Access
             XmlTracePing = oldConfig.XmlTracePing;
             UpdateTypeFilter = oldConfig.UpdateTypeFilter;
             NegativeUpdateTypeFilter = oldConfig.NegativeUpdateTypeFilter;
+            CatchUnhandledExceptions = oldConfig.CatchUnhandledExceptions;
+            EmaObjectManagerMsgTypeLimit = oldConfig.EmaObjectManagerMsgTypeLimit;
+            EmaObjectManagerDataTypeLimit = oldConfig.EmaObjectManagerDataTypeLimit;
+            EmaObjectManagerComplexTypeLimit = oldConfig.EmaObjectManagerComplexTypeLimit;
         }
 
         public string Name { get; set; } = string.Empty;
@@ -165,6 +169,12 @@ namespace LSEG.Ema.Access
         public bool XmlTracePing { get; set; }
         public ulong UpdateTypeFilter { get; set; }
         public ulong NegativeUpdateTypeFilter { get; set; }
+        public bool CatchUnhandledExceptions { get; set; }
+
+        public int EmaObjectManagerDataTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerMsgTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerComplexTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+
 
         // Clears the Consumer structure and sets the default options.
         public void Clear()
@@ -216,6 +226,11 @@ namespace LSEG.Ema.Access
             XmlTracePing = false;
             UpdateTypeFilter = 0;
             NegativeUpdateTypeFilter = 0;
+            CatchUnhandledExceptions = false;
+
+            EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
         }
 
         // Copy method, produces a deep copy into DestConfig.
@@ -271,6 +286,12 @@ namespace LSEG.Ema.Access
 
             DestConfig.UpdateTypeFilter = UpdateTypeFilter;
             DestConfig.NegativeUpdateTypeFilter = NegativeUpdateTypeFilter;
+
+            DestConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
+
+            DestConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManagerComplexTypeLimit;
+            DestConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManagerMsgTypeLimit;
+            DestConfig.EmaObjectManagerDataTypeLimit = EmaObjectManagerDataTypeLimit;
         }
     }
 }

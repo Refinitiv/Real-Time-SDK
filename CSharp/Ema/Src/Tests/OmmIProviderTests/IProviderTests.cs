@@ -1705,9 +1705,9 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 
                 Assert.Single(ommServerBaseImpl.ConnectedChannelList);
 
-                simpleConsumer.SubmitItemRequest(streamID, (int)serviceID, itemName, domainType, true, userDispatch ? true : false);
+                simpleConsumer.SubmitItemRequest(streamID, (int)serviceID, itemName, domainType, true, false);
 
-                simpleConsumer.SubmitItemRequest(streamID + 1, (int)serviceID, itemName, domainType, true, userDispatch ? true : false);
+                simpleConsumer.SubmitItemRequest(streamID + 1, (int)serviceID, itemName, domainType, true, false);
 
                 if (userDispatch)
                 {
@@ -1738,10 +1738,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
                         Assert.Equal(EmaRdm.MMT_MARKET_PRICE, statusMsg.DomainType);
                         Assert.Equal(DataTypes.NO_DATA, statusMsg.ContainerType);
 
-                        if (userDispatch)
-                            Assert.True(statusMsg.CheckPrivateStream());
-                        else
-                            Assert.False(statusMsg.CheckPrivateStream());
+                        Assert.False(statusMsg.CheckPrivateStream());
 
                         Assert.True(statusMsg.CheckHasState());
                         Assert.Equal(StreamStates.CLOSED_RECOVER, statusMsg.State.StreamState());

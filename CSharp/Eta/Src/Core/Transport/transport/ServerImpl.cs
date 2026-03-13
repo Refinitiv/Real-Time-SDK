@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -327,7 +327,11 @@ namespace LSEG.Eta.Transports
                         options.BindEncryptionOpts.ServerPrivateKey);
 
                     /* This is workaround for SChannel on Windows as persisted store is required */
+#if NET10_0_OR_GREATER
+                    ServerCertificate = X509CertificateLoader.LoadPkcs12(serverCertificate.Export(X509ContentType.Pkcs12), null);
+#else
                     ServerCertificate = new X509Certificate2(serverCertificate.Export(X509ContentType.Pkcs12));
+#endif
                 }
                 catch (Exception ex)
                 {

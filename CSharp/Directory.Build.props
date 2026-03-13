@@ -2,7 +2,7 @@
   <!--
       Add flexibility for target platform selection: depending on the
       the "EsdkTargetFramework" build property value either a single
-      target platform (net6.0 or net8.0) is selected, or all supported
+      target platform (net10.0 or net8.0) is selected, or all supported
       platforms are targeted at once.
 
       Default target platform is in the "Otherwise" clause.
@@ -12,14 +12,14 @@
         dotnet build -c Release -p:EsdkTargetFramework=all
   -->
   <Choose>
-    <When Condition="'$(EsdkTargetFramework)' == 'net6.0' Or '$(EsdkTargetFramework)' == 'net8.0'">
+    <When Condition="'$(EsdkTargetFramework)' == 'net10.0' Or '$(EsdkTargetFramework)' == 'net8.0'">
       <PropertyGroup>
         <TargetFramework>$(EsdkTargetFramework)</TargetFramework>
       </PropertyGroup>
     </When>
     <When Condition="'$(EsdkTargetFramework)' == 'all'">
       <PropertyGroup>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
       </PropertyGroup>
     </When>
     <Otherwise>
@@ -32,8 +32,8 @@
   <PropertyGroup>
     <Company>LSEG</Company>
     <Authors>LSEG</Authors>
-    <!-- Restrict language features only to those supported by NET 6 -->
-    <LangVersion>10.0</LangVersion>
+    <!-- Restrict language features only to those supported by NET 8 -->
+    <LangVersion>12.0</LangVersion>
   </PropertyGroup>
 
 </Project>

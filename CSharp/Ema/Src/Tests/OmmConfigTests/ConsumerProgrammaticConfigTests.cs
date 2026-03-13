@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.                   --
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -200,6 +200,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
                 .AddUInt("XmlTraceWrite", 1)
                 .AddUInt("XmlTraceRead", 1)
                 .AddUInt("XmlTracePing", 0)
+                .AddUInt("CatchUnhandledExceptions", (ulong)1)
                 .MarkForClear().Complete();
 
             innerMap.AddKeyAscii("ProgConsumer_1", MapAction.ADD, encodeObjectList);
@@ -370,6 +371,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.True(testConsConfig.XmlTraceWrite);
             Assert.True(testConsConfig.XmlTraceRead);
             Assert.False(testConsConfig.XmlTracePing);
+            Assert.True(testConsConfig.CatchUnhandledExceptions);
 
 
             // ProgConsumer_2 has all defaults except for ChannelSet.

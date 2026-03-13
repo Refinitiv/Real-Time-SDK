@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -270,7 +270,7 @@ public class ReactorWlLoginHandlerTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* submit a item request messages */
         requestMsg.Clear();
@@ -397,7 +397,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(0, pausedCount);
         Assert.Equal(1, itemCount);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -448,7 +448,7 @@ public class ReactorWlLoginHandlerTest
         opts.SetupDefaultDirectoryStream = true;
 
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit a item request messages
         requestMsg.Clear();
@@ -558,7 +558,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(0, pausedCount);
         Assert.Equal(1, itemCount);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -623,7 +623,7 @@ public class ReactorWlLoginHandlerTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit a item request messages
         requestMsg.Clear();
@@ -776,7 +776,7 @@ public class ReactorWlLoginHandlerTest
         Assert.Equal(0, pausedCount);
         Assert.Equal(1, itemCount);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -882,7 +882,7 @@ public class ReactorWlLoginHandlerTest
         opts.ReconnectMaxDelay = TimeSpan.FromMilliseconds(reconnectMaxDelay);
 
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1351,7 +1351,7 @@ public class ReactorWlLoginHandlerTest
             provLoginStreamId = recvLoginRequest.StreamId;
         }
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -1409,7 +1409,7 @@ public class ReactorWlLoginHandlerTest
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Provider receives login request. */
             provider.TestReactor.Dispatch(1);
@@ -1464,7 +1464,7 @@ public class ReactorWlLoginHandlerTest
             Assert.Equal(LoginMsgType.CLOSE, loginMsgEvent.LoginMsg.LoginMsgType);
             Assert.Equal(provLoginStreamId, loginMsgEvent.LoginMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
     }
@@ -1617,7 +1617,7 @@ public class ReactorWlLoginHandlerTest
             opts.SetupDefaultDirectoryStream = false;
             provider.Bind(opts);
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             output.WriteLine($"{test} 2) Provider dispatching, expects login request[0]");
@@ -1904,7 +1904,7 @@ public class ReactorWlLoginHandlerTest
             opts.SetupDefaultDirectoryStream = false;
             provider.Bind(opts);
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             output.WriteLine($"{test} 2) Provider dispatching, expects login request[0]");
@@ -2120,7 +2120,7 @@ public class ReactorWlLoginHandlerTest
                 Assert.Equal(consRefresh[1].UserName.ToString(), userNames[1]);
             output.WriteLine($"{test} 9) Consumer validated login refresh[1]");
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
         output.WriteLine($"{test} Done{NewLine}");
@@ -2213,7 +2213,7 @@ public class ReactorWlLoginHandlerTest
             provider.Bind(opts);
 
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             output.WriteLine($"{test} 2) Provider dispatching, expects login request[0]");
@@ -2567,7 +2567,7 @@ public class ReactorWlLoginHandlerTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -2705,7 +2705,7 @@ public class ReactorWlLoginHandlerTest
         /* Provider receives nothing. */
         providerReactor.Dispatch(0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 
@@ -2811,7 +2811,7 @@ public class ReactorWlLoginHandlerTest
             provider.Bind(opts);
 
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             provider.TestReactor.Dispatch(0);
@@ -2928,7 +2928,7 @@ public class ReactorWlLoginHandlerTest
                 Assert.Equal(consRefresh[1].UserName.ToString(), userNames[0]);
             output.WriteLine($"{test} 9) Consumer validated login refresh[0]");
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
         output.WriteLine($"{test} Done{NewLine}");
@@ -3039,7 +3039,7 @@ public class ReactorWlLoginHandlerTest
             provider.Bind(opts);
 
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             provider.TestReactor.Dispatch(0);
@@ -3094,7 +3094,7 @@ public class ReactorWlLoginHandlerTest
             output.WriteLine($"{test} N) provider should not receive anything before recovery");
 
             output.WriteLine($"{test}R) Consumer recovery");
-            TestReactor.OpenSession(consumer, provider, opts, true);
+            TestReactorSession.OpenSession(consumer, provider, opts, true);
 
             output.WriteLine($"{test}R.0) Provider recovery - still nothing at provider side");
             provider.TestReactor.Dispatch(0);
@@ -3190,7 +3190,7 @@ public class ReactorWlLoginHandlerTest
                 Assert.Equal(consRefresh[1].UserName.ToString(), userNames[0]);
             output.WriteLine($"{test} 9) Consumer validated login refresh[1]");
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
         output.WriteLine($"{test} Done{NewLine}");
@@ -3302,7 +3302,7 @@ public class ReactorWlLoginHandlerTest
             provider.Bind(opts);
 
             output.WriteLine($"{test} 1) Consumer sending login request[0]");
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
             output.WriteLine($"{test} 1) Consumer sent login request[0]");
 
             provider.TestReactor.Dispatch(0);
@@ -3383,7 +3383,7 @@ public class ReactorWlLoginHandlerTest
             output.WriteLine($"{test} X) provider should not receive anything before recovery");
 
             output.WriteLine($"{test}R) Consumer recovery");
-            TestReactor.OpenSession(consumer, provider, opts, true);
+            TestReactorSession.OpenSession(consumer, provider, opts, true);
 
             output.WriteLine($"{test}R.0) Provider recovery - still nothing at provider side");
             provider.TestReactor.Dispatch(0);
@@ -3483,7 +3483,7 @@ public class ReactorWlLoginHandlerTest
                 Assert.Equal(consRefresh[1].UserName.ToString(), userNames[0]);
             output.WriteLine($"{test} 11) Consumer validated login refresh[1]");
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor);
         }
         output.WriteLine($"{test} Done{NewLine}");
@@ -3546,7 +3546,7 @@ public class ReactorWlLoginHandlerTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -3681,7 +3681,7 @@ public class ReactorWlLoginHandlerTest
 
         consumerReactor.Dispatch(0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor);
     }
 

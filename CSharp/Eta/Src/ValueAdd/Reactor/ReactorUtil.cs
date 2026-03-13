@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,8 +20,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TicksPerSecond = Stopwatch.Frequency;
             TicksPerMilliSecond = Stopwatch.Frequency / 1000.0;
 
+            // Attempt to pricisely map current date time with system timer timestamp
+            // using average timestamp value between before & after DateTime.Now
+            var nowMs = GetCurrentTimeMilliSecond();
             _initialDT = DateTime.Now;
-            _initialTimeMs = GetCurrentTimeMilliSecond();
+            _initialTimeMs = nowMs + (GetCurrentTimeMilliSecond() - nowMs) / 2;
         }
 
         public static double TicksPerSecond { get; private set; }

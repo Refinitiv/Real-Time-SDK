@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -271,9 +271,10 @@ public abstract class TestReactorComponent : IDisposable
     /// <summary>
     /// Disconnect a consumer and provider component and clean them up.
     /// </summary>
+    [Obsolete("Use TestReactorSession instead")]
     public static void CloseSession(Consumer consumer, Provider provider)
     {
-        CloseSession(consumer, provider, false);
+        TestReactorSession.CloseSession(consumer, provider, false);
     }
 
 
@@ -281,14 +282,10 @@ public abstract class TestReactorComponent : IDisposable
     /// Disconnect a consumer and provider component and clean them up.
     /// Do additional checks to not fail on dirty client disonnection.
     /// </summary>
+    [Obsolete("Use TestReactorSession instead")]
     public static void CloseSession(Consumer consumer, Provider provider, bool expectConsumerFailure)
     {
-        /* Make sure there's nothing left in the dispatch queue. */
-        consumer.TestReactor.Dispatch(0, expectConsumerFailure);
-        provider.TestReactor.Dispatch(0);
-
-        consumer.Close();
-        provider.Close();
+        TestReactorSession.CloseSession(consumer, provider, expectConsumerFailure);
     }
 
     /// <summary>

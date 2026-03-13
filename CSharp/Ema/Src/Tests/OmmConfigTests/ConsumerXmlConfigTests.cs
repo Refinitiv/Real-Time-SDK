@@ -1,11 +1,10 @@
-﻿/*|-----------------------------------------------------------------------------
- *|            This source code is provided under the Apache 2.0 license      --
- *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
- *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.              --
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
+ *|                See the project's LICENSE.md for details.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
-
 
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
@@ -98,6 +97,9 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.True(testConsConfig.XmlTraceWrite);
             Assert.True(testConsConfig.XmlTraceRead);
             Assert.False(testConsConfig.XmlTracePing);
+            Assert.Equal(5, testConsConfig.EmaObjectManagerDataTypeLimit);
+            Assert.Equal(6, testConsConfig.EmaObjectManagerComplexTypeLimit);
+            Assert.Equal(7, testConsConfig.EmaObjectManagerMsgTypeLimit);
         }
 
         [Fact]
@@ -316,6 +318,31 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal(defaultDictConfig.EnumTypeDefItemName, testDictConfig.EnumTypeDefItemName);
             Assert.Equal(defaultDictConfig.RdmFieldDictionaryFileName, testDictConfig.RdmFieldDictionaryFileName);
             Assert.Equal(defaultDictConfig.RdmFieldDictionaryItemName, testDictConfig.RdmFieldDictionaryItemName);
+        }
+
+        [Fact]
+        public void SimpleConsumerXmlConfigTest()
+        {
+            OmmConsumerConfig consumerConfig;
+
+            consumerConfig = new OmmConsumerConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+
+            OmmConsumerConfigImpl consConfigImpl = consumerConfig.OmmConsConfigImpl;
+            Assert.Equal("TestConsumer", consConfigImpl.FirstConfiguredConsumerName);
+            ConsumerConfig testConfig = consConfigImpl.ConsumerConfigMap["TestConsumer"];
+
+            Assert.Equal((ulong)1, testConfig.SessionEnhancedItemRecovery);
+            Assert.Equal(10, testConfig.DictionaryRequestTimeOut);
+            Assert.Equal(20, testConfig.DirectoryRequestTimeOut);
+            Assert.Equal(30, testConfig.LoginRequestTimeOut);
+            Assert.Equal(-1, testConfig.DispatchTimeoutApiThread);
+            Assert.True(testConfig.EnableRtt);
+            Assert.Equal((uint)50, testConfig.ItemCountHint);
+            Assert.Equal(60, testConfig.MaxDispatchCountApiThread);
+            Assert.Equal(70, testConfig.MaxDispatchCountUserThread);
+            Assert.Equal((uint)80, testConfig.MaxOutstandingPosts);
+            Assert.Equal(1300, testConfig.ReconnectMinDelay);
+            Assert.True(testConfig.CatchUnhandledExceptions);
         }
 
         // Xml Config loading and parsing test

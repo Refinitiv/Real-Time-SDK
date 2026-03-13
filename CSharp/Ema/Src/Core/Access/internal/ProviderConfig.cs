@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -25,6 +25,10 @@ namespace LSEG.Ema.Access
         public ulong RequestTimeout { get; set; }
         public int ServiceCountHint { get; set; }
 
+        public int EmaObjectManagerDataTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerMsgTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+        public int EmaObjectManagerComplexTypeLimit { get; set; } = EmaObjectManager.INITIAL_POOL_SIZE;
+
         public bool XmlTraceToFile { get; set; }
         public bool XmlTraceToStdout { get; set; }
         public string XmlTraceFileName { get; set; } = string.Empty;
@@ -33,6 +37,8 @@ namespace LSEG.Ema.Access
         public bool XmlTraceWrite { get; set; }
         public bool XmlTraceRead { get; set; }
         public bool XmlTracePing { get; set; }
+
+        public bool CatchUnhandledExceptions { get; set; }
 
         internal ProviderConfig()
         {
@@ -52,6 +58,9 @@ namespace LSEG.Ema.Access
             RefreshFirstRequired = oldConfig.RefreshFirstRequired;
             RequestTimeout = oldConfig.RequestTimeout;
             ServiceCountHint = oldConfig.ServiceCountHint;
+            EmaObjectManagerComplexTypeLimit = oldConfig.EmaObjectManagerComplexTypeLimit;
+            EmaObjectManagerDataTypeLimit = oldConfig.EmaObjectManagerDataTypeLimit;
+            EmaObjectManagerMsgTypeLimit = oldConfig.EmaObjectManagerMsgTypeLimit;
 
             XmlTraceToStdout = oldConfig.XmlTraceToStdout;
             XmlTraceToFile = oldConfig.XmlTraceToFile;
@@ -61,6 +70,8 @@ namespace LSEG.Ema.Access
             XmlTraceWrite = oldConfig.XmlTraceWrite;
             XmlTraceRead = oldConfig.XmlTraceRead;
             XmlTracePing = oldConfig.XmlTracePing;
+
+            CatchUnhandledExceptions = oldConfig.CatchUnhandledExceptions;
         }
 
         internal void Copy(ProviderConfig destConfig)
@@ -85,6 +96,12 @@ namespace LSEG.Ema.Access
             destConfig.XmlTraceWrite = XmlTraceWrite;
             destConfig.XmlTraceRead = XmlTraceRead;
             destConfig.XmlTracePing = XmlTracePing;
+
+            destConfig.CatchUnhandledExceptions = CatchUnhandledExceptions;
+
+            destConfig.EmaObjectManagerComplexTypeLimit = EmaObjectManagerComplexTypeLimit;
+            destConfig.EmaObjectManagerDataTypeLimit = EmaObjectManagerDataTypeLimit;
+            destConfig.EmaObjectManagerMsgTypeLimit = EmaObjectManagerMsgTypeLimit;
         }
 
         internal void Clear()
@@ -109,6 +126,12 @@ namespace LSEG.Ema.Access
             XmlTraceWrite = true;
             XmlTraceRead = true;
             XmlTracePing = false;
+
+            CatchUnhandledExceptions = false;
+
+            EmaObjectManagerDataTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerComplexTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
+            EmaObjectManagerMsgTypeLimit = EmaObjectManager.INITIAL_POOL_SIZE;
         }
     }
 }

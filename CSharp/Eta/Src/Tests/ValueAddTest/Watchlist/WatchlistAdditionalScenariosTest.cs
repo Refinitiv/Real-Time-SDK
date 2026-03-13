@@ -2,21 +2,23 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
+using System.Text;
 using Xunit;
-using LSEG.Eta.Codec;
-using LSEG.Eta.ValueAdd.Reactor;
-using LSEG.Eta.Rdm;
-using LSEG.Eta.ValueAdd.Rdm;
+using Xunit.Abstractions;
 using Buffer = LSEG.Eta.Codec.Buffer;
-using LSEG.Eta.Common;
-using LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 {
@@ -28,6 +30,13 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
         Directory.ServiceFilterFlags.DATA |
         Directory.ServiceFilterFlags.LINK |
         Directory.ServiceFilterFlags.LOAD;
+
+        private readonly ITestOutputHelper m_Output;
+
+        public WatchlistAdditionalScenariosTest(ITestOutputHelper output)
+        {
+            m_Output = output;
+        }
 
         [Fact]
         public void WatchlistMiscBigPostMsgTest()
@@ -80,7 +89,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             provider.Bind(opts);
 
             opts.SysSendBufSize = 3 * 1024 * 1024;
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request first item. */
             requestMsg.Clear();
@@ -207,7 +216,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(providerStreamId, receivedPostMsg.StreamId);
             Assert.Equal(msgSize, receivedPostMsg.EncodedDataBody.Length);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -263,7 +272,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             provider.Bind(opts);
 
             opts.SysSendBufSize = 3 * 1024 * 1024;
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request first item. */
             requestMsg.Clear();
@@ -391,7 +400,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(providerStreamId, receivedGenericMsg.StreamId);
             Assert.Equal(msgSize, receivedGenericMsg.EncodedDataBody.Length);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -444,7 +453,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             int[] streamIdList = { 5, 6 };
 
@@ -939,7 +948,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1004,7 +1013,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Consumer sends incomplete post, with sequence number. */
             postMsg.MsgClass = MsgClasses.POST;
@@ -1066,7 +1075,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 receivedAckMsg.Text.ToString());
             Assert.Null(msgEvent.StreamInfo.ServiceName);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1118,7 +1127,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Tests that unacknowledged post messages are properly cleaned up on stream close. */
 
@@ -1294,7 +1303,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
             Assert.False(receivedRequestMsg.CheckNoRefresh());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1346,7 +1355,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Tests that unacknowledged post messages are properly cleaned up on stream close even though they had same postId, seqNum. */
 
@@ -1522,7 +1531,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(1, receivedRequestMsg.Priority.Count);
             Assert.False(receivedRequestMsg.CheckNoRefresh());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -1872,7 +1881,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(MsgClasses.CLOSE, msgEvent.Msg.MsgClass);
             Assert.Equal(providerStreamId, receivedRequestMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2036,7 +2045,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(MsgClasses.CLOSE, msgEvent.Msg.MsgClass);
             Assert.Equal(providerStreamId, receivedRequestMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2123,7 +2132,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 opts.SetupDefaultDirectoryStream = true;
 
                 provider.Bind(opts);
-                TestReactor.OpenSession(consumer, provider, opts);
+                TestReactorSession.OpenSession(consumer, provider, opts);
 
                 /* Request first item. */
                 requestMsg.Clear();
@@ -2242,7 +2251,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.True(receivedRequestMsg.CheckNoRefresh());
                 Assert.Equal(providerStreamId, receivedRequestMsg.StreamId);
 
-                TestReactorComponent.CloseSession(consumer, provider);
+                TestReactorSession.CloseSession(consumer, provider);
                 consumerReactor.Close();
                 providerReactor.Close();
             }
@@ -2321,7 +2330,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             var directoryRequest = WlDirectoryHandlerTests.CreateDirectoryRequest(Provider.DefaultService.ServiceId,
                 Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, 5);
@@ -2338,7 +2347,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(MsgClasses.REFRESH, msgEvent.Msg.MsgClass);
             Assert.Equal(5, msgEvent.Msg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2470,7 +2479,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(1, refreshMsg.ServiceList[0].Link.LinkList[0].LinkState);
             Assert.Equal(FilterEntryActions.SET, refreshMsg.ServiceList[0].Link.Action);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2609,7 +2618,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(FilterEntryActions.SET, refreshMsg.ServiceList[0].State.Action);
             Assert.Empty(refreshMsg.ServiceList[0].GroupStateList);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2652,7 +2661,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             consumerReactor.Dispatch(0); // User receives no messages because the stream associated with the default request is closed
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2814,7 +2823,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(service1Id, updateMsg.ServiceList[0].ServiceId);
             Assert.Equal(MapEntryActions.DELETE, updateMsg.ServiceList[0].Action);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -2892,7 +2901,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.Equal(dictionariesUsedList, updateMsg.ServiceList[i].Info.DictionariesUsedList);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3056,7 +3065,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             directoryMsgEvent = (RDMDirectoryMsgEvent)evt.ReactorEvent;
             Assert.Equal(DirectoryMsgType.REFRESH, directoryMsgEvent.DirectoryMsg.DirectoryMsgType);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3116,9 +3125,9 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.CloseChannel();
 
-            TestReactor.OpenSession(consumer, provider, opts, true); // connection is  successfully recovered
+            TestReactorSession.OpenSession(consumer, provider, opts, true); // connection is  successfully recovered
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3278,7 +3287,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3365,7 +3374,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal("TRI.N", receivedRequestMsg.MsgKey.Name.ToString());
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3478,7 +3487,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
             Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3620,7 +3629,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
             Assert.Equal("TRI.N", msgEvent.Msg.MsgKey.Name.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -3723,7 +3732,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
             Assert.NotEqual(providerStreamId1, msgEvent.Msg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -4163,7 +4172,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(consStreamIds[1], receivedUpdateMsg.StreamId);
             Assert.Equal("2222", msgEvent.StreamInfo.UserSpec);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -4416,7 +4425,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(1, requestMsg.Priority.PriorityClass);
             Assert.Equal(2, requestMsg.Priority.Count);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -4609,7 +4618,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -4867,7 +4876,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -4979,7 +4988,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
             Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5051,7 +5060,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             // Provider receives no more messages
             providerReactor.Dispatch(0);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5151,7 +5160,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             // Provider receives no more messages
             providerReactor.Dispatch(0);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5227,7 +5236,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal((int)DomainType.MARKET_PRICE, msgEvent.Msg.DomainType);
             Assert.Equal(providerStreamId, msgEvent.Msg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5360,7 +5369,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(reqMsg.MsgKey.CheckHasName());
             Assert.Equal("IBM.N", reqMsg.MsgKey.Name.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5486,7 +5495,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(reqMsg.MsgKey.CheckHasName());
             Assert.Equal("TRI.N", reqMsg.MsgKey.Name.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -5652,7 +5661,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.Equal(providerItemStream, msgEvent.Msg.StreamId);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6029,7 +6038,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.Equal(TestReactorEventType.MSG, evt.EventType);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6196,7 +6205,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(reqMsg.MsgKey.CheckHasName());
             Assert.Equal("TRI.N", reqMsg.MsgKey.Name.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6351,7 +6360,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             directoryMsgEvent = (RDMDirectoryMsgEvent)evt.ReactorEvent;
             Assert.Equal(DirectoryMsgType.REQUEST, directoryMsgEvent.DirectoryMsg.DirectoryMsgType);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6462,7 +6471,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             // Provider should not get any messages in response
             providerReactor.Dispatch(0);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6632,7 +6641,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal((int)DomainType.MARKET_PRICE, msgEvent.Msg.DomainType);
             Assert.Equal(5, msgEvent.Msg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -6679,7 +6688,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             providerRole.DefaultMsgCallback = provider;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
         }
 
         [Fact]
@@ -6726,7 +6735,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<string> view1List = new List<string> { "1111", "4444", "5555" };
             List<string> view1_1List = new List<string> { "1111", "4444" };
@@ -6961,7 +6970,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7001,7 +7010,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 6, 7 };
 
@@ -7172,7 +7181,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(WatchlistItemDomainsTest.CheckHasCorrectView(provider, receivedRequestMsg, view1List));
             Assert.Equal(providerStreamId, receivedRequestMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7212,7 +7221,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 6, 7 };
             List<int> view2List = new List<int> { 3, 22 };
@@ -7316,7 +7325,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(WatchlistItemDomainsTest.CheckHasCorrectView(provider, requestMsg, view2List));
             int providerStreamId2 = receivedRequestMsg.StreamId;
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7356,7 +7365,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 6, 7 };
             List<int> view2List = new List<int> { 6, 7 };
@@ -7459,7 +7468,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(providerStreamId, receivedRequestMsg.StreamId);
             Assert.True(WatchlistItemDomainsTest.CheckHasCorrectView(provider, receivedRequestMsg, view2List));
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7499,7 +7508,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 6, 7 };
             List<int> view2List = new List<int> { 6, 7 };
@@ -7647,7 +7656,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(receivedRefreshMsg.CheckSolicited());
             Assert.Equal(consStreamIds[1], receivedRefreshMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7687,7 +7696,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 3 };
 
@@ -7797,7 +7806,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7837,7 +7846,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<int> view1List = new List<int> { 2, 3 };
 
@@ -7949,7 +7958,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             ICloseMsg receivedCloseMsg = (ICloseMsg)msgEvent.Msg;
             Assert.Equal(providerStreamId, receivedCloseMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -7989,7 +7998,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<string> itemList = new List<string>() { "TRI.N", "TRI.N", "WJI" };
 
@@ -8206,7 +8215,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.Equal(providerWjiStreamId, receivedCloseMsg.StreamId);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8246,7 +8255,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             opts.SetupDefaultDirectoryStream = true;
 
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             List<string> itemList = new List<string>() { "TRI.N", "TRI.N", ".DJI" };
 
@@ -8468,7 +8477,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 Assert.Equal(providerDjiStreamId, receivedCloseMsg.StreamId);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8516,7 +8525,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request first item. */
             requestMsg.Clear();
@@ -8584,7 +8593,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             /* Provider receives nothing. */
             providerReactor.Dispatch(0);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8632,7 +8641,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request item on some unsupported domain. 
              * * (The chosen domain is 0, so if this test ever appears to fail -- it may be because
@@ -8673,7 +8682,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             /* Provider receives nothing. */
             providerReactor.Dispatch(0);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8721,7 +8730,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request first item. */
             requestMsg.Clear();
@@ -8823,7 +8832,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
             Assert.Equal(5, receivedStatusMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8871,7 +8880,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             Buffer itemNameBuf = new Buffer();
             itemNameBuf.Data("RTRSY.O");
@@ -8939,7 +8948,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(DataStates.OK, receivedStatusMsg.State.DataState());
             Assert.Equal(5, receivedStatusMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -8995,7 +9004,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request first item. */
             requestMsg.Clear();
@@ -9070,7 +9079,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(Provider.DefaultService.ServiceId, newMsgKey.ServiceId);
             Assert.True(newItemName.Equals(newMsgKey.Name));
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -9131,7 +9140,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
                 symbolList[i].Action = MapEntryActions.ADD;
             }
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Set the open window so we can better control this loop. */
             DirectoryUpdate directoryUpdate = new DirectoryUpdate();
@@ -9336,7 +9345,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(symbolList.Length, providerRequests);
             Assert.Equal(symbolList.Length, consumerRefreshes);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -9394,7 +9403,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
              * * These items should therefore be automatically requested by the watchlist. In this test,
              * * closing the symbol list does NOT automatically close the items. */
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request symbol list. */
             int[] consStreamIds = { 5, 6 };
@@ -9689,7 +9698,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(providerItem2Stream, receivedCloseMsg.StreamId);
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedCloseMsg.DomainType);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -9980,7 +9989,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.Equal(Login.UserIdTypes.TOKEN, receivedLoginRefresh.UserNameType);
             Assert.Equal(userToken4, receivedLoginRefresh.UserName.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -10274,7 +10283,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(receivedLoginRefresh.HasAuthenticationExtendedResp);
             Assert.Equal(extResp4, receivedLoginRefresh.AuthenticationExtendedResp.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
         }
@@ -10379,7 +10388,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             provider.Bind(opts);
 
             opts.NumStatusEvents = 2; // set number of expected status message from request submitted in channel open callback
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             int[] consStreamIds = { 5, 6 };
 
@@ -10464,9 +10473,270 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             Assert.True(WatchlistItemDomainsTest.CheckHasCorrectView(provider, receivedRequestMsg, view1List));
             int providerStreamId2 = receivedRequestMsg.StreamId;
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
             providerReactor.Close();
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void WatchlistItemBatchRequestsWithTimeoutTest(bool isStreamingRequest, bool isSameView)
+        {
+            /* Test a simple batch view request/refresh exchange with the watchlist enabled. */
+            ReactorSubmitOptions submitOptions = new();
+            IRequestMsg requestMsg = new Msg();
+            IRequestMsg receivedRequestMsg;
+            IRefreshMsg refreshMsg = new Msg();
+            IStatusMsg receivedStatusMsg;
+            int providerStreamId;
+
+            /* Create reactors. */
+            using TestReactor consumerReactor = new();
+            using TestReactor providerReactor = new();
+
+            /* Create consumer. */
+            using Consumer consumer = new Consumer(consumerReactor)
+                .WithDefaultRole()
+                .WithWatchlist();
+
+            /* Create provider. */
+            using Provider provider = new Provider(providerReactor)
+                .WithDefaultRole();
+
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new()
+            {
+                SetupDefaultLoginStream = true,
+                SetupDefaultDirectoryStream = true
+            };
+
+            provider.Bind(opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
+
+            /* Consumer sends request. */
+            List<int> view1FieldList = new() { 22, 25 };
+            List<string> batch1List = new() { "IBM.N", "X.N", };
+            SendBatchRequest(consumer, batch1List, view1FieldList, 5, isStreamingRequest);
+
+            consumer.TestReactor.Dispatch(1);
+            // Received status message with closed batch stream
+            ReceiveBatchCloseStatusMsg(consumer);
+
+            List<string> batch2List = new() { "TRI.N", "X.N", };
+            List<int> view2FieldList = isSameView ? new() { 22, 25 } : new() { 11, 32 };
+            SendBatchRequest(consumer, batch2List, view2FieldList, 8, isStreamingRequest);
+            List<int> decodedViewFieldList = new();
+
+            /* Provider receives request. */
+            providerReactor.Dispatch(3);
+
+            string itemName;
+
+            itemName = "IBM.N";
+            receivedRequestMsg = ReceiveItemRequestMsg(itemName, provider, consumer, view1FieldList, isStreamingRequest);
+            providerStreamId = receivedRequestMsg.StreamId;
+
+            /* Provider sends refresh .*/
+            refreshMsg = SendItemRefreshMsg(itemName, providerStreamId, provider, true);
+
+            /* Consumer receives refresh. */
+            consumerReactor.Dispatch(2);
+
+            ReceiveBatchCloseStatusMsg(consumer);
+
+            // Received refresh message with item
+            ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+
+
+
+            itemName = "X.N"; // don't send response for this item
+            receivedRequestMsg = ReceiveItemRequestMsg(itemName, provider, consumer, view1FieldList, isStreamingRequest);
+            providerStreamId = receivedRequestMsg.StreamId;
+
+            itemName = "TRI.N";
+            receivedRequestMsg = ReceiveItemRequestMsg(itemName, provider, consumer, view2FieldList, isStreamingRequest);
+            providerStreamId = receivedRequestMsg.StreamId;
+            /* Provider sends refresh .*/
+            refreshMsg = SendItemRefreshMsg(itemName, providerStreamId, provider, false);
+
+            /* Consumer receives refresh. */
+            consumerReactor.Dispatch(1);
+            // Received refresh message with item
+            ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(consumer.Role.WatchlistOptions.RequestTimeout));
+
+            if (isSameView)
+            {
+                itemName = "X.N";
+                // Received timeout status messages
+                if (isStreamingRequest)
+                {
+                    consumerReactor.Dispatch(1);
+                    receivedStatusMsg = ReceiveItemTimeoutStatusMsg(itemName, consumer);
+                }
+                else
+                {
+                    consumerReactor.Dispatch(2);
+                    receivedStatusMsg = ReceiveItemTimeoutStatusMsg(itemName, consumer);
+                    receivedStatusMsg = ReceiveItemTimeoutStatusMsg(itemName, consumer);
+                }
+
+                // Received another request for timed out "X.N" item
+                providerReactor.Dispatch(2);
+                providerReactor.PollMsgEvent<ICloseMsg>();
+                receivedRequestMsg = ReceiveItemRequestMsg(itemName, provider, consumer, view2FieldList, isStreamingRequest);
+                providerStreamId = receivedRequestMsg.StreamId;
+                // check correctness of priority count
+                if (isStreamingRequest)
+                    Assert.Equal(2, receivedRequestMsg.Priority.Count);
+                refreshMsg = SendItemRefreshMsg(itemName, providerStreamId, provider, false);
+
+                consumerReactor.Dispatch(2, consumerReactor.DefaultDispatchTimeout * 2);
+                ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+                ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+            }
+            else
+            {
+                // Received timeout status messages for the first X.N item request.
+                consumerReactor.Dispatch(1);
+                receivedStatusMsg = ReceiveItemTimeoutStatusMsg("X.N", consumer);
+
+                // Received another request for timed out "X.N" item with the merged view.
+                itemName = "X.N";
+                providerReactor.Dispatch(2);
+                providerReactor.PollMsgEvent<ICloseMsg>();
+
+                List<int> merged2Views = new() { 11, 22, 25, 32 };
+                receivedRequestMsg = ReceiveItemRequestMsg(itemName, provider, consumer, merged2Views, isStreamingRequest);
+                providerStreamId = receivedRequestMsg.StreamId;
+                refreshMsg = SendItemRefreshMsg(itemName, providerStreamId, provider, true);
+
+                // Received two refresh messages for the "X.N" item name.
+                consumerReactor.Dispatch(2);
+
+                ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+                ReceiveItemRefreshMsg(itemName, consumer, refreshMsg);
+            }
+
+            TestReactorSession.CloseSession(consumer, provider);
+        }
+
+        private static void SendBatchRequest(Consumer consumer, List<string> itemNames, List<int> viewFieldIds, int streamId, bool isStreamingRequest)
+        {
+            IRequestMsg requestMsg = new Msg();
+
+            requestMsg.Clear();
+            requestMsg.MsgClass = MsgClasses.REQUEST;
+            requestMsg.StreamId = streamId;
+            requestMsg.DomainType = (int)DomainType.MARKET_PRICE;
+            requestMsg.ContainerType = DataTypes.ELEMENT_LIST;
+            if (isStreamingRequest)
+                requestMsg.ApplyStreaming();
+            requestMsg.ApplyHasBatch();
+            requestMsg.ApplyHasView();
+
+            WatchlistItemDomainsTest.EncodeBatchWithView(consumer.ReactorChannel, requestMsg, itemNames, viewFieldIds);
+
+            var submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+            submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
+            Assert.True(consumer.Submit((Msg)requestMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+        }
+
+        private static void ReceiveBatchCloseStatusMsg(Consumer consumer)
+        {
+            var msgEvent = consumer.TestReactor.PollReactorEvent<ReactorMsgEvent>();
+            Assert.Equal(MsgClasses.STATUS, msgEvent.Msg.MsgClass);
+            Assert.Equal("DEFAULT_SERVICE", msgEvent.StreamInfo.ServiceName);
+
+            var receivedStatusMsg = (IStatusMsg)msgEvent.Msg;
+            Assert.Equal((int)DomainType.MARKET_PRICE, receivedStatusMsg.DomainType);
+            Assert.Equal(DataTypes.NO_DATA, receivedStatusMsg.ContainerType);
+            Assert.Equal(StreamStates.CLOSED, receivedStatusMsg.State.StreamState());
+            Assert.Equal(DataStates.OK, receivedStatusMsg.State.DataState());
+            Assert.Equal("Stream closed for batch", receivedStatusMsg.State.Text().ToString());
+        }
+
+        private static IRequestMsg ReceiveItemRequestMsg(string itemName, Provider provider, Consumer consumer, IList<int> viewFieldList, bool isStreaming)
+        {
+            var receivedRequestMsg = provider.TestReactor.PollMsgEvent<IRequestMsg>();
+            Assert.True(receivedRequestMsg.MsgKey.CheckHasServiceId());
+            Assert.True(!isStreaming || isStreaming && receivedRequestMsg.CheckStreaming());
+            Assert.False(receivedRequestMsg.CheckNoRefresh());
+            Assert.Equal(Provider.DefaultService.ServiceId, receivedRequestMsg.MsgKey.ServiceId);
+            Assert.True(receivedRequestMsg.MsgKey.CheckHasName());
+            Assert.Equal(itemName, receivedRequestMsg.MsgKey.Name.ToString());
+            Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
+
+            // Checks whether the provider receives the view request
+            List<int> decodedViewFieldList = new();
+            WatchlistItemDomainsTest.DecodeViewDataForFieldId(consumer.ReactorChannel, receivedRequestMsg, decodedViewFieldList);
+            Assert.True(viewFieldList.SequenceEqual(decodedViewFieldList));
+
+            return receivedRequestMsg;
+        }
+
+        private static IRefreshMsg SendItemRefreshMsg(string itemName, int streamId, Provider provider, bool submitOnly)
+        {
+            var refreshMsg = (IRefreshMsg)new Msg();
+            /* Provider sends refresh .*/
+            refreshMsg.Clear();
+            refreshMsg.MsgClass = MsgClasses.REFRESH;
+            refreshMsg.DomainType = (int)DomainType.MARKET_PRICE;
+            refreshMsg.StreamId = streamId;
+            refreshMsg.ContainerType = DataTypes.FIELD_LIST;
+            refreshMsg.ApplyHasMsgKey();
+            refreshMsg.MsgKey.ApplyHasServiceId();
+            refreshMsg.MsgKey.ServiceId = Provider.DefaultService.ServiceId;
+            refreshMsg.MsgKey.ApplyHasName();
+            refreshMsg.MsgKey.Name.Data(/*receivedRequestMsg.MsgKey.Name.ToString()*/itemName);
+            refreshMsg.State.StreamState(StreamStates.OPEN);
+            refreshMsg.State.DataState(DataStates.OK);
+            refreshMsg.ApplySolicited();
+            refreshMsg.ApplyRefreshComplete();
+
+            // Encodes Fieldlist as payload for the view
+            List<int> decodedViewFieldList = new();
+            WatchlistItemDomainsTest.EncodeViewDataForFieldId(provider.ReactorChannel, refreshMsg, decodedViewFieldList);
+
+            var submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+            submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
+
+            if (submitOnly)
+                Assert.True(provider.Submit((Msg)refreshMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+            else
+                Assert.True(provider.SubmitAndDispatch((Msg)refreshMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+
+            return refreshMsg;
+        }
+
+        private static IRefreshMsg ReceiveItemRefreshMsg(string itemName, Consumer consumer, IRefreshMsg sentMsg)
+        {
+            // Received refresh message with item
+            var receivedRefreshMsg = consumer.TestReactor.PollMsgEvent<IRefreshMsg>();
+            Assert.Equal(itemName, receivedRefreshMsg.MsgKey.Name.ToString());
+            Assert.Equal((int)DomainType.MARKET_PRICE, receivedRefreshMsg.DomainType);
+            Assert.Equal(DataTypes.FIELD_LIST, receivedRefreshMsg.ContainerType);
+            Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
+            Assert.True(receivedRefreshMsg.EncodedDataBody.Equals(sentMsg.EncodedDataBody));
+
+            return receivedRefreshMsg;
+        }
+
+        private static IStatusMsg ReceiveItemTimeoutStatusMsg(string itemName, Consumer consumer)
+        {
+            var receivedStatusMsg = consumer.TestReactor.PollMsgEvent<IStatusMsg>();
+            Assert.Equal(itemName, receivedStatusMsg.MsgKey.Name.ToString());
+            Assert.Equal(StreamStates.OPEN, receivedStatusMsg.State.StreamState());
+            Assert.Equal(DataStates.SUSPECT, receivedStatusMsg.State.DataState());
+            Assert.Equal("Request timeout", receivedStatusMsg.State.Text().ToString());
+
+            return receivedStatusMsg;
         }
     }
 }

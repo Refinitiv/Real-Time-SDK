@@ -2,11 +2,12 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 using LSEG.Eta.ValueAdd.Reactor;
+using System;
 
 
 namespace LSEG.Eta.Tests.ValueAddTest;
@@ -36,6 +37,14 @@ public class Consumer : TestReactorComponent, IConsumerCallback
         Role.DirectoryMsgCallback = this;
         Role.DictionaryMsgCallback = this;
         Role.DefaultMsgCallback = this;
+        return this;
+    }
+
+    public Consumer WithWatchlist(Action<ConsumerWatchlistOptions> configure = null)
+    {
+        Role.WatchlistOptions.EnableWatchlist = true;
+        Role.WatchlistOptions.ChannelOpenEventCallback = this;
+        configure?.Invoke(Role.WatchlistOptions);
         return this;
     }
 

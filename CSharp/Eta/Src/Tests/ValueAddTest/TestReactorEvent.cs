@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -159,6 +159,7 @@ public class TestReactorEvent
             ReactorAuthTokenEvent evt => evt.ReactorAuthTokenInfo?.ToString(),
             ReactorOAuthCredentialEvent evt => evt.ReactorOAuthCredentialRenewal?.ToString(),
             ReactorServiceEndpointEvent evt => $"endpoints count {evt.ServiceEndpointInfoList?.Count}",
+            ReactorMsgEvent evt => MsgClasses.ToString(evt.Msg.MsgClass),
             _ => ReactorEvent.Type.ToString(),
         };
         var errorInfo = ReactorEvent.ReactorErrorInfo.Code < ReactorReturnCode.SUCCESS

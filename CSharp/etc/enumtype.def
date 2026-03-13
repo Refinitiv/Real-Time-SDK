@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.70
-!tag Build_RDMD  4.20.70
-!tag DT_Version  25.91
-!tag Date        24-Nov-2025
+!tag RT_Version  4.20.71
+!tag Build_RDMD  4.20.71
+!tag DT_Version  26.11
+!tag Date        2-Feb-2026
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -98,7 +98,7 @@ RDN_EXCHID     4
      67        "TLV"   Tel Aviv Stock Exchange
      68        "CPH"   Copenhagen Stock Exchange
      69        "OSL"   Oslo Stock Exchange
-     70        "STO"   Stockholmsborsen - cash (was Stockholm Stock Exchange)
+     70        "STO"   NASDAQ Stockholm AB
      71        "CMA"   Madrid SE - Chi-X
      72        "LUX"   Luxembourg Stock Exchange
      73        "BRU"   Brussels Stock Exchange
@@ -2103,6 +2103,8 @@ CUM_EX_MKR   117
     123        "PA "   Protection available
     124        "PU "   Protection unavailable
     125        "XQ "   Ex equal access scheme
+    126        "TSC"   Tick Size Change
+    127        "OP "   Order Purge
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7133,6 +7135,8 @@ ORDER_EXID 13603
 DRK_EXID   13610
 CLS_B_EXID 13624
 CLS_A_EXID 13625
+AUC_EXCHID 13644
+SSR_TG_EXD 13645
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -7206,7 +7210,7 @@ CLS_A_EXID 13625
      67        "TLV"   Tel Aviv Stock Exchange
      68        "CPH"   Copenhagen Stock Exchange
      69        "OSL"   Oslo Stock Exchange
-     70        "STO"   Stockholmsborsen - cash (was Stockholm Stock Exchange)
+     70        "STO"   NASDAQ Stockholm AB
      71        "CMA"   Madrid SE - Chi-X
      72        "LUX"   Luxembourg Stock Exchange
      73        "BRU"   Brussels Stock Exchange
@@ -8955,6 +8959,8 @@ CLS_A_EXID 13625
    1816        "NZQ"   NZ ETS Auctions
    1817        "LPS"   LSE Private Securities Market
    1818        "CTA"   Cotton Association of India
+   1819        "IXE"   IEX Exchange
+   1820        "RGI"   Regional Greenhouse Gas Initiative
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16327,6 +16333,7 @@ COMM_IND_5 12861
 IRG_CM_IND 12867
 CAN_CM_IND 12881
 INS_CM_IND 12884
+PD_CM_IND  13128
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16347,6 +16354,7 @@ QTY_IND5   12866
 IRG_QTYIND 12868
 INS_QTYIND 12880
 CAN_QTYIND 12882
+PD_QTYIND  13127
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16365,6 +16373,7 @@ RPT_PTY_4  12873
 RPT_PTY_5  12874
 CAN_R_PTY  12883
 INS_R_PTY  12885
+PD_R_PTY   13129
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -18674,10 +18683,17 @@ REL_PRC_TP 13126
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET426 13127
-PRE_1ET427 13128
-PRE_1ET428 13129
-PRE_1ET429 13130
+LEVG_IND   13130
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   Instrument is leveraged
+      2   "N       "   Instrument is not leveraged
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET430 13131
 PRE_1ET431 13132
 PRE_1ET432 13133
@@ -19954,6 +19970,7 @@ CNTR_SZ_UT 13611
     449      "MAD/P"   Moroccan Dirham Per Point
     450      "C/dmt"   kg CO2 equivalent/dmt
     451      "RTFC "   Renewable transport fuel certificate
+    452      "AKI  "   Anti-Knock Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20097,6 +20114,10 @@ SETT_RUL   13438
      21      "70LC "   30% prepayment, 70% L/C
      22      "SWLC "   SWIFT or LC
      23      "UPDLV"   Upon Delivery
+     24      "T+6  "   Settlement date is transaction date plus 6
+     25      "T+7  "   Settlement date is transaction date plus 7
+     26      "T+8  "   Settlement date is transaction date plus 8
+     27      "T+9  "   Settlement date is transaction date plus 9
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20398,6 +20419,7 @@ CTRPTY_TP4 13473
 CTRPTY_TP5 13474
 INS_CP_TP  13475
 IRG_CP_TP  13477
+PD_CP_TP   13643
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -20418,6 +20440,7 @@ RPTPTY_TP2 13480
 RPTPTY_TP3 13481
 RPTPTY_TP4 13482
 RPTPTY_TP5 13483
+PD_RP_TP   13642
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -23705,6 +23728,7 @@ CMD_TYPE   13618
    6010   "TANKDITC"   Tanker Dirty Time Charter
    6011   "TANKFR  "   Tanker Freight
    6012   "TRNSPRT "   Transportation
+   6013   "DRYBAGFR"   Dry Bagged Freight
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -24194,10 +24218,6 @@ ASC_RATE   13641
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET321 13642
-PRE_2ET322 13643
-PRE_2ET323 13644
-PRE_2ET324 13645
 PRE_2ET325 13646
 PRE_2ET326 13647
 PRE_2ET327 13648

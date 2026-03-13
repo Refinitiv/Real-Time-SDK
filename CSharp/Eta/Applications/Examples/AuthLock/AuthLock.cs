@@ -1,8 +1,8 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -67,7 +67,7 @@ internal class AuthLock
         program.MyCombineLock(lockDataList, outLockData1);
         program.MyCompareLock(outLockData, outLockData1);      // identical
 
-        Console.WriteLine("\nAn invalid lock in the combined lock");
+        Console.WriteLine("\nTesting an invalid lock in the combined lock (should show a failure result in case of successful test with invalid lock)");
         AuthorizationLockData outLockData2 = new();
         lockDataList.Add(lockData4);
         program.MyCombineLock(lockDataList, outLockData2);      // Failure

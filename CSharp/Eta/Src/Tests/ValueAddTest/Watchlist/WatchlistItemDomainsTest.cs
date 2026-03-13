@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -60,7 +60,7 @@ public class WatchlistItemDomainsTest
     const int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
 
     // Support encoding for Real data type of the 6, 12, 13, 19, 21, 22, 25, 30, 31 and 1465 fids.
-    private void EncodeViewDataForFieldId(ReactorChannel reactorChannel, IRefreshMsg msg, List<int> viewFieldIdList)
+    internal static void EncodeViewDataForFieldId(ReactorChannel reactorChannel, IRefreshMsg msg, List<int> viewFieldIdList)
     {
         EncodeIterator encodeIt = new();
         FieldList fieldList = new();
@@ -121,7 +121,7 @@ public class WatchlistItemDomainsTest
         }
     }
 
-    private void DecodeViewDataForFieldId(ReactorChannel reactorChannel, IRequestMsg msg, List<int> viewFieldIdList)
+    internal static void DecodeViewDataForFieldId(ReactorChannel reactorChannel, IRequestMsg msg, List<int> viewFieldIdList)
     {
         DecodeIterator decodeIt = new();
         ElementList elementList = new ElementList();
@@ -751,7 +751,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -878,7 +878,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -928,7 +928,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit private stream request message
         requestMsg.Clear();
@@ -1013,7 +1013,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -1077,7 +1077,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends streaming request. */
         requestMsg.Clear();
@@ -1313,7 +1313,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
 
     } // End SnapshotOnStreamingAggregationTest
@@ -1368,7 +1368,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1505,7 +1505,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -1556,7 +1556,7 @@ public class WatchlistItemDomainsTest
         opts.SetupDefaultDirectoryStream = true;
 
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1715,7 +1715,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.True(receivedRefreshMsg.EncodedDataBody.Equals(refreshMsg.EncodedDataBody)); //transformation to json alters the hint and value of the real number (without altering the real number)
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -1767,7 +1767,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -1949,7 +1949,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         Assert.NotNull(msgEvent.StreamInfo);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -2001,7 +2001,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit two aggregated request messages
         requestMsg1.Clear();
@@ -2293,7 +2293,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedRequestMsg.CheckPause()); 
         providerStreamId = receivedRequestMsg.StreamId;
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -2404,7 +2404,7 @@ public class WatchlistItemDomainsTest
         provider.Bind(opts);
 
         opts.NumStatusEvents = 2; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Provider receives one request. */
         providerReactor.Dispatch(1);
@@ -2531,7 +2531,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -2574,7 +2574,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
     }
 
     [Fact]
@@ -2762,7 +2762,7 @@ public class WatchlistItemDomainsTest
         Assert.False(directoryRefresh.ServiceList[0].HasLink);
         Assert.False(directoryRefresh.ServiceList[0].HasLoad);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         consumerReactor.Close();
         providerReactor.Close();
     }
@@ -2848,7 +2848,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -3250,7 +3250,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         consumerReactor.Close();
         providerReactor.Close();
     }
@@ -3324,7 +3324,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -3665,7 +3665,7 @@ public class WatchlistItemDomainsTest
         Assert.False(receivedUpdateMsg.ServiceList[0].HasLoad);
         Assert.True(receivedUpdateMsg.ServiceList[0].GroupStateList.Count == 1);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -3720,7 +3720,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Provider sends service update with original requested service of serviceId 2.*/
         DirectoryUpdate directoryUpdateMsg = new DirectoryUpdate();
@@ -3750,7 +3750,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.MAP, receivedUpdateMsg.ContainerType);
         Assert.Equal(1, receivedUpdateMsg.MsgKey.Filter); // make sure filter is 1 since only INFO and STATE filter received
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -3805,7 +3805,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -4322,7 +4322,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedRequestMsg.CheckHasPriority());
         Assert.Equal(1, receivedRequestMsg.Priority.Count);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -4376,7 +4376,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -4507,7 +4507,7 @@ public class WatchlistItemDomainsTest
         /* Stream should be considered closed. */
         //Assert.Equal(0, consumerReactor.ComponentList[0].ReactorChannel.Watchlist.DirectoryHandler.Service(1).StreamList().Size());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -4562,7 +4562,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -4805,7 +4805,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -4918,7 +4918,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -4975,7 +4975,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -5243,7 +5243,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.NO_DATA, receivedGenericMsg.ContainerType);
         Assert.NotNull(msgEvent.StreamInfo);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -5297,7 +5297,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -5721,7 +5721,7 @@ public class WatchlistItemDomainsTest
         /* Stream should be considered closed. */
         // Assert.True(consumerReactor.ComponentList[0].ReactorChannel.Watchlist.DirectoryHandler.ServiceCache.Service(1).StreamIdDlList.Count() == 0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -5772,7 +5772,7 @@ public class WatchlistItemDomainsTest
         provider.Bind(opts);
 
         opts.NumStatusEvents = 1; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // resubmit private stream request message
         requestMsg.Clear();
@@ -5846,7 +5846,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -5893,7 +5893,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit private stream request message twice
         requestMsg.Clear();
@@ -5962,7 +5962,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType);
         Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -6009,7 +6009,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit non private stream request first then private stream request second
         requestMsg.Clear();
@@ -6075,7 +6075,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(DataTypes.OPAQUE, receivedRequestMsg.ContainerType); // private stream request should have data body
         Assert.Equal("ENCODED DATA BODY", receivedRequestMsg.EncodedDataBody.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -6149,7 +6149,7 @@ public class WatchlistItemDomainsTest
 
                 provider.Bind(opts);
 
-                TestReactor.OpenSession(consumer, provider, opts);
+                TestReactorSession.OpenSession(consumer, provider, opts);
 
                 /* Consumer sends request. */
                 requestMsg.Clear();
@@ -6657,7 +6657,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal("IBM.N", receivedRequestMsg.MsgKey.Name.ToString());
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
-                TestReactorComponent.CloseSession(consumer, provider);
+                TestReactorSession.CloseSession(consumer, provider);
                 TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
             }
         }
@@ -6712,7 +6712,7 @@ public class WatchlistItemDomainsTest
         opts.SetupSecondDefaultDirectoryStream = true;
 
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends first request. */
         requestMsg.Clear();
@@ -6837,7 +6837,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -6898,7 +6898,7 @@ public class WatchlistItemDomainsTest
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
 
             List<TestData> requestData = new List<TestData>();
@@ -6961,7 +6961,7 @@ public class WatchlistItemDomainsTest
                 Assert.True(consumer.SubmitAndDispatch((Msg)closeMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
@@ -7012,7 +7012,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit private stream request message
         requestMsg.Clear();
@@ -7179,7 +7179,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -7232,7 +7232,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends streaming request. */
         requestMsg.Clear();
@@ -7397,7 +7397,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -7567,7 +7567,7 @@ public class WatchlistItemDomainsTest
         provider.Bind(opts);
 
         opts.NumStatusEvents = 2; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
 
         /* Provider receives request. */
@@ -7673,7 +7673,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -7727,7 +7727,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
         opts.NumStatusEvents = 2; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
 
         /* Provider receives request. */
@@ -7832,7 +7832,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -7886,7 +7886,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends snapshot request for TRI1, TRI2, TRI3 */
 
@@ -8129,7 +8129,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.UserSpec);
         Assert.Equal(testUserSpecObj, msgEvent.StreamInfo.UserSpec);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -8184,7 +8184,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends snapshot request */
         requestMsg.Clear();
@@ -8345,7 +8345,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -8398,7 +8398,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         // submit private stream request message
         requestMsg.Clear();
@@ -8519,7 +8519,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -8565,14 +8565,14 @@ public class WatchlistItemDomainsTest
         provider.Bind(opts);
 
         opts.NumStatusEvents = 1; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Provider should never receive request since no single open. */
         providerReactor.Dispatch(0);
         //evt = providerReactor.PollEvent();
         //Assert.Null(evt);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -8627,7 +8627,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -8800,7 +8800,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -8933,7 +8933,7 @@ public class WatchlistItemDomainsTest
 
         consumerReactor.Dispatch(0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -9031,7 +9031,7 @@ public class WatchlistItemDomainsTest
         provider.Bind(opts);
 
         opts.NumStatusEvents = 2; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Provider receives request. */
         providerReactor.Dispatch(1);
@@ -9109,7 +9109,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -9205,7 +9205,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -9454,7 +9454,7 @@ public class WatchlistItemDomainsTest
 
         consumerReactor.Dispatch(0);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -9544,7 +9544,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Test consumer closes in response to an update. */
         for (int i = 0; i < 3; ++i)
@@ -9726,7 +9726,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal((int)DomainType.MARKET_PRICE, receivedCloseMsg.DomainType);
         }
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -9783,7 +9783,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Test consumer closes in response to group status. */
         for (int i = 0; i < 2; ++i)
@@ -10002,7 +10002,7 @@ public class WatchlistItemDomainsTest
             }
         }
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -10104,7 +10104,7 @@ public class WatchlistItemDomainsTest
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Provider receives login request. */
             provider.TestReactor.Dispatch(1);
@@ -10159,7 +10159,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(LoginMsgType.CLOSE, loginMsgEvent.LoginMsg.LoginMsgType);
             Assert.Equal(provLoginStreamId, loginMsgEvent.LoginMsg.StreamId);
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
@@ -10312,7 +10312,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
         opts.NumStatusEvents = 4; // set number of expected status message from request submitted in channel open callback
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Provider receives request. */
         providerReactor.Dispatch(1);
@@ -10473,7 +10473,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -10535,7 +10535,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Request TRI (no view). */
         requestMsg.Clear();
@@ -10751,7 +10751,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -10813,7 +10813,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Request TRI (no view). */
         requestMsg.Clear();
@@ -11048,7 +11048,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -11109,7 +11109,7 @@ public class WatchlistItemDomainsTest
             opts.SetupDefaultDirectoryStream = true;
             opts.ReconnectAttemptLimit = -1;
             provider.Bind(opts);
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Request TRI with BID/ASK view. */
             requestMsg.Clear();
@@ -11342,7 +11342,7 @@ public class WatchlistItemDomainsTest
             Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
             /* Reconnect and reestablish login/directory streams. */
-            TestReactor.OpenSession(consumer, provider, opts, true);
+            TestReactorSession.OpenSession(consumer, provider, opts, true);
 
             /* Provider receives request again. */
             providerReactor.Dispatch(1);
@@ -11423,7 +11423,7 @@ public class WatchlistItemDomainsTest
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
             Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
             
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
@@ -11478,7 +11478,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -11616,7 +11616,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -11670,7 +11670,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -11811,7 +11811,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -11865,7 +11865,7 @@ public class WatchlistItemDomainsTest
 
        provider.Bind(opts);
 
-       TestReactor.OpenSession(consumer, provider, opts);
+       TestReactorSession.OpenSession(consumer, provider, opts);
 
        Buffer payload = new(); 
        payload.Data(new ByteBuffer(1024));
@@ -12206,12 +12206,12 @@ public class WatchlistItemDomainsTest
        Assert.Equal(DirectoryMsgType.UPDATE, directoryMsgEvent.DirectoryMsg.DirectoryMsgType);   
 
        /* Reconnect and reestablish login/directory streams. */
-       TestReactor.OpenSession(consumer, provider, opts, true);
+       TestReactorSession.OpenSession(consumer, provider, opts, true);
 
        /* Provider receives nothing else (no recovery). */
        providerReactor.Dispatch(0);
         
-       TestReactorComponent.CloseSession(consumer, provider);
+       TestReactorSession.CloseSession(consumer, provider);
        TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -12270,7 +12270,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends symbol list request, which requests data streams. */
         Buffer payload = new(); 
@@ -12566,7 +12566,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(consAAPLStreamId, receivedStatusMsg.StreamId);
 
         /* Reconnect and reestablish login/directory streams. */
-        TestReactor.OpenSession(consumer, provider, opts, true);
+        TestReactorSession.OpenSession(consumer, provider, opts, true);
         
         /* Provider receives requests for SYM_LIST, FB.O, and AAPL.O. */
         providerReactor.Dispatch(3);
@@ -12724,7 +12724,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo);
         Assert.Equal(consAAPLStreamId, receivedRefreshMsg.StreamId);
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -12788,7 +12788,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         Buffer payload = new(); 
         payload.Data(new ByteBuffer(1024));
@@ -13313,7 +13313,7 @@ public class WatchlistItemDomainsTest
         /* Item is already open this time, so provider does not receive a request for it. */
         providerReactor.Dispatch(0);
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -13373,7 +13373,7 @@ public class WatchlistItemDomainsTest
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* Consumer sends symbol list request, which requests data streams. */
             Buffer payload = new();
@@ -13664,7 +13664,7 @@ public class WatchlistItemDomainsTest
                 Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
             }
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
@@ -13781,7 +13781,7 @@ public class WatchlistItemDomainsTest
 
        provider.Bind(opts);
 
-       TestReactor.OpenSession(consumer, provider, opts);
+       TestReactorSession.OpenSession(consumer, provider, opts);
 
        /* Provider receives symbol list request. */
        providerReactor.Dispatch(1);
@@ -13973,7 +13973,7 @@ public class WatchlistItemDomainsTest
        Assert.NotNull(msgEvent.StreamInfo);
        Assert.True(receivedRefreshMsg.StreamId < 0);
        
-       TestReactorComponent.CloseSession(consumer, provider);
+       TestReactorSession.CloseSession(consumer, provider);
        TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
    }
 
@@ -14037,7 +14037,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends dictionary request. */
         dictionaryRequest.Clear();
@@ -14097,7 +14097,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
-        TestReactor.OpenSession(consumer, provider, opts, true);
+        TestReactorSession.OpenSession(consumer, provider, opts, true);
 
         /* Provider receives dictionary request. */
         providerReactor.Dispatch(1);
@@ -14195,12 +14195,12 @@ public class WatchlistItemDomainsTest
         Assert.Equal(dictionaryMsgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
-        TestReactor.OpenSession(consumer, provider, opts, true);
+        TestReactorSession.OpenSession(consumer, provider, opts, true);
 
         /* Provider receives nothing (dictionary not recovered). */
         providerReactor.Dispatch(0);
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -14304,7 +14304,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends dictionary request. */
         dictionaryRequest.Clear();
@@ -14392,7 +14392,7 @@ public class WatchlistItemDomainsTest
         
         CheckDictionaryResponseMessages(consumerReactor, numOfMessages, 5, "RWFEnum");
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -14443,7 +14443,7 @@ public class WatchlistItemDomainsTest
 
        provider.Bind(opts);
 
-       TestReactor.OpenSession(consumer, provider, opts);
+       TestReactorSession.OpenSession(consumer, provider, opts);
        
        // submit two aggregated request messages
        requestMsg1.Clear();
@@ -14616,7 +14616,7 @@ public class WatchlistItemDomainsTest
        Assert.False(receivedRequestMsg.CheckPause()); 
        providerStreamId = receivedRequestMsg.StreamId;
        
-       TestReactorComponent.CloseSession(consumer, provider);
+       TestReactorSession.CloseSession(consumer, provider);
        TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -14670,7 +14670,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -14874,7 +14874,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -14928,7 +14928,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -15134,7 +15134,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -15191,7 +15191,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -15423,7 +15423,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(StreamStates.OPEN, receivedRefreshMsg.State.StreamState());
         Assert.Equal(DataStates.OK, receivedRefreshMsg.State.DataState());
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -15475,7 +15475,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
         
         /* Consumer sends request on stream id 6. */
         requestMsg.Clear();
@@ -15559,7 +15559,7 @@ public class WatchlistItemDomainsTest
         Assert.True(consumer.ReactorChannel.Submit((Msg)requestMsg, submitOptions, out errorInfo) == ReactorReturnCode.FAILURE);
         Assert.Equal("Item in batch has same ID as existing stream.", errorInfo.Error.Text);
         
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -15606,7 +15606,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -15632,7 +15632,7 @@ public class WatchlistItemDomainsTest
         Assert.True(consumer.ReactorChannel.Submit((Msg)requestMsg, submitOptions, out errorInfo) == ReactorReturnCode.INVALID_USAGE);
         Assert.Equal("Cannot submit request with both service name and service id specified.", errorInfo.Error.Text);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -15679,7 +15679,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -15707,7 +15707,7 @@ public class WatchlistItemDomainsTest
         Assert.True(consumer.ReactorChannel.Submit((Msg)requestMsg, submitOptions, out errorInfo) == ReactorReturnCode.FAILURE);
         Assert.Equal("Requested batch has name in message key.", errorInfo.Error.Text);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -15760,7 +15760,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -15934,7 +15934,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends snapshot request. */
         requestMsg.Clear();
@@ -16212,7 +16212,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -16294,7 +16294,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends snapshot request. */
         requestMsg.Clear();
@@ -16464,7 +16464,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -16579,7 +16579,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer requests TRI. */
         requestMsg.Clear();
@@ -16687,7 +16687,7 @@ public class WatchlistItemDomainsTest
 
 
         /* Reconnect and reestablish login/directory streams. */
-        TestReactor.OpenSession(consumer, provider, opts, true);
+        TestReactorSession.OpenSession(consumer, provider, opts, true);
 
         /* Provider receives request for TRI, priority 1,2 (changed by consumer in callback). */
         providerReactor.Dispatch(1);
@@ -16708,7 +16708,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(1, receivedRequestMsg.Priority.PriorityClass);
         Assert.Equal(2, receivedRequestMsg.Priority.Count);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -16800,7 +16800,7 @@ public class WatchlistItemDomainsTest
         opts.SetupDefaultLoginStream = true;
         opts.SetupDefaultDirectoryStream = true;
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -16936,7 +16936,7 @@ public class WatchlistItemDomainsTest
         Assert.NotNull(msgEvent.StreamInfo.ServiceName);
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -17015,7 +17015,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Request TRI. */
         requestMsg.Clear();
@@ -17142,7 +17142,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
         /* Reconnect and reestablish login/directory streams. */
-        TestReactor.OpenSession(consumer, provider, opts, true);
+        TestReactorSession.OpenSession(consumer, provider, opts, true);
 
         if (singleOpen)
         {
@@ -17329,7 +17329,7 @@ public class WatchlistItemDomainsTest
             providerReactor.Dispatch(0);
         }
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -17395,7 +17395,7 @@ public class WatchlistItemDomainsTest
         opts.ReconnectAttemptLimit = -1;
 
         provider.Bind(opts);
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -17533,7 +17533,7 @@ public class WatchlistItemDomainsTest
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)evt.ReactorEvent;
         Assert.Equal(ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING, channelEvent.EventType);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -17626,7 +17626,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
        
         /* Consumer sends request. */
         requestMsg.Clear();
@@ -17718,7 +17718,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedPostMsg.DomainType);
         Assert.Equal(providerStreamId, receivedPostMsg.StreamId);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -17765,7 +17765,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         requestMsg.Clear();
         requestMsg.MsgClass = MsgClasses.REQUEST;
@@ -17863,7 +17863,7 @@ public class WatchlistItemDomainsTest
         Assert.True(statusMsg.CheckHasState());
         Assert.Equal("Request timeout", statusMsg.State.Text().ToString());
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -17909,7 +17909,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         /* Consumer sends streaming request for TRI1, TRI2, TRI3 */
         requestMsg.Clear();
@@ -18074,7 +18074,7 @@ public class WatchlistItemDomainsTest
         Assert.Equal("TRI2", receivedRequestMsg.MsgKey.Name.ToString());
         Assert.Equal((int)DomainType.MARKET_PRICE, receivedRequestMsg.DomainType);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
@@ -18125,7 +18125,7 @@ public class WatchlistItemDomainsTest
 
             provider.Bind(opts);
 
-            TestReactor.OpenSession(consumer, provider, opts);
+            TestReactorSession.OpenSession(consumer, provider, opts);
 
             /* -- Redirecting StatusMsg -- */
 
@@ -18277,7 +18277,7 @@ public class WatchlistItemDomainsTest
             Assert.NotNull(msgEvent.StreamInfo.ServiceName);
             Assert.Equal(msgEvent.StreamInfo.ServiceName, Provider.DefaultService.Info.ServiceName.ToString());
 
-            TestReactorComponent.CloseSession(consumer, provider);
+            TestReactorSession.CloseSession(consumer, provider);
             TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
@@ -18322,7 +18322,7 @@ public class WatchlistItemDomainsTest
 
         provider.Bind(opts);
 
-        TestReactor.OpenSession(consumer, provider, opts);
+        TestReactorSession.OpenSession(consumer, provider, opts);
 
         requestMsg.Clear();
         requestMsg.MsgClass = MsgClasses.REQUEST;
@@ -18466,7 +18466,7 @@ public class WatchlistItemDomainsTest
         Assert.True(receivedUpdateMsg.HasFilter);
         Assert.Equal(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.Filter);
 
-        TestReactorComponent.CloseSession(consumer, provider);
+        TestReactorSession.CloseSession(consumer, provider);
         TearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 }

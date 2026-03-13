@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -47,10 +47,12 @@ namespace LSEG.Ema.Access
 
         private string? m_serviceName = null;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Indicates that message has been updated after being copied.
+        /// </summary>
         protected bool m_isUpdatedAfterCopying = false;
-        /// <inheritdoc />
-        protected Buffer m_copiedBuffer = new();
+
+        private protected Buffer m_copiedBuffer = new();
 
 #pragma warning disable CS8618
 
@@ -393,7 +395,10 @@ namespace LSEG.Ema.Access
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Performs copying of message properties to <paramref name="dest"/>.
+        /// </summary>
+        /// <param name="dest">Destination message to copy properties to.</param>
         protected virtual void CopyAttributesTo(Msg dest)
         {}
 

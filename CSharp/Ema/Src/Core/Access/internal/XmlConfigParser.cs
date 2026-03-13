@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -355,9 +355,12 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.PHDetectionTimeInterval)
                     .Parse(() => tmpConfig.PreferredChannelName)
                     .Parse(() => tmpConfig.SessionEnhancedItemRecovery)
-                    .Parse(() => tmpConfig.SessionEnhancedItemRecovery)
                     .Parse(() => tmpConfig.UpdateTypeFilter, v => v > 0 ? v : tmpConfig.UpdateTypeFilter)
-                    .Parse(() => tmpConfig.NegativeUpdateTypeFilter, v => v > 0 ? v : tmpConfig.NegativeUpdateTypeFilter);
+                    .Parse(() => tmpConfig.NegativeUpdateTypeFilter, v => v > 0 ? v : tmpConfig.NegativeUpdateTypeFilter)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage)
+                    .Parse(() => tmpConfig.EmaObjectManagerComplexTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerDataTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerMsgTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE);
 
                 ParseXmlTraceConfigNodes(consumerNodeParser, tmpConfig);
                 if (foundConfig == false)
@@ -476,7 +479,11 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.RefreshFirstRequired)
                     .Parse(() => tmpConfig.RemoveItemsOnDisconnect)
                     .Parse(() => tmpConfig.RequestTimeout)
-                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v);
+                    .Parse(() => tmpConfig.ServiceCountHint, v => v == 0 ? 513 : v)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage)
+                    .Parse(() => tmpConfig.EmaObjectManagerComplexTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerDataTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerMsgTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE);
 
                 ParseXmlTraceConfigNodes(niProviderParser, tmpConfig);
 
@@ -582,7 +589,11 @@ namespace LSEG.Ema.Access
                     .Parse(() => tmpConfig.AcceptMessageWithoutQosInRange)
                     .Parse(() => tmpConfig.EnforceAckIDValidation)
                     .Parse(() => tmpConfig.EnumTypeFragmentSize)
-                    .Parse(() => tmpConfig.FieldDictionaryFragmentSize);
+                    .Parse(() => tmpConfig.FieldDictionaryFragmentSize)
+                    .Parse<bool>("CatchUnhandledExceptions", v => tmpConfig.CatchUnhandledExceptions = v, TryParseBoolnumeric, CorrectBooleanFormatMessage)
+                    .Parse(() => tmpConfig.EmaObjectManagerComplexTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerDataTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE)
+                    .Parse(() => tmpConfig.EmaObjectManagerMsgTypeLimit, v => v >= 0 ? v : EmaObjectManager.INITIAL_POOL_SIZE);
 
                 ParseXmlTraceConfigNodes(iProviderParser, tmpConfig);
                 if (foundConfig == false)
