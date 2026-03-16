@@ -559,6 +559,18 @@
 			<ReconnectMinDelay value="1000" />
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_56"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="8000"/>
+			<DirectoryRequestTimeOut value="8000"/>
+			<RequestTimeout value="8000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
 		
 		<Consumer>
 			<Name value="Consumer_PackJSON"/>

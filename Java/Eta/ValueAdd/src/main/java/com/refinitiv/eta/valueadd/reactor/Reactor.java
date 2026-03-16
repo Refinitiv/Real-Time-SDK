@@ -10,6 +10,7 @@ package com.refinitiv.eta.valueadd.reactor;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -6122,13 +6123,15 @@ public class Reactor
 							event._errorInfo = event.errorInfo();
 						}
 
+						SelectableChannel selectableChannel = reactorChannel.channel().selectableChannel();
+
 						callbackChannel.warmStandbyChannelInfo().selectableChannelList()
-								.remove(reactorChannel.channel().selectableChannel());
+								.remove(selectableChannel);
 
 						int retval = sendChannelEventCallback(callbackEventType, callbackChannel, event._errorInfo);
 
 						callbackChannel.warmStandbyChannelInfo().oldSelectableChannelList()
-								.remove(reactorChannel.channel().selectableChannel());
+								.remove(selectableChannel);
 
 						// check return code from callback.
 						if (retval == ReactorCallbackReturnCodes.FAILURE)

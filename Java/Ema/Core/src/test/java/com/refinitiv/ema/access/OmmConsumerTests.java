@@ -7026,6 +7026,65 @@ public class OmmConsumerTests extends TestCase
 			ommprovider3.uninitialize();
 		}
 	}
+
+	@Test
+	public void testWSBServiceBasedServersDoNotSupportWSB_noExceptionOccurs()
+	{
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		// providerTestOptions.supportStandby = true; <-------- the flag is NOT set!!!
+		providerTestOptions.sendRefreshAttrib = true;
+		providerTestOptions.itemGroupId = ByteBuffer.wrap("10".getBytes());
+
+		ProviderTestClient providerClient_3 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_6 = new ProviderTestClient(providerTestOptions);
+
+		OmmProvider ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_1"), providerClient_3);
+		assertNotNull(ommprovider_3);
+
+		OmmProvider ommprovider_6 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_3"), providerClient_6);
+		assertNotNull(ommprovider_6);
+
+		OmmConsumer consumer = null;
+		ConsumerTestOptions consumerOption = new ConsumerTestOptions();
+
+		consumerOption.getChannelInformation = true;
+		consumerOption.getSessionChannelInfo = false;
+		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
+
+		try
+		{
+			ConsumerTestOptions options = new ConsumerTestOptions();
+			options.getChannelInformation = true;
+
+			try
+			{
+				consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_56"), consumerClient);
+			}
+			catch (OmmException ommEx)
+			{
+				// The Consumer should shut down with login timed out exception
+				assertTrue(ommEx instanceof OmmInvalidUsageExceptionImpl);
+				assertTrue(ommEx.getMessage().contains("login failed"));
+			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			assertFalse(true);
+		}
+		finally
+		{
+			System.out.println(">>>>> Uninitializing...");
+
+			if (consumer != null) consumer.uninitialize();
+			if (ommprovider_3 != null) ommprovider_3.uninitialize();
+			if (ommprovider_6 != null) ommprovider_6.uninitialize();
+		}
+	}
 	
 	public void  testSingleConnectionEnabledPHForLoginBasedMovingFromWSBGroupToChannelListAndBackToWSBGroupWithDetectionTimeInterval()
 	{
