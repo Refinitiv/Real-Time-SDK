@@ -402,6 +402,20 @@
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
 		<Consumer>
+			<Name value="PreferredHostCons_2WSBGroups_servicebased_fallbackwithingroup"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_5, WarmStandbyChannel_6"/>
+			<EnablePreferredHostOptions value="1"/>
+			<PHDetectionTimeInterval value="10"/>
+			<PreferredWSBChannelName value="WarmStandbyChannel_6"/>
+			<PHFallBackWithInWSBGroup value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_1"/>
+			<ReconnectAttemptLimit value="2"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="1000" />
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_Websocket"/>
 			<Channel value="Channel_Websocket"/>
 			<Logger value="Logger_5"/>
@@ -1272,6 +1286,18 @@
 			<StartingActiveServer value="Server_Info_5"/>
 			<StandbyServerSet value="Server_Info_6, Server_Info_7"/>
 			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_5"/>
+			<StartingActiveServer value="Server_Info_3"/>
+			<StandbyServerSet value="Server_Info_4"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_6"/>
+			<StartingActiveServer value="Server_Info_5"/>
+			<StandbyServerSet value="Server_Info_6"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
 		</WarmStandbyChannel>
 		<WarmStandbyChannel>
 			<Name value="RequestRouting_WSBLogin_1"/>

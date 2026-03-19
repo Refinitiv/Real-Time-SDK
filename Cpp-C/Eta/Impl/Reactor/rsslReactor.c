@@ -7623,6 +7623,13 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							RsslQueueLink *pLink;
 							RsslReactorChannelImpl *pChannel;
 							RsslReactorWarmStandbyServiceImpl* pWSBService;
+
+							// We start the fallback process to fallback to the starting server of the current group, send a PREFERRED_HOST_START_FALLBACK event to the user
+							if (ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+							{
+								return RSSL_RET_FAILURE;
+							}
+
 							// For each current connection, iterate through the list of configured services in each RsslReactorPerServiceBasedOptions
 							// If there are any configured, and the service is active for that connection, set the old active to standby and the configured connection as active.
 							// Do the initial active connection first.

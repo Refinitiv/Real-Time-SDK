@@ -14199,6 +14199,201 @@ TEST_F(OmmConsumerTest, LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndA
 		ASSERT_TRUE(false) << "uncaught exception in test";
 	}
 }
+
+/***
+* PH, WSB-Service, Scenario: test fallBackWithInWSBGroup outside of preferred group; Trigger: detectionTimeInterval; Config: detectionTimeInterval=15
+* Preferred Host, WSB-Service: WSB-G0 (S1*,S2), WSB-G1(S3*,S4) are specified. WSB-G1 is preferred WSB group.
+* This test case expects to receives the PREFERRED_HOST_START_FALLBACK  and PREFERRED_HOST_COMPLETE events after API is connected to S1 in the current preferred group when the detectionTimeInterval is triggered.
+* API does not cut over to WSB-G1: it stays on WSB-G0 (S1) as the PHFallBackWithInWSBGroup is set to true.
+***/
+TEST_F(OmmConsumerTest, ServiceBasedPreferredHostFallBackWithInCurrentWSBGroupAndAPIIsOnPreferredHost_DetectionTimeInterval)
+{
+	Map serviceMap;
+	setupSingleServiceMap(serviceMap, "DIRECT_FEED", 1);
+	ProviderTestOptions provTestOptions;
+
+	provTestOptions.directoryPayload = &serviceMap;
+
+	//WarmStandbyChannel_5(G0)
+	IProviderTestClientBase provClient1(provTestOptions);
+	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
+	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000").port("15000");
+
+	IProviderTestClientBase provClient2(provTestOptions);
+	OmmIProviderConfig provConfig2("EmaConfigTest.xml");
+	provConfig2.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15001").port("15001");
+
+	//WarmStandbyChannel_6(G1)
+	IProviderTestClientBase provClient3(provTestOptions);
+	OmmIProviderConfig provConfig3("EmaConfigTest.xml");
+	provConfig3.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15002").port("15002");
+
+	IProviderTestClientBase provClient4(provTestOptions);
+	OmmIProviderConfig provConfig4("EmaConfigTest.xml");
+	provConfig4.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15003").port("15003");
+
+	ConsumerTestOptions consTestOptions;
+	consTestOptions.getChannelInformation = true;
+	ConsumerTestClientBase consClient(consTestOptions);
+	OmmConsumerConfig consConfig("EmaConfigTest.xml");
+	consConfig.consumerName("PreferredHostCons_2WSBGroups_servicebased_fallbackwithingroup");
+
+	try
+	{
+		ReqMsg consRequest;
+		Msg* msg;
+		RefreshMsg* refreshMsg;
+		StatusMsg* statusMsg;
+
+		/* WarmStandbyChannel_5 */
+		// All servers are up at startup.
+		OmmProvider provider1(provConfig1, provClient1);
+		OmmProvider provider2(provConfig2, provClient2);
+
+		/* WarmStandbyChannel_6 */
+		// All servers are up at startup.
+		OmmProvider* pProvider3 = new OmmProvider(provConfig3, provClient3);
+		OmmProvider* pProvider4 = new OmmProvider(provConfig4, provClient4);
+
+		OmmConsumer cons(consConfig, consClient); // Add a OmmConsumerClient to receive the preferred host channel events.
+
+		testSleep(1000);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 1);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 1);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+
+		// Checks the login response message from the starting server of WarmStandbyChannel_6
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(refreshMsg->getComplete());
+		ASSERT_STREQ(refreshMsg->getState().toString(), "Open / Ok / None / 'Login Accepted'");
+		ASSERT_EQ(refreshMsg->getAttrib().getDataType(), DataType::ElementListEnum);
+		ChannelInformation* pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		// Brings down all servers in WarmStandbyChannel_6
+		delete pProvider3;
+		testSleep(1000);
+		delete pProvider4;
+
+		// Waits to switch over to WSB-G0
+		testSleep(3000);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);
+		
+		msg = consClient.popMsg();
+		
+		// Checks the login status messages when the channel is down.
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::NoneEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Channel is down.");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15003");
+		ASSERT_EQ(pChannelInfo->port(), 15003);
+
+		msg = consClient.popMsg();
+
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::NoneEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "channel down");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15003");
+		ASSERT_EQ(pChannelInfo->port(), 15003);
+
+		testSleep(5000);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);
+
+		msg = consClient.popMsg();
+
+		// Checks the login status messages when the channel is up in WSB-G0.
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::NoneEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "channel up");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15000");
+		ASSERT_EQ(pChannelInfo->port(), 15000);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+
+		// Checks the login response message from the starting server of WarmStandbyChannel_6
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(refreshMsg->getComplete());
+		ASSERT_STREQ(refreshMsg->getState().toString(), "Open / Ok / None / 'Login Accepted'");
+		ASSERT_EQ(refreshMsg->getAttrib().getDataType(), DataType::ElementListEnum);
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15000");
+		ASSERT_EQ(pChannelInfo->port(), 15000);
+
+		// Waits until the PH timer is triggered.
+		testSleep(10000);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);
+
+		msg = consClient.popMsg();
+
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHStartingFallback);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host starting fallback");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15000");
+		ASSERT_EQ(pChannelInfo->port(), 15000);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHComplete);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host complete");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15000");
+		ASSERT_EQ(pChannelInfo->port(), 15000);
+	}
+	catch (...)
+	{
+		ASSERT_TRUE(false) << "uncaught exception in test";
+	}
+}
+
 //////
 
 /* OmmConsumer constructors overloading variant */

@@ -1702,6 +1702,10 @@ void preferredHost_WSBService_FallbackWithinWSBGroup(PreferredHostTestParameters
 
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
 
 	wtfDispatch(WTF_TC_PROVIDER, 100);
@@ -1951,6 +1955,10 @@ void preferredHost_WSBService_FallbackWithinWSBGroup(PreferredHostTestParameters
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 	// Dispatch to make sure all the events and the user gets a preferred host complete
 	wtfDispatch(WTF_TC_CONSUMER, 400);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
 
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
