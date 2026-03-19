@@ -243,6 +243,20 @@ static RsslRet _reactorSendPreferredHostNoFallback(RsslReactorImpl* pReactorImpl
 	return RSSL_RET_SUCCESS;
 }
 
+static RsslRet _reactorSendPreferredHostStartingFallback(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError)
+{
+	RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+
+	rsslClearReactorChannelEventImpl(pEvent);
+	pEvent->channelEvent.channelEventType = RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK;
+
+	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+		return RSSL_RET_FAILURE;
+
+	return RSSL_RET_SUCCESS;
+}
+
 /* Send JSON message directly to network without using the JSON converter functionality */
 static RsslRet _reactorSendJSONMessage(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError)
 {
@@ -7545,6 +7559,12 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							if (pStartingReactorChannel != NULL && pStartingReactorChannel != pActiveServerChannel
 								&& pStartingReactorChannel->reactorChannel.pRsslChannel != NULL && pStartingReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 							{
+								// We start the fallback process to fallback to the starting server of the current group, send a PREFERRED_HOST_START_FALLBACK event to the user
+								if (ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+								{
+									return RSSL_RET_FAILURE;
+								}
+
 								if (pActiveServerChannel != NULL)
 								{
 									pActiveServerChannel->isActiveServer = RSSL_FALSE;
@@ -7586,6 +7606,16 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								_reactorWSNotifyStatusMsg(pStartingReactorChannel);
 								/* Reset the next active pointer, this will be set at the next time a channel goes down */
 								pWarmStandByHandlerImpl->pNextActiveReactorChannel = NULL;
+							}
+							else
+							{
+								RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+								// There is no change as the starting channel is connected to the active server of the current group, send a PREFERRED_HOST_NO_FALLBACK event to the user
+								if (ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+								{
+									return RSSL_RET_FAILURE;
+								}
+								break;
 							}
 						}
 						else if (pWarmStandbyGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)

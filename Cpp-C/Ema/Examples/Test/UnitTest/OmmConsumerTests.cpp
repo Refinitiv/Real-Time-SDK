@@ -14007,6 +14007,198 @@ TEST_F(OmmConsumerTest, PreferredHostFallBackWithInCurrentWSBGroupWhileWhileStar
 	}
 }
 
+/*
+* PH, WSB-Login, Scenario: test fallBackWithInWSBGroup outside of preferred group; Trigger: detectionTimeInterval; Config: detectionTimeInterval=15, 
+default warmStandbyGroupListIndex=0, fallBackWithInWSBGroup=True, PreferredGroup activeServer down at start. 
+This test case expects to receives the PREFERRED_HOST_NO_FALLBACK event after API is connected to S3 in the current preferred group when the detectionTimeInterval is triggered.
+*/
+TEST_F(OmmConsumerTest, LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndAPIIsOnPreferredHost_DetectionTimeInterval)
+{
+	Map serviceMap;
+	setupSingleServiceMap(serviceMap, "DIRECT_FEED", 1);
+	ProviderTestOptions provTestOptions;
+
+	provTestOptions.directoryPayload = &serviceMap;
+
+	IProviderTestClientBase provClient1(provTestOptions);
+
+	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
+	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000").port("15000");
+
+	IProviderTestClientBase provClient2(provTestOptions);
+
+	OmmIProviderConfig provConfig2("EmaConfigTest.xml");
+	provConfig2.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15001").port("15001");
+
+	IProviderTestClientBase provClient3(provTestOptions);
+
+	OmmIProviderConfig provConfig3("EmaConfigTest.xml");
+	provConfig3.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15002").port("15002");
+
+	IProviderTestClientBase provClient4(provTestOptions);
+
+	OmmIProviderConfig provConfig4("EmaConfigTest.xml");
+	provConfig4.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15003").port("15003");
+
+	IProviderTestClientBase provClient5(provTestOptions);
+
+	OmmIProviderConfig provConfig5("EmaConfigTest.xml");
+	provConfig5.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15004").port("15004");
+
+	ConsumerTestOptions consTestOptions;
+	consTestOptions.getChannelInformation = true;
+	ConsumerTestClientBase consClient(consTestOptions);
+	OmmConsumerConfig consConfig("EmaConfigTest.xml");
+	consConfig.consumerName("PreferredHostCons_2WSBGroups_fallbackwithingroup");
+
+	try
+	{
+		ReqMsg consRequest;
+		Msg* msg;
+		RefreshMsg* refreshMsg;
+		StatusMsg* statusMsg;
+
+		/* WarmStandbyChannel_3 */
+		// Starting server is down at startup 
+		OmmProvider provider2(provConfig2, provClient2);
+
+		/* WarmStandbyChannel_4 */
+		OmmProvider* pProvider3 = new OmmProvider(provConfig3, provClient3);
+		OmmProvider provider4(provConfig4, provClient4);
+		OmmProvider provider5(provConfig5, provClient5);
+
+		OmmConsumer cons(consConfig, consClient); // Add a OmmConsumerClient to receive the preferred host channel events.
+
+		testSleep(1000);
+
+
+		ASSERT_EQ(provClient3.wsbActiveState, 0);
+		ASSERT_EQ(provClient4.wsbActiveState, 1);
+		ASSERT_EQ(provClient5.wsbActiveState, 1);
+
+		provClient2.clear();
+		provClient3.clear();
+		provClient4.clear();
+		provClient5.clear();
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 1);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 1);
+
+		msg = consClient.popMsg();
+
+		// Checks the login response message from the starting server of WarmStandbyChannel_4
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		refreshMsg = static_cast<RefreshMsg*>(msg);
+		ASSERT_EQ(refreshMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(refreshMsg->getComplete());
+		ASSERT_STREQ(refreshMsg->getState().toString(), "Open / Ok / None / 'Login Accepted'");
+		ASSERT_EQ(refreshMsg->getAttrib().getDataType(), DataType::ElementListEnum);
+		ChannelInformation* pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		provClient2.clear();
+		provClient3.clear();
+		provClient4.clear();
+		provClient5.clear();
+
+		// Shutdown the active server of WarmStandbyChannel_4
+		delete pProvider3;
+
+		// In this time, the consumer should reconnect and re-establish the former primary active as a standby
+		testSleep(5000);
+
+		/* Receives the WSB generic message to be the new active server */
+		ASSERT_EQ(provClient4.getMessageQueueSize(), 1);
+		ASSERT_EQ(provClient5.getMessageQueueSize(), 0);
+
+		ASSERT_EQ(provClient4.wsbActiveState, 0);
+		ASSERT_EQ(provClient5.wsbActiveState, 1);
+
+		// Start S3 to fallback to when the timer is triggered later.
+		provClient3.clear();
+		pProvider3 = new OmmProvider(provConfig3, provClient3);
+
+		// Waits for the timer to trigger
+		testSleep(18000);
+
+		ASSERT_EQ(provClient3.getMessageQueueSize(), 4);
+
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);
+
+		msg = consClient.popMsg();
+
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHStartingFallback);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host starting fallback");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHComplete);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host complete");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		ASSERT_EQ(provClient3.wsbActiveState, 0);
+		ASSERT_EQ(provClient4.wsbActiveState, 1);
+		ASSERT_EQ(provClient5.wsbActiveState, 1);
+
+		testSleep(15000);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHNoFallback);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host no fallback");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		testSleep(15000);
+
+		msg = consClient.popMsg();
+		ASSERT_TRUE(msg != NULL);
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::OkEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::SocketPHNoFallback);
+		ASSERT_EQ(statusMsg->getState().getStatusText(), "Preferred host no fallback");
+		pChannelInfo = consClient.popChannelInfo();
+		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
+		ASSERT_EQ(pChannelInfo->port(), 15002);
+
+		delete pProvider3;
+	}
+	catch (...)
+	{
+		ASSERT_TRUE(false) << "uncaught exception in test";
+	}
+}
 //////
 
 /* OmmConsumer constructors overloading variant */

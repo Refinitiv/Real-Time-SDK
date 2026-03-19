@@ -8028,11 +8028,11 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
-	// Dispatch to make sure all the events and the user gets a preferred host complete
+	// Dispatch to make sure all the events and the user gets the preferred host no fallback event as the channel is already on the preferred host
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_NO_FALLBACK);
 
 	wtfDispatch(WTF_TC_PROVIDER, 100);
 	ASSERT_FALSE(pEvent = wtfGetEvent());
@@ -8040,11 +8040,11 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 	consumerChannel = wtfGetChannel(WTF_TC_CONSUMER);
 	ASSERT_TRUE(RSSL_RET_SUCCESS == rsslReactorFallbackToPreferredHost(consumerChannel, &errorInfo));
 
-	// Dispatch to make sure all the events and the user gets a preferred host complete
+	// Dispatch to make sure all the events and the user gets a preferred host no fallback event as the channel is already on the preferred host
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_NO_FALLBACK);
 
 	wtfDispatch(WTF_TC_PROVIDER, 100);
 	ASSERT_FALSE(pEvent = wtfGetEvent());
@@ -8293,7 +8293,11 @@ void preferredHost_WSBLogin_FallbackWithinWSBGroup(PreferredHostTestParameters p
 	
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
-	// Dispatch to make sure all the events and the user gets a preferred host complete
+	// Dispatch to make sure all the events and the user gets the preferred host starting fallback and preferred host complete events.
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_STARTING_FALLBACK);
+
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_PREFERRED_HOST_COMPLETE);
