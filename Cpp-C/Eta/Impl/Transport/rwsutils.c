@@ -343,6 +343,9 @@ static RsslBuffer fv_ServerNoContext		= { 26, (char*)"server_no_context_takeover
 static RsslBuffer fv_ClientNoContext		= { 26, (char*)"client_no_context_takeover" };
 static RsslBuffer fv_Upgrade				= {  7, (char*)"upgrade" };
 
+#define MAX_WEBSOCKET_REQUEST_KEY_SIZE		129
+#define MAX_INTEGER_FROM_STRING			50
+
 static rwsSubProtocolList_t rwsSubProtocols[] = {
 { RWS_SP_RWF,		{ 6, (char *)"tr_rwf" },	{  8, (char *)"rssl.rwf" } },
 { RWS_SP_JSON2,	{ 12, (char *)"rssl.json.v2" },		{ 8, (char *)"tr_json2" } },
@@ -786,15 +789,25 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 	rwsSubProtocol_t subProtocol = RWS_SP_NONE;
 	char	*pProtName = 0, *pProtList = 0, *pStr = 0, *savEnd = 0;
 	const char *delim = ", \t";
+	error->rsslErrorId = RSSL_RET_SUCCESS;
 
 	if (srvrList)
+	{
 		pStr = (char*)strdup(srvrList);
+		if (pStr == NULL)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d>: Failed to allocate memory for Server sub-protocol list.\n", __FUNCTION__, __LINE__);
+			return RWS_SP_NONE;
+		}
+	}
 	else
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 			"<%s:%d>: Server sub-protocol list not defined.\n", __FUNCTION__, __LINE__);
-		return 0;
+		return RWS_SP_NONE;
 	}
 
 	/* If the client sent a list of sub-protocols, the most preferred one
@@ -841,6 +854,9 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
 									"<%s:%d> Failed to allocate memory for protocolName.", 
 									__FUNCTION__,__LINE__);
+			
+			/* Overrides the setting value to indicate failure. */
+			subProtocol = RWS_SP_NONE;
 		}
 		else
 		{
@@ -1295,7 +1311,11 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Zero length HTTP header", __FILE__, __LINE__);
 				return(-400); /* Bad Request */
 			}
+			
+			// Sets the flag to indicate that the end of HTTP header has been found.
+			wsSess->foundEndOfHttpHdr = 1;
 			wsSess->headerLineNum = 0;
+
             return endOfLine+eoflen;
         }
 		else
@@ -1435,8 +1455,9 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 		endOfLine += eoflen;
 		lineLength = 0;
 	}
+
     /* here we are if not yet complete */
-    return 0;
+    return endOfLine;
 }
 
 /* The server side call for reading the initial opening handshake request sent from a new
@@ -1489,17 +1510,32 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 		// Check the first line is a GET request and the field-value field
 		// has a URL for /WebSocket
-		// e.g. value = '/WebSocket HTTP/1.1' fv_WebSocketURI = '/WebSocket'
+		// e.g. value = '/WebSocket HTTP/1.1' fv_WebSocketURI = '/WebSocket', rwsHdr_HTTP = "HTTP/1.1"
 		if (hdrLine && 
 			(hdrLine[0].field.length == rwsHdr_GET.length) &&
 			(memcmp(hdrLine[0].field.data, rwsHdr_GET.data, rwsHdr_GET.length)==0) &&
 			(hdrLine[0].value.length >= fv_WebSocketURI.length) && hdrLine[0].value.data &&
 			_rwsMatchBuffer(hdrLine[0].value.data, fv_WebSocketURI.length, fv_WebSocketURI.data, fv_WebSocketURI.length))
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-			_DEBUG_TRACE_PARSE_HTTP("Received GET request '%s' ", hdrLine[0].data)
-			wsSess->recvGetReq = 1;
-			rsslSocketChannel->connType = RSSL_CONN_TYPE_WEBSOCKET;
+			RsslUInt32 index = fv_WebSocketURI.length + 1;
+
+			/* Skip whitespace and tab characters before the HTTP version */
+			for (; index < hdrLine[0].value.length && (hdrLine[0].value.data[index] == ' ' || hdrLine[0].value.data[index] == '\t'); index++);
+
+			if (_rwsMatchBuffer(hdrLine[0].value.data + index, rwsHdr_HTTP.length, rwsHdr_HTTP.data, rwsHdr_HTTP.length))
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				_DEBUG_TRACE_PARSE_HTTP("Received GET request '%s' ", hdrLine[0].data)
+					wsSess->recvGetReq = 1;
+				rsslSocketChannel->connType = RSSL_CONN_TYPE_WEBSOCKET;
+			}
+			else
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Invalid HTTP version received ", __FUNCTION__, __LINE__);
+				return(-1);
+			}
 		}
 		else
 		{
@@ -1568,6 +1604,16 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 				
 				if (wsSess->keyRecv.data == 0)
 				{
+					// Validate the length of request key value
+					if ((pos - start + 1) > MAX_WEBSOCKET_REQUEST_KEY_SIZE)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> The value of the Sec-Websocket-Key field is too long: (%d)",
+							__FUNCTION__, __LINE__, (pos - start));
+						return(-1);
+					}
+
 					wsSess->keyRecv.data = (char*)_rsslMalloc((pos-start) + 1);
 					if (wsSess->keyRecv.data == 0)
 					{
@@ -1617,11 +1663,11 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 			 * Sec-WebSocket-Protocol: */
 			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_PROTOCOL) && pValue->data)
 			{
-				/* If the handshake sent an invalid sub protocol, 0 will be returned
-				 * and will be rejected as an invalid protocol. If no protocol was sent
-				 * the default protocol will be used */
+				/* If the handshake sent an invalid sub protocol which does not match with the server list,
+				 * RWS_SP_NONE(-1) will be returned and will be rejected as an invalid protocol.
+				 */
 				wsSess->protocol = rwsValidateSubProtocolRequest(wsSess, wsSess->server->protocolList, pValue, 0, error);
-				if (wsSess->protocol == RWS_SP_NONE)
+				if (error->rsslErrorId == RSSL_RET_FAILURE)
 				{
 					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -2454,12 +2500,17 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 	RsslUInt8 		flags = 0x0;
 	RsslInt32		i = 0;
 	ripcRWFlags		rwflags = RIPC_RW_NONE;
-	rwsSession_t *wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+	rwsSession_t *wsSess;
+
+	if (IPC_NULL_PTR(rsslSocketChannel, "rwsWaitResponseHandshake", "rsslSocketChannel", error))
+			return(RIPC_CONN_ERROR);
 
 	_DEBUG_TRACE_WS_CONN("fd "SOCKET_PRINT_TYPE" \n", rsslSocketChannel->stream)
 
+	wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
 	if (IPC_NULL_PTR(wsSess, "rwsWaitResponseHandshake", "wsSess", error))
-		return(RIPC_CONN_ERROR);
+			return(RIPC_CONN_ERROR);
 
 	rwflags |= (rsslSocketChannel->blocking ? RIPC_RW_BLOCKING : 0);
 
@@ -2561,6 +2612,15 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 			"<%s:%d> No Connection: key received. ",
 			__FUNCTION__, __LINE__);
 
+		return(RIPC_CONN_ERROR);
+	}
+
+	if (!wsSess->foundEndOfHttpHdr)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Invalid HTTP header, the end of HTTP header is not found",
+			__FUNCTION__, __LINE__);
 		return(RIPC_CONN_ERROR);
 	}
 
@@ -3086,6 +3146,30 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 {
 	RsslInt32	httpHeaderLen = 0;
 	rwsSession_t *wsSess = 0;
+
+	if (error == NULL)
+	{
+		return RIPC_CONN_ERROR;
+	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(rsslSocketChannel, "rwsValidateWebSocketRequest", "rsslSocketChannel", error)))
+	{
+		return RIPC_CONN_ERROR;
+	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hdrStart, "rwsValidateWebSocketRequest", "hdrStart", error)))
+	{
+		return RIPC_CONN_ERROR;
+	}
+
+	if (cc < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Invalid HTTP request size: (%d).",
+			__FILE__, __LINE__, cc);
+
+		return RIPC_CONN_ERROR;
+	}
 				
 	if (rsslSocketChannel->server->rwsServer == 0)
 		return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_CONN_ERROR, error));
@@ -3265,6 +3349,16 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 					wsSess->protocol);
 			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_UNSUPPORTED_SUB_PROTOCOL, error));
 		}
+
+		if (!wsSess->foundEndOfHttpHdr)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Invalid HTTP header, the end of HTTP header is not found",
+				__FUNCTION__, __LINE__);
+			return(rwsRejectSession(rsslSocketChannel, RSSL_WS_REJECT_CONN_ERROR, error));
+		}
+
 		rsslSocketChannel->protocolType = (RsslUInt8)wsSess->protocol;
 
 		return (rwsAcceptWebSocket(rsslSocketChannel, error));
@@ -5915,11 +6009,11 @@ RsslInt32 URLdecode(char *encoded, RsslInt32 length, char *pDecode)
 
 RsslInt32 getIntValue(RsslInt32 *pos, RsslInt32 endOfLine, char *data)
 {
-	char val[50];
+	char val[MAX_INTEGER_FROM_STRING + 1]; // include null string value
 	RsslInt32 cnt = 0;
 	val[0] = '\0';
 
-	while ( ((*pos) <= endOfLine) && (cnt < 50) && isdigit(data[(*pos)]) )
+	while ( ((*pos) <= endOfLine) && (cnt < MAX_INTEGER_FROM_STRING) && isdigit(data[(*pos)]) )
 	{
 		val[cnt] = data[(*pos)];
 		++cnt;++(*pos);
@@ -6076,6 +6170,7 @@ void rwsClearSession(rwsSession_t *wsSess)
 	wsSess->isClient = 0;
 	wsSess->maxMsgSize = RSSL_MAX_JSON_MSG_SIZE;
 	wsSess->fragmentedDecompressedBuffer = 0;
+	wsSess->foundEndOfHttpHdr = 0;
 }
 
 rwsSession_t *rwsNewSession()

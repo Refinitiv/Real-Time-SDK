@@ -386,6 +386,7 @@ typedef struct rwsSession {
 	RsslBool		isClient;
 	RsslBool		finBit; /* For supporting fragmented message */
 	RsslUInt64		maxMsgSize; /* Stores the maximum message size for WebSocket client */
+	RsslBool        foundEndOfHttpHdr; /* A flag to indicate whether the end of HTTP message has been found. */
 } rwsSession_t;
 
 typedef struct 

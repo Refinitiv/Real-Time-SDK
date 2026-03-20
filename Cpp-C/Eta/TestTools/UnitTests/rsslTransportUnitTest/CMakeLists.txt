@@ -2,6 +2,8 @@ set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
 	rsslTransportUnitTest.cpp
 	rsslTransportNullParamTest.cpp
+	rwsValidateWebSocketRequestUnitTest.cpp
+	rwsWaitResponseHandshakeUnitTest.cpp
 
 	TransportUnitTest.h
 )
@@ -195,7 +197,7 @@ else()
                     
     add_custom_command(
                     TARGET rsslTransportUnitTest_shared POST_BUILD
-                    
+
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/enumtype.def
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
