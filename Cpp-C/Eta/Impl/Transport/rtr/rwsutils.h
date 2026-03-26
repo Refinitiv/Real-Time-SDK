@@ -423,10 +423,10 @@ RsslInt32 rwsReadHttpHeader(char *, RsslInt32, RsslInt32, rwsSession_t *, rwsHtt
 RsslRet rwsReadOpeningHandshake(char *, RsslInt32 , RsslInt32 , RsslSocketChannel * , RsslError *);
 RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *, RsslInt32 , RsslInt32 , rwsSession_t * , RsslError *);
 ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel * , ripcSessInProg *, RsslError *);
-ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * , ripcSessInProg *, RsslError *);
+RSSL_API ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * , ripcSessInProg *, RsslError *);
 
 RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *, rwsSession_t *, RsslError *);
-ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *, char *, RsslInt32, RsslError *);
+RSSL_API ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *, char *, RsslInt32, RsslError *);
 ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *, RsslError *);
 RsslInt32 rwsRejectSession(RsslSocketChannel *, RsslRejectCodeType , RsslError *);
 
@@ -467,9 +467,9 @@ void rwsRelCompression(rwsComp_t *);
 void rwsClearCookies(rwsCookies_t *);
 void rwsRelCookies(rwsCookies_t *);
 
-void rwsClearSession(rwsSession_t *);
+RSSL_API void rwsClearSession(rwsSession_t *);
 rwsSession_t *rwsNewSession();
-void rwsReleaseSession(rwsSession_t *);
+RSSL_API void rwsReleaseSession(rwsSession_t *);
 
 void rwsClearServer(rwsServer_t *);
 rwsServer_t *rwsNewServer();

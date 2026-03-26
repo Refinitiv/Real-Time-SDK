@@ -17,14 +17,14 @@ extern "C" {
 
 
 	/* Default buffer pool to initialize */
-extern rtr_bufferpool_t *rtr_smplcAllocatePool( RsslMutex *mutex );
-extern int rtr_smplcAddRef(rtr_bufferpool_t *pool);
-extern int rtr_smplcDropRef(rtr_bufferpool_t *pool);
-extern rtr_msgb_t *rtr_smplcAllocMsg(rtr_bufferpool_t *pool, size_t size);
+extern RSSL_API rtr_bufferpool_t *rtr_smplcAllocatePool( RsslMutex *mutex );
+extern RSSL_API int rtr_smplcAddRef(rtr_bufferpool_t *pool);
+extern RSSL_API int rtr_smplcDropRef(rtr_bufferpool_t *pool);
+extern RSSL_API rtr_msgb_t *rtr_smplcAllocMsg(rtr_bufferpool_t *pool, size_t size);
 extern rtr_msgb_t *rtr_smplcAllocMaxMsg(rtr_bufferpool_t *pool);
 extern rtr_msgb_t *rtr_smplcDupMsg(rtr_bufferpool_t *pool, rtr_msgb_t *curmblk);
 extern rtr_msgb_t *rtr_smplcCopyMsg(rtr_bufferpool_t *pool, rtr_msgb_t *curmblk);
-extern int rtr_smplcFreeMsg(rtr_msgb_t *mblk);
+extern RSSL_API int rtr_smplcFreeMsg(rtr_msgb_t *mblk);
 
 extern int rtr_smplcSetUsed(rtr_bufferpool_t *pool, rtr_msgb_t *curmblk);
 

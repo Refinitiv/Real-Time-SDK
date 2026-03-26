@@ -63,14 +63,14 @@ extern rtr_dfltcbufferpool_t *rtr_dfltcAllocatePool(
 	/* Used this function in conjunction with rtr_dfltcSetBufSize when
 	 * the buffer size is not pre known.
 	 */
-extern rtr_dfltcbufferpool_t *rtr_dfltcAllocPool(
+extern RSSL_API rtr_dfltcbufferpool_t *rtr_dfltcAllocPool(
 			int initBufs, int max_bufs,int increase_bufs,
 			rtr_bufferpool_t *sharedPool, int maxPoolBufs,
 			RsslMutex *mutex );
 extern int rtr_dfltcSetBufSize( rtr_dfltcbufferpool_t *pool, size_t bufSize );
 
 extern int rtr_dfltcAddRef(rtr_bufferpool_t *pool);
-extern int rtr_dfltcDropRef(rtr_bufferpool_t *pool);
+extern RSSL_API int rtr_dfltcDropRef(rtr_bufferpool_t *pool);
 
 extern rtr_msgb_t *rtr_dfltcAllocMsg(rtr_bufferpool_t *pool, size_t size);
 extern rtr_msgb_t *rtr_dfltcAllocMaxMsg(rtr_bufferpool_t *pool);
