@@ -1,9 +1,11 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.util.GradleVersion
+
 buildscript {
         repositories {
                 mavenCentral()
-                maven { url "https://central.sonatype.com/repository/maven-snapshots" }
+				maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
         }
 }
 
@@ -14,8 +16,10 @@ plugins {
 subprojects {
 	apply plugin: 'java'
 
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+	java {
+		sourceCompatibility = JavaVersion.VERSION_1_8
+		targetCompatibility = JavaVersion.VERSION_1_8
+	}
 
 	apply plugin: 'eclipse'
 
@@ -63,43 +67,46 @@ ext.javadoc_footer = '<a href="https://developers.lseg.com/" target=_top>LSEG</a
 ext.javadoc_header = '<a href="https://developers.lseg.com/" target=_top>LSEG</a>'
 ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' LSEG. All Rights Reserved.</i>'
 
-task downloadBinaryPack(type: Download) {
-    description 'This task downloads the RTSDK-BinaryPack file from GitHub.'
+def binaryPackDir = file('../RTSDK-BinaryPack')
+def binaryPackTempDir = file('../temp')
+def binaryPackZip = file('../RTSDK-BinaryPack.zip')
 
-	def releaseToDownload = "RTSDK-BinaryPack-" + BINARY_PACK_VERSION_TO_DOWNLOAD
-	def zipFileToDownload = releaseToDownload + ".zip"
-	src 'https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-' + BINARY_PACK_VERSION_TO_DOWNLOAD + '/' + zipFileToDownload
-	dest new File('../.', 'RTSDK-BinaryPack.zip')
+def downloadBinaryPack = tasks.register('downloadBinaryPack', Download) {
+	description = 'This task downloads the RTSDK-BinaryPack file from GitHub.'
+	onlyIf { !binaryPackDir.exists() }
+
+	def releaseToDownload = "RTSDK-BinaryPack-${BINARY_PACK_VERSION_TO_DOWNLOAD}"
+	def zipFileToDownload = "${releaseToDownload}.zip"
+	src("https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-${BINARY_PACK_VERSION_TO_DOWNLOAD}/${zipFileToDownload}")
+	dest(binaryPackZip)
 }
 
-task unzipBinaryPack(dependsOn: downloadBinaryPack, type: Copy) {
-	ext.temp = new File('../temp')
-	from zipTree(downloadBinaryPack.dest)
-	into ext.temp
+def unzipBinaryPack = tasks.register('unzipBinaryPack', Copy) {
+	dependsOn(downloadBinaryPack)
+	onlyIf { !binaryPackDir.exists() }
+	ext.temp = binaryPackTempDir
+	from({ zipTree(downloadBinaryPack.get().dest) })
+	into(binaryPackTempDir)
 }
 
-task getBinaryPack () {
+def getBinaryPack = tasks.register('getBinaryPack') {
+	dependsOn(unzipBinaryPack)
 
-    // check if we are in GSG package
-    File gsgDir = file('../RTSDK-BinaryPack')
-    if (!gsgDir.exists()) {
-		dependsOn unzipBinaryPack
-    }	
-    else
-    {
-        println "RTSDK-BinaryPack already exists, skip downloading."
-    }	
-		
+	doFirst {
+		if (binaryPackDir.exists()) {
+			println 'RTSDK-BinaryPack already exists, skip downloading.'
+		}
+	}
+
 	doLast {
 		// check if Binary Pack exists
-		File gsgDirNew = file('../RTSDK-BinaryPack')
-		if (!gsgDirNew.exists()) {
+		if (!binaryPackDir.exists()) {
 		
 			// move the file
-			file('../temp/RTSDK-BinaryPack').renameTo(file('../RTSDK-BinaryPack'))
+			file('../temp/RTSDK-BinaryPack').renameTo(binaryPackDir)
 			// delete temp directory and downloaded file
-			unzipBinaryPack.ext.temp.deleteDir()
-			downloadBinaryPack.dest.delete()
+			binaryPackTempDir.deleteDir()
+			binaryPackZip.delete()
 		}		
 	}
 }
@@ -115,42 +122,44 @@ allprojects {
 		testImplementation 'org.mockito:mockito-core:5.20.0'
 	}
 
-	compileJava {
-	        options.compilerArgs += ["-Xlint:cast"]
-	        options.compilerArgs += ["-Xlint:deprecation"]
-	        options.compilerArgs += ["-Xlint:divzero"]
-	        options.compilerArgs += ["-Xlint:empty"]
-	        options.compilerArgs += ["-Xlint:fallthrough"]
-	        options.compilerArgs += ["-Xlint:finally"]
-	        options.compilerArgs += ["-Xlint:overrides"]
-	        options.compilerArgs += ["-Xlint:path"]
-	        options.compilerArgs += ["-Xlint:serial"]
-	        options.compilerArgs += ["-Xlint:unchecked"]
-		options.compilerArgs += ["-Xlint:-options"] //suppresses warning "warning: [options] source value 8 is obsolete and will be removed in a future release"
+	tasks.named('compileJava', JavaCompile).configure {
+		options.compilerArgs += [
+			"-Xlint:cast",
+			"-Xlint:deprecation",
+			"-Xlint:divzero",
+			"-Xlint:empty",
+			"-Xlint:fallthrough",
+			"-Xlint:finally",
+			"-Xlint:overrides",
+			"-Xlint:path",
+			"-Xlint:serial",
+			"-Xlint:unchecked",
+			"-Xlint:-options"
+		] // suppresses warning "warning: [options] source value 8 is obsolete and will be removed in a future release"
 	}
 
-        tasks.withType( JavaCompile ) {
-				dependsOn getBinaryPack
-                options.fork = true
-                options.incremental = true
-        }
+	tasks.withType(JavaCompile).configureEach {
+		dependsOn(getBinaryPack)
+		options.fork = true
+		options.incremental = true
+	}
 
 	// set the jvmArgs and commandLineArgs for all applications
-	tasks.withType ( JavaExec ) {
-	        if ( project.hasProperty("vmArgs") ) {
-        	        jvmArgs Eval.me( buildArgsList( vmArgs ) )
-        	}
+	tasks.withType(JavaExec).configureEach {
+		if (project.hasProperty("vmArgs")) {
+			jvmArgs(buildArgsList(vmArgs))
+		}
 
-	        if ( project.hasProperty("commandLineArgs") ) {
-        	        args Eval.me( buildArgsList( commandLineArgs ) )
-       		}
+		if (project.hasProperty("commandLineArgs")) {
+			args(buildArgsList(commandLineArgs))
+		}
 	}
 
 	// set the jvmArgs for junit
-	tasks.withType ( Test ) {
-	        if ( project.hasProperty("vmArgs") ) {
-        	        jvmArgs Eval.me( buildArgsList( vmArgs ) )
-        	}
+	tasks.withType(Test).configureEach {
+		if (project.hasProperty("vmArgs")) {
+			jvmArgs(buildArgsList(vmArgs))
+		}
 
 		minHeapSize = "1024m"
 		maxHeapSize = "2048m"
@@ -161,34 +170,45 @@ allprojects {
 					TestLogEvent.PASSED,
 					TestLogEvent.SKIPPED,
 					TestLogEvent.STANDARD_OUT
-			exceptionFormat TestExceptionFormat.FULL
-			showExceptions true
-			showCauses true
-			showStackTraces true
-			// print tests summary
-			afterSuite { desc, result ->
+			exceptionFormat = TestExceptionFormat.FULL
+			showExceptions = true
+			showCauses = true
+			showStackTraces = true
+		}
+
+		addTestListener(new TestListener() {
+			@Override
+			void beforeSuite(TestDescriptor suite) {}
+
+			@Override
+			void beforeTest(TestDescriptor testDescriptor) {}
+
+			@Override
+			void afterTest(TestDescriptor testDescriptor, TestResult result) {}
+
+			@Override
+			void afterSuite(TestDescriptor desc, TestResult result) {
 				if (!desc.parent) { // will match the outermost suite
 					def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
-					def startItem = '|  ', endItem = '  |'
+					def startItem = '|  '
+					def endItem = '  |'
 					def repeatLength = startItem.length() + output.length() + endItem.length()
 					println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
 				}
 			}
-		}
+		})
 	}
 }
 
 wrapper {
-	gradleVersion = '8.9'
-	
-    if (GradleVersion.current() < GradleVersion.version("8.9")) {
-        throw new GradleException("This project requires Gradle 8.9 or higher. Please upgrade your Gradle version.")
-    }
+	if (GradleVersion.current() < GradleVersion.version("8.9")) {
+		throw new GradleException("This project requires Gradle 8.9 or higher. Please upgrade your Gradle version.")
+	}
 }
 
-task uploadAll ( ) {
-	group 'Upload'
-	description 'Uploads All artifacts to maven central, run with -Pmavencentral'
+tasks.register('uploadAll') {
+	group = 'Upload'
+	description = 'Uploads All artifacts to maven central, run with -Pmavencentral'
 	if (project.hasProperty("mavencentral"))
 	{
 		dependsOn ':Eta:AnsiPage:publish'
@@ -214,26 +234,17 @@ task uploadAll ( ) {
 }
 
 // this method creates a list of arguments that are used in setting the jvmArgs and commandLineArgs
-def buildArgsList ( options ) {
-	// remove spaces 
-	def arguments = options.tokenize()
-
-		// create a string that can be used by Eval 
-		def cla = "["
-		// go through the list to get each argument
-		arguments.each {
-			cla += "'" + "${it}" + "',"
-		}
-
-	// remove last "," add "]" and set the args 
-	return cla.substring( 0, cla.lastIndexOf(',') ) + "]"
+static List<String> buildArgsList(options) {
+	return options?.toString()?.tokenize() ?: []
 }
 
 // can't use a dynamic date for manifest since it triggers a build each time even when nothing changed
-def getDate() {
+static def getDate() {
 	def date = new Date()
 	def formattedDate = date.format('E MMM dd HH:mm:ss z yyyy ')
 	return formattedDate
 }
 // disable creating empty Java.jar file 
-jar.enabled = false
+tasks.named('jar').configure {
+	enabled = false
+}

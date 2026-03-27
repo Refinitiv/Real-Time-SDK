@@ -1,40 +1,44 @@
 plugins {
     id 'maven-publish'
     id 'java-library'
-    id 'org.jreleaser' version '1.18.0'
+    id 'org.jreleaser' version '1.23.0'
 }
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
 group = "com.refinitiv.ema"
-archivesBaseName = "ema"
-version "$SpecificationVersion"
+def mavenArtifactId = "ema"
+version = "$SpecificationVersion"
+
+base {
+  archivesName = mavenArtifactId
+}
 
 java {
     withSourcesJar()
 }
 
-ext.sharedManifest = manifest {
-    attributes( 'Sealed': 'true',
-            'Build-Date': BuildDate,
-            'Specification-Version': SpecificationVersion,
-            'Specification-Vendor': vendor,
-            'Implementation-Title': group,
-            'Implementation-Version': emaImplementationVersion,
-            'Implementation-Vendor': vendor )
-}
+ext.sharedManifestAttributes = [
+	'Sealed': 'true',
+	'Build-Date': BuildDate,
+	'Specification-Version': SpecificationVersion,
+	'Specification-Vendor': vendor,
+	'Implementation-Title': group,
+	'Implementation-Version': emaImplementationVersion,
+	'Implementation-Vendor': vendor
+]
 
-task packageTests(type: Jar) {
-	group = 'Build'
-	description 'Assembles a jar archive containing the unit test classes and test utilities.'
-    archiveVersion.convention("$SpecificationVersion");
-    archiveVersion.set("$SpecificationVersion");
-    destinationDirectory.set(file("../Libs/"));
-    archiveClassifier.convention('tests');
-    archiveClassifier.set('tests');
+tasks.register('packageTests', Jar) {
+    group = 'Build'
+    description 'Assembles a jar archive containing the unit test classes and test utilities.'
+    archiveVersion.convention("$SpecificationVersion")
+    archiveVersion.set("$SpecificationVersion")
+    destinationDirectory.set(file("../Libs/"))
+    archiveClassifier.convention('tests')
+    archiveClassifier.set('tests')
     manifest {
         attributes 'Specification-Title': 'Enterprise Message API (EMA) Tests Java Edition'
-        from sharedManifest
+        attributes(sharedManifestAttributes)
     }
     from sourceSets.test.output
 }
@@ -77,15 +81,16 @@ javadoc {
     options.setWindowTitle ('EMA')
 }
 
-task javadocJar (type: Jar, dependsOn: this.javadoc) {
-    archiveClassifier.convention('javadoc');
-    archiveClassifier.set('javadoc');
+tasks.register('javadocJar', Jar) {
+    dependsOn this.javadoc
+    archiveClassifier.convention('javadoc')
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
     destinationDirectory.set(jar.destinationDirectory)
 
     manifest {
         attributes 'Specification-Title': 'Enterprise Message API (EMA) Java Edition'
-        from sharedManifest
+        attributes(sharedManifestAttributes)
     }
 }
 
@@ -94,14 +99,14 @@ publishing {
         mavenJava(MavenPublication){
 
             groupId = group
-            artifactId = archivesBaseName
+            artifactId = mavenArtifactId
             version = "$SpecificationVersion"
             from components.java
             artifact javadocJar
             artifact packageTests
 
             pom {
-                name = "$archivesBaseName"
+                name = mavenArtifactId
                 packaging = 'jar'
                 url = 'https://github.com/Refinitiv/Real-Time-SDK'
                 description = 'Enterprise Message API (EMA) Java Edition'
@@ -186,24 +191,22 @@ jar {
 
 	manifest { 
 		attributes 'Specification-Title': 'Enterprise Message API (EMA) Java Edition'
-				from sharedManifest 
+    attributes(sharedManifestAttributes)
 	}
 
     destinationDirectory.set(file("../Libs/"))
-    archiveBaseName.convention('ema');
-    archiveBaseName.set('ema');
 }
 
-task cleanJar (type: Delete) {
-        delete "${jar.archiveFile}"
+tasks.register('cleanJar', Delete) {
+    delete "${jar.archiveFile}"
 }
 
-task cleanJavadoc (type: Delete) {
-	delete ('../Docs/refman')
+tasks.register('cleanJavadoc', Delete) {
+    delete('../Docs/refman')
 }
 
-task cleanJavadocJar (type: Delete) {
-	delete "${jar.destinationDirectory}/ema-javadoc.jar"
+tasks.register('cleanJavadocJar', Delete) {
+    delete "${jar.destinationDirectory}/ema-javadoc.jar"
 }
 
 clean.dependsOn cleanJar, cleanJavadoc, cleanJavadocJar

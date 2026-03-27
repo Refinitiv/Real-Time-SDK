@@ -19,26 +19,28 @@ dependencies {
     implementation project(':Eta:Converter')
 }
 
-mainClassName = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
+application {
+  mainClass = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
+}
 
-task copyDictionary{
+tasks.register('copyDictionary') {
     outputs.files files('../../../etc')
             .asFileTree
             .files
-            .collect{'./${it.name}'}
+            .collect { './${it.name}' }
 
-    doLast{
-        copy{
+    doLast {
+        copy {
             from '../../../etc'
             into './'
         }
     }
 }
 
-task deleteDictionary( type: Delete ) {
-	delete "$projectDir/RDMFieldDictionary"
-	delete "$projectDir/RDMFieldDictionary_large"
-	delete "$projectDir/enumtype.def"
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
 }
 
 def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms2048m -Xmx2048m"
@@ -66,13 +68,13 @@ javadoc {
 run.dependsOn copyDictionary
 clean.dependsOn deleteDictionary
 
-task runETAPerfProvider(type: JavaExec) {
+tasks.register('runETAPerfProvider', JavaExec) {
     dependsOn 'copyDictionary'
     group 'Run ETA Performance Tools Examples'
     description "Run ETAJ OMM Provider performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -80,19 +82,19 @@ task runETAPerfProvider(type: JavaExec) {
     // APP_ARGS="-runTime 60 -latencyUpdateRate 1000 -tickRate 1000 -updateRate 100000"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) ) 
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.eta.perftools.provperf.ProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runETAPerfConsumer(type: JavaExec) {
+tasks.register('runETAPerfConsumer', JavaExec) {
     dependsOn 'copyDictionary'
     group 'Run ETA Performance Tools Examples'
     description "Run ETAJ OMM Consumer performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) ) 
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -100,19 +102,19 @@ task runETAPerfConsumer(type: JavaExec) {
     // APP_ARGS = "-steadyStateTime 90 -tickRate 1000 -itemCount 100000"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) ) 
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.eta.perftools.consperf.ConsPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runETAPerfNIProvider(type: JavaExec) {
+tasks.register('runETAPerfNIProvider', JavaExec) {
     dependsOn 'copyDictionary'
     group 'Run ETA Performance Tools Examples'
     description "Run ETAJ OMM NIProvider performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -120,19 +122,19 @@ task runETAPerfNIProvider(type: JavaExec) {
     // APP_ARGS="-runTime 60 -latencyUpdateRate 1000 -tickRate 1000 -updateRate 100000"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) )
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.eta.perftools.niprovperf.NIProvPerf')
-	classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.runtimeClasspath
 }
 
-task runETAPerfTransport(type: JavaExec) {
+tasks.register('runETAPerfTransport', JavaExec) {
     dependsOn 'copyDictionary'
     group 'Run ETA Performance Tools Examples'
     description "Run ETAJ Transport performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -140,6 +142,6 @@ task runETAPerfTransport(type: JavaExec) {
     // APP_ARGS="-msgRate 1000 -runTime 60"
 
     mainClass.set('com.refinitiv.eta.perftools.transportperf.TransportPerf')
-	classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.runtimeClasspath
 }
 

@@ -11,26 +11,28 @@ dependencies {
     implementation project(':Eta:Core')
 }
 
-mainClassName = 'com.refinitiv.eta.training.provider.Module_1a_Connect'
+application {
+  mainClass = 'com.refinitiv.eta.training.provider.Module_1a_Connect'
+}
 
-task copyDictionary{
+tasks.register('copyDictionary') {
     outputs.files files('../../../etc')
             .asFileTree
             .files
-            .collect{'./${it.name}'}
+            .collect { './${it.name}' }
 
-    doLast{
-        copy{
+    doLast {
+        copy {
             from '../../../etc'
             into './'
         }
     }
 }
 
-task deleteDictionary( type: Delete ) {
-	delete "$projectDir/RDMFieldDictionary"
-	delete "$projectDir/RDMFieldDictionary_large"
-	delete "$projectDir/enumtype.def"
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
 }
 
 def exportedProjects= [":Eta:Applications:Shared" , ":Eta:Applications:Training" ]
@@ -56,7 +58,7 @@ javadoc {
 run.dependsOn copyDictionary
 clean.dependsOn deleteDictionary
 
-task runprovidermod1a(type: JavaExec) {
+tasks.register('runprovidermod1a', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1a Example'
 
@@ -64,7 +66,7 @@ task runprovidermod1a(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod1b(type: JavaExec) {
+tasks.register('runprovidermod1b', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1b Example'
 
@@ -72,7 +74,7 @@ task runprovidermod1b(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod1c(type: JavaExec) {
+tasks.register('runprovidermod1c', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 1c Example'
 
@@ -80,7 +82,7 @@ task runprovidermod1c(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod2(type: JavaExec) {
+tasks.register('runprovidermod2', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 2 Example'
 
@@ -88,7 +90,7 @@ task runprovidermod2(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod3(type: JavaExec) {
+tasks.register('runprovidermod3', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 3 Example'
 
@@ -96,7 +98,7 @@ task runprovidermod3(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod4(type: JavaExec) {
+tasks.register('runprovidermod4', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 4 Example'
 
@@ -105,7 +107,7 @@ task runprovidermod4(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runprovidermod5(type: JavaExec) {
+tasks.register('runprovidermod5', JavaExec) {
     group 'Run ETA Training Interactive Provider Examples'
     description 'Run ETA Training Interactive Provider Module 5 Example'
 
@@ -114,7 +116,7 @@ task runprovidermod5(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod1a(type: JavaExec) {
+tasks.register('runniprovidermod1a', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1a Example'
 
@@ -122,7 +124,7 @@ task runniprovidermod1a(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod1b(type: JavaExec) {
+tasks.register('runniprovidermod1b', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1b Example'
 
@@ -130,7 +132,7 @@ task runniprovidermod1b(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod1c(type: JavaExec) {
+tasks.register('runniprovidermod1c', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 1c Example'
 
@@ -138,7 +140,7 @@ task runniprovidermod1c(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod2(type: JavaExec) {
+tasks.register('runniprovidermod2', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 2 Example'
 
@@ -146,7 +148,7 @@ task runniprovidermod2(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod3(type: JavaExec) {
+tasks.register('runniprovidermod3', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 3 Example'
 
@@ -154,7 +156,7 @@ task runniprovidermod3(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod4(type: JavaExec) {
+tasks.register('runniprovidermod4', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 4 Example'
 
@@ -163,7 +165,7 @@ task runniprovidermod4(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runniprovidermod5(type: JavaExec) {
+tasks.register('runniprovidermod5', JavaExec) {
     group 'Run ETA Training Non Interactive Provider Examples'
     description 'Run ETA Training Non Interactive Provider Module 5 Example'
 
@@ -172,7 +174,7 @@ task runniprovidermod5(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod1a(type: JavaExec) {
+tasks.register('runconsumermod1a', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1a Example'
 
@@ -180,7 +182,7 @@ task runconsumermod1a(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod1b(type: JavaExec) {
+tasks.register('runconsumermod1b', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1b Example'
 
@@ -188,7 +190,7 @@ task runconsumermod1b(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod1c(type: JavaExec) {
+tasks.register('runconsumermod1c', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 1c Example'
 
@@ -196,7 +198,7 @@ task runconsumermod1c(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod2(type: JavaExec) {
+tasks.register('runconsumermod2', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 2 Example'
 
@@ -204,7 +206,7 @@ task runconsumermod2(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod3(type: JavaExec) {
+tasks.register('runconsumermod3', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 3 Example'
 
@@ -212,7 +214,7 @@ task runconsumermod3(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod4(type: JavaExec) {
+tasks.register('runconsumermod4', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 4 Example'
 
@@ -221,7 +223,7 @@ task runconsumermod4(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runconsumermod5(type: JavaExec) {
+tasks.register('runconsumermod5', JavaExec) {
     group 'Run ETA Training Consumer Examples'
     description 'Run ETA Training Consumer Module 5 Example'
 

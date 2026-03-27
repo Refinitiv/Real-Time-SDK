@@ -24,8 +24,8 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.convention('RTSDK');
-    archiveBaseName.set('RTSDK');
+    archiveBaseName.convention('RTSDK')
+    archiveBaseName.set('RTSDK')
 }
 
 // disable creating empty Ema.jar file

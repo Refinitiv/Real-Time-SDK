@@ -33,13 +33,13 @@ javadoc {
     options.setWindowTitle ('EMA Performance Tools')
 }
 
-task runEMAPerfConsumer(type: JavaExec) {
+tasks.register('runEMAPerfConsumer', JavaExec) {
     dependsOn 'copyDictionary', 'copyEmaConfig'
     group 'Run EMA Performance Tools Examples'
     description "Run EMAJ OMM Consumer performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -47,35 +47,35 @@ task runEMAPerfConsumer(type: JavaExec) {
     APP_ARGS = "-steadyStateTime 90 -tickRate 1000 -requestRate 5000 -itemCount 100000 -itemFile 350k.xml -threads 1"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) )
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.ema.perftools.emajconsperf.emajConsPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runEMAPerfProvider(type: JavaExec) {
+tasks.register('runEMAPerfProvider', JavaExec) {
     dependsOn 'copyDictionary', 'copyEmaConfig'
     group 'Run EMA Performance Tools Examples'
     description "Run EMAJ OMM Provider performance application"
 
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     APP_ARGS = "-msgFile MsgData.xml"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) )
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.ema.perftools.emajprovperf.EmajProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task runEMAPerfNIProvider(type: JavaExec) {
+tasks.register('runEMAPerfNIProvider', JavaExec) {
     dependsOn 'copyDictionary', 'copyEmaConfig'
     group 'Run EMA Performance Tools Examples'
     description "Run EMAJ OMM Provider performance application"
     if (JVM_OPTIONS)
-        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+        jvmArgs(buildArgsList(JVM_OPTIONS))
 
     // command line options
     //.............................
@@ -83,47 +83,47 @@ task runEMAPerfNIProvider(type: JavaExec) {
     APP_ARGS = "-msgFile MsgData.xml -itemFile 350k.xml"
 
     if (APP_ARGS)
-        args Eval.me ( buildArgsList ( APP_ARGS ) )
+        args(buildArgsList(APP_ARGS))
 
     mainClass.set('com.refinitiv.ema.perftools.emajniprovperf.EmajNIProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task copyDictionary{
+tasks.register('copyDictionary') {
     outputs.files files('../../etc')
             .asFileTree
             .files
-            .collect{'./${it.name}'}
+            .collect { './${it.name}' }
 
-    doLast{
-        copy{
+    doLast {
+        copy {
             from '../../etc'
             into '.'
         }
     }
 }
 
-task copyEmaConfig{
+tasks.register('copyEmaConfig') {
     outputs.files files('../EmaConfig.xml')
             .asFileTree
             .files
-            .collect{'./${it.name}'}
+            .collect { './${it.name}' }
 
-    doLast{
-        copy{
+    doLast {
+        copy {
             from '../EmaConfig.xml'
             into '.'
         }
     }
 }
 
-task deleteDictionary( type: Delete ) {
-	delete "$projectDir/RDMFieldDictionary"
-	delete "$projectDir/RDMFieldDictionary_large"
-	delete "$projectDir/enumtype.def"
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
 }
 
-task deleteEmaConfig( type: Delete ) {
+tasks.register('deleteEmaConfig', Delete) {
     delete "$projectDir/EmaConfig.xml"
 }
 

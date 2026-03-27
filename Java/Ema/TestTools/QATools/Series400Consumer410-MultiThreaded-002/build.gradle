@@ -1,5 +1,5 @@
 plugins {
-	id 'org.openjfx.javafxplugin' version '0.0.9' apply(false)
+	id 'org.openjfx.javafxplugin' version '0.1.0' apply(false)
 }
 
 apply plugin: 'application'
@@ -25,55 +25,57 @@ if (JavaVersion.current().java11Compatible) {
 	}
 }
 
-mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
-
-task createExtraRunApp(type: CreateStartScripts) {
-	mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
-	classpath = startScripts.classpath
-	outputDir = startScripts.outputDir
-	applicationName = 'iprovider100'
-	classpath += files ('build/classes/java')
+application {
+	mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
 }
 
-task copyDictionary{
-	outputs.files files('../../etc')
-			.asFileTree
-			.files
-			.collect{'./${it.name}'}
-
-	doLast{
-		copy{
-			from '../../etc'
-			into './'
-		}
-	}
+tasks.register('createExtraRunApp', CreateStartScripts) {
+    mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    applicationName = 'iprovider100'
+    classpath += files('build/classes/java')
 }
 
-task copyEmaConfig{
-	outputs.files files('../EmaConfig.xml')
-			.asFileTree
-			.files
-			.collect{'./${it.name}'}
+tasks.register('copyDictionary') {
+    outputs.files files('../../etc')
+            .asFileTree
+            .files
+            .collect { './${it.name}' }
 
-	doLast{
-		copy{
-			from '../EmaConfig.xml'
-			into './'
-		}
-	}
+    doLast {
+        copy {
+            from '../../etc'
+            into './'
+        }
+    }
 }
 
-task deleteDictionary( type: Delete ) {
-	delete "$projectDir/RDMFieldDictionary"
-	delete "$projectDir/RDMFieldDictionary_large"
-	delete "$projectDir/enumtype.def"
+tasks.register('copyEmaConfig') {
+    outputs.files files('../EmaConfig.xml')
+            .asFileTree
+            .files
+            .collect { './${it.name}' }
+
+    doLast {
+        copy {
+            from '../EmaConfig.xml'
+            into './'
+        }
+    }
+}
+
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
 }
 
 def JVM_OPTIONS = "-Xms512m -Xmx1024m"
 def JVM_OPTIONS_RTTVIEWER_DESKTOP = "-Xms1g -Xmx2g"
 
-task deleteEmaConfig( type: Delete ) {
-	delete "$projectDir/EmaConfig.xml"
+tasks.register('deleteEmaConfig', Delete) {
+    delete "$projectDir/EmaConfig.xml"
 }
 
 run.dependsOn copyDictionary, copyEmaConfig
@@ -129,46 +131,46 @@ fileTree('.') {
 		dependsOn copyDictionary, copyEmaConfig
 
 		if (JVM_OPTIONS)
-			jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+			jvmArgs(buildArgsList(JVM_OPTIONS))
 
-		main = exampleMainLocation
+		mainClass.set(exampleMainLocation)
 		classpath = sourceSets.main.runtimeClasspath
 	}
 }
 
-task runrrtviewerdesktop ( type: JavaExec ) {
-	def exampleMainLocation = 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
-	def TaskDescription = 'RRTMDViewerDesktop'
-	group 'Run EMA RRTMDViewer desktop'
+tasks.register('runrrtviewerdesktop', JavaExec) {
+    def exampleMainLocation = 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+    def TaskDescription = 'RRTMDViewerDesktop'
+    group 'Run EMA RRTMDViewer desktop'
 
-	description 'This task runs the ' + TaskDescription
+    description 'This task runs the ' + TaskDescription
 
-	dependsOn copyDictionary, copyEmaConfig
+    dependsOn copyDictionary, copyEmaConfig
 
-	jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rrtmdviewer/desktop/logging.properties"
+    jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rrtmdviewer/desktop/logging.properties"
 
-	if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
-		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTTVIEWER_DESKTOP ) )
+    if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
+        jvmArgs(buildArgsList(JVM_OPTIONS_RTTVIEWER_DESKTOP))
 
-	mainClass.set(exampleMainLocation)
-	classpath = sourceSets.main.runtimeClasspath
+    mainClass.set(exampleMainLocation)
+    classpath = sourceSets.main.runtimeClasspath
 }
 
-task createRRTViewerFatJar (type: Jar) {
+tasks.register('createRRTViewerFatJar', Jar) {
 
-	group 'Run EMA RRTMDViewer desktop'
-	description 'This task builds fat jar for RRTViewer'
+    group 'Run EMA RRTMDViewer desktop'
+    description 'This task builds fat jar for RRTViewer'
 
-	manifest {
-		attributes(
-				'Main-Class' : 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
-		)
-	}
+    manifest {
+        attributes(
+                'Main-Class': 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+        )
+    }
 
-	baseName('RRTMDViewer')
+    archiveBaseName.set('RRTMDViewer')
 
-	from {
-		configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
-	} with jar
+    from {
+        configurations.compileClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    } with jar
 }
 

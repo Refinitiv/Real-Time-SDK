@@ -11,34 +11,36 @@ dependencies {
 	implementation project(':Ema:Core')
 }
 
-mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
-
-task createExtraRunApp(type: CreateStartScripts) {
-	mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
-	classpath = startScripts.classpath
-	outputDir = startScripts.outputDir
-	applicationName = 'iprovider100'
-	classpath += files ('build/classes/java')
+application {
+	mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
 }
 
-task copyDictionary{
-	outputs.files files('../../etc')
-			.asFileTree
-			.files
-			.collect{'./${it.name}'}
-
-	doLast{
-		copy{
-			from '../../etc'
-			into './'
-		}
-	}
+tasks.register('createExtraRunApp', CreateStartScripts) {
+    mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    applicationName = 'iprovider100'
+    classpath += files('build/classes/java')
 }
 
-task deleteDictionary( type: Delete ) {
-	delete "$projectDir/RDMFieldDictionary"
-	delete "$projectDir/RDMFieldDictionary_large"
-	delete "$projectDir/enumtype.def"
+tasks.register('copyDictionary') {
+    outputs.files files('../../etc')
+            .asFileTree
+            .files
+            .collect { './${it.name}' }
+
+    doLast {
+        copy {
+            from '../../etc'
+            into './'
+        }
+    }
+}
+
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
 }
 
 run.dependsOn copyDictionary
@@ -91,7 +93,7 @@ fileTree('.') {
 
 		dependsOn copyDictionary
 
-		main = exampleMainLocation
+		mainClass.set(exampleMainLocation)
 		classpath = sourceSets.main.runtimeClasspath
 	}
 }

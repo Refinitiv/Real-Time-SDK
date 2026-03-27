@@ -1,28 +1,32 @@
 plugins {
     id 'maven-publish'
     id 'java-library'
-    id 'org.jreleaser' version '1.18.0'
+    id 'org.jreleaser' version '1.23.0'
 }
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
 group = "com.refinitiv.eta.valueadd"
-archivesBaseName = "etaValueAdd"
-version "$SpecificationVersion"
+def mavenArtifactId = "etaValueAdd"
+version = "$SpecificationVersion"
+
+base {
+  archivesName = mavenArtifactId
+}
 
 java {
     withSourcesJar()
 }
 
-ext.sharedManifest = manifest {
-    attributes( 'Sealed': 'true',
-            'Build-Date': BuildDate,
-            'Specification-Version': SpecificationVersion,
-            'Specification-Vendor': vendor,
-            'Implementation-Title': group,
-            'Implementation-Version': etaImplementationVersion,
-            'Implementation-Vendor': vendor )
-}
+ext.sharedManifestAttributes = [
+	'Sealed': 'true',
+	'Build-Date': BuildDate,
+	'Specification-Version': SpecificationVersion,
+	'Specification-Vendor': vendor,
+	'Implementation-Title': group,
+	'Implementation-Version': etaImplementationVersion,
+	'Implementation-Vendor': vendor
+]
 
 javadoc {
     doFirst {
@@ -42,15 +46,16 @@ javadoc {
     options.setWindowTitle ('ETA ValueAdd')
 }
 
-task javadocJar (type: Jar, dependsOn: this.javadoc) {
-    archiveClassifier.convention('javadoc');
-    archiveClassifier.set('javadoc');
+tasks.register('javadocJar', Jar) {
+    dependsOn this.javadoc
+    archiveClassifier.convention('javadoc')
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
     destinationDirectory.set(jar.destinationDirectory)
 
     manifest {
         attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
-        from sharedManifest
+        attributes(sharedManifestAttributes)
     }
 }
 
@@ -59,13 +64,13 @@ publishing {
         mavenJava(MavenPublication){
 
             groupId = group
-            artifactId = archivesBaseName
+            artifactId = mavenArtifactId
             version = "$SpecificationVersion"
             from components.java
             artifact javadocJar
 
             pom {
-                name = "$archivesBaseName"
+                name = mavenArtifactId
                 packaging = 'jar'
                 url = 'https://github.com/Refinitiv/Real-Time-SDK'
                 description = 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
@@ -137,7 +142,7 @@ eclipse {
 }
 
 eclipse.classpath.file.whenMerged {
-    entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+    entries.findAll { it.class.name == 'org.gradle.plugins.ide.eclipse.model.ProjectDependency' }
             .each { it.entryAttributes['without_test_code'] = 'false' }
 }
 
@@ -183,16 +188,14 @@ jar {
 
 	manifest { 
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
-		from sharedManifest 
+    attributes(sharedManifestAttributes)
 	}
 
     destinationDirectory.set(file("../Libs/"))
-    archiveBaseName.convention('etaValueAdd');
-    archiveBaseName.set('etaValueAdd');
 }
 
-task cleanJar (type: Delete) {
-        delete "${jar.archiveFile}"
+tasks.register('cleanJar', Delete) {
+    delete "${jar.archiveFile}"
 }
 clean.dependsOn cleanJar
 

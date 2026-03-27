@@ -22,7 +22,7 @@ dependencies {
 }
 
 shadowJar {
-        archiveBaseName.set('ETA');
+        archiveBaseName.set('ETA')
 }
 
 
