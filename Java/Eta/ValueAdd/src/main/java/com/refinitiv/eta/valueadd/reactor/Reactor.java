@@ -9026,9 +9026,6 @@ public class Reactor
 											while (isReactorChannelReady(channel) && msgCount < maxMessages
 													&& retval > 0)
 											{
-												int bytesReadBefore = dispatchOptions.readArgs()
-														.uncompressedBytesRead();
-
 												if ((retval = performChannelRead(channel, dispatchOptions.readArgs(),
 														errorInfo)) < ReactorReturnCodes.SUCCESS)
 												{
@@ -9042,15 +9039,15 @@ public class Reactor
 													}
 												}
 
-												if ((dispatchOptions.readArgs().uncompressedBytesRead()
-														- bytesReadBefore) > 0)
+												if (dispatchOptions.readArgs().uncompressedBytesRead() > 0)
 												{
 													msgCount++;
 												}
 											}
 										}
 									}
-								} else
+								}
+								else
 								{
 									if (reactorChnl.warmStandByHandlerImpl != null && reactorChnl.warmStandByHandlerImpl
 											.mainReactorChannelImpl() == reactorChnl)
@@ -9060,8 +9057,6 @@ public class Reactor
 
 									while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
 									{
-										int bytesReadBefore = dispatchOptions.readArgs().uncompressedBytesRead();
-
 										if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),
 												errorInfo)) < ReactorReturnCodes.SUCCESS)
 										{
@@ -9077,7 +9072,7 @@ public class Reactor
 											}
 										}
 
-										if ((dispatchOptions.readArgs().uncompressedBytesRead() - bytesReadBefore) > 0)
+										if (dispatchOptions.readArgs().uncompressedBytesRead() > 0)
 										{
 											msgCount++;
 										}
@@ -9114,7 +9109,6 @@ public class Reactor
 
 						while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
 						{
-							int bytesReadBefore = dispatchOptions.readArgs().uncompressedBytesRead();
 							if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),
 									errorInfo)) < ReactorReturnCodes.SUCCESS)
 							{
@@ -9131,7 +9125,7 @@ public class Reactor
 								}
 							}
 							// only increment msgCount if bytes are actually read
-							if ((dispatchOptions.readArgs().uncompressedBytesRead() - bytesReadBefore) > 0)
+							if (dispatchOptions.readArgs().uncompressedBytesRead() > 0)
 							{
 								msgCount++;
 							}
