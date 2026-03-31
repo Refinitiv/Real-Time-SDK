@@ -1,10 +1,10 @@
 plugins {
-	id 'org.openjfx.javafxplugin' version '0.1.0' apply(false)
+    id 'org.openjfx.javafxplugin' version '0.1.0' apply(false)
 }
 
 apply plugin: 'application'
 if (JavaVersion.current().java11Compatible) {
-	apply plugin: 'org.openjfx.javafxplugin'
+    apply plugin: 'org.openjfx.javafxplugin'
 }
 eclipse {
         project {
@@ -13,20 +13,20 @@ eclipse {
 }
 
 dependencies {
-	implementation project(':Ema:Core')
-	implementation project(':Eta:Core')
-	testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    implementation project(':Ema:Core')
+    implementation project(':Eta:Core')
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }
 
 if (JavaVersion.current().java11Compatible) {
-	javafx {
-		version = "16"
-		modules = ['javafx.controls', 'javafx.fxml']
-	}
+    javafx {
+        version = "16"
+        modules = ['javafx.controls', 'javafx.fxml']
+    }
 }
 
 application {
-	mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
+    mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
 }
 
 tasks.register('createExtraRunApp', CreateStartScripts) {
@@ -82,60 +82,60 @@ run.dependsOn copyDictionary, copyEmaConfig
 clean.dependsOn deleteDictionary, deleteEmaConfig
 
 tasks.withType ( JavaExec ) {
-	// to enable the logger comment out the line below
-	// jvmArgs += "-Djava.util.logging.config.file=../Core/src/main/resources/logging.properties"
+    // to enable the logger comment out the line below
+    // jvmArgs += "-Djava.util.logging.config.file=../Core/src/main/resources/logging.properties"
 }
 
 /* Automatically generates the tasks for all example applications */
 fileTree('.') {
-	include '**/*.java'
-	}.collect { relativePath(it.parent) }.each { 
+    include '**/*.java'
+    }.collect { relativePath(it.parent) }.each { 
 
-	def exampleMainLocation = (it.replace(File.separator, '.') )
+    def exampleMainLocation = (it.replace(File.separator, '.') )
 
-	def TaskName = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1) ).replaceAll('\\D+', '')
-	def TaskDescription = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1))
+    def TaskName = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1) ).replaceAll('\\D+', '')
+    def TaskDescription = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1))
     def ExampleType 
 
-	// create tasks names, descriptions based on the type of the example and example number
-	if ( exampleMainLocation.contains('niprovider') )
-	{
-		TaskName = 'runniprovider' + TaskName
-		TaskDescription = 'NiProvider ' + TaskDescription
-		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.NiProvider'
+    // create tasks names, descriptions based on the type of the example and example number
+    if ( exampleMainLocation.contains('niprovider') )
+    {
+        TaskName = 'runniprovider' + TaskName
+        TaskDescription = 'NiProvider ' + TaskDescription
+        exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.NiProvider'
         ExampleType = 'Non Interactive Provider'
-	}
-	else if ( exampleMainLocation.contains('consumer') )
-	{
-		TaskName = 'runconsumer' + TaskName
-		TaskDescription = 'Consumer ' + TaskDescription
-		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.Consumer'
+    }
+    else if ( exampleMainLocation.contains('consumer') )
+    {
+        TaskName = 'runconsumer' + TaskName
+        TaskDescription = 'Consumer ' + TaskDescription
+        exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.Consumer'
         ExampleType = 'Consumer'
-	}
-	else if ( exampleMainLocation.contains('iprovider') )
-	{
-		TaskName = 'runiprovider' + TaskName
-		TaskDescription = 'IProvider ' + TaskDescription
-		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
+    }
+    else if ( exampleMainLocation.contains('iprovider') )
+    {
+        TaskName = 'runiprovider' + TaskName
+        TaskDescription = 'IProvider ' + TaskDescription
+        exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
         ExampleType = 'Interactive Provider'
-	} else {
-		return
-	}
+    } else {
+        return
+    }
 
-	// creating tasks for running all the examples dynamically
-	task "${TaskName}" ( type: JavaExec ) {
+    // creating tasks for running all the examples dynamically
+    task "${TaskName}" ( type: JavaExec ) {
         group 'Run EMA ' + ExampleType + ' Application Examples'
 
-		description 'This task runs the ' + TaskDescription
+        description 'This task runs the ' + TaskDescription
 
-		dependsOn copyDictionary, copyEmaConfig
+        dependsOn copyDictionary, copyEmaConfig
 
-		if (JVM_OPTIONS)
-			jvmArgs(buildArgsList(JVM_OPTIONS))
+        if (JVM_OPTIONS)
+            jvmArgs(buildArgsList(JVM_OPTIONS))
 
-		mainClass.set(exampleMainLocation)
-		classpath = sourceSets.main.runtimeClasspath
-	}
+        mainClass.set(exampleMainLocation)
+        classpath = sourceSets.main.runtimeClasspath
+    }
 }
 
 tasks.register('runrtviewerdesktop', JavaExec) {
@@ -161,19 +161,25 @@ tasks.register('createRTViewerFatJar', Jar) {
     group 'Run EMA RTViewer desktop'
     description 'This task builds fat jar for RTViewer'
 
+        dependsOn classes
+
     manifest {
         attributes(
-                'Main-Class': 'com.refinitiv.ema.examples.rrtviewer.desktop.RTViewerDesktopMain'
+                'Main-Class' : 'com.refinitiv.ema.examples.rtviewer.desktop.RTViewerDesktopMain'
         )
     }
 
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
 
     archiveBaseName.set('RTViewer')
     archiveBaseName.convention('RTViewer')
 
+    from sourceSets.main.output
+
     from {
-        configurations.compileClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
-    } with jar
+        configurations.runtimeClasspath.filter{ it.exists() }.collect{ it.isDirectory() ? it : zipTree(it) }
+    } 
+
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 }
 
