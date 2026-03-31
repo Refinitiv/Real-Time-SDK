@@ -9882,7 +9882,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %d is greater than the actual data length %zu.\n",
-					__FILE__, __LINE__, ripcBuffer->length, ripcFragSize);
+					__FILE__, __LINE__, ripcFragSize, ripcBuffer->length);
 				*readRet = RSSL_RET_FAILURE;
 				return NULL;
 			}
@@ -10011,7 +10011,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				_rsslFree(rsslAssemblyBuf);
 
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %d is greater than the actual data length %zu.\n",
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %zu is greater than the actual data length %d.\n",
 					__FILE__, __LINE__, rsslAssemblyBuf->readCursor + ripcBuffer->length, rsslAssemblyBuf->buffer.length);
 				*readRet = RSSL_RET_FAILURE;
 				return NULL;

@@ -876,7 +876,7 @@ RsslRet _rsslRestSetHttpMethod(CURL* curl, RsslUInt16 httpMethod, RsslError* err
 		(*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_POST, 1L);
 		break;
 	case RSSL_REST_HTTP_PUT:
-		(*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_PUT, 1L);
+		(*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_UPLOAD, 1L);
 		break;
 	case RSSL_REST_HTTP_DELETE:
 		(*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_CUSTOMREQUEST, "DELETE");

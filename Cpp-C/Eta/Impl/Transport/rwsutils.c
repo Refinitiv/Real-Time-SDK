@@ -3381,45 +3381,45 @@ RsslInt32 rwsRejectSession(RsslSocketChannel *rsslSocketChannel, RsslRejectCodeT
 	 * track of remaining space in the response buffer */
 		case RSSL_WS_REJECT_CONN_ERROR:
 			cc = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE,      "HTTP/1.1 400 Bad Request\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Content-Type: text/html; charset=UTF-8\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Connection: close\r\n");
 			break;
 		case RSSL_WS_REJECT_NO_SESS:
 		case RSSL_WS_REJECT_NO_RESRC:
 		case RSSL_WS_REJECT_UNSUPPORTED_VERSION:
 		case RSSL_WS_REJECT_UNSUPPORTED_SUB_PROTOCOL:
 			cc = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE,      "HTTP/1.1 400 Bad Request\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Cache-Control: no-cache, private, no-store\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Transfer-Encoding: chunked\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Content-Type: text/html; charset=UTF-8\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Cache-Control: no-cache, private, no-store\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Transfer-Encoding: chunked\r\n");
 			if (code == RSSL_WS_REJECT_UNSUPPORTED_VERSION)
-				cc += snprintf(resp + cc, RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Version: %d\r\n", RWS_PROTOCOL_VERSION);
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
+				cc += snprintf(resp + cc, RWS_MAX_HTTP_HEADER_SIZE -cc, "Sec-WebSocket-Version: %d\r\n", RWS_PROTOCOL_VERSION);
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Connection: close\r\n");
 			break;
 		case RSSL_WS_REJECT_AUTH_FAIL:
 			cc = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE,      "HTTP/1.1 401 Unauthorized\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Cache-Control: no-cache, private, no-store\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Transfer-Encoding: chunked\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Content-Type: text/html; charset=UTF-8\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Cache-Control: no-cache, private, no-store\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Transfer-Encoding: chunked\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Connection: close\r\n");
 			break;
 		case RSSL_WS_REJECT_REQUEST_TOO_LARGE:
 			cc = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE,       "HTTP/1.1 413 Payload Too Large\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Cache-Control: no-cache, private, no-store\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Transfer-Encoding: chunked\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Content-Type: text/html; charset=UTF-8\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Cache-Control: no-cache, private, no-store\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Transfer-Encoding: chunked\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Connection: close\r\n");
 			break;
 		default:
 			cc = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE,      "HTTP/1.1 400 Bad Request\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Content-Type: text/html; charset=UTF-8\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Cache-Control: no-cache, private, no-store\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Transfer-Encoding: chunked\r\n");
-			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "Connection: close\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Content-Type: text/html; charset=UTF-8\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Cache-Control: no-cache, private, no-store\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Transfer-Encoding: chunked\r\n");
+			cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "Connection: close\r\n");
 			break;
 	}
 
-	cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
+	cc += snprintf(resp +cc , RWS_MAX_HTTP_HEADER_SIZE -cc, "\r\n");
 
 	cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo,  resp, cc ,rwflags, error);
 	

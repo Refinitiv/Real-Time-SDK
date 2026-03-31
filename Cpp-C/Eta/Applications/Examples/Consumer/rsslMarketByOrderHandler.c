@@ -855,7 +855,7 @@ RsslRet processMarketByOrderResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecode
 			/* print out item name from key if it has it */
 			if (key && (key->flags & RSSL_MKF_HAS_NAME))
 				printf("\n%.*s", key->name.length, key->name.data);
-			else
+			else if (itemInfo)
 				printf("\n%s", itemInfo->itemname);
 
 			if (isPrivateStream) printf(" (PRIVATE STREAM)");
