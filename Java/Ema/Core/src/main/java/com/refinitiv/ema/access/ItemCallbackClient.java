@@ -11,6 +11,7 @@ package com.refinitiv.ema.access;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
@@ -282,16 +283,18 @@ class TunnelItem<T> extends Item<T> {
 			}
 
 			Boolean foundReturnedStreamId = false;
-			for (int i = 0; i < _returnedSubItemStreamIds.size(); i++)
+
+			Iterator<IntObject> iter = _returnedSubItemStreamIds.iterator();
+			while (iter.hasNext()) 
 			{
-				IntObject subItemStreamId = _returnedSubItemStreamIds.get(i);
-				if (subItemStreamId.value() == streamId)
-				{
-					_returnedSubItemStreamIds.remove(i);
-					subItemStreamId.returnToPool();
-					foundReturnedStreamId = true;
-					break;
-				}
+			    IntObject intObj = iter.next();
+			    if (intObj.value() == streamId) 
+			    {
+			    	iter.remove();
+			        intObj.returnToPool();
+			        foundReturnedStreamId = true;
+			        break;
+			    }
 			}
 
 			if (!foundReturnedStreamId)
