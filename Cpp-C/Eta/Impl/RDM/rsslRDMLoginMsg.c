@@ -1434,6 +1434,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 			if (pMsg->msgBase.containerType == RSSL_DT_ELEMENT_LIST)
 			{
 				RsslElementList elementList; RsslElementEntry elementEntry;
+				RsslBool isTicksPresent = RSSL_FALSE;
 				RsslRDMLoginRTT *pRTT = &pLoginMsg->RTT;
 
 				rsslClearRDMLoginRTT(pRTT);
@@ -1460,8 +1461,11 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					{
 						if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pRTT->ticks)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+						isTicksPresent = RSSL_TRUE;
 					}
 				}
+
+				if (!RSSL_ERROR_INFO_CHECK(isTicksPresent == RSSL_TRUE, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 				break;
 			}

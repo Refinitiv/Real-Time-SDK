@@ -285,6 +285,9 @@ static void rsslUnitTests_DirectoryPacking()
 	rsslTestStart();
     pConsumerChannel = rsslTestCreateConsumerChannel();
     pProviderChannel = rsslTestCreateProviderChannel();
+	ASSERT_NE(pConsumerChannel, (RsslChannel*)NULL) << "Consumer channel not initialized.  If this is a multicast test, please make sure the reliable MCast shared library is present";
+	ASSERT_NE(pProviderChannel, (RsslChannel*)NULL) << "Provider channel not initialized.  If this is a multicast test, please make sure the reliable MCast shared library is present";
+
 	rsslTestInitChannels(pConsumerChannel, pProviderChannel);
 
 	/*Cons sends login request*/

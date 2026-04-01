@@ -24,6 +24,7 @@ void loginStatusMsgTests();
 void loginStatusBlankTests();
 void loginPostAndAckTests();
 void loginRTTMsgTests();
+void loginRTTMsgNoTicksTests(RsslBool);
 
 TEST(LoginMsgTest, RequestMsgTests)
 {
@@ -73,6 +74,12 @@ TEST(LoginMsgTest, PostAndAckTests)
 TEST(LoginMsgTest, RTTMsgTests)
 {
 	loginRTTMsgTests();
+}
+
+TEST(LoginMsgTest, RTTMsgNoTicksTests)
+{
+	loginRTTMsgNoTicksTests(RSSL_TRUE);
+	loginRTTMsgNoTicksTests(RSSL_FALSE);
 }
 
 void loginRequestMsgTests()
@@ -1309,7 +1316,6 @@ void loginRefreshBlankTests()
 
 	/* Parameters to test with */
 	RsslInt32 streamId = -5;
-	RsslUInt allowSuspectData = 2;
 	RsslBuffer userName = rssl_init_buffer_from_string(const_cast<char*>("userName"));
 	RsslBuffer blankBuffer = { 0,0 };
 
@@ -1795,7 +1801,6 @@ void loginStatusBlankTests()
 
 	/* Parameters to test with */
 	RsslInt32 streamId = -5;
-	RsslUInt allowSuspectData = 2;
 	RsslBuffer userName = rssl_init_buffer_from_string(const_cast<char*>("userName"));
 	RsslBuffer blankBuffer = { 0,0 };
 
@@ -1991,3 +1996,67 @@ void loginRTTMsgTests()
 	////printTypedMessageStats(&stats);
 }
 
+void loginRTTMsgNoTicksTests(RsslBool valid)
+{
+	RsslBuffer msgBuffer, memoryBuffer;
+
+	/* Parameters to test with */
+	RsslInt32 streamId = -5;
+	RsslUInt ticks = 135000000012;
+
+	// depending on "valid" parameter encode RDM_LG_MT_RTT message (with or without the TICKS element)
+	{
+		RsslMsg msg;
+		RsslGenericMsg *pGenericMsg = &msg.genericMsg;
+
+		RsslEncodeIterator eIter = RSSL_INIT_ENCODE_ITERATOR;
+
+		setupEncodeIterator(&eIter, &msgBuffer);
+
+		RsslElementList elementList;
+		RsslElementEntry elementEntry;
+
+		/* Encode ConsumerConnectionStatus Generic message.
+		 * Used to send the WarmStandbyMode. */
+		rsslClearGenericMsg(pGenericMsg);
+		pGenericMsg->msgBase.msgClass = RSSL_MC_GENERIC;
+		pGenericMsg->msgBase.streamId = streamId;
+		pGenericMsg->msgBase.domainType = RSSL_DMT_LOGIN;
+		pGenericMsg->msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+		pGenericMsg->flags = RSSL_GNMF_PROVIDER_DRIVEN;
+
+		ASSERT_EQ(RSSL_RET_ENCODE_CONTAINER, rsslEncodeMsgInit(&eIter, &msg, 0));
+
+		rsslClearElementList(&elementList);
+		elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementListInit(&eIter, &elementList, 0, 0));
+
+		if (valid == RSSL_TRUE)
+		{
+			/* Encode ticks */
+			rsslClearElementEntry(&elementEntry);
+			elementEntry.name = RSSL_ENAME_RTT_TICKS;
+			elementEntry.dataType = RSSL_DT_UINT;
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementEntry(&eIter, &elementEntry, &ticks));
+		}
+
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementListComplete(&eIter, RSSL_TRUE));
+
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(&eIter, RSSL_TRUE));
+	}
+
+	// now decode and validate return code (either SUCCESS for the valid case, FAILURE
+	// otherwise)
+	RsslErrorInfo error;
+	RsslDecodeIterator dIter = RSSL_INIT_DECODE_ITERATOR;
+	RsslMsg rsslMsg;
+	RsslRDMMsg decRDMMsg;
+
+	setupDecodeIterator(&dIter, &msgBuffer, &memoryBuffer);
+	rsslClearRDMMsg(&decRDMMsg);
+
+	// decode must fail when the message pretending to be RTT doesn't have the TICKS element
+	RsslRet ret = (valid == RSSL_TRUE) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE;
+
+	ASSERT_EQ(ret, rsslDecodeRDMMsg(&dIter, &rsslMsg, &decRDMMsg, &memoryBuffer, &error));
+}
