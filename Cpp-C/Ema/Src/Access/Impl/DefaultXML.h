@@ -212,8 +212,8 @@ refinitiv::ema::access::EmaString NodesThatRequireName[] = {
 	"Consumer",
 	"Dictionary",
 	"Directory",
-	"IProvider"
-	"Logger"
+	"IProvider",
+	"Logger",
 	"NiProvider",
 	"Server",
 	"Service",
