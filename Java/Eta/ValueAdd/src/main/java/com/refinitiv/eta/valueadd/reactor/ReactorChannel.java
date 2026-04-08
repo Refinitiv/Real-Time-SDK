@@ -915,7 +915,7 @@ public class ReactorChannel extends VaNode
 			if(_reactor.reactorHandlesWarmStandby(channelImpl))
 			{
 				/* Updates the latest message submission time to sync the recovery message queue for the WSB feature.*/
-				if(warmStandByHandlerImpl.lastMsgRecoveryCheckTime > warmStandByHandlerImpl.latestMsgSubmissionTime)
+				if (warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
 					warmStandByHandlerImpl.latestMsgSubmissionTime = System.nanoTime();
 				
 				return _reactor.submitWSBMsg(this, msg, submitOptions, errorInfo);
@@ -923,7 +923,7 @@ public class ReactorChannel extends VaNode
 			else if (warmStandByHandlerImpl != null)
 			{
 				/* Updates the latest message submission time to sync the recovery message queue for the WSB feature.*/
-				if(warmStandByHandlerImpl.lastMsgRecoveryCheckTime > warmStandByHandlerImpl.latestMsgSubmissionTime)
+				if(warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
 					warmStandByHandlerImpl.latestMsgSubmissionTime = System.nanoTime();
 				
 				// We are currently on the ChannelList while we have WSB handler active.

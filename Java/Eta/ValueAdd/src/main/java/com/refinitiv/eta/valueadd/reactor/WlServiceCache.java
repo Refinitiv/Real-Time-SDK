@@ -173,32 +173,31 @@ class WlServiceCache
 		    		// Handle generic messages for service-based
 					_watchlist.reactor().reactorWSBHandleServiceActiveStandby(_watchlist.reactorChannel(), 
 						wsbHandler.currentWarmStandbyGroupImpl(), true, errorInfo);
-					
+
 					// Submit requests now only for the first connection... every one after this will be handled by the watchlist.
-					if(!wsbHandler.watchlistSentFirstRequests())
+					if (!wsbHandler.watchlistSentFirstRequests())
 					{
 						if (_watchlist.reactor().submitWSBRequestQueue(_watchlist.reactorChannel().warmStandByHandlerImpl,
 								_watchlist.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl(),
 								_watchlist.reactorChannel(), errorInfo) != ReactorReturnCodes.SUCCESS)
 						{
 							if (_watchlist.reactorChannel().server() == null && !_watchlist.reactorChannel().recoveryAttemptLimitReached()) // client
-								// channel
+							// channel
 							{
 								// Do not return failure here because it's in a dispatch call
 								_watchlist.reactorChannel().state(State.DOWN_RECONNECTING);
 								_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
-								ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, _watchlist.reactorChannel(), errorInfo);
+										ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, _watchlist.reactorChannel(), errorInfo);
 							} else // server channel or no more retries
-							{								
+							{
 								// Do not return failure here because it's in a dispatch call
 								_watchlist.reactorChannel().state(State.DOWN);
 								_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
-								ReactorChannelEventTypes.CHANNEL_DOWN, _watchlist.reactorChannel(), errorInfo);
+										ReactorChannelEventTypes.CHANNEL_DOWN, _watchlist.reactorChannel(), errorInfo);
 							}
 						}
 						wsbHandler.watchlistSentFirstRequests(true);
 					}
-
 
 		    		ReactorWarmStandbyEvent reactorWarmStandbyEvent = _watchlist._reactorChannel.reactor().reactorWarmStandbyEventPool.getEvent(errorInfo);
 					reactorWarmStandbyEvent.eventType = ReactorWarmStandbyEventTypes.CONNECT_SECONDARY_SERVER;

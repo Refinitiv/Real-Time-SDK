@@ -7026,8 +7026,7 @@ public class Reactor
 		WlService wlService;
 		if (warmStandbyGroup.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
 		{
-			for (int i = 0; i < reactorChannel.watchlist().directoryHandler()._serviceCache._serviceList
-					.size(); i++)
+			for (int i = 0; i < reactorChannel.watchlist().directoryHandler()._serviceCache._serviceList.size(); i++)
 			{
 				wlService = reactorChannel.watchlist().directoryHandler()._serviceCache._serviceList
 						.get(i);
@@ -9976,14 +9975,13 @@ public class Reactor
 		{
 			submitChannel = wsbHandler.channelList().get(i);
 			
-			if(submitChannel.watchlist().directoryHandler()._serviceCache.initDirectory == false)
+			if (submitChannel.watchlist().directoryHandler()._serviceCache.initDirectory == false)
 			{
-				if (msg.domainType() != DomainTypes.LOGIN && 
-						msg.msgClass() == MsgClasses.REQUEST)
+				if (msg.domainType() != DomainTypes.LOGIN &&  msg.msgClass() == MsgClasses.REQUEST)
 				{
-					if(wsbGroup.sendQueueReqForAll)
+					if (wsbGroup.sendQueueReqForAll)
 					{
-						if(submitChannel.sendReqFromQueue)
+						if (submitChannel.sendReqFromQueue)
 						{
 							wsbGroup.sendQueueReqForAll = false; // Reset this flag to get message from the queue later once the service is available
 							wsbGroup.sendReqQueueCount--; // Reduce the counter for this channel
@@ -10018,7 +10016,7 @@ public class Reactor
 					
 					continue;
 				}
-				else if(msg.msgClass() != MsgClasses.CLOSE)
+				else if (msg.msgClass() != MsgClasses.CLOSE)
 				{
 					continue;
 				}
@@ -10489,7 +10487,7 @@ public class Reactor
 			ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
 	{
 		int retVal = ReactorReturnCodes.SUCCESS;
-		
+
 		if(reactorChannel.sendReqFromQueue)
 			return retVal;
 		
@@ -10510,51 +10508,55 @@ public class Reactor
 		{
 			if (wsbHandler.submitMsgQueue().get(i).submitTime > reactorChannel.lastSubmitOptionsTime)
 			{
-				RequestMsg msg = (RequestMsg)wsbHandler.submitMsgQueue().get(i).msg;
-				
-				if(msg.checkPrivateStream())
+				ReactorWLSubmitMsgOptions options = wsbHandler.submitMsgQueue().get(i);
+
+				if (options.msg instanceof RequestMsg)
 				{
-					if(wsbGroup.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+					RequestMsg msg = (RequestMsg)options.msg;
+
+					if (msg.checkPrivateStream())
 					{
-						if(!reactorChannel.isActiveServer)
-							continue;
-					}
-					else
-					{
-						ReactorWSBService wsbService;
-						if(msg.msgKey().checkHasServiceId())
+						if(wsbGroup.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
 						{
-							_tempWlInteger.value(msg.msgKey().serviceId());
-							wsbService = wsbGroup._perServiceById.get(_tempWlInteger);
-							
-							if(wsbService != null)
-							{
-								if(reactorChannel != wsbService.activeChannel)
-									continue;
-							}
+							if(!reactorChannel.isActiveServer)
+								continue;
 						}
 						else
 						{
-							if(wsbHandler.submitMsgQueue().get(i).submitOptions._serviceName != null)
+							ReactorWSBService wsbService;
+							if(msg.msgKey().checkHasServiceId())
 							{
-								WlService wlService = reactorChannel.watchlist().directoryHandler()._serviceCache._servicesByNameTable.get(wsbHandler.submitMsgQueue().get(i).submitOptions._serviceName);
-								if(wlService != null)
+								_tempWlInteger.value(msg.msgKey().serviceId());
+								wsbService = wsbGroup._perServiceById.get(_tempWlInteger);
+
+								if(wsbService != null)
 								{
-									wsbService = wsbGroup._perServiceById.get(wlService._tableKey);
-									
-									if(wsbService != null)
+									if(reactorChannel != wsbService.activeChannel)
+										continue;
+								}
+							}
+							else
+							{
+								if (wsbHandler.submitMsgQueue().get(i).submitOptions._serviceName != null)
+								{
+									WlService wlService = reactorChannel.watchlist().directoryHandler()._serviceCache._servicesByNameTable.get(wsbHandler.submitMsgQueue().get(i).submitOptions._serviceName);
+									if(wlService != null)
 									{
-										if(reactorChannel != wsbService.activeChannel)
-											continue;
+										wsbService = wsbGroup._perServiceById.get(wlService._tableKey);
+
+										if (wsbService != null)
+										{
+											if(reactorChannel != wsbService.activeChannel)
+												continue;
+										}
 									}
 								}
 							}
-						}		
+						}
 					}
 				}
-				
-				if (reactorChannel.watchlist().submitMsg(wsbHandler.submitMsgQueue().get(i).msg,
-						wsbHandler.submitMsgQueue().get(i).submitOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+
+				if (reactorChannel.watchlist().submitMsg(options.msg, options.submitOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
 				{
 					retVal = ReactorReturnCodes.FAILURE;
 				}
@@ -10614,7 +10616,7 @@ public class Reactor
 			
 			boolean addMsgToRecoveryQueue = wsbHandler.latestMsgSubmissionTime > wsbHandler.lastMsgRecoveryCheckTime;
 			
-			if(addMsgToRecoveryQueue)
+			if (addMsgToRecoveryQueue)
 			{
 				// Checks whether to keep unsubmitted message to the starting channel.
 				long lastMsgQueueTime = getLatestMsgQueueTime(wsbHandler);
@@ -10693,6 +10695,8 @@ public class Reactor
 				// The last submit time of the staring server is less than the unsubmitted messages in order to submit it later
 				if(unsubmittedMsgList != null)
 				{
+					wsbHandler.watchlistSentFirstRequests(false);
+
 					ReactorWLSubmitMsgOptions submitOpts = null;
 					while (unsubmittedMsgList.size() != 0)
 					{

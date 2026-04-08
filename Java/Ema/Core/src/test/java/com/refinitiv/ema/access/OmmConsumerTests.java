@@ -7028,6 +7028,109 @@ public class OmmConsumerTests extends TestCase
 	}
 
 	@Test
+	public void  testItemRecoveryForTwoWSBLoginBasedGroupsWhenFirstGroupStartingServerWasDownDuringItemRequest()
+	{
+		TestUtilities.printTestHead("testItemRecoveryForTwoWSBLoginBasedGroupsWhenFirstGroupStartingServerWasDownDuringItemRequest","");
+
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+
+		OmmConsumer consumer = null;
+		ConsumerTestOptions consumerOption = new ConsumerTestOptions();
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		providerTestOptions.supportStandby = true;
+		providerTestOptions.sendRefreshAttrib = true;
+		providerTestOptions.itemGroupId = ByteBuffer.wrap("10".getBytes());
+
+		ProviderTestClient providerClient_3 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_6 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_7 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_8 = new ProviderTestClient(providerTestOptions);
+
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+
+		consumerOption.getChannelInformation = true;
+		consumerOption.getSessionChannelInfo = false;
+		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
+
+		OmmProvider ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_1"), providerClient_3);
+		assertNotNull(ommprovider_3);
+
+		OmmProvider ommprovider_6 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_1"), providerClient_6);
+		assertNotNull(ommprovider_6);
+
+		OmmProvider ommprovider_7 = null;
+		OmmProvider ommprovider_8 = null;
+
+		try
+		{
+			ConsumerTestOptions options = new ConsumerTestOptions();
+			options.getChannelInformation = true;
+
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_57"), consumerClient);
+
+			String serviceName = "DIRECT_FEED";
+			String itemName = "TRI.N";
+
+			// Wait until the consumer connects to WWarmStandbyChannel_1 group
+			Thread.sleep(2000);
+
+			// Kill the starting server of WarmStandbyGroup_1
+			ommprovider_3.uninitialize();
+
+			// Request item, provider_6 should get the request
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			consumer.registerClient(reqMsg.name(itemName).serviceName(serviceName), consumerClient);
+
+			// Bring WarmStandbyChannel_2 servers up and wait until they are online
+			ommprovider_7 = EmaFactory.createOmmProvider(config.port("19007").providerName("Provider_1"), providerClient_7);
+			assertNotNull(ommprovider_7);
+
+			ommprovider_8 = EmaFactory.createOmmProvider(config.port("19008").providerName("Provider_1"), providerClient_8);
+			assertNotNull(ommprovider_8);
+
+			Thread.sleep(4000);
+
+			System.out.println(" >>>> Provider_6 goes offline ...");
+			// Kill the second (StandBy) server of WarmStandbyChannel_1 group
+			ommprovider_6.uninitialize();
+
+			// Wait until the connection to WarmStandbyChannel_2 is established. The starting server should get the request.
+			Thread.sleep(5000);
+
+			boolean itemRequestFound = false;
+			int itemCount = providerClient_7.queueSize();
+
+			for (int i = 0; i < itemCount; i++)
+			{
+				Msg msg = providerClient_7.popMessage();
+				if (msg instanceof ReqMsg && msg.domainType() == DomainTypes.MARKET_PRICE)
+				{
+					itemRequestFound = true;
+				}
+			}
+
+			assertTrue(itemRequestFound); // The starting server of the second WSB group has to receive the item request
+			                              // that the starting server of the first WSB group missed
+		}
+		catch(Exception excep)
+		{
+			System.out.println(excep);
+			assertTrue(false);
+		}
+		finally
+		{
+			System.out.println(" >>>>>>>>> Uninitializing ...");
+			if(consumer != null) consumer.uninitialize();
+
+			if (ommprovider_3 != null) ommprovider_3.uninitialize();
+			if (ommprovider_6 != null) ommprovider_6.uninitialize();
+
+			if (ommprovider_7 != null) ommprovider_7.uninitialize();
+			if (ommprovider_8 != null) ommprovider_8.uninitialize();
+		}
+	}
+
+	@Test
 	public void testWSBServiceBasedServersDoNotSupportWSB_noExceptionOccurs()
 	{
 		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
@@ -7085,7 +7188,7 @@ public class OmmConsumerTests extends TestCase
 			if (ommprovider_6 != null) ommprovider_6.uninitialize();
 		}
 	}
-	
+
 	public void  testSingleConnectionEnabledPHForLoginBasedMovingFromWSBGroupToChannelListAndBackToWSBGroupWithDetectionTimeInterval()
 	{
 		/* This test case is used to ensure that the warm standby and preferred host feature can move back and forth between WSB and channel list multiple times. */
