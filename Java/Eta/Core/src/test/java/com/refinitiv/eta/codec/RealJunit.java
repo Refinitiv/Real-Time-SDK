@@ -909,6 +909,119 @@ public class RealJunit
 	}
 
 	@Test
+	public void realBoundaryValuesTest()
+	{
+		Real real = CodecFactory.createReal();
+        real.clear();
+		int ret = real.value("9223372036854775807");
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(9223372036854775807L, real.toLong());
+		assertEquals(RealHints.EXPONENT0, real.hint());
+		assertEquals("9223372036854775807", real.toString());
+
+		real.clear();
+		ret = real.value("9223372036854775807.0");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("-9223372036854775808");
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(-9223372036854775808L, real.toLong());
+		assertEquals(RealHints.EXPONENT0, real.hint());
+		assertEquals("-9223372036854775808", real.toString());
+
+		real.clear();
+		ret = real.value("-9223372036854775808.0");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("-9223372036854775808.00");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("-9223372036854775.808");
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(-9223372036854775808L, real.toLong());
+		assertEquals(RealHints.EXPONENT_3, real.hint());
+		assertEquals("-9223372036854776.000", real.toString());
+
+		real.clear();
+		ret = real.value("-9223372036854775.8080");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("9223372036854775.807");
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(9223372036854775807L, real.toLong());
+		assertEquals(RealHints.EXPONENT_3, real.hint());
+		assertEquals("9223372036854776.000", real.toString());
+
+		real.clear();
+		ret = real.value("9223372036854775.8070");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("-9223372036854775809");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("9223372036854775808");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value("18446744073709551615");
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value(9223372036854775.7, RealHints.EXPONENT_1);
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(92233720368547760L, real.toLong());
+		assertEquals(RealHints.EXPONENT_1, real.hint());
+		assertEquals("9223372036854776.0", real.toString());
+
+		real.clear();
+		ret = real.value(-9223372036854775.8, RealHints.EXPONENT_1);
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(-92233720368547760L, real.toLong());
+		assertEquals(RealHints.EXPONENT_1, real.hint());
+		assertEquals("-9223372036854776.0", real.toString());
+
+		real.clear();
+		ret = real.value(9223372036854778.808, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret = real.value(-9223372036854779.900, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		float floatvalue = 92233720368.55f;
+		ret = real.value(floatvalue, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(92233718038528L, real.toLong());
+		assertEquals(RealHints.EXPONENT_3, real.hint());
+		assertEquals("92233718038.528", real.toString());
+
+		real.clear();
+		floatvalue = -92233720368.54f;
+		ret = real.value(floatvalue, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(-92233718038528L, real.toLong());
+		assertEquals(RealHints.EXPONENT_3, real.hint());
+		assertEquals("-92233718038.528", real.toString());
+
+		real.clear();
+		floatvalue = 9223372036854775807.7f;
+		ret = real.value(floatvalue, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		floatvalue = -9223372036854775808.8f;
+		ret = real.value(floatvalue, RealHints.EXPONENT_3);
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+	}
+
+	@Test
 	public void testDateDecodedAsRealNoCrash() {
 
 		FieldEntry entry = CodecFactory.createFieldEntry();

@@ -9,6 +9,7 @@
 package com.refinitiv.eta.codec;
 
 import java.lang.Double;
+import java.lang.Float;
 import java.math.BigDecimal;
 
 class RealImpl implements Real
@@ -36,6 +37,7 @@ class RealImpl implements Real
     static private String negInfinity = "-Inf";
     static private String notANumber = "NaN";
     private final int MAX_STRLEN = 20;
+    private boolean _isOverFlow = false;
     UInt valueUInt = CodecFactory.createUInt();
     UInt tempValue = CodecFactory.createUInt();
     Int trailzerovalue = CodecFactory.createInt();
@@ -106,12 +108,21 @@ class RealImpl implements Real
             _hint = hint;
 
             double res;
-            if (value > 0)
-                res = value * powHintsExp[hint] + 0.5;
-            else
-                res = value * powHintsExp[hint] - 0.5;
+            double scaledValue = value * powHintsExp[hint];
 
-            if (res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
+            if(!Double.isFinite(scaledValue))
+            {
+                return CodecReturnCodes.INVALID_ARGUMENT; // Overflow/NAN value
+            }
+
+            if (value > 0) {
+                res = scaledValue + 0.5;
+            }
+            else {
+                res = scaledValue - 0.5;
+            }
+
+            if (!Double.isFinite(res) || res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
                 return CodecReturnCodes.INVALID_ARGUMENT;
             }
 
@@ -157,12 +168,19 @@ class RealImpl implements Real
             _hint = hint;
 
             float res;
-            if (value > 0)
-                res = (float)(value * powHintsExp[hint]) + 0.5f;
-            else
-                res = (float)(value * powHintsExp[hint]) - 0.5f;
+            float scaledValue = (float)(value * powHintsExp[hint]);
 
-            if (res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
+            if(!Float.isFinite(scaledValue))
+            {
+                return CodecReturnCodes.INVALID_ARGUMENT; // Overflow/NAN value
+            }
+
+            if (value > 0)
+                res = scaledValue + 0.5f;
+            else
+                res = scaledValue - 0.5f;
+
+            if (!Float.isFinite(res) || res < Long.MIN_VALUE || Long.MAX_VALUE < res) {
                 return CodecReturnCodes.INVALID_ARGUMENT;
             }
 
@@ -421,8 +439,14 @@ class RealImpl implements Real
             valIdx++;
         }
 
-        valIdx = rwf_atonumber_end_trailzero(trimmedVal, valIdx, valueUInt, foundDigit, trailzerovalue, trailzerocount, nextDigit, tempValue);
-        
+        valIdx = rwf_atonumber_end_trailzero(trimmedVal, valIdx, valueUInt, foundDigit, trailzerovalue, trailzerocount, nextDigit, tempValue, isNeg);
+
+        if(_isOverFlow)
+        {
+            // error
+            return CodecReturnCodes.INVALID_ARGUMENT;
+        }
+
         // Checks for overflow condition of the long data type
         long longValue = valueUInt.toLong();
     	
@@ -480,11 +504,11 @@ class RealImpl implements Real
                 return CodecReturnCodes.INVALID_ARGUMENT;
             }
 
-            valIdx = rwf_atonumber_end(trimmedVal, valIdx, valueUInt, foundDigit, nextDigit, tempValue);
+            valIdx = rwf_atonumber_end(trimmedVal, valIdx, valueUInt, foundDigit, nextDigit, tempValue, isNeg);
 
             exponent = valIdx - startdec;
 
-            if (exponent == 0)
+            if (_isOverFlow || exponent == 0)
             {
                 // error
                 return CodecReturnCodes.INVALID_ARGUMENT;
@@ -533,10 +557,10 @@ class RealImpl implements Real
                 tempValue.clear();
                 denominator.clear();
 
-                valIdx = rwf_atonumber_end(trimmedVal, valIdx, numerator, foundDigit, nextDigit, tempValue);
+                valIdx = rwf_atonumber_end(trimmedVal, valIdx, numerator, foundDigit, nextDigit, tempValue, isNeg);
 
                 /* Verify fraction */
-                if (trimmedVal.charAt(valIdx) != '/')
+                if (_isOverFlow || trimmedVal.charAt(valIdx) != '/')
                 {
                     // error
                     return CodecReturnCodes.INVALID_ARGUMENT;
@@ -550,7 +574,13 @@ class RealImpl implements Real
                 }
 
                 valIdx++;
-                valIdx = rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue);
+                valIdx = rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue, isNeg);
+
+                if(_isOverFlow)
+                {
+                    // error
+                    return CodecReturnCodes.INVALID_ARGUMENT;
+                }
 
                 int hint = rwf_SetFractionHint((int)denominator.toLong());
                 if (hint == 0)
@@ -588,7 +618,13 @@ class RealImpl implements Real
             denominator.clear();
 
             valIdx++;
-            valIdx = rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue);
+            valIdx = rwf_atonumber_end(trimmedVal, valIdx, denominator, foundDigit, nextDigit, tempValue, isNeg);
+
+            if(_isOverFlow)
+            {
+                // error
+                return CodecReturnCodes.INVALID_ARGUMENT;
+            }
 
             int hint = rwf_SetFractionHint((int)denominator.toLong());
             if (hint == 0)
@@ -615,36 +651,67 @@ class RealImpl implements Real
     }
 
     private int rwf_atonumber_end_trailzero(String str, int index, UInt result, Int foundDigit, Int trailzerovalue, Int trailzerocount,
-                                            Int nextDigit, UInt tempValue)
+                                            Int nextDigit, UInt tempValue, boolean isNeg)
     {
+        _isOverFlow = false;
+        boolean setMinValue = false;
         while ((index < str.length()) && (str.charAt(index) >= '0' && str.charAt(index) <= '9'))
         {
-            tempValue.value(result.toLong() * 10);
-            nextDigit.value((str.charAt(index) - 0x30));
-            if (str.charAt(index) == '0')
-            {
-                if (trailzerocount.toLong() == 0)
-                    trailzerovalue.value(result.toLong());
-                trailzerocount.value(trailzerocount.toLong() + 1);
+            try {
+                tempValue.value(Math.multiplyExact(result.toLong(), (long) 10));
+                nextDigit.value((str.charAt(index) - 0x30));
+                if (str.charAt(index) == '0') {
+                    if (trailzerocount.toLong() == 0)
+                        trailzerovalue.value(result.toLong());
+                    trailzerocount.value(trailzerocount.toLong() + 1);
+                } else
+                    trailzerocount.value(0);
+                foundDigit.value(1);
+                result.value(Math.addExact(tempValue.toLong(), nextDigit.toLong()));
             }
-            else
-                trailzerocount.value(0);
-            foundDigit.value(1);
-            result.value(tempValue.toLong() + nextDigit.toLong());
+            catch (ArithmeticException e)
+            {
+                if(!setMinValue && isNeg && (tempValue.toLong() + nextDigit.toLong() - 1 == Long.MAX_VALUE)) {
+                    result.value(Long.MIN_VALUE);
+                    setMinValue = true;
+                }
+                else {
+                    _isOverFlow = true;
+                    return index;
+                }
+            }
+
             index++;
         }
 
         return index;
     }
 
-    private int rwf_atonumber_end(String str, int index, UInt result, Int foundDigit, Int nextDigit, UInt tempValue)
+    private int rwf_atonumber_end(String str, int index, UInt result, Int foundDigit, Int nextDigit, UInt tempValue, boolean isNeg)
     {
+        _isOverFlow = false;
+        boolean setMinValue = false;
         while ((index < str.length()) && (str.charAt(index) >= '0' && str.charAt(index) <= '9'))
         {
             foundDigit.value(1);
-            tempValue.value(result.toLong() * 10);
-            nextDigit.value((str.charAt(index) - 0x30));
-            result.value(tempValue.toLong() + nextDigit.toLong());
+
+            try {
+                tempValue.value(Math.multiplyExact(result.toLong(), (long) 10));
+                nextDigit.value((str.charAt(index) - 0x30));
+                result.value(Math.addExact(tempValue.toLong(), nextDigit.toLong()));
+            }
+            catch (ArithmeticException e)
+            {
+                if(!setMinValue && isNeg && (tempValue.toLong() + nextDigit.toLong() - 1 == Long.MAX_VALUE)) {
+                    result.value(Long.MIN_VALUE);
+                    setMinValue = true;
+                }
+                else {
+                    _isOverFlow = true;
+                    return index;
+                }
+            }
+
             index++;
         }
 
