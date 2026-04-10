@@ -22,7 +22,7 @@ endif()
 unset(_cfg_type)
 unset(_l8w8jwt_libname)
 # Since our internal build types are Debug and Optimized, only Debug will translate
-if (CMAKE_BUILD_TYPE MATCHES "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(_cfg_type "${CMAKE_BUILD_TYPE}")
 	set(_l8w8jwt_libname "libl8w8jwtd.a")
 	list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")

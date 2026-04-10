@@ -354,7 +354,7 @@ if( (NOT zlib_USE_INSTALLED) AND
 									"-DCMAKE_C_FLAGS:STRING=/DEBUG:NONE")
 	else()
 		# Since our internal build types are Debug and Optimized, only Debug will translate
-		if (CMAKE_BUILD_TYPE MATCHES "Debug")
+		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
 		else()

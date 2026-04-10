@@ -256,7 +256,7 @@ if((NOT libxml2_USE_INSTALLED) AND
 
 			# since this is not a cmake build the config is done with configure 
 			# or autogen if configure is not present. The build/install are a
-			# simple 'gmake' / 'gmale install'
+			# simple 'gmake' / 'gmake install'
 			set( _EPA_CONFIGURE_COMMAND "CONFIGURE_COMMAND"
 										   	"<SOURCE_DIR>/configure "
 										   	"--prefix=<INSTALL_DIR> "

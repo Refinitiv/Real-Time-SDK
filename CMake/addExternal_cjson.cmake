@@ -88,7 +88,7 @@ if( (NOT cjson_USE_INSTALLED) AND
 		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d"
 									"-DCMAKE_C_FLAGS:STRING=/DEBUG:NONE")
 	else()
-		if (CMAKE_BUILD_TYPE MATCHES "Debug")
+		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
 			list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d" 
 										"-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
