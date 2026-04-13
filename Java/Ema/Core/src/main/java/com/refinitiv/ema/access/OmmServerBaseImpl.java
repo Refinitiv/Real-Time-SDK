@@ -17,14 +17,13 @@ import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.Error;
@@ -175,6 +174,32 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		_closure = closure;
 		_ommProviderEvent = new OmmEventImpl<OmmProviderEvent>();
 		_connectedChannels = new ArrayList<ReactorChannel>();
+	}
+
+	private void processUnhandledException(Throwable e)
+	{
+		try
+		{
+			_userLock.lock();
+			_threadRunning = false;
+
+			if (_loggerClient.isErrorEnabled())
+			{
+				_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, "Call to reactorDispatchLoop() failed with the following Exception: " + e.getMessage() + ", aborting. \nStackTrace: "
+						+ Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")), Severity.ERROR));
+			}
+			if (hasErrorClient())
+			{
+				onDispatchError(e.toString(), DispatchErrorCode.FAILURE);
+			}
+
+			uninitialize();
+		}
+		finally
+		{
+			_userLock.unlock();
+			if (_dispatchLock.isHeldByCurrentThread()) _dispatchLock.unlock();
+		}
 	}
 	
 	void initialize(ActiveServerConfig activeConfig,EmaConfigServerImpl config)
@@ -434,7 +459,18 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				_threadRunning = true;
 
 				if (_executor == null)
-					_executor = Executors.newSingleThreadExecutor();
+				{
+					if (_activeServerConfig.catchUnhandledExceptions)
+						_executor = Executors.newSingleThreadExecutor(runnable -> {
+							Thread t = new Thread(runnable);
+							t.setUncaughtExceptionHandler((thread, ex) -> {
+								processUnhandledException(ex);
+							});
+							return t;
+						});
+					else
+						_executor = Executors.newSingleThreadExecutor();
+				}
 
 				_executor.execute(this);
 			}
@@ -764,6 +800,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
 			{
 				_activeServerConfig.xmlTracePingEnable = ce.intLongValue() != 0;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.CatchUnhandledExceptions)) != null)
+			{
+				_activeServerConfig.catchUnhandledExceptions = ce.intLongValue() > 0;
 			}
 		}
 

@@ -198,9 +198,9 @@
                             </xs:complexType>
                           </xs:element>
 
-                          <xs:element name="CatchUnhandledException" minOccurs="0" maxOccurs="1">
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
-                              <xs:attribute name="value" type="xs:int" use="required" />
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
 
@@ -604,7 +604,7 @@
                             </xs:complexType>
                           </xs:element>
 						  
-						  <xs:element name="SessionChannelSet" minOccurs="0" maxOccurs="1">
+						              <xs:element name="SessionChannelSet" minOccurs="0" maxOccurs="1">
                             <!-- a comma-separated list of Session Channel names -->
                             <xs:complexType>
                               <xs:attribute name="value" type="NonEmptyString" use="required" />
@@ -618,6 +618,12 @@
                           </xs:element>
 
                           <xs:element name="SendJsonConvError" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
@@ -684,9 +690,9 @@
                             </xs:complexType>
                           </xs:element>
 
-                          <xs:element name="CatchUnhandledException" minOccurs="0" maxOccurs="1">
+                          <xs:element name="CatchUnhandledExceptions" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
-                              <xs:attribute name="value" type="xs:int" use="required" />
+                              <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>
                           </xs:element>
 

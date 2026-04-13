@@ -279,7 +279,8 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t socketProtocolPoolLimit: ").append(globalConfig.socketProtocolPoolLimit)
 		.append("\n\t sessionEnhancedItemRecovery: ").append(sessionEnhancedItemRecovery)
 		.append("\n\t updateTypeFilter: ").append(updateTypeFilter)
-		.append("\n\t negativeUpdateTypeFilter: ").append(negativeUpdateTypeFilter);
+		.append("\n\t negativeUpdateTypeFilter: ").append(negativeUpdateTypeFilter)
+		.append("\n\t catchUnhandledExceptions: ").append(catchUnhandledExceptions);
 
 		return traceStr;
 	}

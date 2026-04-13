@@ -1123,6 +1123,10 @@ class ProgrammaticConfigure
 												((ActiveConfig)activeConfig).negativeUpdateTypeFilter = eentry.uintValue();
 											}
 										}
+										else if (eentry.name().equals("CatchUnhandledExceptions"))
+										{
+											activeConfig.catchUnhandledExceptions = eentry.uintValue() > 0;
+										}
 										break;
 									case DataTypes.ASCII:
 										if (eentry.name().equals("XmlTraceFileName"))
@@ -1259,6 +1263,10 @@ class ProgrammaticConfigure
 										if (eentry.name().equals("SendJsonConvError")) {
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
+										else if (eentry.name().equals("CatchUnhandledExceptions"))
+										{
+											activeConfig.catchUnhandledExceptions = eentry.uintValue() > 0;
+										}
 										break;
 									case DataTypes.ASCII:
 										if (eentry.name().equals("XmlTraceFileName"))
@@ -1368,6 +1376,10 @@ class ProgrammaticConfigure
 												}
 												else
 													((ActiveConfig)activeConfig).sessionEnhancedItemRecovery = false;
+											}
+											else if (eentry.name().equals("CatchUnhandledExceptions"))
+											{
+												activeConfig.catchUnhandledExceptions = eentry.uintValue() > 0;
 											}
 											break;
 										case DataTypes.DOUBLE:

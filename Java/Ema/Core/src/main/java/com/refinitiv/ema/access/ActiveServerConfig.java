@@ -82,7 +82,8 @@ abstract class ActiveServerConfig extends BaseConfig
 				.append("\n\t enforceAckIDValidation: ").append(enforceAckIDValidation)
 				.append("\n\t clientSessionCountHint: ").append(clientSessionCountHint)
 				.append("\n\t clientSessionPoolLimit: ").append(clientSessionPoolLimit)
-				.append("\n\t itemInfoPoolLimit: ").append(itemInfoPoolLimit);
+				.append("\n\t itemInfoPoolLimit: ").append(itemInfoPoolLimit)
+				.append("\n\t catchUnhandledExceptions: ").append(catchUnhandledExceptions);
 
 		return traceStr;
 	}

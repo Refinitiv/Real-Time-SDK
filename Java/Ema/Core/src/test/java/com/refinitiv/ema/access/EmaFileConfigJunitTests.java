@@ -638,6 +638,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 90000 );
 		int intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DispatchTimeoutApiThread);
 		TestUtilities.checkResult("DispatchTimeoutApiThread value == 90", intValue == 90 );
+		boolean boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.CatchUnhandledExceptions);
+		TestUtilities.checkResult("CatchUnhandledExceptions == 1", boolValue == true);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );
@@ -650,7 +652,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReconnectMinDelay == 330", intValue == 123);
 		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReconnectMaxDelay);
 		TestUtilities.checkResult("ReconnectMaxDelay == 450", intValue == 456);
-		boolean boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout);
 		TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile);
 		TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
@@ -1411,7 +1413,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("RequestTimeout", 2400));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxOutstandingPosts", 9999));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DispatchTimeoutApiThread", 60));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("CatchUnhandledException", 1));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
@@ -1708,7 +1710,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("RequestTimeout", 2400));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxOutstandingPosts", 9999));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DispatchTimeoutApiThread", 60));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("CatchUnhandledException", 1));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 1));
@@ -1932,7 +1934,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("RequestTimeout", 2400));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxOutstandingPosts", 9999));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DispatchTimeoutApiThread", 60));
-			innerElementList.add(EmaFactory.createElementEntry().intValue("CatchUnhandledException", 1));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
@@ -2074,6 +2076,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("TokenReissueRatio == 0.9", doubleValue == 0.9);
 			String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
 			TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
+			String catchExceptions = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.CatchUnhandledExceptions, -1);
+			TestUtilities.checkResult("CatchUnhandledExcetions == true", catchExceptions.contentEquals("true"));
 			int value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorMsgEventPoolLimit;
 			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  100", value == 100);
 			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorChannelEventPoolLimit;
@@ -3705,6 +3709,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -3934,6 +3939,9 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("MaxFieldDictFragmentSize value == 2000", intLongValue == 2000 );
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DictionaryEnumTypeFragmentSize);
 			TestUtilities.checkResult("MaxEnumTypeFragmentSize value == 1000", intLongValue == 1000 );
+
+			String catchUnhandledExceptions = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.CatchUnhandledExceptions);
+			TestUtilities.checkResult("CatchUnhandledExceptions value == true", catchUnhandledExceptions.contentEquals("true") );
 			
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.ItemCountHint);
 			TestUtilities.checkResult("ItemCountHint value == 5000", intLongValue == 5000 );
@@ -4848,6 +4856,7 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -5071,6 +5080,8 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.CatchUnhandledExceptions, -1);
+			TestUtilities.checkResult("CatchUnhandledExceptions == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.XmlTraceToFile, -1);
 			TestUtilities.checkResult("XmlTraceToFile == 1", boolValue == true);
 			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.XmlTraceMaxFileSize, -1);

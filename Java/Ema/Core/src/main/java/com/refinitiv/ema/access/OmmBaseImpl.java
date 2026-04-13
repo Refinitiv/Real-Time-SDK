@@ -15,13 +15,11 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -170,8 +168,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	protected ChannelCallbackClient<T> _channelCallbackClient;
 	
 	protected ReactorOAuthCredentialRenewalOptions _OAuthRenewalOpts = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
-	
-	
+
 	private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
 	private ReentrantLock _dispatchLock = new java.util.concurrent.locks.ReentrantLock();	
 	protected Reactor _rsslReactor;
@@ -216,6 +213,32 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	OmmBaseImpl()
 	{
+	}
+
+	private void processUnhandledException(Throwable e)
+	{
+		_userLock.lock();
+		try
+		{
+			_threadRunning = false;
+
+			if (_loggerClient.isErrorEnabled())
+			{
+				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, "Call to ReactorDispatchLoop() failed with the following Exception: " + e.getMessage() + ", aborting. \nStackTrace: "
+						+ Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")), Severity.ERROR));
+			}
+			if (hasErrorClient())
+			{
+				onDispatchError(e.toString(), DispatchErrorCode.FAILURE);
+			}
+
+			uninitialize();
+		}
+		finally
+		{
+			_userLock.unlock();
+			if (_dispatchLock.isHeldByCurrentThread()) _dispatchLock.unlock();
+		}
 	}
 	
 	void initialize(ActiveConfig activeConfig,EmaConfigImpl config)
@@ -380,7 +403,18 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_threadRunning = true;
 
 				if (_executor == null)
-					_executor = Executors.newSingleThreadExecutor();
+				{
+					if (_activeConfig.catchUnhandledExceptions)
+						_executor = Executors.newSingleThreadExecutor(runnable -> {
+								Thread t = new Thread(runnable);
+								t.setUncaughtExceptionHandler((thread, ex) -> {
+								processUnhandledException(ex);
+							});
+							return t;
+						});
+					else
+						_executor = Executors.newSingleThreadExecutor();
+				}
 
 				_executor.execute(this);
 			}
@@ -1057,6 +1091,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerSessionEnhancedItemRecovery)) != null) {
 				_activeConfig.sessionEnhancedItemRecovery = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnhandledExceptions)) != null) {
+				_activeConfig.catchUnhandledExceptions = ce.intLongValue() > 0;
 			}
 			
 			// Get session channels from the programmatic configuration or file configuration.

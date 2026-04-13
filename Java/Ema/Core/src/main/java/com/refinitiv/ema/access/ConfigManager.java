@@ -73,7 +73,7 @@ class ConfigManager
 	public static final int ConsumerLoggerName = 7;
 	public static final int ConsumerDictionaryName = 8;
 	
-	public static final int CatchUnhandledException = 9;
+	public static final int CatchUnhandledExceptions = 9;
 	public static final int ConsumerCatchUnhandledException = 10;
 	public static final int ChannelSet = 11;
 	public static final int DictionaryRequestTimeOut = 12;
@@ -376,7 +376,7 @@ class ConfigManager
 		ConsumerTagDict.add( "Dictionary",ConsumerDictionaryName );
 		ConsumerTagDict.add( "WarmStandbyChannelSet", ConsumerWarmStandbyChannelSet);
 		
-		ConsumerTagDict.add( "CatchUnhandledException",CatchUnhandledException );
+		ConsumerTagDict.add( "CatchUnhandledExceptions", CatchUnhandledExceptions);
 		ConsumerTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
 		ConsumerTagDict.add( "DirectoryRequestTimeOut",DirectoryRequestTimeOut );
 		ConsumerTagDict.add( "DispatchTimeoutApiThread",DispatchTimeoutApiThread );
@@ -534,6 +534,7 @@ class ConfigManager
 		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		NiProviderTagDict.add("SendJsonConvError", SendJsonConvError);
+		NiProviderTagDict.add("CatchUnhandledExceptions", CatchUnhandledExceptions);
 
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
@@ -582,7 +583,7 @@ class ConfigManager
 		IProviderTagDict.add("Name", IProviderName);
 		IProviderTagDict.add("Server", IProviderServerName);
 		IProviderTagDict.add("Directory", IProviderDirectoryName );
-		IProviderTagDict.add( "CatchUnhandledException",CatchUnhandledException );
+		IProviderTagDict.add( "CatchUnhandledExceptions", CatchUnhandledExceptions);
 		IProviderTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
 		IProviderTagDict.add( "DispatchTimeoutApiThread",DispatchTimeoutApiThread );
 		IProviderTagDict.add( "ItemCountHint",ItemCountHint );
@@ -619,6 +620,7 @@ class ConfigManager
 		IProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		IProviderTagDict.add("SendJsonConvError", SendJsonConvError);
+		IProviderTagDict.add("CatchUnhandledExceptions", CatchUnhandledExceptions);
 
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -957,6 +959,7 @@ class ConfigManager
 		"EnablePreferredHostOptions",
 		"PHDetectionTimeInterval",
 		"PHFallBackWithInWSBGroup",
+		"CatchUnhandledExceptions"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

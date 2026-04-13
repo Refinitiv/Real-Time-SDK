@@ -60,6 +60,7 @@ public class JUnitTestConnect
 	public static final int ReissueTokenAttemptLimit  = ConfigManager.ReissueTokenAttemptLimit; 
 	public static final int ReissueTokenAttemptInterval  = ConfigManager.ReissueTokenAttemptInterval; 
 	public static final int TokenReissueRatio  = ConfigManager.TokenReissueRatio;
+	public static final int CatchUnhandledExceptions  = ConfigManager.CatchUnhandledExceptions;
 
 	public static final int ConnectionPingTimeout  = ConfigManager.ConnectionPingTimeout; 
 	public static final int GuaranteedOutputBuffers  = ConfigManager.GuaranteedOutputBuffers; 
@@ -1548,6 +1549,8 @@ public class JUnitTestConnect
 			attributes = consConfig.xmlConfig().getWSBServerInfoAttributes(name);
 		else if (type == ConfigGroupTypeSessionChannel)
 			attributes = consConfig.xmlConfig().getSessionChannelGroupAttributes(name);
+		else if (type == CatchUnhandledExceptions)
+			attributes = consConfig.xmlConfig().getSessionChannelGroupAttributes(name);
 		if (attributes != null) {
 			return attributes.getPrimitiveValue(configParam);
 		}
@@ -1903,6 +1906,8 @@ public class JUnitTestConnect
 					return activeConfig.xmlTraceFileName;
 				case ConsumerDetectionTimeSchedule:
 					return activeConfig.detectionTimeSchedule;
+				case CatchUnhandledExceptions:
+					return String.valueOf(activeConfig.catchUnhandledExceptions);
 				default:
 					break;			
 			}
@@ -2058,6 +2063,8 @@ public class JUnitTestConnect
 				return ((OmmNiProviderActiveConfig)activeConfig).recoverUserSubmitSourceDirectory;
 			else if (configParam == NiProviderRemoveItemsOnDisconnect)
 				return ((OmmNiProviderActiveConfig)activeConfig).removeItemsOnDisconnect;
+			else if (configParam == CatchUnhandledExceptions)
+				return ((OmmNiProviderActiveConfig)activeConfig).catchUnhandledExceptions;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -2367,6 +2374,8 @@ public class JUnitTestConnect
 				return iprovImpl.directoryServiceStore().getDirectoryCache().directoryName;
 			else if (configParam == XmlTraceFileName)
 				return activeConfig.xmlTraceFileName;
+			else if (configParam == CatchUnhandledExceptions)
+				return String.valueOf(activeConfig.catchUnhandledExceptions);
 		}
 		else if (type == ConfigGroupTypeServer)
 		{

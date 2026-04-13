@@ -82,6 +82,7 @@ abstract class BaseConfig
 		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 		sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
+		catchUnhandledExceptions = false;
 	}
 	
 	StringBuilder configTrace()
@@ -109,6 +110,7 @@ abstract class BaseConfig
 		.append("\n\t catchUnknownJsonFids: ").append(catchUnknownJsonFids)
 		.append("\n\t closeChannelFromFailure: ").append(closeChannelFromFailure)
 		.append("\n\t sendJsonConvError: ").append(sendJsonConvError)
+		.append("\n\t catchUnhandledExceptions: ").append(catchUnhandledExceptions)
 		.append("\n\t globalConfig.reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
 		.append("\n\t globalConfig.reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
 		.append("\n\t globalConfig.workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
@@ -138,6 +140,8 @@ abstract class BaseConfig
 	boolean 				xmlTraceReadEnable;
 	boolean 				xmlTraceWriteEnable;
 	boolean 				xmlTracePingEnable;
+
+	boolean 				catchUnhandledExceptions;
 
 	StringBuilder			traceStr;
 	GlobalConfig            globalConfig;
