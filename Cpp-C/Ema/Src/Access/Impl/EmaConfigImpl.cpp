@@ -1226,9 +1226,9 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 }
 
 
-bool EmaConfigImpl::getConsumerRoutingSessionChannelSetName(const EmaString& instanceName, EmaString& retVal) const
+bool EmaConfigImpl::getRoutingSessionChannelSetName(const EmaString& instanceName, EmaString& retVal) const
 {
-	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveConsumerRoutingSessionChannelSetName(instanceName, retVal))
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveRoutingSessionChannelSetName(instanceName, retVal))
 		return true;
 
 	EmaString nodeName(_instanceNodeName);
@@ -2839,6 +2839,13 @@ AdminRefreshMsg::~AdminRefreshMsg()
 AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 {
 	_rsslMsg = *pRsslRefreshMsg;
+
+	// Cleanup the input.  The AdminRefreshMsg structure is only used for Directory Messages, so set groupId and permData to empty, and clear the reqMsgKey presnce flag and structure.
+	_rsslMsg.groupId = RSSL_INIT_BUFFER;
+	_rsslMsg.permData = RSSL_INIT_BUFFER;
+	_rsslMsg.reqMsgKey = RSSL_INIT_MSG_KEY;
+
+	_rsslMsg.flags &= ~RSSL_RFMF_HAS_REQ_MSG_KEY;
 
 	if ( _rsslMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER )
 	{

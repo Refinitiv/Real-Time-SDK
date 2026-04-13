@@ -18,7 +18,7 @@ ConsumerRoutingService::ConsumerRoutingService(OmmBaseImpl& ommBaseImpl) :
 	Directory(ommBaseImpl),
 	routingChannelList()
 {
-	for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().consumerRoutingSessionSet.size(); i++)
+	for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().routingSessionSet.size(); i++)
 	{
 		routingChannelList.push_back(NULL);
 	}
@@ -35,7 +35,7 @@ ConsumerRoutingService& ConsumerRoutingService::clear()
 	Directory::clear();
 
 	routingChannelList.clear();
-	for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().consumerRoutingSessionSet.size(); i++)
+	for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().routingSessionSet.size(); i++)
 	{
 		routingChannelList.push_back(NULL);
 	}
@@ -56,19 +56,20 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 		setService(newDirectory.getService());
 
 		setId(currentId);
+		ConsumerRoutingSessionChannel* pRoutingChannel = static_cast<ConsumerRoutingSessionChannel*>(newDirectory._pChannel->getRoutingChannel());
 		
 		// Insert the routing channel into the proper place in the routing session set.
-		EmaString& routingSessionName = newDirectory._pChannel->getConsumerRoutingChannel()->name;
+		EmaString& routingSessionName = pRoutingChannel->name;
 
-		for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().consumerRoutingSessionSet.size(); i++)
+		for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().routingSessionSet.size(); i++)
 		{
-			if (_ommBaseImpl.getActiveConfig().consumerRoutingSessionSet[i]->name == routingSessionName)
+			if (_ommBaseImpl.getActiveConfig().routingSessionSet[i]->name == routingSessionName)
 			{
 				if (routingChannelList[i] == NULL)
 				{
 					activeServiceCount++;
 
-					routingChannelList[i] = newDirectory._pChannel->getConsumerRoutingChannel();
+					routingChannelList[i] = pRoutingChannel;
 					newDirectory.setGeneratedServiceId(_id);
 				}
 				break;
@@ -212,15 +213,15 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 			}
 		
 			int oldActiveServiceCount = activeServiceCount;
-			EmaString& routingSessionName = newDirectory._pChannel->getConsumerRoutingChannel()->name;
+			EmaString& routingSessionName = newDirectory._pChannel->getRoutingChannel()->name;
 
-			for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().consumerRoutingSessionSet.size(); i++)
+			for (UInt32 i = 0; i < _ommBaseImpl.getActiveConfig().routingSessionSet.size(); i++)
 			{
-				if (_ommBaseImpl.getActiveConfig().consumerRoutingSessionSet[i]->name == routingSessionName)
+				if (_ommBaseImpl.getActiveConfig().routingSessionSet[i]->name == routingSessionName)
 				{
 					if (routingChannelList[i] == NULL)
 					{
-						routingChannelList[i] = newDirectory._pChannel->getConsumerRoutingChannel();
+						routingChannelList[i] = static_cast<ConsumerRoutingSessionChannel*>(newDirectory._pChannel->getRoutingChannel());
 						newDirectory.setGeneratedServiceId(_id);
 						activeServiceCount++;
 					}
@@ -238,7 +239,7 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 		case RSSL_MPEA_DELETE_ENTRY:
 		{
 			// If this is currently in the routing channel list, remove it
-			Int64 pos = routingChannelList.getPositionOf(newDirectory._pChannel->getConsumerRoutingChannel());
+			Int64 pos = routingChannelList.getPositionOf(static_cast<ConsumerRoutingSessionChannel*>(newDirectory._pChannel->getRoutingChannel()));
 
 			if (pos != -1)
 			{
@@ -360,7 +361,7 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::compareAgg
 		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 		{
 			EmaString tmpString = "Received RsslRDMService name ";
-			tmpString.append(_name).append(". From session channel ").append(newDirectory.getChannel()->getConsumerRoutingChannel()->name);
+			tmpString.append(_name).append(". From session channel ").append(newDirectory.getChannel()->getRoutingChannel()->name);
 			tmpString.append(". With a mismatched Item List name. ");
 			if (_ommBaseImpl.isInitialized() == true)
 			{
@@ -428,7 +429,7 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::compareAgg
 		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 		{
 			EmaString tmpString = "Received RsslRDMService name ";
-			tmpString.append(_name).append(". From session channel: ").append(newDirectory.getChannel()->getConsumerRoutingChannel()->name).append(". With a mismatched qos list. ");
+			tmpString.append(_name).append(". From session channel: ").append(newDirectory.getChannel()->getRoutingChannel()->name).append(". With a mismatched qos list. ");
 			if (_ommBaseImpl.isInitialized() == true)
 			{
 				tmpString.append(" Dropping this service.");
@@ -474,7 +475,7 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::compareAgg
 		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 		{
 			EmaString tmpString = "Received RsslRDMService name ";
-			tmpString.append(_name).append(" From session channel: ").append(newDirectory.getChannel()->getConsumerRoutingChannel()->name);
+			tmpString.append(_name).append(" From session channel: ").append(newDirectory.getChannel()->getRoutingChannel()->name);
 			tmpString.append(". With a mismatched qos range configuration.");
 			if (_ommBaseImpl.isInitialized() == true)
 			{

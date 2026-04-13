@@ -606,7 +606,16 @@ void NIProviderThread::sendUpdateMessages()
 	return;
 }
 
-void NIProviderThread::sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo)
+void NIProviderThread::clearPackedMsg()
+{
+	if (packedMsg)
+	{
+		packedMsg->clear();
+		packCountCurrent = 0;
+	}
+}
+
+void NIProviderThread::sendPackedMsg(const UpdateMsg* msg, ProvItemInfo* itemInfo)
 {
 	if (!itemInfo)
 		return;
@@ -622,17 +631,53 @@ void NIProviderThread::sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo)
 			packedMsg->initBuffer((UInt32)niProvPerfConfig.packedMsgBufferSize);
 	}
 
-	(void)packedMsg->addMsg(*msg, itemInfo->getHandle());
-	packCountCurrent++;
-
-	if (niProvPerfConfig.numberMsgInPackedMsg == packCountCurrent)
+	try
 	{
-		UInt64 clientHandle = itemInfo->getClientHandle();
-		
-		provider->submit(*packedMsg);
-		stats.packedMsgCount.countStatIncr();
-		packedMsg->clear();
-		packCountCurrent = 0;
+		(void)packedMsg->addMsg(*msg, itemInfo->getHandle());
+		packCountCurrent++;
+
+		if (niProvPerfConfig.numberMsgInPackedMsg == packCountCurrent)
+		{
+			UInt64 clientHandle = itemInfo->getClientHandle();
+
+			provider->submit(*packedMsg);
+			stats.packedMsgCount.countStatIncr();
+			packedMsg->clear();
+			packCountCurrent = 0;
+		}
+	}
+	catch (const OmmInvalidUsageException& exp)
+	{
+		if (exp.getErrorCode() == OmmInvalidUsageException::BufferTooSmallEnum)
+		{
+			// when the message is too big to fit in the packed message buffer, then send the current packed message and then add the message to the new packed message buffer
+			provider->submit(*packedMsg);
+			stats.packedMsgCount.countStatIncr();
+
+			packedMsg->clear();
+			packCountCurrent = 0;
+
+			if (!niProvPerfConfig.packedMsgBufferSize)
+				packedMsg->initBuffer();
+			else
+				packedMsg->initBuffer((UInt32)niProvPerfConfig.packedMsgBufferSize);
+
+			// try to add the message again
+			try
+			{
+				(void)packedMsg->addMsg(*msg, itemInfo->getHandle());
+				packCountCurrent++;
+			}
+			catch (const OmmInvalidUsageException& exp2)
+			{
+				if (exp.getErrorCode() == OmmInvalidUsageException::BufferTooSmallEnum)
+				{
+					// This message can't fit, just submit it as-is
+					provider->submit(*msg, itemInfo->getHandle());
+					return;
+				}
+			}
+		}
 	}
 }
 

@@ -193,6 +193,12 @@
 			<Logger value="Logger_1"/>
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
+		<NiProvider>
+			<Name value="Provider_Session"/>
+			<SessionChannelSet value="NiProv_Connection_1, NiProv_Connection_2"/>
+			<Directory value="Directory_1"/>
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
 		<!-- Performance tools niprovider -->
 		<NiProvider>
 			<Name value="Perf_NIProvider_1"/>
@@ -571,22 +577,36 @@
 </WarmStandbyGroup>
 
 <SessionChannelGroup>
-	<SessionChannelList>
-		<SessionChannelInfo>
-			<Name value="Connection_1"/>
-			<ChannelSet value="Channel_1,Channel_7"/>
-			<ReconnectAttemptLimit value="10"/>
-			<ReconnectMinDelay value="2000"/>
-			<ReconnectMaxDelay value="6000"/>
-		</SessionChannelInfo>
-		<SessionChannelInfo>
-			<Name value="Connection_2"/>
-			<ChannelSet value="Channel_11,Channel_12"/>
-			<ReconnectAttemptLimit value="4"/>
-			<ReconnectMinDelay value="3000"/>
-			<ReconnectMaxDelay value="4000"/>
-		</SessionChannelInfo>
-	</SessionChannelList>
+        <SessionChannelList>
+                <SessionChannelInfo>
+                        <Name value="Connection_1"/>
+                        <ChannelSet value="Channel_1,Channel_7"/>
+                        <ReconnectAttemptLimit value="10"/>
+                        <ReconnectMinDelay value="2000"/>
+                        <ReconnectMaxDelay value="6000"/>
+                </SessionChannelInfo>
+                <SessionChannelInfo>
+                        <Name value="Connection_2"/>
+                        <ChannelSet value="Channel_11,Channel_12"/>
+                        <ReconnectAttemptLimit value="4"/>
+                        <ReconnectMinDelay value="3000"/>
+                        <ReconnectMaxDelay value="4000"/>
+                </SessionChannelInfo>
+				<SessionChannelInfo>
+                        <Name value="NiProv_Connection_1"/>
+                        <ChannelSet value="Channel_7"/>
+                        <ReconnectAttemptLimit value="10"/>
+                        <ReconnectMinDelay value="2000"/>
+                        <ReconnectMaxDelay value="6000"/>
+                </SessionChannelInfo>
+                <SessionChannelInfo>
+                        <Name value="NiProv_Connection_2"/>
+                        <ChannelSet value="Channel_11,Channel_12"/>
+                        <ReconnectAttemptLimit value="4"/>
+                        <ReconnectMinDelay value="3000"/>
+                        <ReconnectMaxDelay value="4000"/>
+                </SessionChannelInfo>
+        </SessionChannelList>
 </SessionChannelGroup>
 
 <LoggerGroup>

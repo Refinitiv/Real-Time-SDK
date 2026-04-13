@@ -24,6 +24,10 @@
 #include "OmmInvalidUsageException.h"
 #include "PackedMsgImpl.h"
 #include "StatusMsgImpl.h"
+#include "BaseRoutingChannel.h"
+#include "BaseRoutingSession.h"
+#include "NiProviderRoutingChannel.h"
+#include "NiProviderRoutingSession.h"
 
 #include <limits.h>
 
@@ -33,6 +37,25 @@
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
+
+static UInt32 _getMsgEncodedSize(RsslMsg* pMsg)
+{
+	UInt32 msgSize = 128;
+	const RsslMsgKey* pKey;
+
+	msgSize += pMsg->msgBase.encDataBody.length;
+
+	if ((pKey = rsslGetMsgKey(pMsg)))
+	{
+		if (pKey->flags & RSSL_MKF_HAS_NAME)
+			msgSize += pKey->name.length;
+
+		if (pKey->flags & RSSL_MKF_HAS_ATTRIB)
+			msgSize += pKey->encAttrib.length;
+	}
+
+	return msgSize;
+}
 
 OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProviderConfig& config ) :
 	_activeConfig(),
@@ -53,6 +76,10 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	_encodeBuffer = RSSL_INIT_BUFFER;
+	_encodeBufferAllocatedLength = 0;
+	rsslClearEncodeIterator(&_encodeIterator);
+
 	initialize( config._pImpl );
 
 	_rsslDirectoryMsgBuffer.length = 2048;
@@ -62,6 +89,7 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
+	rsslClearRDMDirectoryMsg(&_rsslDirectoryMsg);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
@@ -85,6 +113,10 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	_encodeBuffer = RSSL_INIT_BUFFER;
+	_encodeBufferAllocatedLength = 0;
+	rsslClearEncodeIterator(&_encodeIterator);
+
 	initialize(config._pImpl);
 
 	_rsslDirectoryMsgBuffer.length = 2048;
@@ -94,6 +126,9 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
+
+	rsslClearRDMDirectoryMsg(&_rsslDirectoryMsg);
+
 
 	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
@@ -117,6 +152,10 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	_encodeBuffer = RSSL_INIT_BUFFER;
+	_encodeBufferAllocatedLength = 0;
+	rsslClearEncodeIterator(&_encodeIterator);
+
 	initialize(config._pImpl);
 
 	_rsslDirectoryMsgBuffer.length = 2048;
@@ -126,6 +165,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
+
+	rsslClearRDMDirectoryMsg(&_rsslDirectoryMsg);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
@@ -149,6 +190,10 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	_encodeBuffer = RSSL_INIT_BUFFER;
+	_encodeBufferAllocatedLength = 0;
+	rsslClearEncodeIterator(&_encodeIterator);
+
 	initialize(config._pImpl);
 
 	_rsslDirectoryMsgBuffer.length = 2048;
@@ -158,6 +203,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
+
+	rsslClearRDMDirectoryMsg(&_rsslDirectoryMsg);
 
 	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
@@ -182,6 +229,10 @@ OmmNiProviderImpl::OmmNiProviderImpl(const OmmNiProviderConfig& config, OmmProvi
 
 	_ommNiProviderDirectoryStore.setClient(this);
 
+	_encodeBuffer = RSSL_INIT_BUFFER;
+	_encodeBufferAllocatedLength = 0;
+	rsslClearEncodeIterator(&_encodeIterator);
+
 	_rsslDirectoryMsgBuffer.length = 2048;
 	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
 	if (!_rsslDirectoryMsgBuffer.data)
@@ -189,6 +240,8 @@ OmmNiProviderImpl::OmmNiProviderImpl(const OmmNiProviderConfig& config, OmmProvi
 		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
 		return;
 	}
+
+	rsslClearRDMDirectoryMsg(&_rsslDirectoryMsg);
 
 	initializeForTest(config._pImpl);
 }
@@ -200,7 +253,18 @@ OmmNiProviderImpl::~OmmNiProviderImpl()
 
 	free(_rsslDirectoryMsgBuffer.data);
 
+	if (_encodeBuffer.data != NULL)
+	{
+		free(_encodeBuffer.data);
+	}
+
 	removeItems();
+
+	while (_reusedProviderStreamIds.size() != 0)
+	{
+		StreamId* tmp(_reusedProviderStreamIds.pop_back());
+		delete tmp;
+	}
 
 	OmmBaseImplMap<OmmBaseImpl>::acquireCleanupLock();
 
@@ -282,6 +346,12 @@ void OmmNiProviderImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 	if ( ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure() )
 	{
 		ppc->retrieveCustomConfig( _activeConfig.configuredName, _activeConfig );
+	}
+
+	// If a routing session is configured, alwyas set recoverUserSubmitSourceDirectory to true.
+	if (_activeConfig.routingSessionSet.size() != 0)
+	{
+		_activeConfig.recoverUserSubmitSourceDirectory = true;
 	}
 }
 
@@ -468,36 +538,93 @@ void OmmNiProviderImpl::loadDirectory()
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
-	{
-		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::loadDirectory()." );
-		temp.append( CR ).append( pChannel->toString() ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
-		return;
+	if (_pRoutingSession == NULL)
+	{
+		if (rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::loadDirectory().");
+			temp.append(CR).append(pChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+			return;
+		}
+		else
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+
+			if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directory was sent out on the wire.");
+		}
 	}
 	else
 	{
-		_bIsStreamIdZeroRefreshSubmitted = true;
+		// Routing session configuration, so encode this buffer into _encodeBuffer and then memcpy it to fan out
+		UInt32 msgSize = _getMsgEncodedSize(submitMsgOpts.pRsslMsg);
+		NiProviderRoutingSession* pNiProvRoutingSession = static_cast<NiProviderRoutingSession*>(_pRoutingSession);
 
-		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directory was sent out on the wire." );
+		int sentMsgCount = 0;
+
+
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+			
+			// Do not submit the message if the channel is not active or has not gotten a login Open/OK.
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			if (rsslReactorSubmitMsg(_pRsslReactor, pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::loadDirectory().");
+				temp.append(CR).append(pChannel->toString()).append(CR)
+					.append("Session name ").append(pRoutingChannel->name).append(CR)
+					.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+					.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+			}
+			else
+			{
+				++sentMsgCount;
+			}
+
+			if (sentMsgCount == 0)
+			{
+				EmaString temp("Internal error: rsslReactorSubmitMsg() failed to send any messages OmmNiProviderImpl::loadDirectory().");
+
+				// This is failure because in this case, the only failure should be with a bad message.
+				handleIue(temp, OmmInvalidUsageException::FailureEnum);
+				return;
+			}
+
+			_bIsStreamIdZeroRefreshSubmitted = true;
+
+			if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directory was sent out on the wire.");
+		}
+
 	}
 }
 
-void OmmNiProviderImpl::reLoadDirectory()
+void OmmNiProviderImpl::reLoadDirectory(BaseRoutingSessionChannel* pRoutingChannel)
 {
 	try
 	{
 		_userLock.lock();
 
-		reLoadConfigSourceDirectory();
-		reLoadUserSubmitSourceDirectory();
+		reLoadConfigSourceDirectory(pRoutingChannel);
+		reLoadUserSubmitSourceDirectory(pRoutingChannel);
 
 		_userLock.unlock();
 	}
@@ -508,7 +635,7 @@ void OmmNiProviderImpl::reLoadDirectory()
 	}
 }
 
-void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
+void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory(BaseRoutingSessionChannel* pRoutingChannel)
 {
 	if ( !_activeConfig.recoverUserSubmitSourceDirectory )
 		return;
@@ -646,15 +773,31 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	RsslReactorChannel* pReactorChannel;
+	if (pRoutingChannel == NULL)
 	{
-		EmaString temp("No active channel to send message.");
-		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
-		return;
+		if (_activeChannel == NULL)
+		{
+			EmaString temp("reLoadUserSubmitSourceDirectory() error: No active channel to send message.");
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+		pReactorChannel = _pReactorChannel;
+	}
+	else
+	{
+		if (pRoutingChannel->pReactorChannel == NULL)
+		{
+			EmaString temp("reLoadUserSubmitSourceDirectory() error: No active channel to send message.");
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+
+		pReactorChannel = pRoutingChannel->pReactorChannel;
 	}
 
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( (retCode = rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo )) != RSSL_RET_SUCCESS )
+	if ( (retCode = rsslReactorSubmitMsg(_pRsslReactor, pReactorChannel, &submitMsgOpts, &rsslErrorInfo )) != RSSL_RET_SUCCESS )
 	{
 		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 
@@ -696,37 +839,53 @@ bool OmmNiProviderImpl::storeUserSubmitSourceDirectory( RsslMsg* pMsg )
 	}
 }
 
-void OmmNiProviderImpl::reLoadConfigSourceDirectory()
+void OmmNiProviderImpl::reLoadConfigSourceDirectory(BaseRoutingSessionChannel* pRoutingChannel)
 {
-	if ( !_activeConfig.pDirectoryRefreshMsg )
+	if (!_activeConfig.pDirectoryRefreshMsg)
 		return;
 
-	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Reload of configured source directories." );
+	if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+		getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Reload of configured source directories.");
 
 	RsslReactorSubmitMsgOptions submitMsgOpts;
-	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 
-	submitMsgOpts.pRsslMsg = (RsslMsg*) _activeConfig.pDirectoryRefreshMsg->get();
+	submitMsgOpts.pRsslMsg = (RsslMsg*)_activeConfig.pDirectoryRefreshMsg->get();
 
 	EmaString temp;
 	Int32 errorCode;
 	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp, errorCode))
 	{
-		handleIue( temp, errorCode);
+		handleIue(temp, errorCode);
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	RsslReactorChannel* pReactorChannel;
+	if (pRoutingChannel == NULL)
 	{
-		EmaString temp( "No active channel to send message." );
-		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
-		return;
+		if (_activeChannel == NULL)
+		{
+			EmaString temp("reLoadConfigSourceDirectory() error: No active channel to send message.");
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+		pReactorChannel = _pReactorChannel;
+	}
+	else
+	{
+		if (pRoutingChannel->pReactorChannel == NULL)
+		{
+			EmaString temp("reLoadConfigSourceDirectory() error: No active channel to send message.");
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+
+		pReactorChannel = pRoutingChannel->pReactorChannel;
 	}
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+	if ( rsslReactorSubmitMsg( _pRsslReactor, pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 	{
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::reLoadConfigSourceDirectory()." );
 		temp.append( CR ).append( _activeChannel->toString() ).append( CR )
@@ -749,15 +908,38 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 
 void OmmNiProviderImpl::processChannelEvent( RsslReactorChannelEvent* pEvent )
 {
+	bool callRemoveItems = false;
 	switch ( pEvent->channelEventType )
 	{
 	case RSSL_RC_CET_CHANNEL_DOWN:
 	case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		_userLock.lock();
-		if ( _activeConfig.removeItemsOnDisconnect )
-			removeItems();
+		
 
-		_itemWatchList.processChannelEvent(pEvent);
+		if (getRoutingSession() != NULL)
+		{
+			// Check to see if all channels are reconnecting.  If they are, call remove items.
+			BaseRoutingSession* pRoutingSession = getRoutingSession();
+			int reconnectingCount = pRoutingSession->getReconnectingCount();
+
+			if (reconnectingCount == pRoutingSession->activeChannelCount)
+				callRemoveItems = true;
+		}
+		else
+		{
+			callRemoveItems = true;
+		}
+
+		if (callRemoveItems)
+		{
+			if (_activeConfig.removeItemsOnDisconnect)
+			{
+				removeItems();
+			}
+
+			// Only call this if all items are fully closed
+			_itemWatchList.processChannelEvent(pEvent);
+		}
 
 		_activeChannel = NULL;
 		_userLock.unlock();
@@ -936,6 +1118,8 @@ void OmmNiProviderImpl::unregister( UInt64 handle )
 		unregisterHandle = (*pTempStreamInfoPtr)->_actualHandle;
 	}
 
+	delete* pTempStreamInfoPtr;
+
 	_handleToStreamInfo.erase( handle );
 
 	_userLock.unlock();
@@ -968,10 +1152,10 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	if ((_pRoutingSession == NULL && _activeChannel == NULL) || (_pRoutingSession != NULL && (_pRoutingSession->activeChannelCount == 0 || _pRoutingSession->getReconnectingCount() == _pRoutingSession->activeChannelCount)))
 	{
 		_userLock.unlock();
-		EmaString temp( "No active channel to send message." );
+		EmaString temp( "submit( const RefreshMsg& ) error: No active channel to send message." );
 		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
@@ -1020,7 +1204,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			{
 				try
 				{
-					submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
+					submitMsgOpts.pRsslMsg->msgBase.streamId = getNextProviderStreamId();
 					StreamInfoPtr pTemp = new StreamInfo(StreamInfo::ProvidingEnum, submitMsgOpts.pRsslMsg->msgBase.streamId);
 					_handleToStreamInfo.insert(handle, pTemp);
 					_streamInfoList.push_back(pTemp);
@@ -1159,30 +1343,270 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 	}
 
 	RsslErrorInfo rsslErrorInfo;
-	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+	clearRsslErrorInfo(&rsslErrorInfo);
+
+	// Submit the rsslMsg if if there is no routing session.
+	if (_pRoutingSession == NULL)
 	{
-		if ( bHandleAdded )
+		if (rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find( handle );
-			_streamInfoList.removeValue( *pTempStreamInfoPtr );
-			delete *pTempStreamInfoPtr;
-			_handleToStreamInfo.erase( handle );
-			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const RefreshMsg& ).");
+			temp.append(CR).append(_activeChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			_userLock.unlock();
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+
+			return;
+		}
+	}
+	else
+	{
+		// Routing session configuration, so encode this buffer into _encodeBuffer and then memcpy it to fan out
+		UInt32 msgSize = _getMsgEncodedSize(submitMsgOpts.pRsslMsg);
+		NiProviderRoutingSession* pNiProvRoutingSession = static_cast<NiProviderRoutingSession*>(_pRoutingSession);
+		RsslRet ret;
+
+		bool msgEncoded = false;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		int sentMsgCount = 0;
+
+
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			// If we haven't encoded the message yet, do this here.
+			if (!msgEncoded)
+			{
+				if (msgSize > _encodeBufferAllocatedLength)
+				{
+					if (_encodeBuffer.data != NULL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+					}
+
+					_encodeBuffer.data = (char*)malloc(msgSize);
+
+					if (_encodeBuffer.data == NULL)
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(RefreshMsg&)");
+						return;
+					}
+
+					_encodeBufferAllocatedLength = msgSize;
+				}
+
+				_encodeBuffer.length = _encodeBufferAllocatedLength;
+
+				while (true)
+				{
+					rsslClearEncodeIterator(&_encodeIterator);
+					rsslSetEncodeIteratorRWFVersion(&_encodeIterator, pRoutingChannel->pReactorChannel->majorVersion, pRoutingChannel->pReactorChannel->minorVersion);
+					rsslSetEncodeIteratorBuffer(&_encodeIterator, &_encodeBuffer);
+
+					ret = rsslEncodeMsg(&_encodeIterator, submitMsgOpts.pRsslMsg);
+
+					if (ret == RSSL_RET_SUCCESS)
+					{
+						_encodeBuffer.length = rsslGetEncodedBufferLength(&_encodeIterator);
+						break;
+					}
+					else if (ret == RSSL_RET_BUFFER_TOO_SMALL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+
+						_encodeBuffer.data = (char*)malloc(_encodeBufferAllocatedLength * 2);
+
+						if (_encodeBuffer.data == NULL)
+						{
+							if (bHandleAdded)
+							{
+								StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+								_streamInfoList.removeValue(*pTempStreamInfoPtr);
+								delete* pTempStreamInfoPtr;
+								_handleToStreamInfo.erase(handle);
+								returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+							}
+
+							_userLock.unlock();
+							handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(RefreshMsg&)");
+							return;
+						}
+
+						_encodeBufferAllocatedLength = _encodeBufferAllocatedLength * 2;
+						_encodeBuffer.length = _encodeBufferAllocatedLength;
+					}
+					else
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						EmaString temp("Internal error: rsslEncodeMsg() failed in OmmNiProviderImpl::submit(RefreshMsg&).");
+						temp.append(CR).append(_activeChannel->toString()).append(CR)
+							.append("Error Id ").append(ret);
+						handleIue(temp, ret);
+						return;
+					}
+				}
+
+				msgEncoded = true;
+			}
+
+			// Get a buffer from the current Reactor Channel
+			pRoutingChannel->_transportBuffer = rsslReactorGetBuffer(pReactorChannel, _encodeBuffer.length, RSSL_FALSE, &rsslErrorInfo);
+
+			if (pRoutingChannel->_transportBuffer == NULL)
+			{
+				Int32 iueRetCode;
+
+				if (rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					iueRetCode = OmmInvalidUsageException::NoBuffersEnum;
+				else
+					iueRetCode = OmmInvalidUsageException::FailureEnum;
+
+
+				// Release all previously allocated buffers from rsslReactorGetBuffer
+				for (UInt32 j = 0; j < i; j++)
+				{
+					NiProviderRoutingSessionChannel* pPrevRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[j]);
+					if (pPrevRoutingChannel->_transportBuffer)
+					{
+						rsslReactorReleaseBuffer(pPrevRoutingChannel->pReactorChannel, pPrevRoutingChannel->_transportBuffer, &rsslErrorInfo);
+						pPrevRoutingChannel->_transportBuffer = NULL;
+					}
+				}
+
+				if (bHandleAdded)
+				{
+					StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+					_streamInfoList.removeValue(*pTempStreamInfoPtr);
+					delete* pTempStreamInfoPtr;
+					_handleToStreamInfo.erase(handle);
+					returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+				}
+
+				_userLock.unlock();
+				EmaString temp("Internal error: rsslReactorGetBuffer() failed in OmmNiProviderImpl::submit(RefreshMsg&).");
+				temp.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+				handleIue(temp, iueRetCode);
+				return;
+			}
 		}
 
-		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const RefreshMsg& )." );
-		temp.append( CR ).append( _activeChannel->toString() ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+		// Copy the encoded message into the transport buffers for each channel and submit them to the Reactor
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
 
-		_userLock.unlock();
-		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
+			// Do not attempt to submit if:
+			// pReactorChannel is null(the reactor channel has been closed for this routing channel)
+			// there isn't a valid RsslChannel in the Reactor Channel
+			// or if the routing channel's state has not been progressed past the LoginStreamOpenOk state
+			// Note: for Directory refreshes, this will allow the initial directory message to go through when user-specified directory is configured for the NiProvider. 
+			//		 Any item refreshes will fail due to a directory mismatch prior to this point(as the directory cache won't have the services associated with it), and 
+			//		 since recover user source directory is always turned on, EMA will recover the directory automatically after receiving a login Open/OK
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
 
-		return;
+			memcpy(pRoutingChannel->_transportBuffer->data, _encodeBuffer.data, _encodeBuffer.length);
+			pRoutingChannel->_transportBuffer->length = _encodeBuffer.length;
+			RsslReactorSubmitOptions submitOpts;
+			rsslClearReactorSubmitOptions(&submitOpts);
+
+			if (rsslReactorSubmit(_pRsslReactor, pReactorChannel, pRoutingChannel->_transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+			{
+				// If this fails(most likely due to a channel down), log the error and release the buffer.  We will throw an exception if all fail
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(RefreshMsg&).");
+					temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+				}
+
+				rsslReactorReleaseBuffer(pReactorChannel, pRoutingChannel->_transportBuffer, &rsslErrorInfo);
+				pRoutingChannel->_transportBuffer = NULL;
+
+			}
+			else
+			{
+				sentMsgCount++;
+			}
+
+			// Clear the _transportBuffer for this channel
+			pRoutingChannel->_transportBuffer = NULL;
+			
+		}
+
+		if (sentMsgCount == 0)
+		{
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+
+			_userLock.unlock();
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(RefreshMsg&).");
+			temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+
+
 	}
 
 	if ( submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == OmmState::ClosedEnum ||
@@ -1229,10 +1653,10 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	if ((_pRoutingSession == NULL && _activeChannel == NULL) || (_pRoutingSession != NULL && (_pRoutingSession->activeChannelCount == 0 || _pRoutingSession->getReconnectingCount() == _pRoutingSession->activeChannelCount)))
 	{
 		_userLock.unlock();
-		EmaString temp( "No active channel to send message." );
+		EmaString temp( "submit( const UpdateMsg& ) error: No active channel to send message." );
 		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
@@ -1439,28 +1863,263 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+
+	if (_pRoutingSession == NULL)
 	{
-		if ( bHandleAdded )
+		if (rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find( handle );
-			_streamInfoList.removeValue( *pTempStreamInfoPtr );
-			delete *pTempStreamInfoPtr;
-			_handleToStreamInfo.erase( handle );
-			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const UpdateMsg& ).");
+			temp.append(CR).append(_activeChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			_userLock.unlock();
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+			return;
+		}
+	}
+	else
+	{
+		// Routing session configuration, so encode this buffer into _encodeBuffer and then memcpy it to fan out
+		UInt32 msgSize = _getMsgEncodedSize(submitMsgOpts.pRsslMsg);
+		NiProviderRoutingSession* pNiProvRoutingSession = static_cast<NiProviderRoutingSession*>(_pRoutingSession);
+		RsslRet ret;
+
+		bool msgEncoded = false;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		int sentMsgCount = 0;
+
+
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			// If we haven't encoded the message yet, do this here.
+			if (!msgEncoded)
+			{
+				if (msgSize > _encodeBufferAllocatedLength)
+				{
+					if (_encodeBuffer.data != NULL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+					}
+
+					_encodeBuffer.data = (char*)malloc(msgSize);
+
+					if (_encodeBuffer.data == NULL)
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(UpdateMsg&)");
+						return;
+					}
+
+					_encodeBufferAllocatedLength = msgSize;
+				}
+
+				_encodeBuffer.length = _encodeBufferAllocatedLength;
+
+				while (true)
+				{
+					rsslClearEncodeIterator(&_encodeIterator);
+					rsslSetEncodeIteratorRWFVersion(&_encodeIterator, pRoutingChannel->pReactorChannel->majorVersion, pRoutingChannel->pReactorChannel->minorVersion);
+					rsslSetEncodeIteratorBuffer(&_encodeIterator, &_encodeBuffer);
+
+					ret = rsslEncodeMsg(&_encodeIterator, submitMsgOpts.pRsslMsg);
+
+					if (ret == RSSL_RET_SUCCESS)
+					{
+						_encodeBuffer.length = rsslGetEncodedBufferLength(&_encodeIterator);
+						break;
+					}
+					else if (ret == RSSL_RET_BUFFER_TOO_SMALL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+
+						_encodeBuffer.data = (char*)malloc(_encodeBufferAllocatedLength * 2);
+
+						if (_encodeBuffer.data == NULL)
+						{
+							if (bHandleAdded)
+							{
+								StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+								_streamInfoList.removeValue(*pTempStreamInfoPtr);
+								delete* pTempStreamInfoPtr;
+								_handleToStreamInfo.erase(handle);
+								returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+							}
+
+							_userLock.unlock();
+							handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(UpdateMsg&)");
+							return;
+						}
+
+						_encodeBufferAllocatedLength = _encodeBufferAllocatedLength * 2;
+						_encodeBuffer.length = _encodeBufferAllocatedLength;
+					}
+					else
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						EmaString temp("Internal error: rsslEncodeMsg() failed in OmmNiProviderImpl::submit(UpdateMsg&).");
+						temp.append(CR).append(_activeChannel->toString()).append(CR)
+							.append("Error Id ").append(ret);
+						handleIue(temp, ret);
+						return;
+					}
+				}
+
+				msgEncoded = true;
+			}
+
+			// Get a buffer from the current Reactor Channel
+			pRoutingChannel->_transportBuffer = rsslReactorGetBuffer(pReactorChannel, _encodeBuffer.length, RSSL_FALSE, &rsslErrorInfo);
+
+			if (pRoutingChannel->_transportBuffer == NULL)
+			{
+				Int32 iueRetCode;
+
+				if (rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					iueRetCode = OmmInvalidUsageException::NoBuffersEnum;
+				else
+					iueRetCode = OmmInvalidUsageException::FailureEnum;
+
+
+				// Release all previously allocated buffers from rsslReactorGetBuffer
+				for (UInt32 j = 0; j < i; j++)
+				{
+					NiProviderRoutingSessionChannel* pPrevRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[j]);
+					if (pPrevRoutingChannel->_transportBuffer)
+					{
+						rsslReactorReleaseBuffer(pPrevRoutingChannel->pReactorChannel, pPrevRoutingChannel->_transportBuffer, &rsslErrorInfo);
+						pPrevRoutingChannel->_transportBuffer = NULL;
+					}
+				}
+
+				if (bHandleAdded)
+				{
+					StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+					_streamInfoList.removeValue(*pTempStreamInfoPtr);
+					delete* pTempStreamInfoPtr;
+					_handleToStreamInfo.erase(handle);
+					returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+				}
+
+				_userLock.unlock();
+				EmaString temp("Internal error: rsslReactorGetBuffer() failed in OmmNiProviderImpl::submit(RefreshMsg&).");
+				temp.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+				handleIue(temp, iueRetCode);
+				return;
+			}
 		}
 
-		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const UpdateMsg& )." );
-		temp.append( CR ).append(_activeChannel->toString() ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+		// Copy the encoded message into the transport buffers for each channel and submit them to the Reactor
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
 
-		_userLock.unlock();
-		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
-		return;
+			// Do not attempt to submit if:
+			// pReactorChannel is null(the reactor channel has been closed for this routing channel)
+			// there isn't a valid RsslChannel in the Reactor Channel
+			// or if the routing channel's state has not been progressed past the LoginStreamOpenOk state
+			// Note: for Directory refreshes, this will allow the initial directory message to go through when user-specified directory is configured for the NiProvider. 
+			//		 Any item refreshes will fail due to a directory mismatch prior to this point(as the directory cache won't have the services associated with it), and 
+			//		 since recover user source directory is always turned on, EMA will recover the directory automatically after receiving a login Open/OK
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			memcpy(pRoutingChannel->_transportBuffer->data, _encodeBuffer.data, _encodeBuffer.length);
+			pRoutingChannel->_transportBuffer->length = _encodeBuffer.length;
+			RsslReactorSubmitOptions submitOpts;
+			rsslClearReactorSubmitOptions(&submitOpts);
+
+			if (rsslReactorSubmit(_pRsslReactor, pReactorChannel, pRoutingChannel->_transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+			{
+				// If this fails(most likely due to a channel down), log the error and release the buffer.  We will throw an exception if all fail
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(UpdateMsg&).");
+					temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+				}
+
+				rsslReactorReleaseBuffer(pReactorChannel, pRoutingChannel->_transportBuffer, &rsslErrorInfo);
+				pRoutingChannel->_transportBuffer = NULL;
+
+			}
+			else
+			{
+				sentMsgCount++;
+			}
+
+			// Clear the _transportBuffer for this channel
+			pRoutingChannel->_transportBuffer = NULL;
+		}
+
+		if (sentMsgCount == 0)
+		{
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+			_userLock.unlock();
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(UpdateMsg&).");
+			temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
 	}
 
 	_userLock.unlock();
@@ -1493,10 +2152,10 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	if ((_pRoutingSession == NULL && _activeChannel == NULL) || (_pRoutingSession != NULL && (_pRoutingSession->activeChannelCount == 0 || _pRoutingSession->getReconnectingCount() == _pRoutingSession->activeChannelCount)))
 	{
 		_userLock.unlock();
-		EmaString temp( "No active channel to send message." );
+		EmaString temp( "submit( const StatusMsg& ) error: No active channel to send message." );
 		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
 		return;
 	}
@@ -1679,29 +2338,264 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+
+	if (_pRoutingSession == NULL)
 	{
-		if ( bHandleAdded )
+		if (rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find( handle );
-			_streamInfoList.removeValue( *pTempStreamInfoPtr );
-			delete *pTempStreamInfoPtr;
-			_handleToStreamInfo.erase( handle );
-			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const StatusMsg& ).");
+			temp.append(CR).append(_activeChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			_userLock.unlock();
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+
+			return;
+		}
+	}
+	else
+	{
+		// Routing session configuration, so encode this buffer into _encodeBuffer and then memcpy it to fan out
+		UInt32 msgSize = _getMsgEncodedSize(submitMsgOpts.pRsslMsg);
+		NiProviderRoutingSession* pNiProvRoutingSession = static_cast<NiProviderRoutingSession*>(_pRoutingSession);
+		RsslRet ret;
+
+		bool msgEncoded = false;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		int sentMsgCount = 0;
+
+
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			// If we haven't encoded the message yet, do this here.
+			if (!msgEncoded)
+			{
+				if (msgSize > _encodeBufferAllocatedLength)
+				{
+					if (_encodeBuffer.data != NULL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+					}
+
+					_encodeBuffer.data = (char*)malloc(msgSize);
+
+					if (_encodeBuffer.data == NULL)
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(StatusMsg&)");
+						return;
+					}
+
+					_encodeBufferAllocatedLength = msgSize;
+				}
+
+				_encodeBuffer.length = _encodeBufferAllocatedLength;
+
+				while (true)
+				{
+					rsslClearEncodeIterator(&_encodeIterator);
+					rsslSetEncodeIteratorRWFVersion(&_encodeIterator, pRoutingChannel->pReactorChannel->majorVersion, pRoutingChannel->pReactorChannel->minorVersion);
+					rsslSetEncodeIteratorBuffer(&_encodeIterator, &_encodeBuffer);
+
+					ret = rsslEncodeMsg(&_encodeIterator, submitMsgOpts.pRsslMsg);
+
+					if (ret == RSSL_RET_SUCCESS)
+					{
+						_encodeBuffer.length = rsslGetEncodedBufferLength(&_encodeIterator);
+						break;
+					}
+					else if (ret == RSSL_RET_BUFFER_TOO_SMALL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+
+						_encodeBuffer.data = (char*)malloc(_encodeBufferAllocatedLength * 2);
+
+						if (_encodeBuffer.data == NULL)
+						{
+							if (bHandleAdded)
+							{
+								StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+								_streamInfoList.removeValue(*pTempStreamInfoPtr);
+								delete* pTempStreamInfoPtr;
+								_handleToStreamInfo.erase(handle);
+								returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+							}
+
+							_userLock.unlock();
+							handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(StatusMsg&)");
+							return;
+						}
+
+						_encodeBufferAllocatedLength = _encodeBufferAllocatedLength * 2;
+						_encodeBuffer.length = _encodeBufferAllocatedLength;
+					}
+					else
+					{
+						if (bHandleAdded)
+						{
+							StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+							_streamInfoList.removeValue(*pTempStreamInfoPtr);
+							delete* pTempStreamInfoPtr;
+							_handleToStreamInfo.erase(handle);
+							returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+						}
+
+						_userLock.unlock();
+						EmaString temp("Internal error: rsslEncodeMsg() failed in OmmNiProviderImpl::submit(StatusMsg&).");
+						temp.append(CR).append(_activeChannel->toString()).append(CR)
+							.append("Error Id ").append(ret);
+						handleIue(temp, ret);
+						return;
+					}
+				}
+
+				msgEncoded = true;
+			}
+
+			// Get a buffer from the current Reactor Channel
+			pRoutingChannel->_transportBuffer = rsslReactorGetBuffer(pReactorChannel, _encodeBuffer.length, RSSL_FALSE, &rsslErrorInfo);
+
+			if (pRoutingChannel->_transportBuffer == NULL)
+			{
+				Int32 iueRetCode;
+
+				if (rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					iueRetCode = OmmInvalidUsageException::NoBuffersEnum;
+				else
+					iueRetCode = OmmInvalidUsageException::FailureEnum;
+
+
+				// Release all previously allocated buffers from rsslReactorGetBuffer
+				for (UInt32 j = 0; j < i; j++)
+				{
+					NiProviderRoutingSessionChannel* pPrevRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[j]);
+					if (pPrevRoutingChannel->_transportBuffer)
+					{
+						rsslReactorReleaseBuffer(pPrevRoutingChannel->pReactorChannel, pPrevRoutingChannel->_transportBuffer, &rsslErrorInfo);
+						pPrevRoutingChannel->_transportBuffer = NULL;
+					}
+				}
+
+				if (bHandleAdded)
+				{
+					StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+					_streamInfoList.removeValue(*pTempStreamInfoPtr);
+					delete* pTempStreamInfoPtr;
+					_handleToStreamInfo.erase(handle);
+					returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+				}
+
+				_userLock.unlock();
+				EmaString temp("Internal error: rsslReactorGetBuffer() failed in OmmNiProviderImpl::submit(StatusMsg&).");
+				temp.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+				handleIue(temp, iueRetCode);
+				return;
+			}
 		}
 
-		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const StatusMsg& )." );
-		temp.append( CR ).append( _activeChannel->toString() ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+		// Copy the encoded message into the transport buffers for each channel and submit them to the Reactor
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
 
-		_userLock.unlock();
-		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
+			// Do not attempt to submit if:
+			// pReactorChannel is null(the reactor channel has been closed for this routing channel)
+			// there isn't a valid RsslChannel in the Reactor Channel
+			// or if the routing channel's state has not been progressed past the LoginStreamOpenOk state
+			// Note: for Directory refreshes, this will allow the initial directory message to go through when user-specified directory is configured for the NiProvider. 
+			//		 Any item refreshes will fail due to a directory mismatch prior to this point(as the directory cache won't have the services associated with it), and 
+			//		 since recover user source directory is always turned on, EMA will recover the directory automatically after receiving a login Open/OK
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
 
-		return;
+			memcpy(pRoutingChannel->_transportBuffer->data, _encodeBuffer.data, _encodeBuffer.length);
+			pRoutingChannel->_transportBuffer->length = _encodeBuffer.length;
+			RsslReactorSubmitOptions submitOpts;
+			rsslClearReactorSubmitOptions(&submitOpts);
+
+			if (rsslReactorSubmit(_pRsslReactor, pReactorChannel, pRoutingChannel->_transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+			{
+				// If this fails(most likely due to a channel down), log the error and release the buffer.  We will throw an exception if all fail
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(StatusMsg&).");
+					temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+				}
+
+				rsslReactorReleaseBuffer(pReactorChannel, pRoutingChannel->_transportBuffer, &rsslErrorInfo);
+				pRoutingChannel->_transportBuffer = NULL;
+
+			}
+			else
+			{
+				sentMsgCount++;
+			}
+
+			// Clear the _transportBuffer for this channel
+			pRoutingChannel->_transportBuffer = NULL;
+		}
+
+		if (sentMsgCount == 0)
+		{
+			if (bHandleAdded)
+			{
+				StreamInfoPtr* pTempStreamInfoPtr = _handleToStreamInfo.find(handle);
+				_streamInfoList.removeValue(*pTempStreamInfoPtr);
+				delete* pTempStreamInfoPtr;
+				_handleToStreamInfo.erase(handle);
+				returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+			}
+
+			_userLock.unlock();
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(StatusMsg&).");
+			temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
 	}
 
 	if ( submitMsgOpts.pRsslMsg->statusMsg.state.streamState == OmmState::ClosedEnum ||
@@ -1718,75 +2612,268 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 	_userLock.unlock();
 }
 
-void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
+void OmmNiProviderImpl::submit(const GenericMsg& msg, UInt64 handle)
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
-	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
-	submitMsgOpts.pRsslMsg = MsgImpl::getImpl( msg )->getRsslMsg();
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+	submitMsgOpts.pRsslMsg = MsgImpl::getImpl(msg)->getRsslMsg();
 
 	_userLock.lock();
 
-	if ( !_pChannelCallbackClient )
+	if (!_pChannelCallbackClient)
 	{
 		_userLock.unlock();
 		return;
 	}
 
-	if ( _activeChannel == NULL )
+	if ((_pRoutingSession == NULL && _activeChannel == NULL) || (_pRoutingSession != NULL && (_pRoutingSession->activeChannelCount == 0 || _pRoutingSession->getReconnectingCount() == _pRoutingSession->activeChannelCount)))
 	{
 		_userLock.unlock();
-		EmaString temp( "No active channel to send message." );
-		handleIue( temp, OmmInvalidUsageException::NoActiveChannelEnum );
+		EmaString temp("submit( const GenericMsg& ) error: No active channel to send message.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
 		return;
 	}
 
-	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+	if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
 	{
-		EmaString temp( "Received GenericMsg; Handle = " );
-		temp.append( handle ).append( ", user assigned streamId = " ).append( submitMsgOpts.pRsslMsg->msgBase.streamId ).append( "." );
+		EmaString temp("Received GenericMsg; Handle = ");
+		temp.append(handle).append(", user assigned streamId = ").append(submitMsgOpts.pRsslMsg->msgBase.streamId).append(".");
 
-		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
+		getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 	}
 
-	StreamInfoPtr* pStreamInfoPtr = _handleToStreamInfo.find( handle );
+	StreamInfoPtr* pStreamInfoPtr = _handleToStreamInfo.find(handle);
 
-	if ( pStreamInfoPtr )
+	if (pStreamInfoPtr)
 	{
-		if ( ( *pStreamInfoPtr )->_streamType  == StreamInfo::ConsumingEnum )
+		if ((*pStreamInfoPtr)->_streamType == StreamInfo::ConsumingEnum)
 		{
 			_userLock.unlock();
-			OmmBaseImpl::submit( msg, handle );
+			OmmBaseImpl::submit(msg, handle);
 			return;
 		}
 
-		submitMsgOpts.pRsslMsg->msgBase.streamId = ( *pStreamInfoPtr )->_streamId;
+		submitMsgOpts.pRsslMsg->msgBase.streamId = (*pStreamInfoPtr)->_streamId;
 		if (submitMsgOpts.pRsslMsg->msgBase.domainType == 0)
 			submitMsgOpts.pRsslMsg->msgBase.domainType = (*pStreamInfoPtr)->_domainType;
 	}
 	else
 	{
 		_userLock.unlock();
-		EmaString temp( "Attempt to submit GenericMsg on stream that is not open yet. Handle = " );
-		temp.append( handle ).append( "." );
-		handleIhe( handle, temp );
+		EmaString temp("Attempt to submit GenericMsg on stream that is not open yet. Handle = ");
+		temp.append(handle).append(".");
+		handleIhe(handle, temp);
 		return;
 	}
 
 	RsslErrorInfo rsslErrorInfo;
-	clearRsslErrorInfo( &rsslErrorInfo );
-	if ( rsslReactorSubmitMsg( _pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
-	{
-		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const GenericMsg& )." );
-		temp.append( CR ).append( _activeChannel->toString() ).append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+	clearRsslErrorInfo(&rsslErrorInfo);
 
-		_userLock.unlock();
-		handleIue( temp, rsslErrorInfo.rsslError.rsslErrorId );
-		return;
+	if (_pRoutingSession == NULL)
+	{
+		if (rsslReactorSubmitMsg(_pRsslReactor, _pReactorChannel, &submitMsgOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const GenericMsg& ).");
+			temp.append(CR).append(_activeChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			_userLock.unlock();
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+			return;
+		}
+	}
+	else
+	{
+		// Routing session configuration, so encode this buffer into _encodeBuffer and then memcpy it to fan out
+		UInt32 msgSize = _getMsgEncodedSize(submitMsgOpts.pRsslMsg);
+		NiProviderRoutingSession* pNiProvRoutingSession = static_cast<NiProviderRoutingSession*>(_pRoutingSession);
+		RsslRet ret;
+
+		bool msgEncoded = false;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		int sentMsgCount = 0;
+
+
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			// If we haven't encoded the message yet, do this here.
+			if (!msgEncoded)
+			{
+				if (msgSize > _encodeBufferAllocatedLength)
+				{
+					if (_encodeBuffer.data != NULL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+					}
+
+					_encodeBuffer.data = (char*)malloc(msgSize);
+
+					if (_encodeBuffer.data == NULL)
+					{
+						_userLock.unlock();
+						handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(GenericMsg&)");
+						return;
+					}
+
+					_encodeBufferAllocatedLength = msgSize;
+				}
+
+				_encodeBuffer.length = _encodeBufferAllocatedLength;
+
+				while (true)
+				{
+					rsslClearEncodeIterator(&_encodeIterator);
+					rsslSetEncodeIteratorRWFVersion(&_encodeIterator, pRoutingChannel->pReactorChannel->majorVersion, pRoutingChannel->pReactorChannel->minorVersion);
+					rsslSetEncodeIteratorBuffer(&_encodeIterator, &_encodeBuffer);
+
+					ret = rsslEncodeMsg(&_encodeIterator, submitMsgOpts.pRsslMsg);
+
+					if (ret == RSSL_RET_SUCCESS)
+					{
+						_encodeBuffer.length = rsslGetEncodedBufferLength(&_encodeIterator);
+						break;
+					}
+					else if (ret == RSSL_RET_BUFFER_TOO_SMALL)
+					{
+						free(_encodeBuffer.data);
+						_encodeBuffer.data = NULL;
+
+						_encodeBuffer.data = (char*)malloc(_encodeBufferAllocatedLength * 2);
+
+						if (_encodeBuffer.data == NULL)
+						{
+							_userLock.unlock();
+							handleMee("Failed to allocate memory in OmmNiProviderImpl::submit(RefreshMsg&)");
+							return;
+						}
+
+						_encodeBufferAllocatedLength = _encodeBufferAllocatedLength * 2;
+						_encodeBuffer.length = _encodeBufferAllocatedLength;
+					}
+					else
+					{
+						_userLock.unlock();
+						EmaString temp("Internal error: rsslEncodeMsg() failed in OmmNiProviderImpl::submit(GenericMsg&).");
+						temp.append(CR).append(_activeChannel->toString()).append(CR)
+							.append("Error Id ").append(ret);
+						handleIue(temp, ret);
+						return;
+					}
+				}
+
+				msgEncoded = true;
+			}
+
+			// Get a buffer from the current Reactor Channel
+			pRoutingChannel->_transportBuffer = rsslReactorGetBuffer(pReactorChannel, _encodeBuffer.length, RSSL_FALSE, &rsslErrorInfo);
+
+			if (pRoutingChannel->_transportBuffer == NULL)
+			{
+				Int32 iueRetCode;
+
+				if (rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+					iueRetCode = OmmInvalidUsageException::NoBuffersEnum;
+				else
+					iueRetCode = OmmInvalidUsageException::FailureEnum;
+
+
+				// Release all previously allocated buffers from rsslReactorGetBuffer
+				for (UInt32 j = 0; j < i; j++)
+				{
+					NiProviderRoutingSessionChannel* pPrevRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[j]);
+					if (pPrevRoutingChannel->_transportBuffer)
+					{
+						rsslReactorReleaseBuffer(pPrevRoutingChannel->pReactorChannel, pPrevRoutingChannel->_transportBuffer, &rsslErrorInfo);
+						pPrevRoutingChannel->_transportBuffer = NULL;
+					}
+				}
+
+				_userLock.unlock();
+				EmaString temp("Internal error: rsslReactorGetBuffer() failed in OmmNiProviderImpl::submit(GenericMsg&).");
+				temp.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+				handleIue(temp, iueRetCode);
+				return;
+			}
+		}
+
+		// Copy the encoded message into the transport buffers for each channel and submit them to the Reactor
+		for (UInt32 i = 0; i < pNiProvRoutingSession->routingChannelList.size(); i++)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pNiProvRoutingSession->routingChannelList[i]);
+			RsslReactorChannel* pReactorChannel = pRoutingChannel->pReactorChannel;
+
+			// Do not attempt to submit if:
+			// pReactorChannel is null(the reactor channel has been closed for this routing channel)
+			// there isn't a valid RsslChannel in the Reactor Channel
+			// or if the routing channel's state has not been progressed past the LoginStreamOpenOk state
+			// Note: for Directory refreshes, this will allow the initial directory message to go through when user-specified directory is configured for the NiProvider. 
+			//		 Any item refreshes will fail due to a directory mismatch prior to this point(as the directory cache won't have the services associated with it), and 
+			//		 since recover user source directory is always turned on, EMA will recover the directory automatically after receiving a login Open/OK
+			if (pReactorChannel == NULL || pReactorChannel->pRsslChannel == NULL || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+
+			memcpy(pRoutingChannel->_transportBuffer->data, _encodeBuffer.data, _encodeBuffer.length);
+			pRoutingChannel->_transportBuffer->length = _encodeBuffer.length;
+			RsslReactorSubmitOptions submitOpts;
+			rsslClearReactorSubmitOptions(&submitOpts);
+
+			if (rsslReactorSubmit(_pRsslReactor, pReactorChannel, pRoutingChannel->_transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+			{
+				// If this fails(most likely due to a channel down), log the error and release the buffer.  We will throw an exception if all fail
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(GenericMsg&).");
+					temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+				}
+
+				rsslReactorReleaseBuffer(pReactorChannel, pRoutingChannel->_transportBuffer, &rsslErrorInfo);
+				pRoutingChannel->_transportBuffer = NULL;
+
+			}
+			else
+			{
+				sentMsgCount++;
+			}
+
+			// Clear the _transportBuffer for this channel
+			pRoutingChannel->_transportBuffer = NULL;
+
+		}
+
+		if (sentMsgCount == 0)
+		{
+			_userLock.unlock();
+			EmaString temp("Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit(GenericMsg&).");
+			temp.append(CR).append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+			handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+			return;
+		}
+
+
 	}
 
 	_userLock.unlock();
@@ -1801,50 +2888,110 @@ void OmmNiProviderImpl::submit(const PackedMsg& packedMsg)
 {
 	_userLock.lock();
 
-	if (!_activeChannel)
+	PackedMsgImpl* packedMsgImpl = packedMsg._pImpl;
+
+	if ((_pRoutingSession == NULL && _activeChannel == NULL) || (_pRoutingSession != NULL && (_pRoutingSession->activeChannelCount == 0 || _pRoutingSession->getReconnectingCount() == _pRoutingSession->activeChannelCount)))
 	{
 		_userLock.unlock();
-		EmaString temp("No active channel to send message.");
+		packedMsgImpl->clear();
+		EmaString temp("submit( const packedMsg& ) error: No active channel to send message.");
 		temp.append(CR);
 		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
 		return;
 	}
 
-	PackedMsgImpl *packedMsgImpl = packedMsg._pImpl;
-	RsslBuffer *transportBuffer = packedMsgImpl->getTransportBuffer();
 	RsslReactorSubmitOptions submitOpts;
 	RsslErrorInfo rsslErrorInfo;
 	RsslRet ret = RSSL_RET_FAILURE;
 
-	if (transportBuffer == NULL)
-	{
-		_userLock.unlock();
-		EmaString temp("Attempt to submit PackedMsg with non init transport buffer");
-		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
-		return;
-	}
-
 	rsslClearReactorSubmitOptions(&submitOpts);
 
-	transportBuffer->length = 0;
 
-	if ((ret = rsslReactorSubmit(_pRsslReactor, _pReactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+	if (_pRoutingSession == NULL)
 	{
+		RsslBuffer* transportBuffer = packedMsgImpl->getTransportBuffer();
+
+		if (transportBuffer == NULL)
+		{
+			_userLock.unlock();
+			EmaString temp("Attempt to submit PackedMsg with non init transport buffer");
+			handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+			return;
+		}
+
+		transportBuffer->length = 0;
+
+		if ((ret = rsslReactorSubmit(_pRsslReactor, _pReactorChannel, transportBuffer, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+		{
+			packedMsgImpl->clear();
+
+			EmaString temp("Internal error: rsslReactorSubmit() failed in OmmNiProviderImpl::submit( const PackedMsg& ).");
+			temp.append(CR).append(_activeChannel->toString()).append(CR)
+				.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+				.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+				.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+				.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+				.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+			_userLock.unlock();
+			handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+			return;
+		}
+
+		packedMsgImpl->setTransportBuffer(NULL);
 		packedMsgImpl->clear();
-
-		EmaString temp("Internal error: rsslReactorSubmit() failed in OmmNiProviderImpl::submit( const PackedMsg& ).");
-		temp.append(CR).append(_activeChannel->toString()).append(CR)
-			.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
-			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
-			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
-			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
-			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
-		_userLock.unlock();
-		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
-		return;
 	}
+	else
+	{
+		int sentBufferCount = 0;
+		EmaVector<NiProvSessionTransportBuffer*>& transportBufferList = packedMsgImpl->getRwfSessionBufferList();
 
-	packedMsgImpl->setTransportBuffer(NULL);
+		// Iterate throught the packed buffer list
+		for (UInt32 i = 0; i < transportBufferList.size(); ++i)
+		{
+			// If there isn't a buffer in this index, or the current reactor channel's RSSL channel does not match the index's RSSL channel, continue.
+			if (transportBufferList[i]->pBuffer == NULL || transportBufferList[i]->pSessionChannel == NULL || transportBufferList[i]->pSessionChannel->pReactorChannel == NULL || transportBufferList[i]->pSessionChannel->pReactorChannel->pRsslChannel == NULL || transportBufferList[i]->pSessionChannel->pReactorChannel->pRsslChannel->state != RSSL_CH_STATE_ACTIVE || transportBufferList[i]->pSessionChannel->pReactorChannel->pRsslChannel != transportBufferList[i]->pRsslChannel)
+			{
+				transportBufferList[i]->clear();
+				continue;
+			}
+
+			transportBufferList[i]->pBuffer->length = 0;
+			
+			if ((ret = rsslReactorSubmit(_pRsslReactor, transportBufferList[i]->pSessionChannel->pReactorChannel, transportBufferList[i]->pBuffer, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+			{
+				// Just log the issue here, do not 
+				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmit() failed in OmmNiProviderImpl::submit( const PackedMsg& ).");
+					temp.append(CR).append(_activeChannel->toString()).append(CR)
+						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Session Channel Name ").append(transportBufferList[i]->pSessionChannel->name).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+
+					getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+				}	
+				transportBufferList[i]->clear();
+			}
+			else
+			{
+				transportBufferList[i]->clear();
+				sentBufferCount++;
+			}
+		}
+
+		if (sentBufferCount == 0)
+		{
+			EmaString temp("Failed to submit packed buffer on all channels.  See log for more details.");
+			_userLock.unlock();
+			handleIue(temp, OmmInvalidUsageException::FailureEnum);
+			return;
+		}
+		
+		packedMsgImpl->reset();
+	}
 
 	_userLock.unlock();
 }
@@ -2035,6 +3182,28 @@ void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
 	return ChannelInfoImpl::getChannelInformationImpl(rsslReactorChannel, OmmCommonImpl::NiProviderEnum, ci);
 }
 
+void OmmNiProviderImpl::getSessionInformation(EmaVector<ChannelInformation>& infoVector)
+{
+	infoVector.clear();
+	if (_state == NotInitializedEnum || _pRoutingSession == NULL) {
+
+		return;
+	}
+
+	ChannelInformation channelInfo;
+	for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); ++i)
+	{
+		if (_pRoutingSession->routingChannelList[i] == NULL || _pRoutingSession->routingChannelList[i]->pReactorChannel == NULL)
+			continue;
+
+		// This will clear channelInfo, so we do not need to clear it prior to now.
+		ChannelInfoImpl::getChannelInformationImpl(_pRoutingSession->routingChannelList[i]->pReactorChannel, OmmCommonImpl::NiProviderEnum, channelInfo);
+
+		infoVector.push_back(channelInfo);
+	}
+	return;
+}
+
 void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 {
 	_userLock.lock();
@@ -2081,3 +3250,4 @@ OmmNiProviderImpl::StreamInfoPtr* OmmNiProviderImpl::getStreamInfo(UInt64 handle
 
 	return streamPtr;
 }
+

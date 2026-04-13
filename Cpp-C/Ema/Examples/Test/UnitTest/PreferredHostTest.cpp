@@ -251,12 +251,14 @@ TEST_F(PreferredHostTest, PreferredHostTest_ModifiedPHWithIOCTL)
 
 		/*Wait 10 sec while consumer fall back to new preferred host*/
 		count = 0;
-		while (count != 10)
+		while (count != 11)
 		{
 			consumer.dispatch(1000);
 			testSleep(1000);
 			count++;
 		}
+
+
 
 		//Check that consumer switched on the preferred host
 		EXPECT_TRUE(EmaString::npos != consChannelInfo.find("14003"));

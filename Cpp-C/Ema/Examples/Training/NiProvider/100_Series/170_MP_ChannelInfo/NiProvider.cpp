@@ -35,8 +35,7 @@ int main()
 	{
 	    AppClient appClient;
 		ChannelInformation ci;
-
-		OmmProvider provider( OmmNiProviderConfig( "EmaConfig.xml" ).username( "user" ) );
+		OmmProvider provider( OmmNiProviderConfig("EmaConfig.xml").username("user"));
 
 		provider.getChannelInformation( ci );
 		cout << "channel info (provider)" << endl << ci << endl;

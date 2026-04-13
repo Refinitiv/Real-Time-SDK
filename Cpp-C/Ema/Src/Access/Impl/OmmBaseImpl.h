@@ -56,8 +56,9 @@ class TimeOut;
 class TunnelStreamRequest;
 class EmaConfigImpl;
 class OmmProvider;
-class ConsumerRoutingSessionChannelConfig;
-class ConsumerRoutingSession;
+class BaseRoutingSessionChannelConfig;
+class BaseRoutingSession;
+class BaseRoutingSessionChannel;
 
 class OmmBaseImpl : public OmmCommonImpl, public Thread, public TimeOutClient
 {
@@ -77,7 +78,7 @@ public :
 	// This is used for both consumers and NIProviders
 	static RsslReactorCallbackRet itemCallback( RsslReactor*, RsslReactorChannel*, RsslMsgEvent* );
 
-	// This is used for both consumers only
+	// This is used for consumers only
 	static RsslReactorCallbackRet channelOpenCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
 	static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
@@ -126,7 +127,7 @@ public :
 		RsslChannelUpStreamNotOpenEnum,
 		LoginStreamOpenSuspectEnum,
 		LoginStreamOpenOkEnum,
-		LoginStreamClosedEnum,
+		LoginStreamClosedEnum,						// This state is never set for the routing session channels, instead the routing session channels use RsslChannelUpStreamNotOpenEnum
 		DirectoryStreamOpenSuspectEnum,
 		DirectoryStreamOpenOkEnum
 	};
@@ -175,7 +176,7 @@ public :
 
 	virtual void loadDictionary() = 0;
 
-	virtual void reLoadDirectory() = 0;
+	virtual void reLoadDirectory(BaseRoutingSessionChannel*) = 0;
 
 	virtual void loadDirectory() = 0;
 
@@ -221,7 +222,7 @@ public :
 
 	void saveNegotiatedPingTimeout(UInt32 timeoutMs);
 
-	ConsumerRoutingSession* getConsumerRoutingSession();
+	BaseRoutingSession* getRoutingSession();
 
 	void setRsslReactorChannel(RsslReactorChannel* pChannel);
 
@@ -236,9 +237,13 @@ protected:
 	friend class OmmBaseImplMap<OmmBaseImpl>;
 	friend class LoginItem;
 	friend class NiProviderLoginItem;
+	friend class BaseRoutingSession;
+	friend class BaseRoutingSessionChannel;
 	friend class ConsumerRoutingSession;
 	friend class ConsumerRoutingSessionChannel;
 	friend class OmmConsumerImpl;
+	friend class NiProviderRoutingSession;
+	friend class NiProviderRoutingSessionChannel;
 
 	OmmBaseImpl( ActiveConfig& );
 	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, void* = 0);
@@ -264,7 +269,7 @@ protected:
 
 	ChannelConfig* readChannelConfig( EmaConfigImpl*, const EmaString& , bool);
 
-	ConsumerRoutingSessionChannelConfig* readConsumerRoutingSessionChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& channelName);
+	BaseRoutingSessionChannelConfig* readRoutingSessionChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& channelName);
 
 	WarmStandbyChannelConfig* readWSBChannelConfig(EmaConfigImpl*, const EmaString&, bool, ConsumerRoutingSessionChannelConfig*);
 
@@ -331,7 +336,7 @@ protected:
 	OmmConsumerClient&			_consAdminClient;
 	OmmProviderClient&			_provAdminClient;
 	OmmOAuth2ConsumerClient&	_consOAuthClient;
-	ConsumerRoutingSession*		_pConsumerRoutingSession;
+	BaseRoutingSession*			_pRoutingSession;
 	void*						_adminClosure;
 	OmmLoggerClient*			_pLoggerClient;
 	Pipe						_pipe;

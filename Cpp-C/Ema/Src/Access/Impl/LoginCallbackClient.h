@@ -49,7 +49,7 @@ public :
 
 	LoginRdmRefreshMsgImpl& set( RsslRDMLoginRefresh* );
 
-	bool aggregateForRequestRouting(RsslRDMLoginRefresh*, ConsumerRoutingSession*);
+	bool aggregateForRequestRouting(RsslRDMLoginRefresh*, BaseRoutingSession*);
 
 	const EmaString& toString();
 
@@ -126,6 +126,8 @@ public:
 	bool submit( const PostMsg& );
 	bool submit( const GenericMsg& );
 	bool close();
+
+	void remove();
 
 	ItemType getType() const { return Item::NiProviderLoginItemEnum; }
 

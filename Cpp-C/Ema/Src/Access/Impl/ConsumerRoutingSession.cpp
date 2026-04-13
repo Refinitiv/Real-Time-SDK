@@ -49,24 +49,20 @@ bool ConsumerRoutingSession::EmaStringPtrEqual_To::operator()(const EmaStringPtr
 
 
 ConsumerRoutingSession::ConsumerRoutingSession(OmmBaseImpl& consumerBaseImpl) :
-	baseImpl(consumerBaseImpl),
-	activeConfig(consumerBaseImpl.getActiveConfig()),
-	routingChannelList(),
+	BaseRoutingSession(consumerBaseImpl),
 	pendingRequestList(consumerBaseImpl),
-	aggregatedLoginInfo(),
-	sentInitialLoginRefresh(false), 
 	serviceList(),
 	serviceById(),
 	serviceByName(),
 	deletedServiceList(),
 	addedServiceList(),
-	updatedServiceList(),
-	_statusMsg()
+	updatedServiceList()
 {
 	enhancedItemRecovery = false;
 	serviceIdCounter = 1;
 	initialLoginRefreshReceived = false;
 	activeChannelCount = 0;
+	sessionType = RoutingSessionType::CONSUMER;
 }
 
 ConsumerRoutingSession::~ConsumerRoutingSession()
@@ -74,52 +70,9 @@ ConsumerRoutingSession::~ConsumerRoutingSession()
 	clear();
 }
 
-//Closes a channel and removes it from the list.
-void ConsumerRoutingSession::closeChannel(RsslReactorChannel* pRsslReactorChannel)
-{
-	if (baseImpl._pRsslReactor != NULL)
-	{
-		for (UInt32 i = 0; i < routingChannelList.size(); i++)
-		{
-			if (routingChannelList[i]->pReactorChannel == pRsslReactorChannel)
-			{
-				routingChannelList[i]->closeReactorChannel();
-				activeChannelCount--;
-				return;
-			}
-		}
-	}
-}
-
-void ConsumerRoutingSession::closeReactorChannels()
-{
-	if (baseImpl._pRsslReactor != NULL)
-	{
-		for (UInt32 i = 0; i < routingChannelList.size(); ++i)
-		{
-			if (routingChannelList[i] != NULL && routingChannelList[i]->pReactorChannel != NULL)
-			{
-				routingChannelList[i]->closeReactorChannel();
-			}
-		}
-
-	}
-}
-
 void ConsumerRoutingSession::clear()
 {
-	closeReactorChannels();
-
-	for (UInt32 i = 0; i < routingChannelList.size(); ++i)
-	{
-		if (routingChannelList[i] != NULL)
-		{
-			delete routingChannelList[i];
-			routingChannelList[i] = NULL;
-		}
-	}
-
-	routingChannelList.clear();
+	BaseRoutingSession::clear();
 
 	while (serviceList.size() != 0)
 	{
@@ -136,72 +89,6 @@ void ConsumerRoutingSession::clear()
 	deletedServiceList.clear();
 	addedServiceList.clear();
 	updatedServiceList.clear();
-}
-
-
-bool ConsumerRoutingSession::aggregateLoginRefreshInfo(RsslRDMLoginRefresh* pRefreshMsg)
-{
-	// Make a shallow copy of the old login refresh so we can crossreference the values below
-	// Note that we really don't care about the strings here, so they can be cleared.
-	RsslRDMLoginRefresh oldLoginRefresh = *(aggregatedLoginInfo.loginRefreshMsg.getRefreshMsg());
-
-	// Clear the aggregated login info, and iterate through the channel list and re-aggregate everything
-	aggregatedLoginInfo.loginRefreshMsg.clear();
-	ConsumerRoutingSessionChannel* pRoutingChannel;
-	bool changed = false;
-
-
-	for (UInt32 i = 0; i < routingChannelList.size(); ++i)
-	{
-		pRoutingChannel = routingChannelList[i];
-
-		// Do not aggregate if the channel is down, has not received the initial OPEN/OK, or is reconnecting.
-		if (pRoutingChannel->channelClosed == false && pRoutingChannel->channelState <= OmmBaseImpl::LoginStreamOpenOkEnum && pRoutingChannel->reconnecting == false)
-		{
-			changed = aggregatedLoginInfo.loginRefreshMsg.aggregateForRequestRouting(pRoutingChannel->loginInfo.loginRefreshMsg.getRefreshMsg(), this);
-		}
-	}
-
-	if (pRefreshMsg != NULL)
-	{
-		changed = aggregatedLoginInfo.loginRefreshMsg.aggregateForRequestRouting(pRefreshMsg, this);
-	}
-
-	if (initialLoginRefreshReceived == false)
-	{
-		initialLoginRefreshReceived = true;
-		return true;
-	}
-
-	// Check for changes to the old refresh flags, if they have changed here, return true.
-	if (changed)
-	{
-		RsslRDMLoginRefresh* pNewRefresh = aggregatedLoginInfo.loginRefreshMsg.getRefreshMsg();
-
-		if (oldLoginRefresh.providePermissionExpressions != pNewRefresh->providePermissionExpressions)
-			return true;
-
-		if (oldLoginRefresh.supportBatchRequests != pNewRefresh->supportBatchRequests)
-			return true;
-
-		if (oldLoginRefresh.supportOMMPost != pNewRefresh->supportOMMPost)
-			return true;
-
-		if (oldLoginRefresh.supportOptimizedPauseResume != pNewRefresh->supportOptimizedPauseResume)
-			return true;
-
-		if (oldLoginRefresh.supportEnhancedSymbolList != pNewRefresh->supportEnhancedSymbolList)
-			return true;
-
-		if (oldLoginRefresh.supportViewRequests != pNewRefresh->supportViewRequests)
-			return true;
-
-		if ((oldLoginRefresh.flags & RDM_LG_RFF_RTT_SUPPORT) != (pNewRefresh->flags & RDM_LG_RFF_RTT_SUPPORT))
-			return true;
-	}
-
-	return false;
-	
 }
 
 bool ConsumerRoutingSession::aggregateDirectory(Directory* newDirectory, RsslMapEntryActions action)
@@ -355,7 +242,7 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 		// Iterate through the concrete service list, if there is a match, set the directory here and continue.
 		for (UInt32 i = 0; i < concreteServiceList.size(); ++i)
 		{
-			ConsumerRoutingService** pRoutingServicePtr = baseImpl.getConsumerRoutingSession()->serviceByName.find(&concreteServiceList[serviceListIndex]);
+			ConsumerRoutingService** pRoutingServicePtr = serviceByName.find(&concreteServiceList[serviceListIndex]);
 			if (!pRoutingServicePtr)
 			{
 				// Increment the service list index here.  If it's equal to the size of the concreteServiceList, set the index to 0
@@ -425,7 +312,7 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 	}
 	else if (item.getServiceName().length() != 0)
 	{
-		ConsumerRoutingService** pRoutingServicePtr = baseImpl.getConsumerRoutingSession()->serviceByName.find(&item.getServiceName());
+		ConsumerRoutingService** pRoutingServicePtr = serviceByName.find(&item.getServiceName());
 		if (!pRoutingServicePtr)
 		{
 			return false;
@@ -487,7 +374,7 @@ bool ConsumerRoutingSession::matchRequestToSessionChannel(SingleItem& item)
 	}
 	else if (item.hasServiceId())
 	{
-		ConsumerRoutingService** pRoutingServicePtr = baseImpl.getConsumerRoutingSession()->serviceById.find((UInt16)item.getServiceId());
+		ConsumerRoutingService** pRoutingServicePtr = serviceById.find((UInt16)item.getServiceId());
 		if (!pRoutingServicePtr)
 		{
 			return false;
@@ -612,13 +499,7 @@ void ConsumerRoutingSession::processChannelEvent(ConsumerRoutingSessionChannel* 
 			statusMsg.state.streamState = RSSL_STREAM_OPEN;
 
 			// Only send SUSPECT if all channels are reconnecting.  Also, if they are all reconnecting, set sentInitialLoginRefresh to false.
-			for (UInt32 i = 0; i < pSessionChannel->pRoutingSession->routingChannelList.size(); i++)
-			{
-				if (pSessionChannel->pRoutingSession->routingChannelList[i]->channelClosed == false && pSessionChannel->pRoutingSession->routingChannelList[i]->reconnecting == true)
-				{
-					++reconnectingCount;
-				}
-			}
+			reconnectingCount = pSessionChannel->pRoutingSession->getReconnectingCount();
 
 			// If the ommConsumer is currently initializing, send SUSPECT unless we've sent a login OpenOk to everything.
 			if ((!baseImpl.isInitialized() && baseImpl.getState() < OmmBaseImpl::LoginStreamOpenOkEnum) || reconnectingCount == pSessionChannel->pRoutingSession->activeChannelCount)
@@ -656,13 +537,7 @@ void ConsumerRoutingSession::processChannelEvent(ConsumerRoutingSessionChannel* 
 			{
 				// Only send SUSPECT if all remaining channels are reconnecting
 				// The channel has not been closed yet, so the total active should be one less.
-				for (UInt32 i = 0; i < pSessionChannel->pRoutingSession->routingChannelList.size(); i++)
-				{
-					if (pSessionChannel->pRoutingSession->routingChannelList[i]->channelClosed == false && pSessionChannel->pRoutingSession->routingChannelList[i]->reconnecting == true)
-					{
-						++reconnectingCount;
-					}
-				}
+				reconnectingCount = pSessionChannel->pRoutingSession->getReconnectingCount();
 
 				// If the current channel is reconnecting, then this will be equal to activeChannelCount.
 				// If the current channel is not reconnecting, then the count of all possible reconnecting channels is activeChannelCount -1.
@@ -689,13 +564,7 @@ void ConsumerRoutingSession::processChannelEvent(ConsumerRoutingSessionChannel* 
 			statusMsg.state.streamState = RSSL_STREAM_OPEN;
 
 			// Only send SUSPECT if all channels are reconnecting.  Also, if they are all reconnecting, set sentInitialLoginRefresh to false.
-			for (UInt32 i = 0; i < pSessionChannel->pRoutingSession->routingChannelList.size(); i++)
-			{
-				if (pSessionChannel->pRoutingSession->routingChannelList[i]->channelClosed == false && pSessionChannel->pRoutingSession->routingChannelList[i]->reconnecting == true)
-				{
-					++reconnectingCount;
-				}
-			}
+			reconnectingCount = pSessionChannel->pRoutingSession->getReconnectingCount();
 
 			if (reconnectingCount == pSessionChannel->pRoutingSession->activeChannelCount)
 			{

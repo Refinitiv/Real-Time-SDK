@@ -18,6 +18,8 @@
 #include "OmmInvalidUsageException.h"
 #include "ConsumerRoutingSession.h"
 #include "ConsumerRoutingChannel.h"
+#include "NiProviderRoutingSession.h"
+#include "NiProviderRoutingChannel.h"
 #include "OmmState.h"
 
 #include <new>
@@ -218,7 +220,7 @@ LoginRdmRefreshMsgImpl& LoginRdmRefreshMsgImpl::set( RsslRDMLoginRefresh* pRefre
 //		If the new pRefresh value is set to 0, set the aggregate to 0.
 // Note: This does not need to check against any of the other cases because we just need one reactor channel to have a specfic element set to 0.
 // Re-aggregation will occurr whenever a channel gets closed.
-bool LoginRdmRefreshMsgImpl::aggregateForRequestRouting(RsslRDMLoginRefresh* pRefresh, ConsumerRoutingSession* pConsumerSession)
+bool LoginRdmRefreshMsgImpl::aggregateForRequestRouting(RsslRDMLoginRefresh* pRefresh, BaseRoutingSession* pConsumerSession)
 {
 	_toStringSet = false;
 	bool changed = false;
@@ -227,19 +229,25 @@ bool LoginRdmRefreshMsgImpl::aggregateForRequestRouting(RsslRDMLoginRefresh* pRe
 		rsslClearRDMLoginRefresh(&_refreshMsg);
 		set(pRefresh);
 		// Set singleOpen and allowSuspectData to 1 for all cases.
-		_refreshMsg.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
-		_refreshMsg.singleOpen = 1;
-		_refreshMsg.flags |= RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA;
-		_refreshMsg.allowSuspectData = 1;
+		if (pConsumerSession->baseImpl.getImplType() == OmmCommonImpl::ConsumerEnum)
+		{
+			_refreshMsg.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			_refreshMsg.singleOpen = 1;
+			_refreshMsg.flags |= RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA;
+			_refreshMsg.allowSuspectData = 1;
+		}
 		return true;
 	}
 
 	// Set singleOpen and allowSuspectData to 1 for all cases.
-	_refreshMsg.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
-	_refreshMsg.singleOpen = 1;
+	if (pConsumerSession->baseImpl.getImplType() == OmmCommonImpl::ConsumerEnum)
+	{
+		_refreshMsg.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+		_refreshMsg.singleOpen = 1;
 
-	_refreshMsg.flags |= RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA;
-	_refreshMsg.allowSuspectData = 1;
+		_refreshMsg.flags |= RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA;
+		_refreshMsg.allowSuspectData = 1;
+	}
 
 	_username.set(pRefresh->userName.data, pRefresh->userName.length);
 	_refreshMsg.userName.data = (char*)_username.c_str();
@@ -437,7 +445,7 @@ bool LoginRdmRefreshMsgImpl::aggregateForRequestRouting(RsslRDMLoginRefresh* pRe
 		// if either new or current supportViewRequests is 0, set it to 0, otherwise 1
 		if (pRefresh->supportViewRequests == 0 || _refreshMsg.supportViewRequests == 0)
 			_refreshMsg.supportViewRequests = 0;
-	else
+		else
 			_refreshMsg.supportViewRequests = 1;
 
 
@@ -451,8 +459,25 @@ bool LoginRdmRefreshMsgImpl::aggregateForRequestRouting(RsslRDMLoginRefresh* pRe
 		if ((pRefresh->flags & RDM_LG_RFF_RTT_SUPPORT) == 0)
 		{
 			_refreshMsg.flags &= ~RDM_LG_RFF_RTT_SUPPORT;
-	}
+		}
 		changed = true;
+	}
+	
+	// This is a check for NiProviders.  In this case, if any Login supports Provider Dictionary download, it is active
+	if ((pRefresh->flags & RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD) != 0)
+	{
+		_refreshMsg.flags |= RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
+
+		oldValue = _refreshMsg.supportProviderDictionaryDownload;
+		// if both new or current supportProviderDictionaryDownload is 0, set it to 0, otherwise 1
+		if (pRefresh->supportProviderDictionaryDownload == 0 && _refreshMsg.supportProviderDictionaryDownload == 0)
+			_refreshMsg.supportProviderDictionaryDownload = 0;
+		else
+			_refreshMsg.supportProviderDictionaryDownload = 1;
+
+
+		if (oldValue != _refreshMsg.supportProviderDictionaryDownload)
+			changed = true;
 	}
 
 	// This should always be OPEN/OK
@@ -611,17 +636,17 @@ void LoginCallbackClient::initialize()
 	_notifyChannelDownReconnecting = false;
 
 	// Set the loginInfo's starting pLoginRequestMsg here for.  This is ignored for request routing.
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL || _ommBaseImpl.getImplType() == OmmCommonImpl::NiProviderEnum)
 	{
 		_loginInfo.pLoginRequestMsg = _ommBaseImpl.getActiveConfig().pRsslRDMLoginReq;
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-	{
-		EmaString temp( "RDMLogin request message was populated with this info: " );
-		temp.append( CR )
-				.append(_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->toString());
-		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
-	}
+		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "RDMLogin request message was populated with this info: " );
+			temp.append( CR )
+					.append(_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->toString());
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+		}
 	}
 
 	/* Initialize the refresh flag */
@@ -639,10 +664,10 @@ RsslRDMLoginRequest* LoginCallbackClient::getLoginRequest()
 
 RsslRDMLoginRefresh* LoginCallbackClient::getLoginRefresh()
 {
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 		return _loginInfo.loginRefreshMsg.getRefreshMsg();
 	else
-		return _ommBaseImpl.getConsumerRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.getRefreshMsg();
+		return _ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.getRefreshMsg();
 }
 
 void LoginCallbackClient::setLoginRequest(LoginRdmReqMsgImpl* newMsg)
@@ -691,17 +716,19 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 	Channel* pChannel = ((Channel*)pRsslReactorChannel->userSpecPtr);
 
 	bool clearAuthInfo = false;
+	bool niProviderCheckLoginStatus = false;
 
 	if (pChannel->getParentChannel() != NULL)
 	{
 		pChannel = pChannel->getParentChannel();
 	}
 
-	ConsumerRoutingSessionChannel* pRoutingSessionChannel = pChannel->getConsumerRoutingChannel();
+	BaseRoutingSessionChannel* pRoutingSessionChannel = pChannel->getRoutingChannel();
+	BaseRoutingSession* pSession = _ommBaseImpl.getRoutingSession();
 
 	if ( !pLoginMsg )
 	{
-		if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+		if (_ommBaseImpl.getRoutingSession() == NULL)
 		{
 			_ommBaseImpl.closeChannel(pRsslReactorChannel);
 		}
@@ -709,7 +736,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		{
 			_ommBaseImpl.closeChannel( pRsslReactorChannel );
 
-			if (pChannel->getConsumerRoutingChannel()->pRoutingSession->activeChannelCount == 0)
+			if (pChannel->getRoutingChannel()->pRoutingSession->activeChannelCount == 0)
 				_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
 		}
 
@@ -738,15 +765,15 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		RsslState* pState = &pLoginMsg->refresh.state;
 		bool dispatchSessionLogin = false;
 
-		if (pChannel->getConsumerRoutingChannel() == NULL)
+		if (pChannel->getRoutingChannel() == NULL)
 		{
 			pLogin = &_loginInfo.loginRefreshMsg;
 			pLogin->set(&pLoginMsg->refresh).setChannel(pChannel);
 		}
 		else
 		{
-			pLogin = &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
-			pChannel->getConsumerRoutingChannel()->receivedLoginRefresh = true;
+			pLogin = &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
+			pChannel->getRoutingChannel()->receivedLoginRefresh = true;
 			// Set the new refresh on the routing channel.
 			pLogin->set( &pLoginMsg->refresh ).setChannel(pChannel);
 
@@ -755,7 +782,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			// For CLOSED, this is considered a terminal case, so EMA will close the underlying channels, at which point the logins will get re-aggregated.
 			if (pState->streamState == RSSL_STREAM_OPEN && pState->dataState == RSSL_DATA_OK)
 		{
-				pChannel->getConsumerRoutingChannel()->pRoutingSession->aggregateLoginRefreshInfo(&pLoginMsg->refresh);
+				pChannel->getRoutingChannel()->pRoutingSession->aggregateLoginRefreshInfo(&pLoginMsg->refresh);
 			}
 		}
 
@@ -765,14 +792,14 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		{
 			closeChannel = true;
 
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pChannel->getRoutingChannel() == NULL)
 				_ommBaseImpl.setState(OmmBaseImpl::RsslChannelUpStreamNotOpenEnum);
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::RsslChannelUpStreamNotOpenEnum;
+				pChannel->getRoutingChannel()->channelState = OmmBaseImpl::RsslChannelUpStreamNotOpenEnum;
 
 				int loginDownCount = 0;
-				ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
+				BaseRoutingSession* pSession = pChannel->getRoutingChannel()->pRoutingSession;
 
 				// Check to see if all of the channels are in a RsslChannelUpStreamNotOpenEnum status or have been closed.  
 				// If they are all in that status, set the ommbaseimpl state to RsslChannelUpStreamNotOpenEnum so it can transition to failure after this.
@@ -787,9 +814,10 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 					if (loginDownCount == pSession->activeChannelCount)
 					{
 						_ommBaseImpl.setState(OmmBaseImpl::RsslChannelUpStreamNotOpenEnum);
+						dispatchSessionLogin = true;
 					}
 
-					dispatchSessionLogin = true;
+					niProviderCheckLoginStatus = true;
 				}
 			}
 
@@ -799,7 +827,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			{
 				EmaString temp( "RDMLogin stream was closed with refresh message" );
 				temp.append( CR );
-				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 				if ( pLogin )
 					temp.append( pLogin->toString() ).append( CR );
 				temp.append( "State: " ).append( _loginFailureMsg );
@@ -815,19 +843,18 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 				EmaString temp( "RDMLogin stream state was changed to suspect with refresh message" );
 				temp.append( CR );
-				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 				if ( pLogin )
 					temp.append( pLogin->toString() ).append( CR );
 				temp.append( "State: " ).append( tempState );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 			}
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pChannel->getRoutingChannel() == NULL)
 				_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenSuspectEnum);
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenSuspectEnum;
+				pChannel->getRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenSuspectEnum;
 				int loginSuspectCount = 0;
-				ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 				// Check to see if all of the channels are in a LoginStreamOpenSuspectEnum status or have been closed.  
 				// If they are all in that status, set the ommbaseimpl state to RsslChannelUpStreamNotOpenEnum so it can transition to failure after this.
 				if (_ommBaseImpl.isInitialized() == false)
@@ -849,13 +876,16 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		else
 		{
 
-			if (pChannel->getConsumerRoutingChannel() == NULL)
-				_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenOkEnum );
+			if (pChannel->getRoutingChannel() == NULL)
+			{
+				_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenOkEnum);
+				_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
+				_ommBaseImpl.reLoadDirectory(NULL);
+			}
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenOkEnum;
+				pChannel->getRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenOkEnum;
 				int loginOkCount = 0;
-				ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 
 				// Check to see if all of the channels are in a LoginStreamOpenOk status.  
 				// If they are all in that status, set the ommbaseimpl state to LoginStreamOpenOk so it can transition to the next step.
@@ -877,11 +907,12 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				{
 					dispatchSessionLogin = true;
 				}
+
+				_ommBaseImpl.reLoadDirectory(pChannel->getRoutingChannel());
+
 			}
 			
-			// For Consumers, these are no-op, so we do not need to check for the request routing
-			_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
-			_ommBaseImpl.reLoadDirectory();
+
 
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
@@ -902,7 +933,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if ( _loginItems.size() )
 		{
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pChannel->getRoutingChannel() == NULL)
 			{
 				processRefreshMsg( pEvent->baseMsgEvent.pRsslMsg, pRsslReactorChannel, pEvent );
 			}
@@ -914,11 +945,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				temp.data = tempBuffer;
 				temp.length = 1000;
 
-				_ommBaseImpl.getConsumerRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, pRsslReactorChannel->pRsslChannel->majorVersion, pRsslReactorChannel->pRsslChannel->minorVersion);
+				_ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, pRsslReactorChannel->pRsslChannel->majorVersion, pRsslReactorChannel->pRsslChannel->minorVersion);
 
 
 				processRefreshMsg((RsslMsg*)&rsslRefreshMsg, pRsslReactorChannel, pEvent);
-				_ommBaseImpl.getConsumerRoutingSession()->sentInitialLoginRefresh = true;
+				_ommBaseImpl.getRoutingSession()->sentInitialLoginRefresh = true;
 			}
 		}
 
@@ -932,17 +963,60 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if (closeChannel)
 		{
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pChannel->getRoutingChannel() == NULL)
 			{
 				_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 				_ommBaseImpl.closeChannel(pRsslReactorChannel);
 			}
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting = true;
+				pChannel->getRoutingChannel()->closeOnDownReconnecting = true;
+				_ommBaseImpl.closeChannel(pRsslReactorChannel);
 
-				if (pChannel->getConsumerRoutingChannel()->pRoutingSession->activeChannelCount == 0)
-					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
+				bool dispatchLogin = false;
+
+				if (pChannel->getRoutingChannel()->pRoutingSession->activeChannelCount == 0)
+				{
+					// only set this if the baseImpl has been initialized and given back to the user.
+					if (_ommBaseImpl.isInitialized() == true)
+						_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
+				}
+				else if (_ommBaseImpl.getImplType() == OmmCommonImpl::NiProviderEnum && niProviderCheckLoginStatus == true)
+				{
+					// Check the status of the other routing channels, if they're have a login Open/OK state, transition the baseImpl to that state and give the user the aggregated refresh.
+					int loginOkCount = 0;
+
+					// Check to see if all of the channels are in a LoginStreamOpenOk status.  
+					// If they are all in that status, set the ommbaseimpl state to LoginStreamOpenOk so it can transition to the next step.
+					for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+					{
+						if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState >= OmmBaseImpl::LoginStreamOpenOkEnum)
+							loginOkCount++;
+					}
+
+					if (loginOkCount == pSession->activeChannelCount)
+					{
+						_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenOkEnum);
+						dispatchLogin = true;
+					}
+
+					if (_loginItems.size())
+					{
+						if (dispatchLogin == true)
+						{
+							RsslRefreshMsg rsslRefreshMsg;
+							char tempBuffer[1000];
+							RsslBuffer temp;
+							temp.data = tempBuffer;
+							temp.length = 1000;
+
+							_ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, pRsslReactorChannel->pRsslChannel->majorVersion, pRsslReactorChannel->pRsslChannel->minorVersion);
+
+							processRefreshMsg((RsslMsg*)&rsslRefreshMsg, pRsslReactorChannel, pEvent);
+							_ommBaseImpl.getRoutingSession()->sentInitialLoginRefresh = true;
+						}
+					}
+				}
 			}
 		}
 		break;
@@ -952,9 +1026,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		bool closeChannel = false;
 		bool dispatchMsgToUser = true;			// Governs whether or not this status is dispatched to the user.  
 												// For Request Routing, this should happen whenever a OPEN/OK happens, or ALL active channel logins are in OPEN/SUSPECT 
-												// or have been explicilty CLOSED by the upstream provider.
+												// or any connections that have have been explicilty CLOSED by the upstream provider.
 
-		bool setToOpenOk = _ommBaseImpl.getConsumerRoutingSession() ? true : false; // Sets Open/Ok only when the request routing is enabled.
+		bool setToOpenOk = _ommBaseImpl.getRoutingSession() ? true : false; // Sets Open/Ok only when the request routing is enabled.
 
 		if ( pLoginMsg->status.flags & RDM_LG_STF_HAS_STATE )
 		{
@@ -963,14 +1037,13 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			if ( pState->streamState != RSSL_STREAM_OPEN )
 			{
 				closeChannel = true;
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pChannel->getRoutingChannel() == NULL)
 					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelUpStreamNotOpenEnum);
 				else
 				{
-					pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::RsslChannelUpStreamNotOpenEnum;
+					pChannel->getRoutingChannel()->channelState = OmmBaseImpl::RsslChannelUpStreamNotOpenEnum;
 
 					int loginDownCount = 0;
-					ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 
 					// Check to see if all of the channels are in a RsslChannelUpStreamNotOpenEnum status or closed.  
 					// If they are all in that status, set the ommbaseimpl state to RsslChannelUpStreamNotOpenEnum so it can transition to failure after this.
@@ -985,11 +1058,10 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 						if (loginDownCount == pSession->activeChannelCount)
 						{
 							_ommBaseImpl.setState( OmmBaseImpl::RsslChannelUpStreamNotOpenEnum );
+							setToOpenOk = false;
 						}
-						else
-						{
-							dispatchMsgToUser = false;
-						}
+
+						niProviderCheckLoginStatus = true;
 					}
 					else if (pSession->activeChannelCount == 1)
 					{
@@ -1002,7 +1074,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				{
 					EmaString temp;
 
-					if (pChannel->getConsumerRoutingChannel() == NULL)
+					if (pChannel->getRoutingChannel() == NULL)
 					{
 						temp.append("RDMLogin stream was closed with status message");
 					}
@@ -1012,7 +1084,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 					}
 
 					temp.append( CR );
-					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( _loginFailureMsg );
@@ -1027,7 +1099,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 					stateToString( pState, tempState );
 
 					EmaString temp;
-					if (pChannel->getConsumerRoutingChannel() == NULL)
+					if (pChannel->getRoutingChannel() == NULL)
 					{
 						temp.append("RDMLogin stream state was changed to suspect with status message");
 					}
@@ -1036,20 +1108,19 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 						temp.append("RDMLogin on channel ").append(pChannel->getName()).append(" stream state was changed to suspect with status message");
 					}
 					temp.append( CR );
-					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( tempState );
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 				}
 
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pChannel->getRoutingChannel() == NULL)
 					_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenSuspectEnum);
 				else
 				{
-					pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenSuspectEnum;
+					pChannel->getRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenSuspectEnum;
 					int loginSuspectCount = 0;
-					ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 
 					// Check to see if all of the channels are in a LoginStreamOpenSuspectEnum status or closed.  
 					// If they are all in that status, set the ommbaseimpl state to LoginStreamOpenSuspectEnum so it can transition to the next step.
@@ -1078,9 +1149,6 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
-				_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
-				_ommBaseImpl.reLoadDirectory();
-
 				if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString tempState( 0, 256 );
@@ -1088,20 +1156,23 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 					EmaString temp( "RDMLogin stream was open with status message" );
 					temp.append( CR );
-					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+					LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( tempState );
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 				}
 
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pChannel->getRoutingChannel() == NULL)
+				{
 					_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenOkEnum);
+					_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
+					_ommBaseImpl.reLoadDirectory(NULL);
+				}
 				else
 				{
-					pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenOkEnum;
+					pChannel->getRoutingChannel()->channelState = OmmBaseImpl::LoginStreamOpenOkEnum;
 					int loginOkCount = 0;
-					ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 
 					// Check to see if all of the channels are in a LoginStreamOpenOk status.  If they are all in that status, set the ommbaseimpl state to LoginStreamOpenOk so it can transition to the next step.
 					if (_ommBaseImpl.isInitialized() == false)
@@ -1116,6 +1187,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 						if (loginOkCount == pSession->activeChannelCount)
 							_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenOkEnum );
 					}
+
+					_ommBaseImpl.reLoadDirectory(pChannel->getRoutingChannel());
 				}
 			}
 		}
@@ -1124,7 +1197,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Received RDMLogin status message without the state" );
-				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getConsumerRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getConsumerRoutingChannel()->loginInfo.loginRefreshMsg;
+				LoginRdmRefreshMsgImpl* pLogin = (pChannel->getRoutingChannel() == NULL) ? &_loginInfo.loginRefreshMsg : &pChannel->getRoutingChannel()->loginInfo.loginRefreshMsg;
 				if ( pLogin )
 					temp.append( CR ).append( pLogin->toString() );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
@@ -1133,8 +1206,27 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if (setToOpenOk == true)
 		{
-			pLoginMsg->status.state.streamState = RSSL_STREAM_OPEN;
-			pLoginMsg->status.state.dataState = RSSL_DATA_OK;
+			RsslStatusMsg* pStatusMsg = (RsslStatusMsg*)pEvent->baseMsgEvent.pRsslMsg;
+
+			if (pStatusMsg != NULL)
+			{
+				pStatusMsg->state.streamState = RSSL_STREAM_OPEN;
+				if (_ommBaseImpl.getRoutingSession()->sentInitialLoginRefresh == true)
+					pStatusMsg->state.dataState = RSSL_DATA_OK;
+				else
+					pStatusMsg->state.dataState = RSSL_DATA_SUSPECT;
+			}
+			else
+			{
+				// Change the RDM status message
+				RsslRDMLoginStatus* pRdmStatus = (RsslRDMLoginStatus*)pEvent->pRDMLoginMsg;
+
+				pRdmStatus->state.streamState = RSSL_STREAM_OPEN;
+				if (_ommBaseImpl.getRoutingSession()->sentInitialLoginRefresh == true)
+					pRdmStatus->state.dataState = RSSL_DATA_OK;
+				else
+					pRdmStatus->state.dataState = RSSL_DATA_SUSPECT;
+			}
 		}
 
 		_loginItemLock.lock();
@@ -1146,17 +1238,62 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if (closeChannel)
 		{
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pChannel->getRoutingChannel() == NULL)
 			{
 				_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 				_ommBaseImpl.closeChannel(pRsslReactorChannel);
 			}
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->closeOnDownReconnecting = true;
+				pChannel->getRoutingChannel()->closeOnDownReconnecting = true;
+				_ommBaseImpl.closeChannel(pRsslReactorChannel);
 
-				if (pChannel->getConsumerRoutingChannel()->pRoutingSession->activeChannelCount == 0)
-					_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
+				bool dispatchLogin = false;
+
+				if (pChannel->getRoutingChannel()->pRoutingSession->activeChannelCount == 0)
+				{
+					// only set this if the baseImpl has been initialized and given back to the user.
+					if (_ommBaseImpl.isInitialized() == true)
+					{
+						_ommBaseImpl.setState(OmmBaseImpl::RsslChannelDownEnum);
+					}
+				}
+				else if (_ommBaseImpl.getImplType() == OmmCommonImpl::NiProviderEnum && niProviderCheckLoginStatus == true)
+				{
+					// Check the status of the other routing channels, if they're have a login Open/OK state, transition the baseImpl to that state and give the user the aggregated refresh.
+					int loginOkCount = 0;
+
+					// Check to see if all of the channels are in a LoginStreamOpenOk status.  
+					// If they are all in that status, set the ommbaseimpl state to LoginStreamOpenOk so it can transition to the next step.
+					for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+					{
+						if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState >= OmmBaseImpl::LoginStreamOpenOkEnum)
+							loginOkCount++;
+					}
+
+					if (loginOkCount == pSession->activeChannelCount)
+					{
+						_ommBaseImpl.setState(OmmBaseImpl::LoginStreamOpenOkEnum);
+						dispatchLogin = true;
+					}
+
+					if (_loginItems.size())
+					{
+						if (dispatchLogin == true)
+						{
+							RsslRefreshMsg rsslRefreshMsg;
+							char tempBuffer[1000];
+							RsslBuffer temp;
+							temp.data = tempBuffer;
+							temp.length = 1000;
+
+							_ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, pRsslReactorChannel->pRsslChannel->majorVersion, pRsslReactorChannel->pRsslChannel->minorVersion);
+
+							processRefreshMsg((RsslMsg*)&rsslRefreshMsg, pRsslReactorChannel, pEvent);
+							_ommBaseImpl.getRoutingSession()->sentInitialLoginRefresh = true;
+						}
+					}
+				}
 			}
 		}
 
@@ -1371,9 +1508,9 @@ RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rs
 	// Sets serviceName on received AckMsg assuming serviceId exists
 	if ( pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) 
 	{
-		if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
+		if (_ommBaseImpl.getRoutingSession() != NULL)
 		{
-			Directory** pDirectoryPtr = channel->getConsumerRoutingChannel()->serviceById.find(pRsslMsg->msgBase.msgKey.serviceId);
+			Directory** pDirectoryPtr = static_cast<ConsumerRoutingSessionChannel*>(channel->getRoutingChannel())->serviceById.find(pRsslMsg->msgBase.msgKey.serviceId);
 
 			if (pDirectoryPtr != NULL)
 			{
@@ -1811,7 +1948,7 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 	RsslErrorInfo errorInfo;
 	bool ret = true;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 
 	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
@@ -1849,9 +1986,9 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 		{
 			if (tempRequest.flags & RDM_LG_RQF_PAUSE_ALL)
 			{
-				for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
+				for (UInt32 i = 0; i < _ommBaseImpl.getRoutingSession()->routingChannelList.size(); ++i)
 				{
-					ConsumerRoutingSessionChannel* routingChannel = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i];
+					BaseRoutingSessionChannel* routingChannel = _ommBaseImpl.getRoutingSession()->routingChannelList[i];
 					// routingChannel should never be null
 					if (routingChannel->pReactorChannel != NULL)
 					{
@@ -1865,9 +2002,9 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 			}
 			else if (reqMsg.getInterestAfterRefresh() == true)
 			{
-				for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
+				for (UInt32 i = 0; i < _ommBaseImpl.getRoutingSession()->routingChannelList.size(); ++i)
 				{
-					ConsumerRoutingSessionChannel* routingChannel = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i];
+					BaseRoutingSessionChannel* routingChannel = _ommBaseImpl.getRoutingSession()->routingChannelList[i];
 					// routingChannel should never be null
 					if (routingChannel->pReactorChannel != NULL)
 					{
@@ -1889,9 +2026,9 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 		else
 		{
 			// When multicredentials are not turned on, fanout the request to each channel after overlaying the incoming request to the channel
-			for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
+			for (UInt32 i = 0; i < _ommBaseImpl.getRoutingSession()->routingChannelList.size(); ++i)
 			{
-				ConsumerRoutingSessionChannel* routingChannel = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i];
+				BaseRoutingSessionChannel* routingChannel = _ommBaseImpl.getRoutingSession()->routingChannelList[i];
 				// routingChannel should never be null
 				if (routingChannel->pReactorChannel != NULL)
 				{
@@ -1918,7 +2055,9 @@ bool LoginItem::submit( const PostMsg& postMsg )
 	RsslBuffer serviceNameBuffer;
 	const Directory* pDirectory = NULL;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
+	if (pRoutingSession != NULL)
 	{
 		if ( postMsgEncoder.hasServiceName() )
 		{
@@ -1927,7 +2066,7 @@ bool LoginItem::submit( const PostMsg& postMsg )
 			serviceNameBuffer.data = (char*)serviceName.c_str();
 			serviceNameBuffer.length = serviceName.length();
 			// Request routing is turned on, so find the matching service name and route it to there
-			ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceByName.find(&postMsgEncoder.getServiceName());
+			ConsumerRoutingService** pRoutingServicePtr = pRoutingSession->serviceByName.find(&postMsgEncoder.getServiceName());
 			if (!pRoutingServicePtr)
 			{
 				EmaString text("Failed to submit PostMsg on login stream. Reason: No available service");
@@ -1972,7 +2111,7 @@ bool LoginItem::submit( const PostMsg& postMsg )
 
 
 			// Request routing is turned on, so find the matching service name and route it to there
-			ConsumerRoutingService** pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(pRsslPostMsg->msgBase.msgKey.serviceId);
+			ConsumerRoutingService** pRoutingServicePtr = pRoutingSession->serviceById.find(pRsslPostMsg->msgBase.msgKey.serviceId);
 			if (!pRoutingServicePtr)
 			{
 				EmaString text("Failed to submit PostMsg on login stream. Reason: invalid service id");
@@ -2045,18 +2184,21 @@ bool LoginItem::submit( const GenericMsg& genMsg )
 {
 	const GenericMsgImpl& genericMsgEncoder = *MsgImpl::getImpl(genMsg);
 
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
+
 	// For request routing, fan this out to all the connected providers.  These currently should not be seent by EMA, as the Reactor will handle sending RTT responses automatically.
-	if (_ommBaseImpl.getConsumerRoutingSession() != NULL)
+	if (pRoutingSession != NULL)
 	{
 		ConsumerRoutingService** pRoutingServicePtr = NULL;
 		if (genericMsgEncoder.hasServiceId())
 		{
-			pRoutingServicePtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId);
+			pRoutingServicePtr = pRoutingSession->serviceById.find(genericMsgEncoder.getRsslGenericMsg()->msgBase.msgKey.serviceId);
 		}
 
-		for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
+		for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); ++i)
 		{
-			ConsumerRoutingSessionChannel* routingChannel = _ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i];
+			BaseRoutingSessionChannel* routingChannel = pRoutingSession->routingChannelList[i];
 			// routingChannel should never be null
 			if (routingChannel->pReactorChannel != NULL)
 			{	
@@ -2246,13 +2388,13 @@ void LoginCallbackClient::sendInternalMsg( LoginItem* loginItem )
 	temp.data = tempBuffer;
 	temp.length = 1000;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		_loginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp);
 	}
 	else
 	{
-		_ommBaseImpl.getConsumerRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp);
+		_ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp);
 	}
 
 	StaticDecoder::setRsslData( &_refreshMsg, reinterpret_cast< RsslMsg* >( &rsslRefreshMsg ),
@@ -2263,7 +2405,7 @@ void LoginCallbackClient::sendInternalMsg( LoginItem* loginItem )
 	_ommBaseImpl.msgDispatched();
 	Item* item = static_cast< Item* >( loginItem );
 	// This is an internally generated event, so there may not be an associated reactor channel
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		item->setEventChannel(_ommBaseImpl.getRsslReactorChannel());
 	}
@@ -2291,27 +2433,24 @@ void LoginCallbackClient::handleLoginItemCallback( void* args )
 // This will re-aggregate logins after close, and if necessary, fan out the appropriate refresh or status messages.
 void LoginCallbackClient::aggregateLoginsAfterClose()
 {
-	// Do nothing if there aren't any active channels or if all channels are currently reconnecting
-	if (_ommBaseImpl.getConsumerRoutingSession()->activeChannelCount == 0)
+	// Do nothing if there aren't any active channels, we have not sent the initial login refresh to the user, or if all channels are currently reconnecting
+	if (_ommBaseImpl.getRoutingSession()->activeChannelCount == 0)
 		return;
 
 	int reconnectionCount = 0;
-	for (UInt32 i = 0; i < _ommBaseImpl.getConsumerRoutingSession()->routingChannelList.size(); ++i)
-	{
-		if (_ommBaseImpl.getConsumerRoutingSession()->routingChannelList[i]->reconnecting == true)
-			reconnectionCount++;
-	}
 
-	if (reconnectionCount == _ommBaseImpl.getConsumerRoutingSession()->activeChannelCount)
+	reconnectionCount = _ommBaseImpl.getRoutingSession()->getReconnectingCount();
+
+	if (reconnectionCount == _ommBaseImpl.getRoutingSession()->activeChannelCount)
 	{
 		return;
 	}
 
 	// First, aggregate the requests for all channels with a currently active login
-	bool loginAggregateChanged = _ommBaseImpl.getConsumerRoutingSession()->aggregateLoginRefreshInfo(NULL);
+	bool loginAggregateChanged = _ommBaseImpl.getRoutingSession()->aggregateLoginRefreshInfo(NULL);
 
-	// If the aggregation changed, submit it to the user.
-	if (loginAggregateChanged == true)
+	// If the aggregation changed and we have given the user the initial login refresh, submit it to the user.
+	if (_ommBaseImpl.isInitialized() == true && loginAggregateChanged == true)
 	{
 		RsslRefreshMsg rsslRefreshMsg;
 		char tempBuffer[1000];
@@ -2319,7 +2458,7 @@ void LoginCallbackClient::aggregateLoginsAfterClose()
 		temp.data = tempBuffer;
 		temp.length = 1000;
 
-		_ommBaseImpl.getConsumerRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		_ommBaseImpl.getRoutingSession()->aggregatedLoginInfo.loginRefreshMsg.populate(rsslRefreshMsg, temp, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
 
 		StaticDecoder::setRsslData(&_refreshMsg, reinterpret_cast<RsslMsg*>(&rsslRefreshMsg),
 			RSSL_RWF_MAJOR_VERSION,
@@ -2388,6 +2527,12 @@ bool NiProviderLoginItem::close()
 	return true;
 }
 
+// We do not want to save the stream Id like a normal NiProviderSingleItem, so just delete this object.
+void NiProviderLoginItem::remove()
+{
+	delete this;
+}
+
 bool NiProviderLoginItem::modify( const ReqMsg& reqMsg )
 {
 	RsslRDMLoginRequest tempRequest;
@@ -2437,41 +2582,87 @@ bool NiProviderLoginItem::submit(RsslRDMLoginRequest* pRsslRequestMsg )
 	pRsslRequestMsg->rdmMsgBase.streamId = _streamId;
 	RsslReactorChannel* pReactorChannel = _ommBaseImpl.getRsslReactorChannel();
 
-		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-		submitMsgOpts.pRDMMsg = (RsslRDMMsg*) pRsslRequestMsg;
+	submitMsgOpts.pRDMMsg = (RsslRDMMsg*) pRsslRequestMsg;
 
 	submitMsgOpts.majorVersion = pReactorChannel->majorVersion;
 	submitMsgOpts.minorVersion = pReactorChannel->minorVersion;
 
-		RsslErrorInfo rsslErrorInfo;
-		clearRsslErrorInfo( &rsslErrorInfo );
-		RsslRet ret;
-	if ( ( ret = rsslReactorSubmitMsg( _ommBaseImpl.getRsslReactor(),
-		pReactorChannel,
-			&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+
+	if (_ommBaseImpl.getRoutingSession() == NULL)
+	{
+		if ((ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(), pReactorChannel,
+			&submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 			{
-				EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )" );
-				temp.append( CR )
-					.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-					.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-					.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-					.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-					.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+				EmaString temp("Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )");
+				temp.append(CR)
+					.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+					.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+					.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
 			}
 
-			EmaString text( "Failed to reissue login request. Reason: " );
-			text.append( rsslRetCodeToString( ret ) )
-				.append( ". Error text: " )
-				.append( rsslErrorInfo.rsslError.text );
+			EmaString text("Failed to reissue login request. Reason: ");
+			text.append(rsslRetCodeToString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.rsslError.text);
 
-			_ommBaseImpl.handleIue( text, ret );
+			_ommBaseImpl.handleIue(text, ret);
 
 			return false;
 		}
+	}
+	else
+	{
+		// Fanout to all active channels
+		NiProviderRoutingSession* pRoutingSession = static_cast<NiProviderRoutingSession*>(_ommBaseImpl.getRoutingSession());
+		UInt32 sentMsgCount = 0;
+		
+		for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); ++i)
+		{
+			NiProviderRoutingSessionChannel* pRoutingChannel = static_cast<NiProviderRoutingSessionChannel*>(pRoutingSession->routingChannelList[i]);
+			// routingChannel should never be null
+
+			if (pRoutingChannel == nullptr || pRoutingChannel->pReactorChannel == nullptr || pRoutingChannel->channelState < OmmBaseImpl::LoginStreamOpenOkEnum)
+				continue;
+			
+			if ((ret = rsslReactorSubmitMsg(_ommBaseImpl.getRsslReactor(), pReactorChannel,
+				&submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )");
+					temp.append(CR)
+						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+					_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+				}
+			}
+			else
+			{
+				++sentMsgCount;
+			}
+		}
+
+		if(sentMsgCount == 0)
+		{
+			EmaString text("Failed to reissue login request. Reason: No active channels to send the message to.");
+			_ommBaseImpl.handleIue(text, OmmInvalidUsageException::InvalidArgumentEnum);
+			return false;
+		}
+
+	}
 
 	return true;
 }

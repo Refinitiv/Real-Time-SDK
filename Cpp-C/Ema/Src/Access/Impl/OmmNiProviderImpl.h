@@ -13,6 +13,7 @@
 #include "OmmNiProviderActiveConfig.h"
 #include "OmmProviderImpl.h"
 #include "DirectoryServiceStore.h"
+#include "BaseRoutingChannel.h"
 
 namespace refinitiv {
 
@@ -69,7 +70,7 @@ public :
 
 	void loadDirectory();
 
-	void reLoadDirectory();
+	void reLoadDirectory(BaseRoutingSessionChannel*);
 
 	bool storeUserSubmitSourceDirectory( RsslMsg* );
 
@@ -111,6 +112,7 @@ public :
 
     void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&);
     void getChannelInformation(ChannelInformation&);
+	void getSessionInformation(EmaVector<ChannelInformation>&);
 
 	void getConnectedClientChannelStats(UInt64, ChannelStatistics&);
 
@@ -120,9 +122,9 @@ public :
 
 private :
 
-	void reLoadConfigSourceDirectory();
+	void reLoadConfigSourceDirectory(BaseRoutingSessionChannel*);
 
-	void reLoadUserSubmitSourceDirectory();
+	void reLoadUserSubmitSourceDirectory(BaseRoutingSessionChannel*);
 
 	void removeItems();
 
@@ -205,6 +207,11 @@ private :
 	EmaList<StreamId*>			 					_reusedProviderStreamIds;
 	Channel*										_activeChannel;
 	ItemWatchList									_itemWatchList;
+
+	RsslBuffer										_encodeBuffer;
+	UInt32											_encodeBufferAllocatedLength;			
+	RsslEncodeIterator								_encodeIterator;
+
 
 	OmmNiProviderImpl::StreamInfoPtr* getStreamInfo(UInt64 handle);
 

@@ -138,7 +138,9 @@ public:
 
 	void sendRefreshMessages();
 	void sendUpdateMessages();
-	void sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo);
+	void sendPackedMsg(const UpdateMsg* msg, ProvItemInfo* itemInfo);
+
+	void clearPackedMsg();
 
 	bool isRunning() { return running; }
 	bool isStopped() { return stopThread; }

@@ -292,12 +292,12 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformationImpl(const Rs
 
 	Channel* pChannel = (Channel*)rsslReactorChannel->userSpecPtr;
 
-	if (implType == OmmCommonImpl::ImplementationType::ConsumerEnum)
+	if (implType == OmmCommonImpl::ImplementationType::ConsumerEnum || implType == OmmCommonImpl::ImplementationType::NiProviderEnum)
 	{
 		ci.name(pChannel->getName());
 
-		if (pChannel->getConsumerRoutingChannel() != NULL)
-			ci.sessionName(pChannel->getConsumerRoutingChannel()->name);
+		if (pChannel->getRoutingChannel() != NULL)
+			ci.sessionName(pChannel->getRoutingChannel()->name);
 	}
 
 	if ((rsslChannel = rsslReactorChannel->pRsslChannel) == 0)

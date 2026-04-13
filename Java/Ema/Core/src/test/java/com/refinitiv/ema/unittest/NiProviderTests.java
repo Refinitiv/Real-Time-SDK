@@ -1878,6 +1878,235 @@ public class NiProviderTests
 	}
 	
 	@Test
+	public void NiProviderTwoConnectionSessionSubmitDuringFullReconnectTest()
+	{
+		TestUtilities.printTestHead("NiProviderTwoConnectionSessionTest","");
+
+		NiConsumerHelperConfig niConsConfig1 = new NiConsumerHelperConfig();
+		NiConsumerHelperConfig niConsConfig2 = new NiConsumerHelperConfig();
+		NiProviderTestClient loginClient = new NiProviderTestClient();
+
+		long itemHandle = 10;
+		
+		niConsConfig1.port = "19001";
+		niConsConfig2.port = "19002";
+
+		try
+		{
+			niProvConfig = EmaFactory.createOmmNiProviderConfig(emaConfigFileLocation);
+			niProvConfig.providerName("Provider_Session_1");
+			niConsumer1 = new NiConsumerHelper(niConsConfig1);
+			niConsumer2 = new NiConsumerHelper(niConsConfig2);
+			
+			provider = EmaFactory.createOmmProvider(niProvConfig, loginClient);
+			assertNotNull(provider);
+			
+			// sleep to make sure that the consumer gets everything
+			Thread.sleep(100);
+			
+			// sleep to make sure that the consumer gets everything
+			Thread.sleep(100);
+			
+			assertEquals(2, niConsumer1.getMsgCount());
+			
+			com.refinitiv.eta.codec.Msg etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			assertEquals(2, niConsumer2.getMsgCount());
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			// Two status messages of OPEN/SUSPECT for the channels getting established, then a refresh message
+			assertEquals(3, loginClient.queueSize());
+			
+			Msg emaMsg = loginClient.popMessage();
+			assertEquals(DataTypes.STATUS_MSG, emaMsg.dataType());
+			
+			StatusMsg emaStatus = (StatusMsg)emaMsg;
+			assertEquals(StreamState.OPEN, emaStatus.state().streamState());
+			assertEquals(DataState.SUSPECT, emaStatus.state().dataState());
+			
+			emaMsg = loginClient.popMessage();
+			assertEquals(DataTypes.STATUS_MSG, emaMsg.dataType());
+			
+			emaStatus = (StatusMsg)emaMsg;
+			assertEquals(StreamState.OPEN, emaStatus.state().streamState());
+			assertEquals(DataState.SUSPECT, emaStatus.state().dataState());
+			
+			emaMsg = loginClient.popMessage();
+			assertEquals(DataTypes.REFRESH_MSG, emaMsg.dataType());
+			
+			RefreshMsg emaRefresh = (RefreshMsg)emaMsg;
+			assertEquals(StreamState.OPEN, emaRefresh.state().streamState());
+			assertEquals(DataState.OK, emaRefresh.state().dataState());
+			assertEquals(DomainTypes.LOGIN, emaRefresh.domainType());
+            assertTrue(emaRefresh.solicited());
+            assertTrue(emaRefresh.complete());
+            assertTrue(emaRefresh.hasMsgKey());
+            assertEquals(DataType.DataTypes.NO_DATA, emaRefresh.payload().dataType());
+            assertEquals(DataType.DataTypes.ELEMENT_LIST, emaRefresh.attrib().dataType());
+
+            ElementList elementList = emaRefresh.attrib().elementList();
+            for(ElementEntry element : elementList)
+            {
+            	System.out.println("element.name: " + element.name());
+                switch(element.name())
+                {
+                    case EmaRdm.ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD:
+                    {
+                        assertEquals(1, element.uintValue());
+                        break;
+                    }
+                    case EmaRdm.ENAME_APP_ID:
+                    {
+                        assertEquals("100", element.ascii().toString());
+                        break;
+                    }
+                    case EmaRdm.ENAME_APP_NAME:
+                    {
+                        assertEquals("NiConsumer", element.ascii().toString());
+                        break;
+                    }
+                    default:
+                    {
+                    	assertFalse(true);
+                    }
+                }
+            }
+			
+			
+			FieldList fieldList = EmaFactory.createFieldList();
+			fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+			fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+			
+			
+			List<ChannelInformation> chnlInfo = new ArrayList<ChannelInformation>();
+
+			// Check to see if all the channels are connected
+			provider.sessionChannelInfo(chnlInfo);
+			
+			assertEquals(2, chnlInfo.size());
+			
+			assertEquals(chnlInfo.get(0).channelName(), "Channel_1");
+			assertEquals(chnlInfo.get(1).channelName(), "Channel_2");
+			
+			// Close both channels
+			niConsumer1.closeChannel();
+			niConsumer2.closeChannel();
+			
+			Thread.sleep(500);
+			
+			// One status message of OPEN/OK, then a status message of OPEN/SUSPECT 
+			assertEquals(2, loginClient.queueSize());
+			
+			emaMsg = loginClient.popMessage();
+			assertEquals(DataTypes.STATUS_MSG, emaMsg.dataType());
+			
+			emaStatus = (StatusMsg)emaMsg;
+			assertEquals(StreamState.OPEN, emaStatus.state().streamState());
+			assertEquals(DataState.OK, emaStatus.state().dataState());
+			
+			emaMsg = loginClient.popMessage();
+			assertEquals(DataTypes.STATUS_MSG, emaMsg.dataType());
+			
+			emaStatus = (StatusMsg)emaMsg;
+			assertEquals(StreamState.OPEN, emaStatus.state().streamState());
+			assertEquals(DataState.SUSPECT, emaStatus.state().dataState());
+			
+			try
+			{
+				provider.submit( EmaFactory.createRefreshMsg().serviceName("NI_PUB_1").name("IBM.N")
+						.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+						.payload(fieldList).complete(true), itemHandle);
+				assertTrue(false);
+			}catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}
+			
+			try
+			{
+				provider.submit( EmaFactory.createStatusMsg().serviceName("NI_PUB_1").name("IBM.N")
+						.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+						, itemHandle);
+				assertTrue(false);
+			}catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}			
+			
+		
+			try
+			{
+				provider.submit( EmaFactory.createGenericMsg().name("IBM.N").payload(fieldList).complete(true), itemHandle);
+
+				assertTrue(false);
+			}catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}	
+			
+			try
+			{
+				provider.submit( EmaFactory.createUpdateMsg().name("IBM.N").payload(fieldList), itemHandle);
+
+				assertTrue(false);
+			}catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}				
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			assertTrue( false);
+		}
+		
+	}
+	
+	@Test
 	public void NiProviderTwoConnectionSessionSubmitBadDirectoryTest()
 	{
 		TestUtilities.printTestHead("NiProviderSingleConnectionTest","");
@@ -2716,6 +2945,260 @@ public class NiProviderTests
 			etaMsg = niConsumer2.getMessage();
 			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.UPDATE);
 			assertEquals(etaMsg.msgKey().name().toString(), "IBM.N");				
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			assertTrue( false);
+		}
+		
+	}
+	
+	@Test
+	public void NiProviderTwoConnectionSessionPackedMsgSubmitDuringFullReconnectTest()
+	{
+		TestUtilities.printTestHead("NiProviderTwoConnectionPackedMsgSessionTest","");
+
+		NiConsumerHelperConfig niConsConfig1 = new NiConsumerHelperConfig();
+		NiConsumerHelperConfig niConsConfig2 = new NiConsumerHelperConfig();
+
+		long itemHandle = 10;
+		
+		niConsConfig1.port = "19001";
+		niConsConfig2.port = "19002";
+
+		try
+		{
+			niProvConfig = EmaFactory.createOmmNiProviderConfig(emaConfigFileLocation);
+			niProvConfig.providerName("Provider_Session_1");
+			niConsumer1 = new NiConsumerHelper(niConsConfig1);
+			niConsumer2 = new NiConsumerHelper(niConsConfig2);
+			
+			provider = EmaFactory.createOmmProvider(niProvConfig);
+			assertNotNull(provider);
+			
+			// sleep to make sure that the consumer gets everything
+			Thread.sleep(100);
+			
+			assertEquals(2, niConsumer1.getMsgCount());
+			
+			com.refinitiv.eta.codec.Msg etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			assertEquals(2, niConsumer2.getMsgCount());
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			FieldList fieldList = EmaFactory.createFieldList();
+			fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+			fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+			
+			
+			List<ChannelInformation> chnlInfo = new ArrayList<ChannelInformation>();
+
+			// Check to see if all the channels are connected
+			provider.sessionChannelInfo(chnlInfo);
+			
+			assertEquals(2, chnlInfo.size());
+			
+			assertEquals(chnlInfo.get(0).channelName(), "Channel_1");
+			assertEquals(chnlInfo.get(1).channelName(), "Channel_2");
+
+			PackedMsg messagePack = EmaFactory.createPackedMsg(provider);
+			
+			messagePack.initBuffer();
+			
+			messagePack.addMsg(EmaFactory.createRefreshMsg().serviceName("NI_PUB_1").name("IBM.N")
+					.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+					.payload(fieldList).complete(true), itemHandle);
+			
+			messagePack.addMsg(EmaFactory.createStatusMsg().serviceName("NI_PUB_1").name("IBM.N")
+					.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+					, itemHandle);
+			
+			messagePack.addMsg(EmaFactory.createGenericMsg().name("IBM.N").payload(fieldList).complete(true), itemHandle);
+			
+			messagePack.addMsg( EmaFactory.createUpdateMsg().name("IBM.N").payload(fieldList), itemHandle);
+			
+			// Close both channels
+			niConsumer1.closeChannel();
+			niConsumer2.closeChannel();
+			
+			Thread.sleep(500);
+			
+			try
+			{
+				provider.submit(messagePack);
+				assertTrue(false);
+			} catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			assertTrue( false);
+		}
+		
+	}
+	
+	@Test
+	public void NiProviderTwoConnectionSessionPackedMsgPackDuringFullReconnectTest()
+	{
+		TestUtilities.printTestHead("NiProviderTwoConnectionPackedMsgSessionTest","");
+
+		NiConsumerHelperConfig niConsConfig1 = new NiConsumerHelperConfig();
+		NiConsumerHelperConfig niConsConfig2 = new NiConsumerHelperConfig();
+
+		long itemHandle = 10;
+		
+		niConsConfig1.port = "19001";
+		niConsConfig2.port = "19002";
+
+		try
+		{
+			niProvConfig = EmaFactory.createOmmNiProviderConfig(emaConfigFileLocation);
+			niProvConfig.providerName("Provider_Session_1");
+			niConsumer1 = new NiConsumerHelper(niConsConfig1);
+			niConsumer2 = new NiConsumerHelper(niConsConfig2);
+			
+			provider = EmaFactory.createOmmProvider(niProvConfig);
+			assertNotNull(provider);
+			
+			// sleep to make sure that the consumer gets everything
+			Thread.sleep(100);
+			
+			assertEquals(2, niConsumer1.getMsgCount());
+			
+			com.refinitiv.eta.codec.Msg etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer1.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			assertEquals(2, niConsumer2.getMsgCount());
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REQUEST);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.LOGIN);
+			
+			etaLoginMsg = convertToLoginMsg(etaMsg);
+			
+			assertEquals(etaLoginMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType.REQUEST);
+			etaLoginRequest = (com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest)etaLoginMsg;
+			assertEquals(etaLoginRequest.role(), com.refinitiv.eta.rdm.Login.RoleTypes.PROV);
+			
+			etaMsg = niConsumer2.getMessage();
+			
+			assertNotNull(etaMsg);
+			assertEquals(etaMsg.msgClass(), com.refinitiv.eta.codec.MsgClasses.REFRESH);
+			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.SOURCE);
+			
+			etaDirectoryMsg = convertToDirectoryRefreshMsg(etaMsg);
+			assertEquals(etaDirectoryMsg.rdmMsgType(), com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType.REFRESH);
+			etaDirectoryRefresh = (com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh)etaDirectoryMsg;
+			assertEquals(etaDirectoryRefresh.serviceList().size(), 2);
+			
+			FieldList fieldList = EmaFactory.createFieldList();
+			fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+			fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+			fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+			
+			
+			List<ChannelInformation> chnlInfo = new ArrayList<ChannelInformation>();
+
+			// Check to see if all the channels are connected
+			provider.sessionChannelInfo(chnlInfo);
+			
+			assertEquals(2, chnlInfo.size());
+			
+			assertEquals(chnlInfo.get(0).channelName(), "Channel_1");
+			assertEquals(chnlInfo.get(1).channelName(), "Channel_2");
+
+			PackedMsg messagePack = EmaFactory.createPackedMsg(provider);
+			
+			messagePack.initBuffer();
+			
+			// Close both channels
+			niConsumer1.closeChannel();
+			niConsumer2.closeChannel();
+			
+			Thread.sleep(500);
+			
+			try
+			{
+				messagePack.addMsg(EmaFactory.createRefreshMsg().serviceName("NI_PUB_1").name("IBM.N")
+						.state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "UnSolicited Refresh Completed")
+						.payload(fieldList).complete(true), itemHandle);
+				assertTrue(false);
+			} catch(OmmInvalidUsageException ommExcept)
+			{
+				assertEquals(OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL, ommExcept.errorCode());
+			}
+			
+			
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -4543,11 +5026,6 @@ public class NiProviderTests
 			assertEquals(etaMsg.domainType(), com.refinitiv.eta.rdm.DomainTypes.DICTIONARY);
 			
 			assertEquals(0, niConsumer2.getMsgCount());
-
-			assertEquals(dictRefresh.name(), "RWFFld");
-			assertEquals(dictRefresh.domainType(), com.refinitiv.eta.rdm.DomainTypes.DICTIONARY);
-			assertTrue(dictRefresh.complete());
-
 			
 		} catch(Exception e)
 		{

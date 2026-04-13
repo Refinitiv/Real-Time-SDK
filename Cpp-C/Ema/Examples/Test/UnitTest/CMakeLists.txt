@@ -74,6 +74,11 @@ if ( CMAKE_HOST_UNIX )
 
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DefaultEmaConfig.xml
+							
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different TestRDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestRDMFieldDictionary
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaNiProvTestConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaNiProvTestConfig.xml
 
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "
@@ -94,6 +99,11 @@ else()
 
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/DefaultEmaConfig.xml
+							
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different TestRDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/TestRDMFieldDictionary
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaNiProvTestConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaNiProvTestConfig.xml
 
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaInvalidConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaInvalidConfig.xml
@@ -106,7 +116,11 @@ else()
 
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ../../../EmaConfig.xml
                             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/DefaultEmaConfig.xml
-
+							
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different TestRDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/TestRDMFieldDictionary
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaNiProvTestConfig.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaNiProvTestConfig.xml
 
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "

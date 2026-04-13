@@ -52,6 +52,7 @@ class ClientSession;
 class TimeOut;
 class ItemStatusInfo;
 class ConsumerRoutingSessionChannel;
+class NiProviderRoutingSessionChannel;
 
 class ItemList
 {
@@ -424,6 +425,9 @@ protected:
 	void scheduleItemClosedRecoverableStatus(const EmaString&);
 
 	OmmBaseImpl&		_ommBaseImpl;
+
+	NiProviderRoutingSessionChannel* _pRoutingSessionChannel;
+
 
 private:
 

@@ -165,7 +165,7 @@ namespace access {
 
 class Channel;
 class WarmStandbyChannelConfig;
-class ConsumerRoutingSessionChannelConfig;
+class BaseRoutingSessionChannelConfig;
 
 class ChannelConfig
 {
@@ -203,7 +203,7 @@ public :
 	UInt32					sysSendBufSize;
 	UInt32					highWaterMark;
 	Channel*				pChannel;
-	ConsumerRoutingSessionChannelConfig* pRoutingChannelConfig;
+	BaseRoutingSessionChannelConfig* pRoutingChannelConfig;
 
 private :
 
@@ -578,7 +578,7 @@ public:
 	void clearChannelSet();
 	void clearWSBChannelSet();
 	void clearChannelSetForWSB();
-	void clearConsumerRoutingSessionSet();
+	void clearRoutingSessionSet();
 	void clearServiceListSet();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 	EmaString configTrace();
@@ -607,7 +607,7 @@ public:
 
 	EmaVector<ServiceList*> serviceListSet;			// List of copied over service lists, used for deletion.
 
-	EmaVector< ConsumerRoutingSessionChannelConfig* >		consumerRoutingSessionSet;
+	EmaVector< BaseRoutingSessionChannelConfig* >		routingSessionSet;
 
 	LoginRdmReqMsgImpl*		pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
@@ -744,7 +744,7 @@ public:
 	EmaVector<WarmStandbyServerInfoConfig*>		standbyServerSet;
 	bool									downloadConnectionConfig;
 	WarmStandbyMode							warmStandbyMode;
-	ConsumerRoutingSessionChannelConfig*		pRoutingChannelConfig;
+	BaseRoutingSessionChannelConfig*		pRoutingChannelConfig;
 private:
 	WarmStandbyChannelConfig();
 };

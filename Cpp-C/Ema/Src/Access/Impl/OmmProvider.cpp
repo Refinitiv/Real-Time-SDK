@@ -200,6 +200,15 @@ void OmmProvider::getChannelInformation( ChannelInformation& ci ) {
 		ci.clear();
 }
 
+void OmmProvider::getSessionInformation(EmaVector<ChannelInformation>& ci) {
+	// this function can be called during the OmmProvider constructor (usually from an event
+	// received during that process). If so, just have to return 0.
+	if (_pImpl)
+		_pImpl->getSessionInformation(ci);
+	else
+		ci.clear();
+}
+
 void OmmProvider::modifyIOCtl( Int32 code, Int32 value, UInt64 handle )
 {
 	_pImpl->modifyIOCtl(code, value, handle);

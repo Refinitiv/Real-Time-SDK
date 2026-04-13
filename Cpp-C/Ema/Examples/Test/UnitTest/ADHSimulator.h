@@ -15,9 +15,12 @@
 
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslTransport.h"
+#include "EmaVector.h"
 
 #include <thread>
 #include <atomic>
+
+using namespace refinitiv::ema::access;
 
 class ADHSimulator;
 
@@ -77,14 +80,34 @@ class ADHSimulatorOptions
 public:
 	ADHSimulatorOptions() :
 		pReactorOptions(nullptr), sendGenericMsg(false),
-		compressionType(0), compressionLevel(0)
+		compressionType(0), compressionLevel(0),
+		supportProviderDictionaryDownload(false),
+		saveMsgs(false),
+		rejectLogin(false)
 	{
 		memset(this->portNo, 0, sizeof(this->portNo));
 	}
 
+	ADHSimulatorOptions(const char* portNo) :
+		pReactorOptions(nullptr), sendGenericMsg(false),
+		compressionType(0), compressionLevel(0),
+		supportProviderDictionaryDownload(false),
+		saveMsgs(false),
+		rejectLogin(false)
+	{
+		memset(this->portNo, 0, sizeof(this->portNo));
+		if (portNo)
+		{
+			strncpy(this->portNo, portNo, sizeof(this->portNo) - 1);
+		}
+	}
+
 	ADHSimulatorOptions(RsslCreateReactorOptions* pReactorOpts, const char* portNo) :
 		pReactorOptions(pReactorOpts), sendGenericMsg(false),
-		compressionType(0), compressionLevel(0)
+		compressionType(0), compressionLevel(0),
+		supportProviderDictionaryDownload(false),
+		saveMsgs(false),
+		rejectLogin(false)
 	{
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if ( portNo )
@@ -95,7 +118,10 @@ public:
 
 	ADHSimulatorOptions(RsslCreateReactorOptions* pReactorOpts, char* portNo, bool sendGenericMsg) :
 		pReactorOptions(pReactorOpts), sendGenericMsg(sendGenericMsg),
-		compressionType(0), compressionLevel(0)
+		compressionType(0), compressionLevel(0),
+		supportProviderDictionaryDownload(false),
+		saveMsgs(false),
+		rejectLogin(false)
 	{
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if ( portNo )
@@ -108,7 +134,10 @@ public:
 		pReactorOptions(adhOpts.pReactorOptions),
 		sendGenericMsg(adhOpts.sendGenericMsg.load()),
 		compressionType(adhOpts.compressionType),
-		compressionLevel(adhOpts.compressionLevel)
+		compressionLevel(adhOpts.compressionLevel),
+		supportProviderDictionaryDownload(adhOpts.supportProviderDictionaryDownload.load()),
+		saveMsgs(adhOpts.saveMsgs.load()),
+		rejectLogin(adhOpts.rejectLogin.load())
 	{
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if ( adhOpts.portNo )
@@ -125,6 +154,9 @@ public:
 			sendGenericMsg = adhOpts.sendGenericMsg.load();
 			compressionType = adhOpts.compressionType;
 			compressionLevel = adhOpts.compressionLevel;
+			supportProviderDictionaryDownload = adhOpts.supportProviderDictionaryDownload.load();
+			saveMsgs = adhOpts.saveMsgs.load();
+			rejectLogin = adhOpts.rejectLogin.load();
 
 			memset(this->portNo, 0, sizeof(this->portNo));
 			if ( adhOpts.portNo )
@@ -151,6 +183,8 @@ public:
 
 	bool shouldSendGenericMsg() const { return sendGenericMsg.load(); }
 
+	bool supportsProviderDictionaryDownload() const { return supportProviderDictionaryDownload.load(); }
+
 	static const size_t MAX_PORTNO_LEN = 32;
 public:
 	/* Creation parameters. The parameters can be changed before creating ADHSimulator. */
@@ -162,6 +196,9 @@ public:
 
 	/* Behaviour options. */
 	std::atomic <bool> sendGenericMsg;  // Indicates whether to send generic message
+	std::atomic <bool> supportProviderDictionaryDownload;  // Indicates whether to support provider dictionary download	
+	std::atomic <bool> saveMsgs;  // Indicates whether to save the messages into the ADH simulator's message queue
+	std::atomic <bool> rejectLogin;		// Indicates whether to reject login requests
 };
 
 class ADHSimulator
@@ -194,6 +231,9 @@ public:
 
 	static RsslReactorCallbackRet channelEventCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslReactorChannelEvent* pChannelEvent);
 
+	RsslMsg* popMsg();
+	UInt32	 getMsgQueueSize() const { return _messageQueue.size(); }
+
 	unsigned getCountRequest() { return counters.countRequest.load(); }
 	unsigned getCountRefresh() { return counters.countRefresh.load(); }
 	unsigned getCountStatus() { return counters.countStatus.load(); }
@@ -203,6 +243,8 @@ public:
 	unsigned getCountGeneric() { return counters.countGeneric.load(); }
 
 	void enableSendGenericMsg(bool enable) { options.sendGenericMsg = enable; }
+
+	void closeChannels();
 
 public:
 
@@ -229,6 +271,9 @@ private:
 	/* Send generic message on the LOGIN domain */
 	RsslRet sendGenericMessageLogin(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslMsgEvent* pRsslMsgEvent);
 
+	EmaVector<RsslMsg*> _messageQueue;					// The Queues are used to pull data for verification.  The lists are used for memory cleanup
+	EmaVector<RsslMsg*> _messageList;				
+
 private:
 
 	RsslReactor* pReactor;
@@ -244,6 +289,8 @@ private:
 	fd_set	readFds;
 	fd_set	writeFds;
 	fd_set	exceptFds;
+	
+	RsslDataDictionary dictionary;
 
 	CountMessages counters;
 

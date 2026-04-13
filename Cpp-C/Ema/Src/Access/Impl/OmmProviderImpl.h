@@ -58,6 +58,7 @@ public :
 
     virtual void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&) = 0;
     virtual void getChannelInformation(ChannelInformation&) = 0;
+	virtual void getSessionInformation(EmaVector<ChannelInformation>&) = 0;
 
 	virtual void getConnectedClientChannelStats(UInt64, ChannelStatistics&) = 0;
 

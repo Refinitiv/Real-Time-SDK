@@ -7,6 +7,8 @@
  */
 
 #include "ChannelCallbackClient.h"
+#include "BaseRoutingChannel.h"
+#include "BaseRoutingSession.h"
 #include "ConsumerRoutingChannel.h"
 #include "ConsumerRoutingSession.h"
 #include "DirectoryCallbackClient.h"
@@ -1204,7 +1206,7 @@ DirectoryCallbackClient::DirectoryCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, "Created DirectoryCallbackClient" );
 	}
 
-	if (ommBaseImpl.getConsumerRoutingSession() != NULL)
+	if (ommBaseImpl.getRoutingSession() != NULL)
 	{
 		_requestList = ItemList::create(ommBaseImpl);
 	}
@@ -1386,8 +1388,11 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
+	ConsumerRoutingSessionChannel* pRoutingChannel = static_cast<ConsumerRoutingSessionChannel*>(pChannel->getRoutingChannel());
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
 	// Only send this if it's a direct request.  Otherwise, we will fan out any updates as needed.
-	if (pChannel->getConsumerRoutingChannel() == NULL && pEvent && pEvent->baseMsgEvent.pStreamInfo && pEvent->baseMsgEvent.pStreamInfo->pUserSpec)
+	if (pRoutingChannel == NULL && pEvent && pEvent->baseMsgEvent.pStreamInfo && pEvent->baseMsgEvent.pStreamInfo->pUserSpec)
 	{
 		SingleItem* pItem = (SingleItem*)pEvent->baseMsgEvent.pStreamInfo->pUserSpec;
 
@@ -1420,7 +1425,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pChannel);
 	
 				// Close the channel here.
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pRoutingChannel == NULL)
 				{
 					_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 					_ommBaseImpl.closeChannel(pRsslReactorChannel);
@@ -1444,24 +1449,23 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 				}
 	
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pRoutingChannel == NULL)
 					_ommBaseImpl.setState(OmmBaseImpl::DirectoryStreamOpenSuspectEnum);
 				else
 				{
-					pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::DirectoryStreamOpenSuspectEnum;
+					pRoutingChannel->channelState = OmmBaseImpl::DirectoryStreamOpenSuspectEnum;
 					int loginSuspectCount = 0;
-					ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 					// Check to see if all of the channels are in a DirectoryStreamOpenSuspectEnum status or have been closed.  
 					// If they are all in that status, set the ommbaseimpl state to DirectoryStreamOpenSuspectEnum so it can transition to failure after this.
 					if (_ommBaseImpl.isInitialized() == false)
 					{
-						for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+						for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); i++)
 						{
-							if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenSuspectEnum)
+							if (pRoutingSession->routingChannelList[i] != NULL && pRoutingSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenSuspectEnum)
 								loginSuspectCount++;
 						}
 
-						if (loginSuspectCount == pSession->activeChannelCount)
+						if (loginSuspectCount == pRoutingSession->activeChannelCount)
 						{
 							_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
 						}
@@ -1473,24 +1477,23 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				break;
 			}
 	
-			if (pChannel->getConsumerRoutingChannel() == NULL)
+			if (pRoutingChannel == NULL)
 				_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
 			else
 			{
-				pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::DirectoryStreamOpenOkEnum;
+				pRoutingChannel->channelState = OmmBaseImpl::DirectoryStreamOpenOkEnum;
 				int directoryOkCount = 0;
-				ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 				// Check to see if all of the channels are in a DirectoryStreamOpenSuspectEnum status or have been closed.  
 				// If they are all in that status, set the ommbaseimpl state to DirectoryStreamOpenSuspectEnum so it can transition to failure after this.
 				if (_ommBaseImpl.isInitialized() == false)
 				{
-					for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+					for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); i++)
 					{
-						if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenOkEnum)
+						if (pRoutingSession->routingChannelList[i] != NULL && pRoutingSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenOkEnum)
 							directoryOkCount++;
 					}
 
-					if (directoryOkCount == pSession->activeChannelCount)
+					if (directoryOkCount == pRoutingSession->activeChannelCount)
 					{
 						_ommBaseImpl.setState(OmmBaseImpl::DirectoryStreamOpenOkEnum);
 					}
@@ -1519,7 +1522,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				if ( pState->streamState != RSSL_STREAM_OPEN )
 				{
 					// Close the channel here.
-					if (pChannel->getConsumerRoutingChannel() == NULL)
+					if (pChannel->getRoutingChannel() == NULL)
 					{
 						_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 						_ommBaseImpl.closeChannel( pRsslReactorChannel );
@@ -1552,24 +1555,23 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 						_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 					}
 	
-					if (pChannel->getConsumerRoutingChannel() == NULL)
+					if (pRoutingChannel == NULL)
 						_ommBaseImpl.setState(OmmBaseImpl::DirectoryStreamOpenSuspectEnum);
 					else
 					{
-						pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::DirectoryStreamOpenSuspectEnum;
+						pRoutingChannel->channelState = OmmBaseImpl::DirectoryStreamOpenSuspectEnum;
 						int directorySuspectCount = 0;
-						ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 						// Check to see if all of the channels are in a DirectoryStreamOpenSuspectEnum status or have been closed.  
 						// If they are all in that status, set the ommbaseimpl state to DirectoryStreamOpenSuspectEnum so it can transition to failure after this.
 						if (_ommBaseImpl.isInitialized() == false)
 						{
-							for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+							for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); i++)
 							{
-								if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenSuspectEnum)
+								if (pRoutingSession->routingChannelList[i] != NULL && pRoutingSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenSuspectEnum)
 									directorySuspectCount++;
 							}
 
-							if (directorySuspectCount == pSession->activeChannelCount)
+							if (directorySuspectCount == pRoutingSession->activeChannelCount)
 							{
 								_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
 							}
@@ -1588,24 +1590,23 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 				}
 	
-				if (pChannel->getConsumerRoutingChannel() == NULL)
+				if (pRoutingChannel == NULL)
 					_ommBaseImpl.setState(OmmBaseImpl::DirectoryStreamOpenOkEnum);
 				else
 				{
-					pChannel->getConsumerRoutingChannel()->channelState = OmmBaseImpl::DirectoryStreamOpenOkEnum;
+					pRoutingChannel->channelState = OmmBaseImpl::DirectoryStreamOpenOkEnum;
 					int directoryOkCount = 0;
-					ConsumerRoutingSession* pSession = pChannel->getConsumerRoutingChannel()->pRoutingSession;
 					// Check to see if all of the channels are in a DirectoryStreamOpenOkEnum status or have been closed.  
 					// If they are all in that status, set the ommbaseimpl state to DirectoryStreamOpenOkEnum so it can transition to failure after this.
 					if (_ommBaseImpl.isInitialized() == false)
 					{
-						for (UInt32 i = 0; i < pSession->routingChannelList.size(); i++)
+						for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); i++)
 						{
-							if (pSession->routingChannelList[i] != NULL && pSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenOkEnum)
+							if (pRoutingSession->routingChannelList[i] != NULL && pRoutingSession->routingChannelList[i]->channelState == OmmBaseImpl::DirectoryStreamOpenOkEnum)
 								directoryOkCount++;
 						}
 
-						if (directoryOkCount == pSession->activeChannelCount)
+						if (directoryOkCount == pRoutingSession->activeChannelCount)
 						{
 							_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
 						}
@@ -1671,6 +1672,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 		return;
 	}
 
+	ConsumerRoutingSessionChannel* pRoutingChannel = static_cast<ConsumerRoutingSessionChannel*>(pChannel->getRoutingChannel());
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
 	for ( UInt32 jdx = 0; jdx < count; ++jdx )
 	{
 		switch ( pServiceList[jdx].action )
@@ -1683,9 +1687,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 
 			Directory* pDirectory = 0;
 
-			if (pChannel->getConsumerRoutingChannel() != NULL)
+			if (pRoutingChannel != NULL)
 			{
-				pDeletedDirectoryPtr = pChannel->getConsumerRoutingChannel()->serviceByName.find(&tempName);
+				pDeletedDirectoryPtr = pRoutingChannel->serviceByName.find(&tempName);
 			}
 			else
 			{
@@ -1706,11 +1710,11 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 				// This has failed, remove it from the lists.
 				if (pDeletedDirectoryPtr)
 				{
-					if (pChannel->getConsumerRoutingChannel() != NULL)
+					if (pRoutingChannel != NULL)
 					{
-						pChannel->getConsumerRoutingChannel()->serviceList.remove(*pDeletedDirectoryPtr);
-						pChannel->getConsumerRoutingChannel()->serviceByName.erase(&(*pDeletedDirectoryPtr)->getName());
-						pChannel->getConsumerRoutingChannel()->serviceById.erase((UInt16)(*pDeletedDirectoryPtr)->getId());
+						pRoutingChannel->serviceList.remove(*pDeletedDirectoryPtr);
+						pRoutingChannel->serviceByName.erase(&(*pDeletedDirectoryPtr)->getName());
+						pRoutingChannel->serviceById.erase((UInt16)(*pDeletedDirectoryPtr)->getId());
 					}
 					else
 					{
@@ -1743,13 +1747,13 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 
 				if ( pDirectory->getId() != pServiceList[jdx].serviceId )
 				{
-					if (pChannel->getConsumerRoutingChannel() != NULL)
+					if (pRoutingChannel != NULL)
 					{
-						pChannel->getConsumerRoutingChannel()->serviceById.erase((UInt16)pDirectory->getId());
+						pRoutingChannel->serviceById.erase((UInt16)pDirectory->getId());
 						pDirectory->setId(pServiceList[jdx].serviceId);
-						pChannel->getConsumerRoutingChannel()->serviceById.insert((UInt16)pDirectory->getId(), pDirectory);
+						pRoutingChannel->serviceById.insert((UInt16)pDirectory->getId(), pDirectory);
 
-						if (_ommBaseImpl.isInitialized() == true && _ommBaseImpl.getConsumerRoutingSession()->aggregateDirectory(pDirectory, RSSL_MPEA_ADD_ENTRY) == true)
+						if (_ommBaseImpl.isInitialized() == true && pRoutingSession->aggregateDirectory(pDirectory, RSSL_MPEA_ADD_ENTRY) == true)
 						{
 							sendUpdate = true;
 						}
@@ -1767,14 +1771,14 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 				pDirectory->setChannel((Channel*)userSpecPtr);
 				pDirectory->setId(pServiceList[jdx].serviceId);
 
-				if (pChannel->getConsumerRoutingChannel() != NULL)
+				if (pRoutingChannel != NULL)
 				{
-					pChannel->getConsumerRoutingChannel()->serviceList.push_back(pDirectory);
-					pChannel->getConsumerRoutingChannel()->serviceByName.insert(&pDirectory->getName(), pDirectory);
-					pChannel->getConsumerRoutingChannel()->serviceById.insert((UInt16)pDirectory->getId(), pDirectory);
+					pRoutingChannel->serviceList.push_back(pDirectory);
+					pRoutingChannel->serviceByName.insert(&pDirectory->getName(), pDirectory);
+					pRoutingChannel->serviceById.insert((UInt16)pDirectory->getId(), pDirectory);
 
 					// This is a brand new service, so send an update if aggregating this makes it change the directory cache in a material way
-					if (_ommBaseImpl.isInitialized() == true && _ommBaseImpl.getConsumerRoutingSession()->aggregateDirectory(pDirectory, RSSL_MPEA_ADD_ENTRY) == true)
+					if (_ommBaseImpl.isInitialized() == true && pRoutingSession->aggregateDirectory(pDirectory, RSSL_MPEA_ADD_ENTRY) == true)
 					{
 						sendUpdate = true;
 					}
@@ -1793,9 +1797,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 			}
 
 			// If the current directory is accepting requests and there are pending requests, send them now.
-			if (_ommBaseImpl.isInitialized() == true && pChannel->getConsumerRoutingChannel() != NULL && pDirectory->getAcceptingRequests() == 1)
+			if (_ommBaseImpl.isInitialized() == true && pRoutingChannel != NULL && pDirectory->getAcceptingRequests() == 1)
 			{
-				EmaList<Item*>& pendingItems = pChannel->getConsumerRoutingChannel()->pRoutingSession->pendingRequestList.getList();
+				EmaList<Item*>& pendingItems = pRoutingSession->pendingRequestList.getList();
 
 				int itemCount = pendingItems.size();
 
@@ -1851,8 +1855,8 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 							pSingleItem->sendClose();
 						}
 						pSingleItem->setDirectory(pDirectory);
-						pSingleItem->sessionChannel = pChannel->getConsumerRoutingChannel();
-						pChannel->getConsumerRoutingChannel()->routedRequestList.addItem(pSingleItem);
+						pSingleItem->sessionChannel = pRoutingChannel;
+						pRoutingChannel->routedRequestList.addItem(pSingleItem);
 
 						// This will call submit, which will re-set the service ID based on the newly set directory.
 						pSingleItem->reSubmit(false);
@@ -1870,9 +1874,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 		{
 			DirectoryPtr* pDirectoryPtr = NULL;
 
-			if (pChannel->getConsumerRoutingChannel() != NULL)
+			if (pRoutingChannel != NULL)
 			{
-				pDirectoryPtr = pChannel->getConsumerRoutingChannel()->serviceById.find((UInt16)pServiceList[jdx].serviceId);
+				pDirectoryPtr = pRoutingChannel->serviceById.find((UInt16)pServiceList[jdx].serviceId);
 			}
 			else
 			{
@@ -1907,9 +1911,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 			}
 			Directory* pDirectory = *pDirectoryPtr;
 
-			if (pChannel->getConsumerRoutingChannel() != NULL)
+			if (pRoutingChannel != NULL)
 			{
-				if (_ommBaseImpl.getConsumerRoutingSession()->aggregateDirectory(pDirectory, RSSL_MPEA_UPDATE_ENTRY) == true)
+				if (pRoutingSession->aggregateDirectory(pDirectory, RSSL_MPEA_UPDATE_ENTRY) == true)
 				{
 					sendUpdate = true;
 				}
@@ -1917,9 +1921,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 				if(_ommBaseImpl.isInitialized() == true)
 				{
 					// If the current reactor channel is up and exists, and the service state is down(0), reroute any requests on this channel for this specific service
-					if (pChannel->getConsumerRoutingChannel()->inPreferredHost == false && _ommBaseImpl.getConsumerRoutingSession()->enhancedItemRecovery == true && pDirectory->getServiceState() == 0 && pChannel->getConsumerRoutingChannel()->pReactorChannel->pRsslChannel != NULL && pChannel->getConsumerRoutingChannel()->pReactorChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE )
+					if (pRoutingChannel->inPreferredHost == false && pRoutingSession->enhancedItemRecovery == true && pDirectory->getServiceState() == 0 && pRoutingChannel->pReactorChannel->pRsslChannel != NULL && pRoutingChannel->pReactorChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE )
 					{
-						EmaList<Item*>& channelItemList = pChannel->getConsumerRoutingChannel()->routedRequestList.getList();
+						EmaList<Item*>& channelItemList = pRoutingChannel->routedRequestList.getList();
 
 						int itemCount = channelItemList.size();
 
@@ -1944,7 +1948,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 						}
 
 						// Go through the pending list, as well, because we may have gotten an OPEN/SUSPECT status, so the item was moved to the pending list
-						EmaList<Item*>& pendingItemList = pChannel->getConsumerRoutingChannel()->pRoutingSession->pendingRequestList.getList();
+						EmaList<Item*>& pendingItemList = pRoutingSession->pendingRequestList.getList();
 
 						itemCount = pendingItemList.size();
 
@@ -1956,7 +1960,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 								break;
 
 							// If the item's directory is the same as this directory, re-route it, otherwise put the item back into the list
-							if (pSingleItem->sessionChannel == pChannel->getConsumerRoutingChannel() && ((pSingleItem->getReqMsg()->flags & RSSL_RQMF_PRIVATE_STREAM) == 0) && pSingleItem->getDirectory() == pDirectory)
+							if (pSingleItem->sessionChannel == pChannel->getRoutingChannel() && ((pSingleItem->getReqMsg()->flags & RSSL_RQMF_PRIVATE_STREAM) == 0) && pSingleItem->getDirectory() == pDirectory)
 							{
 								pSingleItem->sendClose();
 								pSingleItem->setItemList(NULL);
@@ -1973,7 +1977,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 					// All items should have gotten a OPEN/SUSPECT status from the underlying watchlist previous to this
 					if (pDirectory->getServiceState() == 1 && pDirectory->getAcceptingRequests() == 1)
 					{
-						EmaList<Item*>& pendingItems = pChannel->getConsumerRoutingChannel()->pRoutingSession->pendingRequestList.getList();
+						EmaList<Item*>& pendingItems = pRoutingSession->pendingRequestList.getList();
 
 						int itemCount = pendingItems.size();
 
@@ -2029,8 +2033,8 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 									pSingleItem->sendClose();
 								}
 								pSingleItem->setDirectory(pDirectory);
-								pSingleItem->sessionChannel = pChannel->getConsumerRoutingChannel();
-								pChannel->getConsumerRoutingChannel()->routedRequestList.addItem(pSingleItem);
+								pSingleItem->sessionChannel = static_cast<ConsumerRoutingSessionChannel*>(pChannel->getRoutingChannel());
+								pRoutingChannel->routedRequestList.addItem(pSingleItem);
 
 								// This will call submit, which will re-set the service ID based on the newly set directory.
 								pSingleItem->reSubmit(false);
@@ -2050,9 +2054,9 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 		{
 			DirectoryPtr* pDirectoryPtr = NULL;
 
-			if (pChannel->getConsumerRoutingChannel() != NULL)
+			if (pRoutingChannel != NULL)
 			{
-				pDirectoryPtr = pChannel->getConsumerRoutingChannel()->serviceById.find((UInt16)pServiceList[jdx].serviceId);
+				pDirectoryPtr = pRoutingChannel->serviceById.find((UInt16)pServiceList[jdx].serviceId);
 			}
 			else
 			{
@@ -2082,12 +2086,12 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 
 			Directory* pDirectory = *pDirectoryPtr;
 
-			if (_ommBaseImpl.isInitialized() == true && pChannel->getConsumerRoutingChannel() != NULL)
+			if (_ommBaseImpl.isInitialized() == true && pChannel->getRoutingChannel() != NULL)
 			{
 				pDirectory->getService()->state.serviceState = 0;
 				pDirectory->getService()->state.acceptingRequests = 0;
 
-				if (_ommBaseImpl.getConsumerRoutingSession()->aggregateDirectory(pDirectory, RSSL_MPEA_DELETE_ENTRY) == true)
+				if (pRoutingSession->aggregateDirectory(pDirectory, RSSL_MPEA_DELETE_ENTRY) == true)
 				{
 					sendUpdate = true;
 				}
@@ -2110,7 +2114,7 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 	
 	// Only update if things have changed materially.  Also, this only applies to request routing connections.
 	// Non RR connections were fanned out because they had an attached item.
-	if(_ommBaseImpl.isInitialized() == true && pChannel->getConsumerRoutingChannel() != NULL && sendUpdate == true)
+	if(_ommBaseImpl.isInitialized() == true && pRoutingChannel != NULL && sendUpdate == true)
 		fanoutAllDirectoryRequests((void*)&_ommBaseImpl);
 }
 
@@ -2194,7 +2198,7 @@ void DirectoryCallbackClient::removeItem(Item* pItem)
 void DirectoryCallbackClient::fanoutAllDirectoryRequests(void* info)
 {
 	OmmBaseImpl* pBaseImpl = (OmmBaseImpl*)info;
-	ConsumerRoutingSession* pRoutingSession = pBaseImpl->getConsumerRoutingSession();
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(pBaseImpl->getRoutingSession());
 	DirectoryCallbackClient& callbackClient = pBaseImpl->getDirectoryCallbackClient();
 
 	DirectoryItem* pItem = NULL;
@@ -2497,7 +2501,7 @@ void DirectoryCallbackClient::fanoutSingleDirectoryRequest(void* info)
 	DirectoryItem* pItem = (DirectoryItem*)info;
 
 	OmmBaseImpl* pBaseImpl = &pItem->getImpl();
-	ConsumerRoutingSession* pRoutingSession = pBaseImpl->getConsumerRoutingSession();
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(pBaseImpl->getRoutingSession());
 	DirectoryCallbackClient& callbackClient = pBaseImpl->getDirectoryCallbackClient();
 
 	int serviceArraySize = pRoutingSession->serviceList.size();
@@ -2793,7 +2797,7 @@ DirectoryItem::DirectoryItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommCo
 
 DirectoryItem::~DirectoryItem()
 {
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 		_ommBaseImpl.getItemCallbackClient().removeFromList( this );
 	else
 		_ommBaseImpl.getDirectoryCallbackClient().removeItem(this);
@@ -2826,14 +2830,16 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 
 	const Directory* pDirectory = 0;
 
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
 	if ( reqMsgEncoder.hasServiceName() )
 	{
 		serviceName = reqMsgEncoder.getServiceName();
-		if(_ommBaseImpl.getConsumerRoutingSession() == NULL)
+		if(pRoutingSession == NULL)
 			pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
 		else
 		{
-			ConsumerRoutingService** directoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceByName.find(&reqMsgEncoder.getServiceName());
+			ConsumerRoutingService** directoryPtr = pRoutingSession->serviceByName.find(&reqMsgEncoder.getServiceName());
 			if (directoryPtr != NULL)
 			{
 				pDirectory = *directoryPtr;
@@ -2841,8 +2847,8 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 		}
 
 		// Let the request go through if the directory isn't found and either request routing is on, or request routing is off and single open is off
-		if ( !pDirectory && (_ommBaseImpl.getConsumerRoutingSession() != NULL || 
-				(_ommBaseImpl.getConsumerRoutingSession() == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
+		if ( !pDirectory && (pRoutingSession != NULL ||
+				(pRoutingSession == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
 		{
 			EmaString temp( "Service name of '" );
 			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
@@ -2858,11 +2864,11 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 	{
 		if ( reqMsgEncoder.hasServiceId() )
 		{
-			if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+			if (_ommBaseImpl.getRoutingSession() == NULL)
 				pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceId() );
 			else
 			{
-				ConsumerRoutingService** directoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(reqMsgEncoder.getServiceId());
+				ConsumerRoutingService** directoryPtr = pRoutingSession->serviceById.find(reqMsgEncoder.getServiceId());
 				if (directoryPtr != NULL)
 				{
 					pDirectory = *directoryPtr;
@@ -2870,8 +2876,8 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			}
 
 			// Let the request go through if the directory isn't found and either request routing is on, or request routing is off and single open is off
-			if (!pDirectory && (_ommBaseImpl.getConsumerRoutingSession() != NULL ||
-				(_ommBaseImpl.getConsumerRoutingSession() == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
+			if (!pDirectory && (pRoutingSession != NULL ||
+				(pRoutingSession == NULL && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)))
 			{
 				EmaString temp( "Service id of '" );
 				temp.append( reqMsgEncoder.getServiceId() ).
@@ -2902,7 +2908,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			_streamId = reqMsgEncoder.getStreamId();
 	}
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 		return submit( reqMsgEncoder.getRsslRequestMsg() );
 	else
 		new TimeOut(_ommBaseImpl, 1000, DirectoryCallbackClient::fanoutSingleDirectoryRequest, (void*)this, true);
@@ -2916,7 +2922,7 @@ bool DirectoryItem::modify( const ReqMsg& reqMsg )
 	if (MsgImpl::getImpl(reqMsg)->getRsslRequestMsg()->msgBase.msgKey.filter != 0)
 		filter = MsgImpl::getImpl(reqMsg)->getRsslRequestMsg()->msgBase.msgKey.filter;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 		return submit( MsgImpl::getImpl(reqMsg)->getRsslRequestMsg() );
 	else
 		new TimeOut(_ommBaseImpl, 1000, DirectoryCallbackClient::fanoutSingleDirectoryRequest, (void*)this, true);
@@ -2936,7 +2942,7 @@ bool DirectoryItem::submit( const PostMsg& )
 
 bool DirectoryItem::submit( const GenericMsg& genMsg )
 {
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 		return submit( MsgImpl::getImpl(genMsg)->getRsslGenericMsg() );
 	else
 	{
@@ -2953,7 +2959,7 @@ bool DirectoryItem::close()
 	bool retCode( true );
 
 	// Do not send the close message if this is a request routing session.
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		RsslCloseMsg rsslCloseMsg;
 		rsslClearCloseMsg( &rsslCloseMsg );

@@ -81,6 +81,8 @@ public:
 
     void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&);
     void getChannelInformation(ChannelInformation&);
+	void getSessionInformation(EmaVector<ChannelInformation>&);
+
 
 	void getConnectedClientChannelStats(UInt64 clientHandle, ChannelStatistics& cs);
 

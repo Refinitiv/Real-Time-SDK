@@ -1640,6 +1640,13 @@ void OmmIProviderImpl::getChannelInformation(ChannelInformation&) {
   throwIueException( "IProvider applications do not support the getChannelInformation method", OmmInvalidUsageException::InvalidOperationEnum );
 }
 
+/* method getChannelInfo not supported for IProvider objects. Function is defined
+ * here because the function is defined in a common base class
+ */
+void OmmIProviderImpl::getSessionInformation(EmaVector<ChannelInformation>&) {
+	throwIueException("IProvider applications do not support the getSessionInformation method", OmmInvalidUsageException::InvalidOperationEnum);
+}
+
 void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 {
 	_userLock.lock();

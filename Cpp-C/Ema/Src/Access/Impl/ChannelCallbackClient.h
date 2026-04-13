@@ -29,7 +29,7 @@ class Dictionary;
 class StreamId;
 class ActiveConfig;
 class ChannelConfig;
-class ConsumerRoutingSessionChannel;
+class BaseRoutingSessionChannel;
 
 class Channel : public ListLinks< Channel >
 {
@@ -83,8 +83,8 @@ public :
 
 	bool getAddedToDeleteList() const;
 
-	Channel& setConsumerRoutingChannel(ConsumerRoutingSessionChannel*);			// Sets the Consumer Routing Session Channel associated with this Channel.
-	ConsumerRoutingSessionChannel* getConsumerRoutingChannel();					// Gets the Consumer Routing Session Channel associated with this Channel.
+	Channel& setRoutingChannel(BaseRoutingSessionChannel*);			// Sets the Consumer Routing Session Channel associated with this Channel.
+	BaseRoutingSessionChannel* getRoutingChannel();					// Gets the Consumer Routing Session Channel associated with this Channel.
 
 	Channel& setChannelConfig(ChannelConfig*);
 	ChannelConfig* getChannelConfig();
@@ -104,7 +104,7 @@ private :
 	RsslReactorWarmStandbyMode		_warmStandbyMode;
 	Channel*				_pParentChannel;
 	ChannelConfig*			_pChannelConfig;
-	ConsumerRoutingSessionChannel* _pRoutingChannel;
+	BaseRoutingSessionChannel* _pRoutingChannel;
 
 	bool					_inOAuthCallback;
 

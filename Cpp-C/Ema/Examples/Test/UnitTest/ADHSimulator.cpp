@@ -11,6 +11,7 @@
 // Debug output macro
 //#define ADH_SIMULATOR_DEBUG_OUTPUT 1
 
+static EmaString dictionaryLocation("./TestRDMFieldDictionary");
 
 ADHSimulator::ADHSimulator(ADHSimulatorOptions& adhOptions) :
 	options(adhOptions),
@@ -20,6 +21,8 @@ ADHSimulator::ADHSimulator(ADHSimulatorOptions& adhOptions) :
 	isRunningFlag(false),
 	counters()
 {
+	char tmpErrorBuffer[1024];
+	RsslBuffer errorBuffer = { sizeof(tmpErrorBuffer), tmpErrorBuffer };
 	RsslCreateReactorOptions* pReactorOptions = options.pReactorOptions;
 
 	RsslCreateReactorOptions reactorOpts;
@@ -32,6 +35,13 @@ ADHSimulator::ADHSimulator(ADHSimulatorOptions& adhOptions) :
 	if ( !(pReactor = rsslCreateReactor(pReactorOptions, &rsslErrorInfo)) )
 	{
 		std::cout << "Reactor creation failed: " << rsslErrorInfo.rsslError.text << std::endl;
+	}
+
+	rsslClearDataDictionary(&dictionary);
+	
+	if(rsslLoadFieldDictionary(dictionaryLocation.c_str(), &dictionary, &errorBuffer) != RSSL_RET_SUCCESS)
+	{
+		std::cout << "Failed to load field dictionary: " << errorBuffer.data << std::endl;
 	}
 
 	FD_ZERO(&readFds);
@@ -51,6 +61,34 @@ ADHSimulator::~ADHSimulator()
 		}
 		pReactor = nullptr;
 	}
+
+	// Free the message list and clear the message queue.
+	while(_messageList.size() > 0)
+	{
+		RsslMsg* pMsg = _messageList[0];
+		if (pMsg)
+		{
+			rsslReleaseCopiedMsg(pMsg);
+		}
+		_messageList.removePosition(0);
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}
+
+void ADHSimulator::closeChannels()
+{
+	int i;
+	/* clean up client sessions */
+	for (i = 0; i < clientList.size(); i++)
+	{
+		if (clientList[i].pReactorChannel != nullptr)
+		{
+			closeChannel(clientList[i].pReactorChannel);
+			clientList[i].clear();
+		}
+	}
+	clientList.clear();
 }
 
 /* Close the RsslReactorChannel. Cleans up associated resources */
@@ -229,6 +267,8 @@ void ADHSimulator::runThreadADH()
 					std::cout << "rsslReactorAccept failed: " << rsslErrorInfo.rsslError.text << std::endl;
 					break;
 				}
+
+				std::cout << "Accepted new connection. port: " << options.portNo << std::endl;
 			}
 		}
 		else if ( selRet == 0 )
@@ -356,9 +396,32 @@ RsslRet ADHSimulator::sendMessage(RsslReactor* pReactor, RsslReactorChannel* chn
 RsslReactorCallbackRet
 ADHSimulator::loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent)
 {
+	ADHClientSessionInfo* pClientSessionInfo = static_cast<ADHClientSessionInfo*>(pChannel->userSpecPtr);
+	ADHSimulator* pAdhSim = pClientSessionInfo->pADHSimulator;
+
+	char appIdBuf[3] = { '1', '0', '0' };
+	char appAppNameBuf[6] = { 'A', 'd', 'h', 'S', 'i', 'm' };
+
 	/* Accept login */
 	RsslRDMLoginMsg* pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
 	RsslRDMLoginRequest* pLoginRequest = &pLoginMsg->request;
+
+	if (pAdhSim->options.saveMsgs.load() == true)
+	{
+		RsslMsg* pRsslMsg = nullptr;
+
+		pRsslMsg = rsslCopyMsg(pLoginMsgEvent->baseMsgEvent.pRsslMsg, RSSL_CMF_ALL_FLAGS, 0, nullptr);
+
+		if (pRsslMsg == nullptr)
+		{
+			std::cout << "Error on message copy" << std::endl;
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
+		pAdhSim->_messageQueue.push_back(pRsslMsg);
+		pAdhSim->_messageList.push_back(pRsslMsg);
+
+	}
 
 	//std::cout << "ADHSimulator::loginMsgCallback: "
 	//	<< "Received login message of type " << std::to_string(pLoginMsg->rdmMsgBase.rdmMsgType)
@@ -376,61 +439,119 @@ ADHSimulator::loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pChann
 
 		if (msgBuf != NULL)
 		{
-			RsslRDMLoginRefresh loginRefresh;
-			RsslEncodeIterator eIter;
-
-			rsslClearRDMLoginRefresh(&loginRefresh);
-
-			/* Set state information */
-			loginRefresh.state.streamState = RSSL_STREAM_OPEN;
-			loginRefresh.state.dataState = RSSL_DATA_OK;
-			loginRefresh.state.code = RSSL_SC_NONE;
-
-			/* Set stream ID */
-			loginRefresh.rdmMsgBase.streamId = pLoginRequest->rdmMsgBase.streamId;
-
-			/* Mark refresh as solicited since it is a response to a request. */
-			loginRefresh.flags = RDM_LG_RFF_SOLICITED;
-
-			/* Echo the userName, applicationId, applicationName, and position */
-			loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME;
-			loginRefresh.userName = pLoginRequest->userName;
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE)
+			if (pAdhSim->options.rejectLogin == false)
 			{
-				loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME_TYPE;
-				loginRefresh.userNameType = pLoginRequest->userNameType;
+				RsslRDMLoginRefresh loginRefresh;
+				RsslEncodeIterator eIter;
+
+				rsslClearRDMLoginRefresh(&loginRefresh);
+
+				/* Set state information */
+				loginRefresh.state.streamState = RSSL_STREAM_OPEN;
+				loginRefresh.state.dataState = RSSL_DATA_OK;
+				loginRefresh.state.code = RSSL_SC_NONE;
+
+				/* Set stream ID */
+				loginRefresh.rdmMsgBase.streamId = pLoginRequest->rdmMsgBase.streamId;
+
+				/* Mark refresh as solicited since it is a response to a request. */
+				loginRefresh.flags = RDM_LG_RFF_SOLICITED;
+
+				/* Echo the userName, applicationId, applicationName, and position */
+				loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME;
+				loginRefresh.userName = pLoginRequest->userName;
+				if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE)
+				{
+					loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME_TYPE;
+					loginRefresh.userNameType = pLoginRequest->userNameType;
+				}
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_ID;
+				loginRefresh.applicationId.data = appIdBuf;
+				loginRefresh.applicationId.length = 3;
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_NAME;
+				loginRefresh.applicationName.data = appAppNameBuf;
+				loginRefresh.applicationName.length = 6;
+
+				loginRefresh.flags |= RDM_LG_RFF_HAS_POSITION;
+				loginRefresh.position = pLoginRequest->position;
+
+
+				if (pAdhSim->options.supportProviderDictionaryDownload.load() == true)
+				{
+					/* Indicate support for provider dictionary download */
+					loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
+					loginRefresh.supportProviderDictionaryDownload = 1;
+				}
+				else
+				{
+					/* Indicate support for provider dictionary download */
+					loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
+					loginRefresh.supportProviderDictionaryDownload = 0;
+				}
+
+				/* Leave all other parameters as default values. */
+
+				/* Encode the refresh. */
+				rsslClearEncodeIterator(&eIter);
+				rsslSetEncodeIteratorRWFVersion(&eIter, pChannel->majorVersion, pChannel->minorVersion);
+				if ((ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) < RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					std::cout << "rsslSetEncodeIteratorBuffer() failed with return code: " << ret << std::endl;
+					return RSSL_RC_CRET_FAILURE;
+				}
+				if (rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginRefresh, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					std::cout << "rsslEncodeRDMLoginRefresh() failed: " << rsslErrorInfo.rsslError.text << " (" << rsslErrorInfo.errorLocation << ")" << std::endl;
+					return RSSL_RC_CRET_FAILURE;
+				}
+
+				/* Send the refresh. */
+				if (sendMessage(pReactor, pChannel, msgBuf) != RSSL_RET_SUCCESS)
+					return RSSL_RC_CRET_FAILURE;
 			}
-
-			loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_ID;
-			loginRefresh.applicationId = pLoginRequest->applicationId;
-
-			loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_NAME;
-			loginRefresh.applicationName = pLoginRequest->applicationName;
-
-			loginRefresh.flags |= RDM_LG_RFF_HAS_POSITION;
-			loginRefresh.position = pLoginRequest->position;
-
-			/* Leave all other parameters as default values. */
-
-			/* Encode the refresh. */
-			rsslClearEncodeIterator(&eIter);
-			rsslSetEncodeIteratorRWFVersion(&eIter, pChannel->majorVersion, pChannel->minorVersion);
-			if ((ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) < RSSL_RET_SUCCESS)
+			else
 			{
-				rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
-				std::cout << "rsslSetEncodeIteratorBuffer() failed with return code: " << ret << std::endl;
-				return RSSL_RC_CRET_FAILURE;
-			}
-			if (rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginRefresh, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-			{
-				rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
-				std::cout << "rsslEncodeRDMLoginRefresh() failed: " << rsslErrorInfo.rsslError.text << " (" << rsslErrorInfo.errorLocation << ")" << std::endl;
-				return RSSL_RC_CRET_FAILURE;
-			}
+				RsslRDMLoginStatus loginStatus;
+				RsslEncodeIterator eIter;
 
-			/* Send the refresh. */
-			if (sendMessage(pReactor, pChannel, msgBuf) != RSSL_RET_SUCCESS)
-				return RSSL_RC_CRET_FAILURE;
+				rsslClearRDMLoginStatus(&loginStatus);
+
+
+				/* Set state information */
+				loginStatus.flags |= RDM_LG_STF_HAS_STATE;
+				loginStatus.state.streamState = RSSL_STREAM_CLOSED;
+				loginStatus.state.dataState = RSSL_DATA_SUSPECT;
+				loginStatus.state.code = RSSL_SC_NONE;
+
+				/* Set stream ID */
+				loginStatus.rdmMsgBase.streamId = pLoginRequest->rdmMsgBase.streamId;
+
+				/* Leave all other parameters as default values. */
+
+				/* Encode the refresh. */
+				rsslClearEncodeIterator(&eIter);
+				rsslSetEncodeIteratorRWFVersion(&eIter, pChannel->majorVersion, pChannel->minorVersion);
+				if ((ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) < RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					std::cout << "rsslSetEncodeIteratorBuffer() failed with return code: " << ret << std::endl;
+					return RSSL_RC_CRET_FAILURE;
+				}
+				if (rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginStatus, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				{
+					rsslReactorReleaseBuffer(pChannel, msgBuf, &rsslErrorInfo);
+					std::cout << "rsslEncodeRDMLoginStatus() failed: " << rsslErrorInfo.rsslError.text << " (" << rsslErrorInfo.errorLocation << ")" << std::endl;
+					return RSSL_RC_CRET_FAILURE;
+				}
+
+				/* Send the refresh. */
+				if (sendMessage(pReactor, pChannel, msgBuf) != RSSL_RET_SUCCESS)
+					return RSSL_RC_CRET_FAILURE;
+			}
 		}
 		else
 		{
@@ -460,6 +581,23 @@ ADHSimulator::defaultMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pRea
 	//	<< "  on channel " << pReactorChannel->socketId
 	//	<< std::endl;
 
+	if (pAdhSim->options.saveMsgs.load() == true)
+	{
+		RsslMsg* pRsslMsg = nullptr;
+
+		pRsslMsg = rsslCopyMsg(pRsslMsgEvent->pRsslMsg, RSSL_CMF_ALL_FLAGS, 0, nullptr);
+
+		if (pRsslMsg == nullptr)
+		{
+			std::cout << "Error on message copy" << std::endl;
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
+		pAdhSim->_messageQueue.push_back(pRsslMsg);
+		pAdhSim->_messageList.push_back(pRsslMsg);
+	
+	}
+
 	switch ( pRsslMsgEvent->pRsslMsg->msgBase.msgClass )
 	{
 	case RSSL_MC_REQUEST:	pAdhSim->counters.countRequest++; break;
@@ -473,6 +611,47 @@ ADHSimulator::defaultMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pRea
 
 	switch ( pRsslMsgEvent->pRsslMsg->msgBase.msgClass )
 	{
+	case RSSL_MC_REQUEST:
+		if (pRsslMsgEvent->pRsslMsg->msgBase.domainType == RSSL_DMT_DICTIONARY)
+		{
+			RsslErrorInfo errorInfo;
+			RsslRDMDictionaryRequest dictRequest;
+			rsslClearRDMDictionaryRequest(&dictRequest);
+			char tmpMemBuffer[1024];
+			RsslBuffer memBuffer = { sizeof(tmpMemBuffer), tmpMemBuffer };
+
+			RsslDecodeIterator decodeIter;
+			rsslClearDecodeIterator(&decodeIter);
+
+			rsslSetDecodeIteratorRWFVersion(&decodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+			rsslSetDecodeIteratorBuffer(&decodeIter, &pRsslMsgEvent->pRsslMsg->msgBase.encDataBody);
+
+			rsslDecodeRDMDictionaryMsg(&decodeIter, pRsslMsgEvent->pRsslMsg, (RsslRDMDictionaryMsg*)&dictRequest, &memBuffer, &errorInfo);
+
+			RsslRDMDictionaryRefresh dictRefresh;
+			rsslClearRDMDictionaryRefresh(&dictRefresh);
+
+			dictRefresh.pDictionary = &pAdhSim->dictionary;
+			dictRefresh.rdmMsgBase.streamId = pRsslMsgEvent->pRsslMsg->msgBase.streamId;
+			dictRefresh.dictionaryName = pRsslMsgEvent->pRsslMsg->msgBase.msgKey.name;
+			dictRefresh.type = RDM_DICTIONARY_FIELD_DEFINITIONS;
+			dictRefresh.state.streamState = RSSL_STREAM_OPEN;
+			dictRefresh.state.dataState = RSSL_DATA_OK;
+			dictRefresh.state.code = RSSL_SC_NONE;
+			dictRefresh.verbosity = dictRequest.verbosity;
+			dictRefresh.serviceId = dictRequest.serviceId;
+			dictRefresh.flags = RDM_DC_RFF_SOLICITED;
+
+			RsslReactorSubmitMsgOptions submitOpts;
+
+			rsslClearReactorSubmitMsgOptions(&submitOpts);
+			submitOpts.majorVersion = pReactorChannel->majorVersion;
+			submitOpts.minorVersion = pReactorChannel->minorVersion;
+			submitOpts.pRDMMsg = (RsslRDMMsg*)&dictRefresh;
+
+			rsslReactorSubmitMsg(pReactor, pReactorChannel, &submitOpts, &errorInfo);
+		}
+		break;
 	case RSSL_MC_REFRESH:
 		//ret = rsslRefreshFlagsToOmmString(&tmpBuf, pRsslMsgEvent->pRsslMsg->msgBase.msgKey.flags);
 		//std::cout << " Flags: " << tmpBuf.data << std::endl;
@@ -580,7 +759,7 @@ RsslRet ADHSimulator::sendGenericMessageLogin(RsslReactor* pReactor, RsslReactor
 		genericMsg.msgBase.msgKey.name.length = (RsslUInt32)strlen(nameChar);
 		genericMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
 
-		snprintf(nameValue, sizeof(nameValue), "%s", "valueFromADHSim");
+		snprintf(nameValue, sizeof(nameValue), "%s", "Ticks");
 
 		rsslClearEncodeIterator(&encodeIter);
 		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
@@ -609,11 +788,11 @@ RsslRet ADHSimulator::sendGenericMessageLogin(RsslReactor* pReactor, RsslReactor
 				<< std::endl;
 		}
 
-		elemEntry.dataType = RSSL_DT_INT;
+		elemEntry.dataType = RSSL_DT_UINT;
 		elemEntry.name.data = nameValue;
 		elemEntry.name.length = (RsslUInt32)strlen(nameValue);
-		RsslInt tempInt = 2;
-		ret = rsslEncodeElementEntry(&encodeIter, &elemEntry, &tempInt);
+		RsslUInt tempUInt = 2;
+		ret = rsslEncodeElementEntry(&encodeIter, &elemEntry, &tempUInt);
 		if (ret < RSSL_RET_SUCCESS)
 		{
 			std::cout << "ADHSimulator::sendGenericMessageLogin Error "
@@ -656,4 +835,16 @@ RsslRet ADHSimulator::sendGenericMessageLogin(RsslReactor* pReactor, RsslReactor
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+RsslMsg* ADHSimulator::popMsg()
+{
+	RsslMsg* tmp = NULL;
+	if (_messageQueue.size() > 0)
+	{
+		tmp = _messageQueue[0];
+		_messageQueue.removePosition(0);
+	}
+
+	return tmp;
 }

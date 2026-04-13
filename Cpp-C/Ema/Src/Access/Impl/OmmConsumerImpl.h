@@ -14,6 +14,7 @@
 #include "ChannelInformation.h"
 #include "OAuth2CredentialRenewal.h"
 #include "LoginMsgCredentialRenewal.h"
+#include "BaseRoutingChannel.h"
 
 namespace refinitiv {
 
@@ -74,7 +75,7 @@ public:
 
 	void loadDictionary();
 
-	void reLoadDirectory();
+	void reLoadDirectory(BaseRoutingSessionChannel*);
 
 	void loadDirectory();
 

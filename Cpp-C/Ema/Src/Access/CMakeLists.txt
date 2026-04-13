@@ -50,6 +50,9 @@ else()
             Impl/AckMsg.cpp Impl/Attrib.cpp
             Impl/AckMsgImpl.cpp Impl/AckMsgImpl.h
             Impl/ActiveConfig.cpp Impl/ActiveConfig.h
+            # Impl/B....
+            Impl/BaseRoutingChannel.cpp Impl/BaseRoutingChannel.h
+            Impl/BaseRoutingSession.cpp Impl/BaseRoutingSession.h
             # Impl/C....
             Impl/ChannelCallbackClient.cpp Impl/ChannelCallbackClient.h
             Impl/ChannelInformation.cpp Impl/ChannelInfoImpl.h
@@ -60,7 +63,7 @@ else()
 			Impl/ConsumerRoutingService.cpp Impl/ConsumerRoutingService.h
 			Impl/ConsumerRoutingSession.cpp Impl/ConsumerRoutingSession.h
 			Impl/ConsumerRoutingWatchlist.cpp Impl/ConsumerRoutingWatchlist.h
-	    Impl/ConsumerSessionInfo.cpp
+	        Impl/ConsumerSessionInfo.cpp
             # Impl/D....
             Impl/Data.cpp Impl/DataType.cpp
             Impl/DateTimeStringFormat.cpp
@@ -123,6 +126,8 @@ else()
             Impl/MsgEncoder.cpp Impl/MsgEncoder.h
             Impl/MsgImpl.cpp Impl/MsgImpl.h
             Impl/Mutex.cpp Impl/Mutex.h
+            Impl/NiProviderRoutingChannel.cpp Impl/NiProviderRoutingChannel.h
+            Impl/NiProviderRoutingSession.cpp Impl/NiProviderRoutingSession.h
             Impl/NoDataImpl.cpp Impl/NoDataImpl.h
             # Impl/O....
             Impl/OAuth2Credential.cpp

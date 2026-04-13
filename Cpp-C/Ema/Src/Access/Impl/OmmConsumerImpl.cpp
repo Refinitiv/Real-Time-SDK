@@ -17,6 +17,8 @@
 #include "ChannelInfoImpl.h"
 #include "ChannelStatsImpl.h"
 #include "OmmInvalidUsageException.h"
+#include "BaseRoutingSession.h"
+#include "BaseRoutingChannel.h"
 #include "ConsumerRoutingSession.h"
 #include "ConsumerRoutingChannel.h"
 
@@ -286,16 +288,16 @@ void OmmConsumerImpl::loadDictionary()
 	}
 
 	// If this is a consumer routing session consumer, set the downloaded/file loaded dictionary on all active channels
-	if (_pConsumerRoutingSession)
+	if (_pRoutingSession)
 	{
-		for (int i = 0; i < _pConsumerRoutingSession->activeChannelCount; ++i)
+		for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); ++i)
 		{
-			if (_pConsumerRoutingSession->routingChannelList[i] != NULL)
+			if (_pRoutingSession->routingChannelList[i] != NULL)
 			{
 				// This may be NULL if the channel has closed.
-				if (_pConsumerRoutingSession->routingChannelList[i]->pCurrentActiveChannel != NULL)
+				if (_pRoutingSession->routingChannelList[i]->pCurrentActiveChannel != NULL)
 				{
-					_pConsumerRoutingSession->routingChannelList[i]->pCurrentActiveChannel->setDictionary(_pDictionaryCallbackClient->getDefaultDictionary());
+					_pRoutingSession->routingChannelList[i]->pCurrentActiveChannel->setDictionary(_pDictionaryCallbackClient->getDefaultDictionary());
 				}
 			}
 		}
@@ -312,6 +314,8 @@ void OmmConsumerImpl::loadDirectory()
 {
 	UInt64 timeOutLengthInMicroSeconds = static_cast<UInt64>(_activeConfig.directoryRequestTimeOut) * 1000;
 	_eventTimedOut = false;
+
+	ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_pRoutingSession);
 
 	TimeOut* pWatcher = 0;
 	
@@ -334,19 +338,19 @@ void OmmConsumerImpl::loadDirectory()
 
 		if (_eventTimedOut)
 		{
-			if (_pConsumerRoutingSession != NULL)
+			if (pRoutingSession != NULL)
 			{
-				for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+				for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); ++i)
 				{
 					// if at least one session channel has received a login a this point, set the OmmBaseImpl state to LoginStreamOpenOkEnum
-					if (_pConsumerRoutingSession->routingChannelList[i]->channelState == DirectoryStreamOpenOkEnum)
+					if (pRoutingSession->routingChannelList[i]->channelState == DirectoryStreamOpenOkEnum)
 					{
 						setState(DirectoryStreamOpenOkEnum);
 					}
 					else
 					{
 						// Timeout has triggered, so close the underlying channels that have not managed to get a login
-						closeChannel(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel);
+						closeChannel(pRoutingSession->routingChannelList[i]->pReactorChannel);
 					}
 				}
 
@@ -397,13 +401,13 @@ void OmmConsumerImpl::loadDirectory()
 	}
 
 	// Directory has succeeded, so if request routing is enabled, aggregate all of the active services on the session channels
-	if (_pConsumerRoutingSession != NULL)
+	if (pRoutingSession != NULL)
 	{
 		EmaVector<Directory*> parsedDirectoryList;  // This is used to maintain the list of successfully parsed directories in the case where there is a mismatch later.
 
-		for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+		for (UInt32 i = 0; i < pRoutingSession->routingChannelList.size(); ++i)
 		{
-			ConsumerRoutingSessionChannel* pRoutingChannel = _pConsumerRoutingSession->routingChannelList[i];
+			ConsumerRoutingSessionChannel* pRoutingChannel = (ConsumerRoutingSessionChannel*)_pRoutingSession->routingChannelList[i];
 
 			if (pRoutingChannel == NULL || pRoutingChannel->channelClosed == true)
 				continue;
@@ -418,12 +422,12 @@ void OmmConsumerImpl::loadDirectory()
 				if (pService == NULL)
 					break;
 
-				if (_pConsumerRoutingSession->aggregateDirectory(pService, RSSL_MPEA_ADD_ENTRY) == false)
+				if (pRoutingSession->aggregateDirectory(pService, RSSL_MPEA_ADD_ENTRY) == false)
 				{
 					// Delete any successfully aggregated services from the list here.
 					for (UInt32 k = 0; k < parsedDirectoryList.size(); ++k)
 					{
-						_pConsumerRoutingSession->aggregateDirectory(parsedDirectoryList[k], RSSL_MPEA_DELETE_ENTRY);
+						pRoutingSession->aggregateDirectory(parsedDirectoryList[k], RSSL_MPEA_DELETE_ENTRY);
 					}
 
 					// Close the channel, there already has been an error logged.
@@ -451,16 +455,16 @@ void OmmConsumerImpl::loadDirectory()
 		}
 
 		// Clear out the lists, they would have been populated with the aggregateDirectory calls above.
-		_pConsumerRoutingSession->deletedServiceList.clear();
-		_pConsumerRoutingSession->addedServiceList.clear();
-		_pConsumerRoutingSession->updatedServiceList.clear();
+		pRoutingSession->deletedServiceList.clear();
+		pRoutingSession->addedServiceList.clear();
+		pRoutingSession->updatedServiceList.clear();
 
 		// Fanout any pending requests.  This will also clear the internal add/update/delete queues.
 		_pDirectoryCallbackClient->fanoutAllDirectoryRequests((void*)this);
 	}
 }
 
-void OmmConsumerImpl::reLoadDirectory()
+void OmmConsumerImpl::reLoadDirectory(BaseRoutingSessionChannel*)
 {
 }
 
@@ -703,19 +707,19 @@ void OmmConsumerImpl::getChannelInformation(ChannelInformation& ci)
 void OmmConsumerImpl::getSessionInformation(EmaVector<ChannelInformation>& infoVector) 
 {
 	infoVector.clear();
-	if (_state == NotInitializedEnum || _pConsumerRoutingSession == NULL) {
+	if (_state == NotInitializedEnum || _pRoutingSession == NULL) {
 		
 		return;
 	}
 
 	ChannelInformation channelInfo;
-	for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); ++i)
+	for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); ++i)
 	{
-		if (_pConsumerRoutingSession->routingChannelList[i] == NULL || _pConsumerRoutingSession->routingChannelList[i]->pReactorChannel == NULL )
+		if (_pRoutingSession->routingChannelList[i] == NULL || _pRoutingSession->routingChannelList[i]->pReactorChannel == NULL )
 			continue;
 
 		// This will clear channelInfo, so we do not need to clear it prior to now.
-		ChannelInfoImpl::getChannelInformationImpl(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel, OmmCommonImpl::ConsumerEnum, channelInfo);
+		ChannelInfoImpl::getChannelInformationImpl(_pRoutingSession->routingChannelList[i]->pReactorChannel, OmmCommonImpl::ConsumerEnum, channelInfo);
 
 		infoVector.push_back(channelInfo);
 	}
@@ -739,7 +743,7 @@ void OmmConsumerImpl::getChannelStatistics(ChannelStatistics& cs)
 		return;
 	}
 
-	if (_pConsumerRoutingSession != NULL)
+	if (_pRoutingSession != NULL)
 	{
 		_userLock.unlock();
 		EmaString temp("Channel Statistics are not available with Request Routing enabled.");
@@ -773,7 +777,7 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 {
 	_userLock.lock();
 
-	if (_pConsumerRoutingSession == NULL)
+	if (_pRoutingSession == NULL)
 	{
 		if (_pReactorChannel == NULL)
 		{
@@ -804,9 +808,9 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 	else
 	{
 		// Apply to all channels
-		for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); i++)
+		for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); i++)
 		{
-			if (_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+			if (_pRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
 			{
 				RsslError rsslError;
 				RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError);
@@ -970,7 +974,7 @@ void OmmConsumerImpl::fallbackPreferredHost()
 {
 	_userLock.lock();
 
-	if (_pConsumerRoutingSession == NULL)
+	if (_pRoutingSession == NULL)
 	{
 		if (_pReactorChannel == NULL)
 		{
@@ -997,18 +1001,18 @@ void OmmConsumerImpl::fallbackPreferredHost()
 	}
 	else
 	{
-		for (UInt32 i = 0; i < _pConsumerRoutingSession->routingChannelList.size(); i++)
+		for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); i++)
 		{
-			if (_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+			if (_pRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
 			{
 				RsslErrorInfo rsslErrorInfo;
-				_pConsumerRoutingSession->routingChannelList[i]->inPreferredHost = true;
-				RsslRet ret = rsslReactorFallbackToPreferredHost(_pConsumerRoutingSession->routingChannelList[i]->pReactorChannel, &rsslErrorInfo);
+				_pRoutingSession->routingChannelList[i]->inPreferredHost = true;
+				RsslRet ret = rsslReactorFallbackToPreferredHost(_pRoutingSession->routingChannelList[i]->pReactorChannel, &rsslErrorInfo);
 
 				// Do not fail if individual channels do not have fallbacktopreferred host turned on
 				if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_INVALID_ARGUMENT)
 				{
-					_pConsumerRoutingSession->routingChannelList[i]->inPreferredHost = false;
+					_pRoutingSession->routingChannelList[i]->inPreferredHost = false;
 					_userLock.unlock();
 					EmaString temp("Failed to perform preferred host fall back.");
 					temp.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)

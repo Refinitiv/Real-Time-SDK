@@ -1814,8 +1814,10 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 			break;
 			case RSSL_MPEA_DELETE_ENTRY:
 			{
+				// Remove the service from all caches
 				_directoryCache.removeService((*pServiceList).serviceId);
 				notifyOnServiceDelete(clientSession, *pServiceList);
+				removeServiceNamePair((*pServiceList).serviceId);
 			}
 				break;
 			case RSSL_MPEA_UPDATE_ENTRY:

@@ -63,7 +63,7 @@ void OmmConsumerEvent::getSessionInformation(EmaVector<ChannelInformation>& chan
 	OmmConsumerImpl& consImpl = (OmmConsumerImpl&)_ommBaseImpl;
 
 	// There isn't a session, so do not get any info.
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		channelInfoList.empty();
 

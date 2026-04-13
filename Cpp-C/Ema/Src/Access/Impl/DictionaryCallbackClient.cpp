@@ -846,28 +846,30 @@ bool DictionaryCallbackClient::downloadDictionary( Directory& directory )
 {
 	if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommBaseImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
-		if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+		ConsumerRoutingSession* pRoutingSession = static_cast<ConsumerRoutingSession*>(_ommBaseImpl.getRoutingSession());
+
+		if (pRoutingSession == NULL)
 		{
-		if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId == directory.getId() )
-		{
-			downloadDictionaryFromService( directory );
-		}
-		else if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() == directory.getName() )
-		{
-			downloadDictionaryFromService( directory );
-		}
+			if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId == directory.getId() )
+			{
+				downloadDictionaryFromService( directory );
+			}
+			else if ( _ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() == directory.getName() )
+			{
+				downloadDictionaryFromService( directory );
+			}
 		}
 		else
 		{
 			if (sentRequest == false)
 			{
 				// Validate against the aggregated directory value, not the the one in this directory object.
-				ConsumerRoutingService** pDirectoryPtr = _ommBaseImpl.getConsumerRoutingSession()->serviceById.find(_ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId);
+				ConsumerRoutingService** pDirectoryPtr = pRoutingSession->serviceById.find(_ommBaseImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId);
 
 				if (pDirectoryPtr != NULL)
 				{
 					ConsumerRoutingService* pDirectory = *pDirectoryPtr;
-					if (pDirectory->routingChannelList.getPositionOf(directory.getChannel()->getConsumerRoutingChannel()) != -1)
+					if (pDirectory->routingChannelList.getPositionOf(static_cast<ConsumerRoutingSessionChannel*>(directory.getChannel()->getRoutingChannel())) != -1)
 					{
 						downloadDictionaryFromService(directory);
 					}
@@ -892,7 +894,7 @@ bool DictionaryCallbackClient::downloadDictionary( Directory& directory )
 	}
 	else if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum )
 	{
-		if (_ommBaseImpl.getConsumerRoutingSession() != NULL && sentRequest == true)
+		if (_ommBaseImpl.getRoutingSession() != NULL && sentRequest == true)
 		{
 			directory.getChannel()->setDictionary(getDefaultDictionary());
 			return true;
@@ -928,13 +930,13 @@ bool DictionaryCallbackClient::downloadDictionary( Directory& directory )
 
 	RsslReactorChannel* pReactorChannel = NULL;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		pReactorChannel = _ommBaseImpl.getRsslReactorChannel();
 	}
 	else
 	{
-		pReactorChannel = ((Directory&)directory).getChannel()->getConsumerRoutingChannel()->pReactorChannel;
+		pReactorChannel = ((Directory&)directory).getChannel()->getRoutingChannel()->pReactorChannel;
 	}
 
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
@@ -1050,13 +1052,13 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 
 	RsslReactorChannel* pReactorChannel = NULL;
 
-	if (_ommBaseImpl.getConsumerRoutingSession() == NULL)
+	if (_ommBaseImpl.getRoutingSession() == NULL)
 	{
 		pReactorChannel = _ommBaseImpl.getRsslReactorChannel();
 	}
 	else
 	{
-		pReactorChannel = ((Directory&)directory).getChannel()->getConsumerRoutingChannel()->pReactorChannel;
+		pReactorChannel = ((Directory&)directory).getChannel()->getRoutingChannel()->pReactorChannel;
 	}
 
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );

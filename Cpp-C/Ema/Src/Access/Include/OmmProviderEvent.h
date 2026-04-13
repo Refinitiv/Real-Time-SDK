@@ -26,6 +26,7 @@
 #include "Access/Include/Common.h"
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
+#include "Access/Include/EmaVector.h"
 
 namespace refinitiv {
 
@@ -77,6 +78,12 @@ public :
 		@return the channel statistical information for this event
 	*/
 	const ChannelStatistics& getChannelStatistics() const;
+
+	/** Returns an EmaVector containing the Session Information for this event.  If NiProvider Session is turned off, this will return an empty vector.
+		@throw OmmInvalidUsageException if is called by an IProvider application
+		@return the channel information for this event
+	*/
+	const void getSessionInformation(EmaVector<ChannelInformation>&) const;
 private :
 
 	friend class ProviderItem;

@@ -384,6 +384,15 @@ public :
 	*/
 	void getChannelInformation(ChannelInformation&);
 
+	/** Provides channel information about the active channels in the session.
+	@param[in] caller provided EmaVector of ChannelInformation objects; The vector will be cleared and then
+			   current channel information for all channels in the session will be provided
+	@return void
+	@throw OmmInvalidUsageException if is called by an IProvider applications.
+	\remark This method is \ref ObjectLevelSafe
+*/
+	void getSessionInformation(EmaVector<ChannelInformation>&);
+
 	/** Allows modifying some I/O values programmatically for a channel to override the default values.
 		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.
 		@param[in] value provides Value to modify I/O option to

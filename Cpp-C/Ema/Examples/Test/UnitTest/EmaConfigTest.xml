@@ -269,7 +269,7 @@
 		</Consumer>
 		<Consumer>
 			<Name value="RequestRoutingTestCons_2ChannelNoReconnect"/>
-			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<SessionChannelSet value="TestSessionChannelSingleNoReconnect_1, TestSessionChannelSingleNoReconnect_2"/>
 			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
 			<LoginRequestTimeOut value="5000"/>
 			<ReconnectAttemptLimit value="0"/>
@@ -292,7 +292,7 @@
 		</Consumer>
 		<Consumer>
 			<Name value="RequestRoutingTestCons_2ChannelEnhancedOffNoReconnect"/>
-			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<SessionChannelSet value="TestSessionChannelSingleNoReconnect_1, TestSessionChannelSingleNoReconnect_2"/>
 			<!-- <WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/> -->
 			<LoginRequestTimeOut value="5000"/>
 			<ReconnectAttemptLimit value="0"/>
@@ -463,18 +463,60 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
+			<MergeSourceDirectoryStreams value="0"/>
+			<MaxEventsInPool value="100"/>
+			<OutputBufferSize value="99999"/>
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
 			<ReconnectMaxDelay value="456" />
+			<RefreshFirstRequired value="0"/>
 			<XmlTraceFileName value="EmaMyTrace2"/>
 			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceDump value="1"/>
 			<XmlTraceToFile value="1" />
 			<XmlTraceToStdout value="0" />
 			<XmlTraceToMultipleFiles value="1" />
 			<XmlTraceWrite value="1"/>
 			<XmlTraceRead value="1"/>
 			<XmlTracePing value="1"/>
+			<XmlTracePingOnly value="1"/>
 			<XmlTraceHex value="1"/>
+			<ShouldInitializeCPUIDlib value="0"/>
+			<RecoverUserSubmitSourceDirectory value="1"/>
+			<RemoveItemsOnDisconnect value="1"/>
+			<LoginRequestTimeOut value="10000"/>
+		</NiProvider>
+		<NiProvider>
+			<Name value="Provider_2_Session"/>
+			<SessionChannelSet value="TestSessionChannelSingle_1, TestSessionChannelSingle_2"/>
+			<Directory value="Directory_2"/>
+			<Logger value="Logger_2"/>
+			<ItemCountHint value="500000"/>
+			<ServiceCountHint value="655"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>
+			<MergeSourceDirectoryStreams value="0"/>
+			<MaxEventsInPool value="100"/>
+			<OutputBufferSize value="99999"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="123" />
+			<ReconnectMaxDelay value="456" />
+			<RefreshFirstRequired value="0"/>
+			<XmlTraceFileName value="EmaMyTrace2"/>
+			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceDump value="1"/>
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="1"/>
+			<XmlTracePingOnly value="1"/>
+			<XmlTraceHex value="1"/>
+			<ShouldInitializeCPUIDlib value="0"/>
 			<RecoverUserSubmitSourceDirectory value="1"/>
 			<RemoveItemsOnDisconnect value="1"/>
 			<LoginRequestTimeOut value="10000"/>
@@ -1456,6 +1498,32 @@
 			<Name value="TestSessionChannelSingle_2"/>
 			<ChannelSet value="TestChannel_15001"/>
 			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingle_3"/>
+			<ChannelSet value="TestChannel_15002"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingle_4"/>
+			<ChannelSet value="TestChannel_15003"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingleNoReconnect_1"/>
+			<ChannelSet value="TestChannel_15000"/>
+			<ReconnectMinDelay value="300" />
+			<ReconnectMaxDelay value="500" />
+		</SessionChannelInfo>
+		<SessionChannelInfo>
+			<Name value="TestSessionChannelSingleNoReconnect_2"/>
+			<ChannelSet value="TestChannel_15001"/>
 			<ReconnectMinDelay value="300" />
 			<ReconnectMaxDelay value="500" />
 		</SessionChannelInfo>

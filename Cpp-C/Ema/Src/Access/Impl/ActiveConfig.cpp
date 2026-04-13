@@ -411,7 +411,7 @@ ActiveConfig::~ActiveConfig()
 	clearChannelSet();
 	clearWSBChannelSet();
 	clearChannelSetForWSB();
-	clearConsumerRoutingSessionSet();
+	clearRoutingSessionSet();
 	clearServiceListSet();
 }
 
@@ -498,20 +498,20 @@ void ActiveConfig::clearChannelSetForWSB()
 	configChannelSetForWSB.clear();
 }
 
-void ActiveConfig::clearConsumerRoutingSessionSet()
+void ActiveConfig::clearRoutingSessionSet()
 {
-	if (consumerRoutingSessionSet.size() == 0)
+	if (routingSessionSet.size() == 0)
 		return;
-	for (unsigned int i = 0; i < consumerRoutingSessionSet.size(); ++i)
+	for (unsigned int i = 0; i < routingSessionSet.size(); ++i)
 	{
-		if (consumerRoutingSessionSet[i] != NULL)
+		if (routingSessionSet[i] != NULL)
 		{
-			delete consumerRoutingSessionSet[i];
-			consumerRoutingSessionSet[i] = NULL;
+			delete routingSessionSet[i];
+			routingSessionSet[i] = NULL;
 		}
 	}
 
-	consumerRoutingSessionSet.clear();
+	routingSessionSet.clear();
 }
 
 void ActiveConfig::clearServiceListSet()
@@ -885,7 +885,23 @@ bool ActiveServerConfig::UInt16Equal_To::operator()(const UInt16& x, const UInt1
 	return x == y ? true : false;
 }
 
-ChannelConfig::ChannelConfig()
+ChannelConfig::ChannelConfig() :
+name(),
+interfaceName(DEFAULT_INTERFACE_NAME),
+compressionType(DEFAULT_COMPRESSION_TYPE),
+compressionThreshold(DEFAULT_COMPRESSION_THRESHOLD),
+connectionType(DEFAULT_CONNECTION_TYPE),
+connectionPingTimeout(DEFAULT_CONNECTION_PINGTIMEOUT),
+directWrite(DEFAULT_DIRECT_WRITE),
+initializationTimeout(DEFAULT_INITIALIZATION_TIMEOUT),
+guaranteedOutputBuffers(DEFAULT_GUARANTEED_OUTPUT_BUFFERS),
+numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
+sysSendBufSize(DEFAULT_SYS_SEND_BUFFER_SIZE),
+sysRecvBufSize(DEFAULT_SYS_RECEIVE_BUFFER_SIZE),
+highWaterMark(DEFAULT_HIGH_WATER_MARK),
+pChannel(0),
+compressionThresholdSet(false),
+pRoutingChannelConfig(0)
 {
 }
 

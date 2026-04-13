@@ -17,7 +17,9 @@
 #include "OmmQosDecoder.h"
 #include "OmmArray.h"
 #include "Series.h"
+#include "BaseRoutingChannel.h"
 #include "ConsumerRoutingChannel.h"
+#include "NiProviderRoutingChannel.h"
 
 #include <ctype.h>
 
@@ -346,7 +348,7 @@ bool ProgrammaticConfigure::getActiveChannelName( const EmaString& instanceName,
 		return false;
 }
 
-bool ProgrammaticConfigure::getActiveConsumerRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelName )
+bool ProgrammaticConfigure::getActiveRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelName )
 {
 	if ( !_dependencyNamesLoaded )
 	{
@@ -365,7 +367,7 @@ bool ProgrammaticConfigure::getActiveConsumerRoutingSessionChannelSetName( const
 		return false;
 }
 
-bool ProgrammaticConfigure::getConsumerRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelSetName )
+bool ProgrammaticConfigure::getRoutingSessionChannelSetName( const EmaString& instanceName, EmaString& channelSetName )
 {
 	EmaString foundChannelSetString;
 	bool	foundChannelSet = false;
@@ -783,7 +785,7 @@ bool ProgrammaticConfigure::validateConsumerName( const Map& map, const EmaStrin
 	return false;
 }
 
-bool ProgrammaticConfigure::validateConsumerRoutingSessionChannelName(const EmaString& sessionName)
+bool ProgrammaticConfigure::validateRoutingSessionChannelName(const EmaString& sessionName)
 {
 	for (UInt32 i = 0; i < _configList.size(); i++)
 	{
@@ -1051,6 +1053,132 @@ void ProgrammaticConfigure::retrieveConsumerRoutingSessionConfig(const EmaString
 	}
 }
 
+
+void ProgrammaticConfigure::retrieveNiProviderRoutingSessionConfig(const EmaString& instanceName, NiProviderRoutingSessionChannelConfig& config, bool& foundLogger)
+{
+	unsigned int position = 0;
+	unsigned int channelPos = 0, channelSetPos = 0;
+
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		const Map& map = *_configList[i];
+
+		map.reset();
+		while (map.forth())
+		{
+			const MapEntry& mapEntry = _configList[i]->getEntry();
+
+			if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "SessionChannelGroup")
+			{
+				if (mapEntry.getLoadType() == DataType::ElementListEnum)
+				{
+					const ElementList& elementList = mapEntry.getElementList();
+
+					while (elementList.forth())
+					{
+						const ElementEntry& elementEntry = elementList.getEntry();
+
+						if (elementEntry.getLoadType() == DataType::MapEnum)
+						{
+							if (elementEntry.getName() == "SessionChannelList" && (elementEntry.getLoad().getDataType() == DataType::MapEnum))
+							{
+								const Map& map = elementEntry.getMap();
+
+								while (map.forth())
+								{
+									const MapEntry& mapEntry = map.getEntry();
+
+									if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == instanceName))
+									{
+										if (mapEntry.getLoadType() == DataType::ElementListEnum)
+										{
+											const ElementList& elementList = mapEntry.getElementList();
+											position = 0;
+											while (elementList.forth())
+											{
+												const ElementEntry& instanceEntry = elementList.getEntry();
+												position++;
+												switch (instanceEntry.getLoadType())
+												{
+												case DataType::AsciiEnum:
+													if (instanceEntry.getName() == "XmlTraceFileName")
+													{
+														config.xmlTraceFileName = instanceEntry.getAscii();
+													}
+													break;
+												case DataType::IntEnum:
+													if (instanceEntry.getName() == "ReconnectAttemptLimit")
+													{
+														config.reconnectAttemptLimit = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "ReconnectMaxDelay")
+													{
+														config.reconnectMaxDelay = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "ReconnectMinDelay")
+													{
+														config.reconnectMinDelay = (Int32)instanceEntry.getInt();
+													}
+													else if (instanceEntry.getName() == "XmlTraceMaxFileSize")
+													{
+														config.xmlTraceMaxFileSize = instanceEntry.getInt();
+													}
+													break;
+												case DataType::UIntEnum:
+													if (instanceEntry.getName() == "XmlTraceDump")
+													{
+														config.xmlTraceDump = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceHex")
+													{
+														config.xmlTraceHex = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTracePing")
+													{
+														config.xmlTracePing = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTracePingOnly")
+													{
+														config.xmlTracePingOnly = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToFile")
+													{
+														config.xmlTraceToFile = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToMultipleFiles")
+													{
+														config.xmlTraceToMultipleFiles = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceToStdout")
+													{
+														config.xmlTraceToStdout = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceRead")
+													{
+														config.xmlTraceRead = instanceEntry.getUInt() ? true : false;
+													}
+													else if (instanceEntry.getName() == "XmlTraceWrite")
+													{
+														config.xmlTraceWrite = instanceEntry.getUInt() ? true : false;
+													}
+													break;
+												default:
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
+	}
+}
+
 void  ProgrammaticConfigure::retrieveCustomConfig( const EmaString& instanceName, BaseConfig& activeConfig )
 {
 	for ( UInt32 i = 0; i < _configList.size(); i++ )
@@ -1115,7 +1243,7 @@ int  ProgrammaticConfigure::retrieveChannelTypeConfig(const EmaString& channelNa
 	return -1;
 }
 
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
+void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, BaseRoutingSessionChannelConfig* sessionConfig)
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
 		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg, sessionConfig);
@@ -2093,7 +2221,7 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 }
 
 void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
+    ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, BaseRoutingSessionChannelConfig* sessionConfig)
 {
 	map.reset();
 	while ( map.forth() )
@@ -2261,7 +2389,7 @@ void ProgrammaticConfigure::retrieveServer(const Map& map, const EmaString& serv
 }
 
 void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, int setByFnCalled, ChannelConfig* fileCfg, ConsumerRoutingSessionChannelConfig* sessionConfig)
+    ActiveConfig& activeConfig, int setByFnCalled, ChannelConfig* fileCfg, BaseRoutingSessionChannelConfig* sessionConfig)
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
@@ -2630,7 +2758,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				pCurrentChannelConfig = reliableMcastChannelCfg;
 				EmaString errorMsg;
 
-				pCurrentChannelConfig->pRoutingChannelConfig = sessionConfig;
+				pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
 
 				if ( setReliableMcastChannelInfo( reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg ) )
 					activeConfigChannelSet->push_back( pCurrentChannelConfig );
@@ -2659,7 +2787,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 				pCurrentChannelConfig = socketChannelConfig;
 				// This will be set to the routing channel object that owns this object, otherwise NULL.
-				pCurrentChannelConfig->pRoutingChannelConfig = sessionConfig;
+				pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
 				activeConfigChannelSet->push_back(pCurrentChannelConfig);
 
 				SocketChannelConfig* fileCfgSocket = NULL;
@@ -2948,7 +3076,7 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 				sessionConfig->configChannelSetForWSB.push_back(currentCfg->channelConfig);
 
 				// This will be set to the routing channel object that owns this object, otherwise NULL.
-				currentCfg->channelConfig->pRoutingChannelConfig = sessionConfig;
+				currentCfg->channelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
 
 				sessionConfig->configChannelSet.removePosition(orgSize);
 			}
@@ -3105,7 +3233,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 
 	wsbChannelConfig = new WarmStandbyChannelConfig(wsbChannelName);
 	// This will be set to the routing channel object that owns this object, otherwise NULL.
-	wsbChannelConfig->pRoutingChannelConfig = sessionConfig;
+	wsbChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
 
 	if (flags != 0)
 	{

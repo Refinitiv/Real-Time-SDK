@@ -11,6 +11,9 @@
 #include "OmmProvider.h"
 #include "ChannelInfoImpl.h"
 #include "ChannelStatsImpl.h"
+#include "OmmInvalidUsageException.h"
+#include "OmmNiProviderImpl.h"
+#include "EmaVector.h"
 
 using namespace refinitiv::ema::access;
 
@@ -70,6 +73,30 @@ const ChannelInformation& OmmProviderEvent::getChannelInformation() const {
 		ChannelInfoImpl::getChannelInformationImpl( rsslReactorChannel, OmmCommonImpl::NiProviderEnum, const_cast<ChannelInformation&>( _channelInfo ) );
 
 	return _channelInfo;
+}
+
+const void OmmProviderEvent::getSessionInformation(EmaVector<ChannelInformation>& channelInfoList) const
+{
+	if (getProvider().getProviderRole() == OmmProviderConfig::InteractiveEnum)
+	{
+		throwIueException("IProvider applications do not support the getSessionInformation method", OmmInvalidUsageException::InvalidOperationEnum);
+	}
+	else
+	{
+		OmmNiProviderImpl& niProviderImpl = static_cast<OmmNiProviderImpl&>(_ommCommonImpl);
+
+		// There isn't a session, so do not get any info.
+		if (niProviderImpl.getRoutingSession() == NULL)
+		{
+			channelInfoList.empty();
+
+			return;
+		}
+
+		niProviderImpl.getSessionInformation(channelInfoList);
+	}
+
+	return;
 }
 
 const ChannelStatistics& OmmProviderEvent::getChannelStatistics() const {

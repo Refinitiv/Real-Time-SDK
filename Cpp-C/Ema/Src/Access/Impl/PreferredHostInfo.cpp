@@ -80,7 +80,7 @@ PreferredHostInfo& PreferredHostInfo::preferredChannelName(UInt32 channelIndex, 
 	}
 
 	OmmBaseImpl* pBaseImpl = ((Channel*)pChannel)->getBaseImpl();
-	if (pBaseImpl->getConsumerRoutingSession() == NULL)
+	if (pBaseImpl->getRoutingSession() == NULL)
 	{
 		const ActiveConfig& activeConfig = pBaseImpl->getActiveConfig();
 
@@ -89,7 +89,7 @@ PreferredHostInfo& PreferredHostInfo::preferredChannelName(UInt32 channelIndex, 
 	}
 	else
 	{
-		ConsumerRoutingSessionChannel* pSessionChannel = ((Channel*)pChannel)->getConsumerRoutingChannel();
+		ConsumerRoutingSessionChannel* pSessionChannel = static_cast<ConsumerRoutingSessionChannel*>(((Channel*)pChannel)->getRoutingChannel());
 
 		if (!pSessionChannel->routingChannelConfig.configChannelSet.empty())
 		{
@@ -108,7 +108,7 @@ PreferredHostInfo& PreferredHostInfo::preferredWSBChannelName(UInt32 wsbChannelI
 	}
 
 	OmmBaseImpl* pBaseImpl = ((Channel*)pChannel)->getBaseImpl();
-	if (pBaseImpl->getConsumerRoutingSession() == NULL)
+	if (pBaseImpl->getRoutingSession() == NULL)
 	{
 		const ActiveConfig& activeConfig = pBaseImpl->getActiveConfig();
 
@@ -117,11 +117,12 @@ PreferredHostInfo& PreferredHostInfo::preferredWSBChannelName(UInt32 wsbChannelI
 	}
 	else
 	{
-		ConsumerRoutingSessionChannel* pSessionChannel = ((Channel*)pChannel)->getConsumerRoutingChannel();
+		ConsumerRoutingSessionChannel* pSessionChannel = static_cast<ConsumerRoutingSessionChannel*>(((Channel*)pChannel)->getRoutingChannel());
+		ConsumerRoutingSessionChannelConfig& sessionChannelConfig = static_cast<ConsumerRoutingSessionChannelConfig&>(pSessionChannel->routingChannelConfig);
 
-		if (!pSessionChannel->routingChannelConfig.configWarmStandbySet.empty())
+		if (!sessionChannelConfig.configWarmStandbySet.empty())
 		{
-			_preferredWSBChannelName = pSessionChannel->routingChannelConfig.configWarmStandbySet[wsbChannelIndex]->name;
+			_preferredWSBChannelName = sessionChannelConfig.configWarmStandbySet[wsbChannelIndex]->name;
 		}
 	}
 

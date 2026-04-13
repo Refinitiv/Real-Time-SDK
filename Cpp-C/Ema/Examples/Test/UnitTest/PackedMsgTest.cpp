@@ -10,6 +10,8 @@
 #include "Thread.h"
 #include <thread>
 
+#include "Ema.h"
+
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
 using namespace std;
@@ -216,9 +218,10 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_Encoding_Decoding)
 		EXPECT_TRUE(packedMsg.packedMsgCount() == packedMsgNum + 1); // 1 RefreshMsg + 10 UpdateMsg
 
 		provider.submit(packedMsg);
+		sleep(100);
 		packedMsg.clear();
 		consumer.dispatch(1000);
-		sleep(1000);
+		
 
 		EXPECT_EQ(packedMsg.maxSize(), 6000);
 		EXPECT_EQ(packedMsg.remainingSize(), 0);
@@ -301,6 +304,7 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_Encoding_Decoding_JSON)
 
 		provider.submit(packedMsg);
 		packedMsg.clear();
+		sleep(1000);
 		consumer.dispatch(1000);
 		sleep(1000);
 
@@ -440,8 +444,8 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferOverflow_JSONMsgEncode)
 
 		provider.submit(packedMsg);
 		packedMsg.clear();
+		sleep(100);
 		consumer.dispatch(1000);
-		sleep(1000);
 
 		EXPECT_EQ(packedMsgNum - 1, consumerCallback._updateMsgCount);
 	}
@@ -515,8 +519,9 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferOverflow_JSONConversion)
 
 		provider.submit(packedMsg);
 		packedMsg.clear();
+		sleep(100);
 		consumer.dispatch(1000);
-		sleep(1000);
+		
 
 		EXPECT_EQ(packedMsgNum - 1, consumerCallback._updateMsgCount);
 	}
@@ -553,9 +558,9 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_ChannelNotActive)
 		PackedMsg packedMsg(provider);
 
 		provider.submit(packedMsg);
+		sleep(100);
 		packedMsg.clear();
 		consumer.dispatch(1000);
-		sleep(1000);
 
 
 		EXPECT_TRUE(false) << "PackedMsg channel not set -- exception expected";
@@ -597,9 +602,10 @@ TEST_F(EmaMsgPackingTest, EmaMsgPackingTest_BufferNotSet)
 
 		(void)packedMsg.addMsg(msg, itemHandle);
 		provider.submit(packedMsg);
+		sleep(100);
 		packedMsg.clear();
 		consumer.dispatch(1000);
-		sleep(1000);
+		
 
 
 		EXPECT_TRUE(false) << "initBuffer() was not called -- exception expected";

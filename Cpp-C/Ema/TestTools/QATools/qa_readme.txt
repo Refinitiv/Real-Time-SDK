@@ -880,6 +880,8 @@ handles with no changes in filter after sending 6 updates, send reissue on both 
 with change in filter to NORMAL after sending 8 updates, also send update on source directory with
 delete service after sending 9 updates.
 
+Series300NiProvider350-ProvFunc-005: Alters Series300Provider350 to print SessionInfo for testing feature NiProvider Session Multiconnection.
+
 Module:  Series300NiProvider360
 ---------------------------
 
@@ -927,6 +929,13 @@ Module:  Series400NiProvider430
 Series400NiProvider430-Auth-001
     Alters NiProvider sends a market price item refresh after stream state 
     changes from up to down (recovery).
+
+
+Module:  Series500NiProvider510
+------------------------------
+Series500NiProvider510-ProvFunc-001: Alters Series500Provider510 to send valid user 'apiqa' to test with dacs enabled.
+Series500NiProvider510-ProvFunc-002: Alters Series500Provider510 to send valid user 'invaliduser' to test with dacs enabled.
+Series500NiProvider510-ProvFunc-003: Alters Series500Provider510 to add options for testing connectionType encrypted.
 
 
 Module:  Emalibs 

@@ -17,13 +17,15 @@
 #include "rtr/rsslTransport.h"
 #include "rtr/rwfNet.h"
 #include "rtr/rsslReactor.h"
+#include "BaseRoutingSession.h"
+#include "BaseRoutingChannel.h"
 #include "ConsumerRoutingSession.h"
 #include "ChannelCallbackClient.h"
 #include "DirectoryCallbackClient.h"
 #include "LoginCallbackClient.h"
 
-#ifndef __refinitiv_ema_access_SessionChannel_h
-#define __refinitiv_ema_access_SessionChannel_h
+#ifndef __refinitiv_ema_access_ConsumerSessionChannel_h
+#define __refinitiv_ema_access_ConsumerSessionChannel_h
 
 namespace refinitiv {
 
@@ -35,7 +37,7 @@ namespace refinitiv {
 
 			// This class defines the configuration of a single Reactor Channel in the Consumer Session
 			// This class lifetime will be managed by the ActiveConfig, and all and all cleanup of ConsumerRoutingSessionChannelConfig objects will be through there.
-			class ConsumerRoutingSessionChannelConfig
+			class ConsumerRoutingSessionChannelConfig : public BaseRoutingSessionChannelConfig
 			{
 				public:
 
@@ -45,25 +47,6 @@ namespace refinitiv {
 
 				void clear();
 
-				EmaString name;				// Name of the session channel configuration
-
-				// For the configuration values below, all of these initialzied to the provided Active values, and overwritten if configured explicitly in XML or programmatically
-				Int32			reconnectAttemptLimit;		
-				Int32			reconnectMinDelay;			
-				Int32			reconnectMaxDelay;			
-
-				EmaString				xmlTraceFileName;			
-				Int64					xmlTraceMaxFileSize;		
-				bool					xmlTraceToFile;				
-				bool					xmlTraceToStdout;			
-				bool					xmlTraceToMultipleFiles;
-				bool					xmlTraceWrite;
-				bool					xmlTraceRead;
-				bool					xmlTracePing;
-				bool					xmlTracePingOnly;
-				bool					xmlTraceHex;
-				bool					xmlTraceDump;
-
 				// Preferred host
 				bool            enablePreferredHostOptions;				// This defaults to false in all cases
 				EmaString		phDetectionTimeSchedule;
@@ -72,35 +55,20 @@ namespace refinitiv {
 				EmaString       preferredWSBChannelName;
 				bool			phFallBackWithInWSBGroup;
 
-				// Logger configuration.
-				LoggerConfig		loggerConfig;
-				bool				useActiveConfigLogger;  // If this is true, then all logging will use the configured active config logger and not the specified logger config here.
-															// This should be set to true if: Logger is not specified in the config, or if the logger name matches the currently active logger config.
-
-				
-				ActiveConfig& activeConfig;
-
-				// The following are used to configure the full channel, and this is what's used to pass into RsslReactorConnect.
-				RsslReactorConnectOptions connectOpts;
-
-				EmaVector< ChannelConfig* >		configChannelSet;
+				// The following are used to configure any WSB configuration for a consumer channel, and this is what's used to pass into RsslReactorConnect.
 				EmaVector< WarmStandbyChannelConfig* >  configWarmStandbySet;
 				EmaVector< ChannelConfig* >		configChannelSetForWSB;
 
-				ConsumerRoutingSessionChannel* pRoutingChannel;
-
 			protected:
-				void clearChannelSet();
 				void clearWSBChannelSet();
 				void clearChannelSetForWSB();
-				void clearReactorChannelConnectOpts();
 			};
 
 			// This class defines an instance of a single Reactor Channel in the Consumer Session
 			// This is a rough equivalent of the Channel object
 			// This class lifetime will be managed by the consumerRoutingSession class, and all cleanup of ConsumerRoutingSessionChannel objects will be through there.
 			// Note for timing: We're 
-			class ConsumerRoutingSessionChannel
+			class ConsumerRoutingSessionChannel : public BaseRoutingSessionChannel
 			{
 			protected:
 				class UInt16rHasher
@@ -132,33 +100,6 @@ namespace refinitiv {
 				virtual ~ConsumerRoutingSessionChannel();
 
 				void clear();
-				EmaString name;
-				
-				ChannelList		channelList;
-
-				bool receivedLoginRefresh;
-				bool sentChannelUpStatus;			// Indicates if the initial CHANNEL_UP status message has been sent.
-				bool reconnecting;					// Set when reconnecting, unset when connected.
-				RsslReactorChannel*			pReactorChannel;
-				LoginInfo	loginInfo;
-
-				OmmBaseImpl&				baseImpl;
-				ConsumerRoutingSessionChannelConfig& routingChannelConfig;
-
-				ConsumerRoutingSession* pRoutingSession;
-
-				OmmBaseImpl::ImplState  channelState;
-				OmmLoggerClient*		pLoggerClient;
-
-				bool					channelClosed;				// Indicates that the channel has been closed.  This is a boolean flag because there is a possibility that 
-																	// the close may not be finished.
-
-				bool					inPreferredHost;			// flag indicating that this session channel is currently in the preferred host operation, so do not attempt to reroute the requests
-
-				UInt32					sessionIndex;				// Index in pRoutingSession->routingChannelList.
-
-				bool					closeOnDownReconnecting;	// Close the channel when a DOWN_RECONNECTING event is received.  This is only set when the login is denied.
-
 
 				// Hash tables and a direct list of services 
 				HashTable<UInt16, DirectoryPtr, UInt16rHasher, UInt16Equal_To> serviceById;			// keyed by the concrete service for this channel
@@ -167,13 +108,7 @@ namespace refinitiv {
 
 				EmaList< Directory* > serviceList;
 
-				ItemList routedRequestList;			// ItemList of items routed to this channel.
-
-				Channel* pCurrentActiveChannel;					// This will get set on a CHANNEL_UP channel callback, and will only be cleared when the channel is closed.
-
-				void closeReactorChannel();
-
-			
+				ItemList routedRequestList;			// ItemList of items routed to this channel.		
 			};
 
 		}

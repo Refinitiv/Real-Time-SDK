@@ -692,6 +692,13 @@
                               <xs:attribute name="value" type="xs:unsignedInt" use="required" />
                             </xs:complexType>
                           </xs:element>
+						  
+						  <xs:element name="SessionChannelSet" minOccurs="0" maxOccurs="1">
+                            <!-- a comma-separated list of Session Channel names -->
+                            <xs:complexType>
+                              <xs:attribute name="value" type="NonEmptyString" use="required" />
+                            </xs:complexType>
+                          </xs:element>
 
                           <xs:element name="SendJsonConvError" minOccurs="0" maxOccurs="1">
                             <xs:complexType>

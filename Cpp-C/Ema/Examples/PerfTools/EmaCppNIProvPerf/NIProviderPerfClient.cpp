@@ -40,7 +40,8 @@ void NIProviderPerfClient::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmP
 
 	bool connectionUpOld = _bConnectionUp;
 
-	if (channelInfo.getChannelState() == ChannelInformation::ActiveEnum)
+	if(refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
+	   refreshMsg.getState().getDataState() == OmmState::OkEnum)
 	{
 		_bConnectionUp = true;
 	}
@@ -51,6 +52,12 @@ void NIProviderPerfClient::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmP
 
 	if (_bConnectionUp != connectionUpOld)
 		cout << "RefreshMsg. isConnectionUp = " << (connectionUpOld ? "True" : "False") << " -> " << (_bConnectionUp ? "True" : "False") << endl;
+
+	// The connection has closed, so clear the packed message here
+	if (_bConnectionUp == false && connectionUpOld == true)
+	{
+		niProviderThread->clearPackedMsg();
+	}
 }
 
 void NIProviderPerfClient::onStatusMsg(const StatusMsg& statusMsg, const OmmProviderEvent& event)
@@ -67,7 +74,8 @@ void NIProviderPerfClient::onStatusMsg(const StatusMsg& statusMsg, const OmmProv
 
 	bool connectionUpOld = _bConnectionUp;
 
-	if (channelInfo.getChannelState() == ChannelInformation::ActiveEnum)
+	if (statusMsg.getState().getStreamState() == OmmState::OpenEnum &&
+		statusMsg.getState().getDataState() == OmmState::OkEnum)
 	{
 		_bConnectionUp = true;
 	}
@@ -78,6 +86,12 @@ void NIProviderPerfClient::onStatusMsg(const StatusMsg& statusMsg, const OmmProv
 
 	if (_bConnectionUp != connectionUpOld)
 		cout << "StatusMsg. isConnectionUp = " << (connectionUpOld ? "True" : "False") << " -> " << (_bConnectionUp ? "True" : "False") << endl;
+
+	// The connection has closed, so clear the packed message here
+	if (_bConnectionUp == false && connectionUpOld == true)
+	{
+		niProviderThread->clearPackedMsg();
+	}
 }
 
 // called when a client disconnects or when an item is unregistered.

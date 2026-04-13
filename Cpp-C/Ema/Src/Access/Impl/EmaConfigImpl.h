@@ -1257,7 +1257,7 @@ public:
 
 	void getChannelName( const EmaString&, EmaString& ) const;
 
-	bool getConsumerRoutingSessionChannelSetName(const EmaString&, EmaString&) const;
+	bool getRoutingSessionChannelSetName(const EmaString&, EmaString&) const;
 
 	void getWarmStandbyChannelName( const EmaString&, EmaString&, bool& foundProgrammaticCfg ) const;
 

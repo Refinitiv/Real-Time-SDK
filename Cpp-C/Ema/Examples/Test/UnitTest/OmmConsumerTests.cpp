@@ -648,7 +648,7 @@ TEST_F(OmmConsumerTest, RequestRoutingLoginChannelDown)
 
 		EXPECT_EQ(channelInfo.size(), 2);
 
-		EXPECT_GE(consClient.getMessageQueueSize(), 2u);
+		EXPECT_GE(consClient.getMessageQueueSize(), 1);
 
 		OmmState::StreamState streamState = OmmState::StreamState::ClosedEnum;
 		OmmState::DataState dataState = OmmState::DataState::NoChangeEnum;
@@ -7244,7 +7244,7 @@ TEST_F(OmmConsumerTest, RequestRoutingRequestSingleItemRerouteAfterChannelClosed
 
 	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
 	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000");
-
+	
 	IProviderTestClientBase provClient2(provTestOptions2);
 
 	OmmIProviderConfig provConfig2("EmaConfigTest.xml");

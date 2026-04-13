@@ -14,6 +14,7 @@
 #include "EmaConfigImpl.h"
 #include "ActiveConfig.h"
 #include "LoginCallbackClient.h"
+#include "BaseRoutingSession.h"
 #include "ConsumerRoutingService.h"
  
 #ifndef __refinitiv_ema_access_ConsumerSession_h
@@ -28,7 +29,7 @@ namespace access {
 	class ConsumerRoutingSessionChannel;
 	class ConsumerRoutingService;
 	// This class contains the full session, including the structures for each channel 
-	class ConsumerRoutingSession
+	class ConsumerRoutingSession : public BaseRoutingSession
 	{		
 	public:
 		class UInt16rHasher
@@ -58,22 +59,9 @@ namespace access {
 		ConsumerRoutingSession(OmmBaseImpl&);
 		virtual ~ConsumerRoutingSession();
 
-		OmmBaseImpl& baseImpl;
-		ActiveConfig& activeConfig;
-
-		int activeChannelCount;
 		UInt32 serviceIdCounter;
 
-		EmaVector <ConsumerRoutingSessionChannel*> routingChannelList;
-
-		bool initialLoginRefreshReceived;
-		bool sentInitialLoginRefresh;
-		LoginInfo	aggregatedLoginInfo;
-		StatusMsg _statusMsg;
-
 		bool enhancedItemRecovery;
-
-		bool aggregateLoginRefreshInfo(RsslRDMLoginRefresh*);
 
 		bool aggregateDirectory(Directory*, RsslMapEntryActions);
 
@@ -96,11 +84,6 @@ namespace access {
 
 		// Assumption for destructor and clear: All channels have already been closed and cleaned up 
 		void clear();
-
-		void closeChannel(RsslReactorChannel* pRsslReactorChannel);
-
-		void closeReactorChannels();
-
 	};
 
 }

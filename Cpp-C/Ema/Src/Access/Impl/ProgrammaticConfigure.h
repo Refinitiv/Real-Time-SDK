@@ -35,6 +35,8 @@ class WarmStandbyChannelConfig;
 class WarmStandbyServerInfoConfig;
 class EmaConfigImpl;
 class ConsumerRoutingSessionChannelConfig;
+class NiProviderRoutingSessionChannelConfig;
+class BaseRoutingSessionChannelConfig;
 struct LoggerConfig;
 
 
@@ -182,11 +184,11 @@ public:
 
 	bool getActiveChannelName( const EmaString&, EmaString& );
 
-	bool getActiveConsumerRoutingSessionChannelSetName(const EmaString&, EmaString&);
+	bool getActiveRoutingSessionChannelSetName(const EmaString&, EmaString&);
 
 	bool getActiveWSBChannelSetName(const EmaString&, EmaString&);
 
-	bool getConsumerRoutingSessionChannelSetName(const EmaString&, EmaString&);
+	bool getRoutingSessionChannelSetName(const EmaString&, EmaString&);
 
 	bool getConsumerRoutingSessionWSBChannelSetName(const EmaString&, EmaString&);
 
@@ -206,11 +208,14 @@ public:
 
 	void retrieveConsumerRoutingSessionConfig(const EmaString&, ConsumerRoutingSessionChannelConfig&, bool&);
 
+	void retrieveNiProviderRoutingSessionConfig(const EmaString&, NiProviderRoutingSessionChannelConfig&, bool&);
+
+
 	void retrieveCustomConfig( const EmaString&, BaseConfig& );
 
 	int retrieveChannelTypeConfig(const EmaString&);
 
-	void retrieveChannelConfig( const EmaString&, ActiveConfig&, int, ChannelConfig* fileCfg = 0, ConsumerRoutingSessionChannelConfig* = NULL);
+	void retrieveChannelConfig( const EmaString&, ActiveConfig&, int, ChannelConfig* fileCfg = 0, BaseRoutingSessionChannelConfig* = NULL);
 
 	void retrieveWSBChannelConfig(const EmaString&, ActiveConfig&, WarmStandbyChannelConfig* fileCfg = 0, ConsumerRoutingSessionChannelConfig* = NULL);
 
@@ -226,7 +231,7 @@ public:
 
 	void retrieveDirectoryConfig( const EmaString&, DirectoryServiceStore&, DirectoryCache&, EmaList<ServiceDictionaryConfig*>* );
 
-	bool validateConsumerRoutingSessionChannelName(const EmaString&);
+	bool validateRoutingSessionChannelName(const EmaString&);
 
 
 	void clear();
@@ -249,7 +254,7 @@ private:
 
 	void retrieveInstanceCustomConfig( const Map&, const EmaString&, EmaConfigErrorList&, BaseConfig& );
 
-	void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, ConsumerRoutingSessionChannelConfig*);
+	void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, BaseRoutingSessionChannelConfig*);
 	
 	void retrieveWSBChannel(const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyChannelConfig*, ConsumerRoutingSessionChannelConfig*);
 
@@ -257,7 +262,7 @@ private:
 
 	void retrieveServer(const Map&, const EmaString&, EmaConfigErrorList&, ActiveServerConfig&, int, ServerConfig*);
 	
-	void retrieveChannelInfo( const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, ConsumerRoutingSessionChannelConfig*);
+	void retrieveChannelInfo( const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, BaseRoutingSessionChannelConfig*);
 
 	void retrieveWSBChannelInfo(const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyChannelConfig*, ConsumerRoutingSessionChannelConfig*);
 

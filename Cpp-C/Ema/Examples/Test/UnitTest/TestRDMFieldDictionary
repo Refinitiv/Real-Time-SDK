@@ -1,0 +1,42 @@
+!tag Filename  RWFTEST.DAT
+!tag Desc      Test Dictionary for EMA tests
+!tag Type      1
+!tag Version   1.0.0
+!tag Build     1
+!tag DictionaryId 1
+!
+!ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
+!-------    -----------          ---  ----------  ----------     ------  --------   -------
+!
+PROD_PERM  "PERMISSION"             1  NULL        INTEGER             5  UINT64           2
+!
+! Product permissions information.
+!
+RDNDISPLAY "DISPLAYTEMPLATE"        2  NULL        INTEGER             3  UINT64           1
+!
+! Identifier for the market on which the instrument trades.  Deprecated, use field 
+! RDN_EXCHD2 #1709.
+!
+TIMACT     "TIME OF UPDATE"         5  NULL        TIME                5  TIME             5
+!
+! Time when a certain field or fields in the record were updated, ideally based on 
+! source feed time.  Which field(s) cause this timestamp to update depends on the 
+! instrument.
+!
+TRDPRC_1   "LAST"                   6  TRDPRC_2    PRICE              17  REAL64           7
+BID        "BID"                   22  BID_1       PRICE              17  REAL64           7
+!
+! Latest Bid Price (price willing to buy)
+!
+ASK        "ASK"                   25  ASK_1       PRICE              17  REAL64           7
+!
+! Latest Ask Price (price offering to sell)
+!
+BIDSIZE    "BID SIZE"              30  NULL        INTEGER            15  REAL64           7
+!
+! The number of shares, lots, or contracts willing to buy at the Bid price
+!
+ASKSIZE    "ASK SIZE"              31  NULL        INTEGER            15  REAL64           7
+!
+! The number of shares, lots, or contracts willing to sell at the Ask price
+!
