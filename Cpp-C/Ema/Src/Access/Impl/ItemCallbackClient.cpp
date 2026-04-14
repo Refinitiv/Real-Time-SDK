@@ -3763,6 +3763,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	{
 		if (!pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec)
 		{
+			// Error out if this is a Consumer since pStreamInfo should be defined for every request made to the reactor.
 			if (_ommCommonImpl.getImplType() != OmmCommonImpl::ConsumerEnum)
 			{
 				Item** pItemPointer = _streamIdMap.find(pRsslMsg->msgBase.streamId);
@@ -3778,6 +3779,23 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 					providerItem->cancelReqTimerEvent();
 
 					return processProviderCallback(pRsslReactor, pRsslReactorChannel, pRsslMsg, providerItem, pRsslDataDictionary);
+				}
+				else
+				{
+					// If we don't know about this item, log an error and ignore the message.
+					if (OmmLoggerClient::ErrorEnum >= _ommCommonImpl.getActiveLoggerConfig().minLoggerSeverity)
+					{
+						EmaString temp("Received an item event without user specified pointer or stream info");
+						temp.append(CR)
+							.append("Instance Name ").append(_ommCommonImpl.getInstanceName()).append(CR)
+							.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+							.append("RsslReactorChannel ").append(ptrToStringAsHex(pRsslReactorChannel)).append(CR)
+							.append("RsslSocket ").append((UInt64)pRsslReactorChannel->socketId);
+
+						_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+					}
+
+					return RSSL_RC_CRET_SUCCESS;
 				}
 			}
 			else

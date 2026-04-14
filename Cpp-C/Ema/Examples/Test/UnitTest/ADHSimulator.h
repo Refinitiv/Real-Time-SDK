@@ -224,6 +224,9 @@ public:
 	/* Send a message to the Reactor channel */
 	static RsslRet sendMessage(RsslReactor* pReactor, RsslReactorChannel* chnl, RsslBuffer* msgBuf);
 
+	/* Send an RsslMsg to the Reactor channel */
+	static RsslRet sendMessage(RsslReactor* pReactor, RsslReactorChannel* chnl, RsslMsg* pMsg);
+
 	/* Callbacks */
 	static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent);
 
@@ -249,6 +252,8 @@ public:
 public:
 
 	ADHSimulatorOptions options;
+	RsslReactor* pReactor;
+	std::vector<ADHClientSessionInfo> clientList;  // list of active clients
 
 private:
 	
@@ -276,11 +281,8 @@ private:
 
 private:
 
-	RsslReactor* pReactor;
 	RsslServer* rsslSrvr;
 	RsslErrorInfo rsslErrorInfo;
-
-	std::vector<ADHClientSessionInfo> clientList;  // list of active clients
 
 	std::thread tr;						// internal ADH simulator thread
 	std::atomic <bool> stopThreadFlag;	// Indicates whether the ADH simulator thread should stop

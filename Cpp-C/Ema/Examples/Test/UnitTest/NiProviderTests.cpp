@@ -7630,3 +7630,205 @@ TEST_F(OmmNiProviderSessionTests, TwoConnectionSessionPackedMsgPackBeforeAndSend
 	}
 }
 
+class OmmNiProviderTests : public ::testing::Test
+{
+protected:
+	void SetUp() override
+	{
+		pAdhSim = nullptr;
+
+		provider = nullptr;
+	}
+
+	void TearDown() override
+	{
+		if (provider != nullptr)
+		{
+			delete provider;
+			provider = nullptr;
+		}
+
+		if (pAdhSim != nullptr)
+		{
+			delete pAdhSim;
+			pAdhSim = nullptr;
+		}
+
+		testSleep(1000);  // Allow time for cleanup - close network connections, etc
+	}
+
+public:
+	ADHSimulator* pAdhSim = nullptr;
+
+	OmmProvider* provider = nullptr;
+	char tmpDecodeData[6144];
+	RsslBuffer tmpDecodeBuf;
+
+
+	void convertToRdmLoginMsg(RsslMsg* pMsg, RsslRDMLoginMsg* pRdmLoginMsg)
+	{
+		RsslDecodeIterator decodeIter;
+		RsslErrorInfo errorInfo;
+
+		rsslClearDecodeIterator(&decodeIter);
+		tmpDecodeBuf.data = tmpDecodeData;
+		tmpDecodeBuf.length = 6144;
+
+		rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		rsslSetDecodeIteratorBuffer(&decodeIter, &pMsg->msgBase.encDataBody);
+
+		rsslClearRDMLoginMsg(pRdmLoginMsg);
+
+		ASSERT_EQ(rsslDecodeRDMLoginMsg(&decodeIter, pMsg, pRdmLoginMsg, &tmpDecodeBuf, &errorInfo), RSSL_RET_SUCCESS);
+	}
+
+	void convertToRdmDirectoryMsg(RsslMsg* pMsg, RsslRDMDirectoryMsg* pRdmDirectoryMsg)
+	{
+		RsslDecodeIterator decodeIter;
+		RsslErrorInfo errorInfo;
+
+		rsslClearDecodeIterator(&decodeIter);
+		tmpDecodeBuf.data = tmpDecodeData;
+		tmpDecodeBuf.length = 6144;
+
+		rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		rsslSetDecodeIteratorBuffer(&decodeIter, &pMsg->msgBase.encDataBody);
+
+		rsslClearRDMDirectoryMsg(pRdmDirectoryMsg);
+
+		ASSERT_EQ(rsslDecodeRDMDirectoryMsg(&decodeIter, pMsg, pRdmDirectoryMsg, &tmpDecodeBuf, &errorInfo), RSSL_RET_SUCCESS);
+	}
+};
+
+TEST_F(OmmNiProviderTests, NiProviderSingleConnectionClientSendStatusTest)
+{
+	ADHSimulatorOptions adhOpts("19001");
+	ProviderTestOptions loginClientOptions;
+
+	NiProviderTestClientBase loginClient(loginClientOptions);
+
+	adhOpts.saveMsgs = true;
+
+	RsslMsg* pRsslMsg = nullptr;
+	RsslRDMLoginMsg rdmLoginMsg;
+	RsslRDMDirectoryMsg rdmDirectoryMsg;
+
+	Msg* pEmaMsg = nullptr;
+	StatusMsg* pStatusMsg = nullptr;
+	RefreshMsg* pRefreshMsg = nullptr;
+	ElementList* pElementList = nullptr;
+
+	UInt64 handle = 10;
+
+	try
+	{
+		pAdhSim = new ADHSimulator(adhOpts);
+		pAdhSim->start();
+
+		/* Wait for ADH simulators to start */
+		testSleep(500);
+
+		OmmNiProviderConfig niProvConfig(sessionTestConfigPath);
+		niProvConfig.providerName("SingleProvider");
+
+		provider = new OmmProvider(niProvConfig, loginClient);
+
+		/* Wait for both sides to get everything */
+		testSleep(2000);
+
+		ASSERT_EQ(pAdhSim->getMsgQueueSize(), 2) << "ADH Simulator received one login request and the directory refresh";
+		pRsslMsg = pAdhSim->popMsg();
+		ASSERT_EQ(pRsslMsg->msgBase.msgClass, RSSL_MC_REQUEST);
+		ASSERT_EQ(pRsslMsg->msgBase.domainType, RSSL_DMT_LOGIN);
+
+		convertToRdmLoginMsg(pRsslMsg, &rdmLoginMsg);
+
+		ASSERT_EQ(rdmLoginMsg.rdmMsgBase.rdmMsgType, RDM_LG_MT_REQUEST) << "rdmLoginMsg.rdmMsgBase.rdmMsgType, RDM_LG_MT_REQUEST";
+		ASSERT_EQ(rdmLoginMsg.request.role, RDM_LOGIN_ROLE_PROV) << "rdmLoginMsg.request.role, RDM_LOGIN_ROLE_PROV";
+
+		pRsslMsg = pAdhSim->popMsg();
+		ASSERT_EQ(pRsslMsg->msgBase.msgClass, RSSL_MC_REFRESH);
+		ASSERT_EQ(pRsslMsg->msgBase.domainType, RSSL_DMT_SOURCE);
+
+		convertToRdmDirectoryMsg(pRsslMsg, &rdmDirectoryMsg);
+
+		ASSERT_EQ(rdmDirectoryMsg.rdmMsgBase.rdmMsgType, RDM_DR_MT_REFRESH) << "rdmDirectoryMsg.rdmMsgBase.rdmMsgType, RDM_DR_MT_REQUEST";
+		ASSERT_EQ(rdmDirectoryMsg.refresh.serviceCount, 2) << "rdmDirectoryMsg.request.serviceCount, 2";
+
+		ASSERT_EQ(loginClient.getMessageQueueSize(), 1) << "One OPEN/OK Login refresh";
+
+		pEmaMsg = loginClient.popMsg();
+
+		ASSERT_EQ(pEmaMsg->getDataType(), DataType::RefreshMsgEnum) << "Expected a RefreshMsg";
+		ASSERT_EQ(pEmaMsg->getDomainType(), MMT_LOGIN) << "Expected a Login domain message";
+		pRefreshMsg = static_cast<RefreshMsg*>(pEmaMsg);
+
+		ASSERT_EQ(pRefreshMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum) << "Expected stream state to be OPEN";
+		ASSERT_EQ(pRefreshMsg->getState().getDataState(), OmmState::DataState::OkEnum) << "Expected data state to be OK";
+		ASSERT_EQ(pRefreshMsg->getSolicited(), true) << "Expected a solicited refresh";
+		ASSERT_EQ(pRefreshMsg->getComplete(), true) << "Expected refresh complete";
+		ASSERT_EQ(pRefreshMsg->getComplete(), true) << "Expected refresh complete";
+		ASSERT_EQ(pRefreshMsg->getAttrib().getDataType(), DataType::ElementListEnum) << "Expected an ElementList in the attrib";
+		pElementList = const_cast<ElementList*>(&pRefreshMsg->getAttrib().getElementList());
+		pElementList->forth();
+
+		bool foundSupportProviderDictionaryDownload = false;
+		bool foundAppId = false;
+		bool foundAppName = false;
+		do
+		{
+			ElementEntry& element = const_cast<ElementEntry&>(pElementList->getEntry());
+
+			if (strcmp(element.getName(), ENAME_APP_ID) == 0)
+			{
+				ASSERT_EQ(element.getLoadType(), DataType::AsciiEnum) << "Expected App Id to be an ascii buffer";
+				ASSERT_EQ(element.getAscii(), "100") << "Expected App Id to be 100";
+				foundAppId = true;
+			}
+			else if (strcmp(element.getName(), ENAME_APP_NAME) == 0)
+			{
+				ASSERT_EQ(element.getLoadType(), DataType::AsciiEnum) << "Expected App Name to be an ascii buffer";
+				ASSERT_EQ(element.getAscii(), "AdhSim") << "Expected App Name to be AdhSim";
+				foundAppName = true;
+			}
+			else if (strcmp(element.getName(), ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD) == 0)
+			{
+				ASSERT_EQ(element.getLoadType(), DataType::UIntEnum) << "Expected SupportProviderDictionaryDownload to be a UInt";
+				ASSERT_EQ(element.getUInt(), 0) << "Expected SupportProviderDictionaryDownload to be 0";
+				foundSupportProviderDictionaryDownload = true;
+			}
+		} while (pElementList->forth());
+
+		ASSERT_TRUE(foundAppId) << "Expected to find App Id in the login refresh";
+		ASSERT_TRUE(foundAppName) << "Expected to find App Name in the login refresh";
+		ASSERT_TRUE(foundSupportProviderDictionaryDownload) << "Expected to find SupportProviderDictionaryDownload in the login refresh";
+
+		RsslStatusMsg statusMsg;
+
+		rsslClearStatusMsg(&statusMsg);
+
+		statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+		statusMsg.state.streamState = RSSL_STREAM_CLOSED;
+		statusMsg.msgBase.streamId = 0;
+		statusMsg.msgBase.domainType = RSSL_DMT_SOURCE;
+		statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+
+		// This test only has one connection, so we know that will be in clientList[0].
+		ASSERT_EQ(pAdhSim->sendMessage(pAdhSim->pReactor, pAdhSim->clientList[0].pReactorChannel, (RsslMsg*)&statusMsg), RSSL_RET_SUCCESS) << "Failed to send message through ADH Simulator";
+
+		testSleep(500);
+
+		ASSERT_EQ(loginClient.getMessageQueueSize(), 0) << "Status Message was ignored.";
+
+
+
+	}
+	catch (const OmmException& ommExcept)
+	{
+		ASSERT_TRUE(false) << "OmmException occurred " << ommExcept.getText();
+	}
+	catch (exception e)
+	{
+		ASSERT_TRUE(false) << "Exception occurred while starting ADH Simulators: " << e.what();
+	}
+}

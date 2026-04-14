@@ -392,6 +392,39 @@ RsslRet ADHSimulator::sendMessage(RsslReactor* pReactor, RsslReactorChannel* chn
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet ADHSimulator::sendMessage(RsslReactor* pReactor, RsslReactorChannel* chnl, RsslMsg* pMsg)
+{
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet	retval = 0;
+	RsslUInt32 outBytes = 0;
+	RsslUInt32 uncompOutBytes = 0;
+	RsslUInt8 writeFlags = RSSL_WRITE_NO_FLAGS;
+	RsslReactorSubmitMsgOptions submitOpts;
+
+	rsslClearReactorSubmitMsgOptions(&submitOpts);
+
+	submitOpts.majorVersion = chnl->majorVersion;
+	submitOpts.minorVersion = chnl->minorVersion;
+	submitOpts.pRsslMsg = pMsg;
+
+	/* send the request */
+	if ((retval = rsslReactorSubmitMsg(pReactor, chnl, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+	{
+		while (retval == RSSL_RET_WRITE_CALL_AGAIN)
+			retval = rsslReactorSubmitMsg(pReactor, chnl, &submitOpts, &rsslErrorInfo);
+
+		if (retval < RSSL_RET_SUCCESS)	/* Connection should be closed, return failure */
+		{
+			/* rsslWrite failed, release buffer */
+			std::cout << "rsslReactorSubmit() failed with return code: " << retval << "; " << rsslErrorInfo.rsslError.text << std::endl;
+
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 /* Callbacks*/
 RsslReactorCallbackRet
 ADHSimulator::loginMsgCallback(RsslReactor* pReactor, RsslReactorChannel* pChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent)
