@@ -56,6 +56,8 @@ abstract class AbstractContainerTypeConverter extends AbstractTypeConverter {
             while (res && ret != CodecReturnCodes.END_OF_CONTAINER) {
                 if (ret < CodecReturnCodes.SUCCESS) {
                     error.setError(JsonConverterErrorCodes.JSON_ERROR_DECODING_FAILED, null);
+                    // Ensure decoding level is restored before returning
+                    decIter.finishDecodeEntries();
                     return false;
                 } else {
                     if (comma)
@@ -66,6 +68,12 @@ abstract class AbstractContainerTypeConverter extends AbstractTypeConverter {
                     res = res && writeEntry(decIter, outBuffer, localSetDb, error, entry, container);
                 }
                 ret = decodeEntry(decIter, entry);
+            }
+
+            // If we exited the loop due to res being false (buffer write error) rather than
+            // END_OF_CONTAINER, we need to finish decoding to restore the iterator level.
+            if (!res && ret != CodecReturnCodes.END_OF_CONTAINER) {
+                decIter.finishDecodeEntries();
             }
 
             res = res && (!writeTag || BufferHelper.endArray(outBuffer, error));
@@ -115,7 +123,20 @@ abstract class AbstractContainerTypeConverter extends AbstractTypeConverter {
 
         BufferHelper.writeArrayAndColon(ConstCharArrays.JSON_SUMMARY, outBuffer, false, error);
         BufferHelper.beginObject(outBuffer, error);
-        converter.getContainerHandler(containerType).encodeJson(decIter, outBuffer, true, localSetDb, error);
+
+        boolean success = false;
+        try {
+            success = converter.getContainerHandler(containerType).encodeJson(decIter, outBuffer, true, localSetDb, error);
+        } finally {
+            // Additional safety: if encodeJson didn't complete successfully or threw an exception,
+            // ensure the iterator decoding level is restored by calling finishDecodeEntries.
+            // This prevents leaving the iterator at the summary data's nested level.
+            if (!success || !error.isSuccessful())
+            {
+                decIter.finishDecodeEntries();
+            }
+        }
+
         BufferHelper.endObject(outBuffer, error);
 
         return error.isSuccessful();
