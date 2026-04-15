@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|              Copyright (C) 2025 LSEG. All rights reserved.
+ *|              Copyright (C) 2025-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,7 +21,10 @@ RSSL_VA_API RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslCo
 		tempLen = (strlen(sourceOpts-> FIELD) + 1) * sizeof(char);\
 		(destOpts-> FIELD) = (char*)malloc(tempLen);\
 		if ((destOpts-> FIELD) == 0)\
+		{\
+			rsslFreeConnectOpts(destOpts);\
 			return RSSL_RET_FAILURE;\
+		}\
 		memcpy((destOpts-> FIELD), (sourceOpts-> FIELD), tempLen);\
 	}
 	
@@ -48,6 +51,7 @@ RSSL_VA_API RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslCo
 
 	if (rsslDeepCopyProxyOpts(&destOpts->proxyOpts, &sourceOpts->proxyOpts) != RSSL_RET_SUCCESS)
 	{
+		rsslFreeConnectOpts(destOpts);
 		return RSSL_RET_FAILURE;
 	}
 	
