@@ -6838,7 +6838,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								if (pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
 								{
 									/* If this isn't the first warm standby group (or preferred) and there is a login callback */
-									if (!pWarmStandByHandlerImpl->isInitialConnection == RSSL_TRUE
+									if (pWarmStandByHandlerImpl->isInitialConnection == RSSL_FALSE
 										&& pReactorWarmStandbyServerInfo->reactorConnectInfoImpl.base.enableSessionManagement == RSSL_FALSE
 										&& pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pStandByReactorChannel->currentConnectionOpts->base.loginReqIndex]->pLoginRenewalEventCallback != NULL)
 									{

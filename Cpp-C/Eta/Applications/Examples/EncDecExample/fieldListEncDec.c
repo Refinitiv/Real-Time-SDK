@@ -525,7 +525,7 @@ RsslRet exampleDecodeFieldList(RsslDecodeIterator *decIter)
 						case RSSL_DT_DATE:
 							retVal = rsslDecodeDate(&decIter, &rsslDate);
 						break;
-						/* full switch statement omitted to shorten sample code * /
+						// full switch statement omitted to shorten sample code
 
 				}*/
 

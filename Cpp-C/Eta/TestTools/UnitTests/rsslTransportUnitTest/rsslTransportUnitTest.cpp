@@ -12,7 +12,7 @@
  *  Unit testing for the ETA Transport.
  *  Includes multithreaded tests.
  *
- /**********************************************************************/
+ ***********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,7 +95,7 @@ void time_sleep(int millisec)
  *	Global test suite variables 
  *	Google Test only runs one test at a time, so these are safe to reuse 
  *	as cross-thread global variables.
- /************************************************************************/
+ *************************************************************************/
 RsslEventSignal deadlockPipe;
 RsslMutex pipeLock;
 bool testComplete;

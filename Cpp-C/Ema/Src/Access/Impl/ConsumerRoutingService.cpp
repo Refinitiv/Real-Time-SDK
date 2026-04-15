@@ -129,7 +129,7 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 				RsslUInt oldAcceptingRequests = _service.state.acceptingRequests;
 				RsslUInt oldServiceState = _service.state.serviceState;
 
-				if ((newDirectory._service.state.flags | RDM_SVC_STF_HAS_ACCEPTING_REQS) != 0)
+				if (newDirectory._service.state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS)
 				{
 					_service.state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
 					if (newDirectory._service.state.acceptingRequests == 0)

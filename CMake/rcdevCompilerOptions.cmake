@@ -100,8 +100,14 @@ if( UNIX )
         set ( CMAKE_SANITIZER_FLAGS "-fsanitize=address,undefined,leak -fno-sanitize=alignment" )
     endif()
 
+    if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
+        set ( CMAKE_C_WARNINGS_FLAGS "-Wcomment" )
+    else()
+        set ( CMAKE_C_WARNINGS_FLAGS "-Wcomment -Wlogical-not-parentheses -Wtautological-compare" )
+    endif()
+
 	# flags for C
-    set( RCDEV_C_FLAGS_INIT "${_compilerBitFlags} -D_DEFAULT_SOURCE=1  -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -pthread -D_iso_stdcpp_ -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS}" CACHE STRING "" FORCE )
+    set( RCDEV_C_FLAGS_INIT "${_compilerBitFlags} -D_DEFAULT_SOURCE=1  -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -pthread -D_iso_stdcpp_ -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_C_WARNINGS_FLAGS}" CACHE STRING "" FORCE )
 
     # Suppress Clang formatting warnings only
     if ( CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
@@ -125,7 +131,7 @@ if( UNIX )
 	endif()
 
 	# flags for C++
-    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++11 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS}"  CACHE STRING "" FORCE)
+    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++11 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_C_WARNINGS_FLAGS}"  CACHE STRING "" FORCE)
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING ""  FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )

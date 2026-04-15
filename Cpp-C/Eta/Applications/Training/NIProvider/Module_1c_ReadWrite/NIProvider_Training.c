@@ -1219,7 +1219,7 @@ RsslRet sendMessage(RsslChannel* etaChannel, RsslBuffer* msgBuf)
 				}
 				else
 				{
-					/* rsslWrite internally attempted to flush data to the connection but was blocked. This is not a failure and the user should not release their buffer.";
+					/* rsslWrite internally attempted to flush data to the connection but was blocked. This is not a failure and the user should not release their buffer. */
 					/* Successful write call, data is queued. The rsslFlush function should be used to continue attemting to flush data to the connection. */
 
 					/* set write fd if flush failed */

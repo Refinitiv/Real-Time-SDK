@@ -83,10 +83,10 @@
 int main(int argc, char **argv)
 {
 	/* This example suite uses write descriptor in our client/consumer type examples in mainly 2 areas with
-	* the I/O notification mechanism being used:
-	* Details of those functions could be found in API development guide.
+	 * the I/O notification mechanism being used:
+	 * Details of those functions could be found in API development guide.
 
-	/* This example suite uses write descriptor in our client/consumer type examples in mainly 2 areas with
+	 * This example suite uses write descriptor in our client/consumer type examples in mainly 2 areas with
 	 * the I/O notification mechanism being used:
 	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary ETA transport
 	 *    negotiations and handshakes to complete channel initialization.

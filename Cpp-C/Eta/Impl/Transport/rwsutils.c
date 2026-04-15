@@ -2625,7 +2625,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 	}
 
 	/* RFC6455 Exception: Sec-WebSocket-Protocol is an obligatory field our WS implementation.
-	/* If subProtocol is RSSL_RWF then move to regular
+	 * If subProtocol is RSSL_RWF then move to regular
 	 * client connecting state */
 	if (wsSess->protocol == RWS_SP_NONE)
 	{

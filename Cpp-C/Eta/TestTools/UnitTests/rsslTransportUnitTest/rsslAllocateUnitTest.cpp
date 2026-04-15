@@ -12,7 +12,7 @@
   *  Unit testing for the ETA Transport.
   *  Includes multithreaded tests.
   *
-  /**********************************************************************/
+  ***********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

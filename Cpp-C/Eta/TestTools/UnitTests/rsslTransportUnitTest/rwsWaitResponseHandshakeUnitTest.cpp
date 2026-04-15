@@ -14,7 +14,7 @@
  *  This function is called by a WebSocket client to read and validate
  *  the server's HTTP 101 Switching Protocols response.
  *
- /**********************************************************************/
+ ***********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -12,7 +12,7 @@
  *  Tests negative and edge cases for the WebSocket handshake validation
  *  function rwsValidateWebSocketRequest in rwsutils.c
  *
- /**********************************************************************/
+ ***********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
