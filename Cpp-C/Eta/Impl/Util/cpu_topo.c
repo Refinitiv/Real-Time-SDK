@@ -2393,20 +2393,20 @@ char *getPkgCoreThrdStr(int which_mapping, int line_type, int subleaf_in, int wh
         for (j = 0; j < GetSysLogicalProcessorCount(); j++) {
             if(hasSMT == TRUE) {
                 // don't really need to put the package id in since I print it out at the top
-                sprintf(str, "%sc%d_t%d", spacer, glbl_ptr->pApicAffOrdMapping[j].coreORD, glbl_ptr->pApicAffOrdMapping[j].threadORD);
+                snprintf(str, sizeof(str), "%sc%d_t%d", spacer, glbl_ptr->pApicAffOrdMapping[j].coreORD, glbl_ptr->pApicAffOrdMapping[j].threadORD);
             } else {
-                sprintf(str, "%sc%d", spacer, glbl_ptr->pApicAffOrdMapping[j].coreORD);
+                snprintf(str, sizeof(str), "%sc%d", spacer, glbl_ptr->pApicAffOrdMapping[j].coreORD);
             }
             len = (int) strlen(str);
             if(len > max_len) {
                 max_len = len;
             }
-            sprintf(str, "%s%x", spacer, (LNX_MY1CON << glbl_ptr->pApicAffOrdMapping[j].OrdIndexOAMsk));
+            snprintf(str, sizeof(str), "%s%x", spacer, (LNX_MY1CON << glbl_ptr->pApicAffOrdMapping[j].OrdIndexOAMsk));
             len = (int) strlen(str);
             if(len > max_len) {
                 max_len = len;
             }
-            sprintf(str, "%s%d", spacer, j); // OS cpu #
+            snprintf(str, sizeof(str), "%s%d", spacer, j); // OS cpu #
             len = (int) strlen(str);
             if(len > max_len) {
                 max_len = len;
@@ -2436,7 +2436,7 @@ char *getPkgCoreThrdStr(int which_mapping, int line_type, int subleaf_in, int wh
 
     if(line_type == 1) {
         if(which_entry == 0) {
-            sprintf(str, "%s%s", spacer, glbl_ptr->cacheDetail[subleaf_in].descShort);
+            snprintf(str, sizeof(str), "%s%s", spacer, glbl_ptr->cacheDetail[subleaf_in].descShort);
         } else {
             str[0] = 0;
         }
@@ -2451,27 +2451,27 @@ char *getPkgCoreThrdStr(int which_mapping, int line_type, int subleaf_in, int wh
             } else {
                 KorM = 0;
             }
-            sprintf(str, "%s%d%s", spacer, sz, unitKM[KorM]);
+            snprintf(str, sizeof(str), "%s%d%s", spacer, sz, unitKM[KorM]);
         } else {
             str[0] = 0;
         }
     } else if(line_type == 3) {
-        sprintf(str, "%s%d", spacer, which_mapping);
+        snprintf(str, sizeof(str), "%s%d", spacer, which_mapping);
     } else if(line_type == 4) {
         if(hasSMT == TRUE) {
-            sprintf(str, "%sc%d_t%d", spacer, glbl_ptr->pApicAffOrdMapping[which_mapping].coreORD,
+            snprintf(str, sizeof(str), "%sc%d_t%d", spacer, glbl_ptr->pApicAffOrdMapping[which_mapping].coreORD,
                     glbl_ptr->pApicAffOrdMapping[which_mapping].threadORD);
         } else {
-            sprintf(str, "%sc%d", spacer, glbl_ptr->pApicAffOrdMapping[which_mapping].coreORD);
+            snprintf(str, sizeof(str), "%sc%d", spacer, glbl_ptr->pApicAffOrdMapping[which_mapping].coreORD);
         }
     } else if(line_type == 5) {
         FormatSingleBitMask(glbl_ptr->pApicAffOrdMapping[which_mapping].OrdIndexOAMsk, sizeof(long_str), long_str);
-        sprintf(str, "%s%s", spacer, long_str);
+        snprintf(str, sizeof(str), "%s%s", spacer, long_str);
     } else if(line_type == 6) {
         if(which_entry == 0) {
             //cccc
             MaskToHexStringGenericAffinityMask(AffinityMask, sizeof(long_str), long_str, MASK_FMT_DEFAULT);
-            sprintf(str, "%s%s", spacer, long_str);
+            snprintf(str, sizeof(str), "%s%s", spacer, long_str);
         } else {
             str[0] = 0;
         }
