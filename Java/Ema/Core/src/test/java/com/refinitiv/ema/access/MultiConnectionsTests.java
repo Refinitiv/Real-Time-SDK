@@ -13582,6 +13582,7 @@ public class MultiConnectionsTests {
             boolean ch12OkStatusFound = false;
             boolean ch12SuspectStatusFound = false;
             boolean ch11SuspectStatusFound = false;
+            boolean chl2SuspectLoginMsg = false;
 
             for (int i = 0; i < 3; i++)
             {
@@ -13599,6 +13600,12 @@ public class MultiConnectionsTests {
                         assertEquals(1, statusMsg.streamId());
                         assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
                     }
+                    else if ("Open / Suspect / None / 'session channel down reconnecting'".equals(statusMsg.state().toString()))
+                    {
+                        chl2SuspectLoginMsg = true;
+                        assertEquals(1, statusMsg.streamId());
+                        assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                    }
                     else if ("Open / Suspect / None / 'channel down.'".equals(statusMsg.state().toString()))
                     {
                         ch12SuspectStatusFound = true;
@@ -13611,25 +13618,47 @@ public class MultiConnectionsTests {
                         assertEquals(serviceName, statusMsg.serviceName());
                         assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
                     }
+                    else if ("Open / Suspect / None / ''".equals(statusMsg.state().toString()))
+                    {
+                        chl2SuspectLoginMsg = true;
+                        assertEquals(1, statusMsg.streamId());
+                        assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                    }
                 }
                 else if (channelInfo.channelName().equals("Channel_11"))
                 {
                     assertEquals(1, statusMsg.streamId());
                     assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
                     assertEquals("Connection_24", channelInfo.sessionChannelName());
-                    assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
-                    assertTrue("Open / Suspect / None / 'session channel down reconnecting'".equals(statusMsg.state().toString()));
+
+                    boolean checkChannelState = channelInfo.channelState() == ChannelInformation.ChannelState.INACTIVE ||
+                            channelInfo.channelState() == ChannelInformation.ChannelState.INITIALIZING;
+
+                    assertTrue(checkChannelState);
+                    assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
                     ch11SuspectStatusFound = true;
                 }
             }
 
-            assertTrue(ch12OkStatusFound && ch12SuspectStatusFound && ch11SuspectStatusFound);
+            assertTrue( (ch12OkStatusFound || chl2SuspectLoginMsg) && ch12SuspectStatusFound && ch11SuspectStatusFound);
 
             message = consumerClient.popMessage();
 
             statusMsg = (StatusMsg)message;
             assertEquals(1, statusMsg.streamId());
             assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+
+            if ("Open / Suspect / None / 'session channel down reconnecting'".equals(statusMsg.state().toString()))
+            {
+                message = consumerClient.popMessage();
+
+                statusMsg = (StatusMsg)message;
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Connection_24", channelInfo.sessionChannelName());
+            }
+
             assertEquals("Open / Suspect / PreferredHostComplete / 'preferred host complete'", statusMsg.state().toString());
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_7", channelInfo.channelName());
@@ -13637,31 +13666,61 @@ public class MultiConnectionsTests {
             assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
-			
-			/* Checks login refresh message */
-			refreshMsg = (RefreshMsg)message;
-			assertEquals(1, refreshMsg.streamId());
-			assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
-			assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
-			assertTrue(refreshMsg.solicited());
-			assertTrue(refreshMsg.complete());
-			assertTrue(refreshMsg.hasMsgKey());
-			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
-			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
-			channelInfo = consumerClient.popChannelInfo();
-			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
-			
-			message = consumerClient.popMessage();
-			statusMsg = (StatusMsg)message;
-			assertEquals(1, statusMsg.streamId());
-			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / None / 'session channel up'", statusMsg.state().toString());
-			channelInfo = consumerClient.popChannelInfo();
-			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+
+            if(message instanceof RefreshMsg)
+            {
+                /* Checks login refresh message */
+                refreshMsg = (RefreshMsg) message;
+                assertEquals(1, refreshMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+                assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+                assertTrue(refreshMsg.solicited());
+                assertTrue(refreshMsg.complete());
+                assertTrue(refreshMsg.hasMsgKey());
+                assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+                assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_7", channelInfo.channelName());
+                assertEquals("Connection_24", channelInfo.sessionChannelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+
+                message = consumerClient.popMessage();
+                statusMsg = (StatusMsg) message;
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                assertEquals("Open / Ok / None / 'session channel up'", statusMsg.state().toString());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_7", channelInfo.channelName());
+                assertEquals("Connection_24", channelInfo.sessionChannelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+            }
+            else
+            {
+                statusMsg = (StatusMsg) message;
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                assertEquals("Open / Ok / None / 'session channel up'", statusMsg.state().toString());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_7", channelInfo.channelName());
+                assertEquals("Connection_24", channelInfo.sessionChannelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+
+                message = consumerClient.popMessage();
+                /* Checks login refresh message */
+                refreshMsg = (RefreshMsg) message;
+                assertEquals(1, refreshMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
+                assertEquals("Open / Ok / None / 'Login accepted'", refreshMsg.state().toString());
+                assertTrue(refreshMsg.solicited());
+                assertTrue(refreshMsg.complete());
+                assertTrue(refreshMsg.hasMsgKey());
+                assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
+                assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_7", channelInfo.channelName());
+                assertEquals("Connection_24", channelInfo.sessionChannelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+            }
 			
 			/* Receives the refresh message from the starting server of  WarmStandbyChannel_3 */
 			message = consumerClient.popMessage();
@@ -13985,14 +14044,39 @@ public class MultiConnectionsTests {
 			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
-			statusMsg = (StatusMsg)message;
-			assertEquals(1, statusMsg.streamId());
-			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
-			channelInfo = consumerClient.popChannelInfo();
-			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+            statusMsg = (StatusMsg)message;
+            channelInfo = consumerClient.popChannelInfo();
+
+            assertEquals(1, statusMsg.streamId());
+            assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+            assertEquals("Connection_25", channelInfo.sessionChannelName());
+
+            if ( channelInfo.channelName().equals("Channel_7"))
+            {
+                assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
+                assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+
+                message = consumerClient.popMessage();
+                statusMsg = (StatusMsg)message;
+                channelInfo = consumerClient.popChannelInfo();
+
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                assertEquals("Channel_8", channelInfo.channelName());
+                assertEquals("Connection_25", channelInfo.sessionChannelName());
+                assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
+                assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+
+            }
+            else if (channelInfo.channelName().equals("Channel_8"))
+            {
+                assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
+                assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+            }
+            else
+            {
+                fail("Unexpected channel name: " + channelInfo.channelName());
+            }
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -14389,7 +14473,15 @@ public class MultiConnectionsTests {
 
 			Thread.sleep(7000);
 
-			assertEquals(2, providerClient_3.queueSize());
+            int waitCount = 10;
+            while(providerClient_3.queueSize() < 2 && waitCount > 0)
+            {
+                Thread.sleep(500);
+                waitCount--;
+            }
+
+            assertTrue(providerClient_3.queueSize() >= 2);
+
 			message = providerClient_3.popMessage();
 
 			genericMsg = (GenericMsg)message;

@@ -1258,14 +1258,14 @@ class Worker implements Runnable
 	                        	// We've always attempted first connection in these cases, we need to always move to next channel
 	                        	reactorChannel._haveAttemptedFirstConnection = true;
 	                        }
-	
+
+                            channel = reactorChannel.preferredHostChannel();
 	                        // Check if we have an active preferred host channel ready to switch to
-	                        if (reactorChannel.preferredHostChannel() != null && reactorChannel.preferredHostChannel().state() == ChannelState.ACTIVE)
+	                        if (channel != null && channel.state() == ChannelState.ACTIVE)
 	                        {
-	                        	channel = reactorChannel.preferredHostChannel();
 	                        	/* Replace channel of reactorChannel with the new one, the old channel is set to ReactorChannel.oldPHStartingChannel 
 	                        	   when the preferred channel is active */
-	                 			reactorChannel.selectableChannelFromChannel(reactorChannel.preferredHostChannel());
+	                 			reactorChannel.selectableChannelFromChannel(channel);
 	                 			
 	                 			// We've used our preferred host channel, reset it to null
 	                        	reactorChannel.preferredHostChannel(null); 	

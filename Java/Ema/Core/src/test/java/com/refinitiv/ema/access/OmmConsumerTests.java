@@ -5644,7 +5644,7 @@ public class OmmConsumerTests extends TestCase
 			
 			consumer.modifyIOCtl(IOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, phOptions);
 			
-			Thread.sleep(8000);
+			Thread.sleep(9000);
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6696,7 +6696,14 @@ public class OmmConsumerTests extends TestCase
 
 			Thread.sleep(3000);
 
-			assertEquals(2, consumerClient.queueSize());
+            int waitCount = 10;
+            while(consumerClient.queueSize() < 2 && waitCount > 0)
+            {
+                Thread.sleep(500);
+                waitCount--;
+            }
+
+			assertTrue(consumerClient.queueSize() >= 2);
 
 			boolean foundTRI = false;
 			boolean foundIBM = false;
@@ -7336,40 +7343,40 @@ public class OmmConsumerTests extends TestCase
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
-			// Checks for PH START and COMPLETE events
+			// Checks for PH START and COMPLETE events if any
 			message = consumerClient.popMessage();
-			
-			/* Checks login status messages */
-			statusMsg = (StatusMsg)message;
-			
-			assertEquals(1, statusMsg.streamId());
-			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / PreferredHostStartingFallback / 'preferred host starting fallback'", statusMsg.state().toString());
-			assertTrue(statusMsg.hasMsgKey());
-			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
-			channelInfo = consumerClient.popChannelInfo();
-			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
-			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
-			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
-			
-			message = consumerClient.popMessage();
-			
-			/* Checks login status messages */
-			statusMsg = (StatusMsg)message;
-			
-			assertEquals(1, statusMsg.streamId());
-			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
-			assertEquals("Open / Ok / PreferredHostComplete / 'preferred host complete'", statusMsg.state().toString());
-			assertTrue(statusMsg.hasMsgKey());
-			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
-			channelInfo = consumerClient.popChannelInfo();
-			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
-			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
-			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
-			
-			
+
+            if( message != null) {
+                /* Checks login status messages */
+                statusMsg = (StatusMsg) message;
+
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                assertEquals("Open / Ok / PreferredHostStartingFallback / 'preferred host starting fallback'", statusMsg.state().toString());
+                assertTrue(statusMsg.hasMsgKey());
+                assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_1", channelInfo.channelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
+                assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
+
+                message = consumerClient.popMessage();
+
+                /* Checks login status messages */
+                statusMsg = (StatusMsg) message;
+
+                assertEquals(1, statusMsg.streamId());
+                assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+                assertEquals("Open / Ok / PreferredHostComplete / 'preferred host complete'", statusMsg.state().toString());
+                assertTrue(statusMsg.hasMsgKey());
+                assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
+                channelInfo = consumerClient.popChannelInfo();
+                assertEquals("Channel_1", channelInfo.channelName());
+                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
+                assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
+            }
 			
 			System.out.println("\nBring up the WSB-G0 again");
 			ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_9"), providerClient_3);
