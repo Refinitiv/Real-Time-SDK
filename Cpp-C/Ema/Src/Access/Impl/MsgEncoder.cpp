@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+#include "ExceptionTranslator.h"
+
 #include "MsgImpl.h"
 #include "MsgEncoder.h"
 

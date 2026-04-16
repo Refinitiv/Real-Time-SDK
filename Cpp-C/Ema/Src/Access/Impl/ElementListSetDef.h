@@ -9,8 +9,6 @@
 #ifndef __refinitiv_ema_access_ElementListSetDef_h
 #define __refinitiv_ema_access_ElementListSetDef_h
 
-#include "EmaPool.h"
-
 #include "rtr/rsslSetData.h"
 
 namespace refinitiv {
@@ -35,20 +33,6 @@ private :
 
 	ElementListSetDef( const ElementListSetDef& );
 	ElementListSetDef& operator=( const ElementListSetDef& );
-};
-
-class ElementListSetDefPool : public Pool< ElementListSetDef >
-{
-public :
-
-	ElementListSetDefPool( unsigned int size = 5 ) : Pool< ElementListSetDef >( size ) {};
-
-	virtual ~ElementListSetDefPool() {}
-
-private :
-
-	ElementListSetDefPool( const ElementListSetDefPool& );
-	ElementListSetDefPool& operator=( const ElementListSetDefPool& );
 };
 
 }

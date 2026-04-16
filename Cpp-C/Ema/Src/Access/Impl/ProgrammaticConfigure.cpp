@@ -892,6 +892,51 @@ bool ProgrammaticConfigure::validateIProviderName( const Map& map, const EmaStri
 	return false;
 }
 
+void ProgrammaticConfigure::retrieveGlobalConfig(GlobalConfigImpl& globalConfig) const
+{
+	for (UInt32 i = 0; i < _configList.size(); i++)
+	{
+		const Map& map = *_configList[i];
+
+		map.reset();
+		while (map.forth())
+		{
+			const MapEntry& mapEntry = map.getEntry();
+
+			if (mapEntry.getKey().getDataType() == DataType::AsciiEnum
+				&& (mapEntry.getKey().getAscii() == "GlobalConfig")
+				&& (mapEntry.getLoadType() == DataType::ElementListEnum))
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while (elementList.forth())
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if (elementEntry.getLoadType() == DataType::UIntEnum)
+					{
+						if (elementEntry.getName() == "EmaObjectManagerMsgTypeLimit")
+						{
+							globalConfig.msgTypePoolLimit.setValue(
+								GlobalConfigImpl::castLimit(elementEntry.getUInt()));
+						}
+						else if (elementEntry.getName() == "EmaObjectManagerComplexTypeLimit")
+						{
+							globalConfig.complexTypePoolLimit.setValue(
+								GlobalConfigImpl::castLimit(elementEntry.getUInt()));
+						}
+						else if (elementEntry.getName() == "EmaObjectManagerDataTypeLimit")
+						{
+							globalConfig.dataTypePoolLimit.setValue(
+								GlobalConfigImpl::castLimit(elementEntry.getUInt()));
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void  ProgrammaticConfigure::retrieveCommonConfig( const EmaString& instanceName, ActiveConfig& activeConfig )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )

@@ -98,20 +98,6 @@ private :
 	bool						_atExit;
 };
 
-class SeriesDecoderPool : public DecoderPool< SeriesDecoder >
-{
-public :
-
-	SeriesDecoderPool( unsigned int size = 5 ) : DecoderPool< SeriesDecoder >( size ) {};
-
-	virtual ~SeriesDecoderPool() {}
-
-private :
-
-	SeriesDecoderPool( const SeriesDecoderPool& );
-	SeriesDecoderPool& operator=( const SeriesDecoderPool& );
-};
-
 }
 
 }

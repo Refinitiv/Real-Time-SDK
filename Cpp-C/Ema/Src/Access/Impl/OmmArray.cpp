@@ -7,7 +7,6 @@
  */
 
 #include "OmmArray.h"
-#include "OmmBuffer.h"
 #include "ExceptionTranslator.h"
 #include "OmmArrayDecoder.h"
 #include "OmmArrayEncoder.h"

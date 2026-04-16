@@ -263,6 +263,8 @@ protected:
 
 	void uninitialize( bool caughtException, bool calledFromInit );
 
+	void readGlobalConfig(EmaConfigImpl*);
+
 	void readConfig( EmaConfigImpl* );
 
 	virtual void readCustomConfig( EmaConfigImpl* ) = 0;

@@ -11,7 +11,6 @@
 
 #include "Access/Include/Msg.h"
 #include "Access/Include/OmmState.h"
-#include "DataDictionary.h"
 
 #include "MsgImpl.h"
 
@@ -122,20 +121,6 @@ private :
 	mutable OmmState			_state;
 
 	EmaString					_statusTextData;
-};
-
-class StatusMsgImplPool : public DecoderPool< StatusMsgImpl >
-{
-public :
-
-	StatusMsgImplPool( unsigned int size = 5 ) : DecoderPool< StatusMsgImpl >( size ) {};
-
-	~StatusMsgImplPool() {}
-
-private :
-
-	StatusMsgImplPool( const StatusMsgImplPool& );
-	StatusMsgImplPool& operator=( const StatusMsgImplPool& );
 };
 
 }

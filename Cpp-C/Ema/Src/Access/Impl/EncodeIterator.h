@@ -9,8 +9,9 @@
 #ifndef __refinitiv_ema_access_EncodeIterator_h
 #define __refinitiv_ema_access_EncodeIterator_h
 
-#include "EmaPool.h"
 #include "rtr/rsslIterators.h"
+
+#include "Common.h"
 
 namespace refinitiv {
 
@@ -45,20 +46,6 @@ public :
 	RsslUInt8				_rsslMajVer;
 
 	RsslUInt8				_rsslMinVer;
-};
-
-class EncodeIteratorPool : public Pool< EncodeIterator >
-{
-public :
-
-	EncodeIteratorPool( unsigned int size = 5 ) : Pool< EncodeIterator >( size ) {};
-
-	virtual ~EncodeIteratorPool() {}
-
-private :
-
-	EncodeIteratorPool( const EncodeIteratorPool& );
-	EncodeIteratorPool& operator=( const EncodeIteratorPool& );
 };
 
 }

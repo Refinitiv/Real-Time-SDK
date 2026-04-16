@@ -117,20 +117,6 @@ private :
 	bool						_atExit;
 };
 
-class MapDecoderPool : public DecoderPool< MapDecoder >
-{
-public :
-
-	MapDecoderPool( unsigned int size = 5 ) : DecoderPool< MapDecoder >( size ) {};
-
-	virtual ~MapDecoderPool() {}
-
-private :
-
-	MapDecoderPool( const MapDecoderPool& );
-	MapDecoderPool& operator=( const MapDecoderPool& );
-};
-
 }
 
 }

@@ -14,7 +14,6 @@
 #include "OmmError.h"
 #include "NoDataImpl.h"
 #include "EmaBufferInt.h"
-#include "EmaPool.h"
 
 namespace refinitiv {
 
@@ -97,20 +96,6 @@ private :
 	bool						_decodingStarted;
 
 	bool						_atEnd;
-};
-
-class FilterListDecoderPool : public DecoderPool< FilterListDecoder >
-{
-public :
-
-	FilterListDecoderPool( unsigned int size = 5 ) : DecoderPool< FilterListDecoder >( size ) {};
-
-	virtual ~FilterListDecoderPool() {}
-
-private :
-
-	FilterListDecoderPool( const FilterListDecoderPool& );
-	FilterListDecoderPool& operator=( const FilterListDecoderPool& );
 };
 
 }

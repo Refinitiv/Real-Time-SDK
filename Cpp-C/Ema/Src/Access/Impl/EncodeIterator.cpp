@@ -8,7 +8,6 @@
 
 #include "EncodeIterator.h"
 #include "ExceptionTranslator.h"
-#include "OmmInvalidUsageException.h"
 
 #include <new>
 

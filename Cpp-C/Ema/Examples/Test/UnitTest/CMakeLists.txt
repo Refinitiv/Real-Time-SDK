@@ -10,6 +10,7 @@ set(_UnitTestSrcFiles
         EmaActiveConfigTest.cpp
         EmaAppClient.cpp EmaAppClient.h
         EmaBufferTest.cpp EmaConfigTest.cpp
+        EmaPoolTest.cpp
         EmaStringTests.cpp EmaVectorTest.cpp
         EmaTestClients.h EmaTestClients.cpp
         FieldListTests.cpp FilterListTests.cpp

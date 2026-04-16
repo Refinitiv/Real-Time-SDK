@@ -10,12 +10,10 @@
 #include "RefreshMsgImpl.h"
 
 #include "OmmState.h"
-#include "EmaBufferInt.h"
 #include "Utilities.h"
 #include "GlobalPool.h"
 #include "RdmUtilities.h"
 #include "StaticDecoder.h"
-#include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;

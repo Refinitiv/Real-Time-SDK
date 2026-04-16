@@ -30,20 +30,6 @@ public:
 	void set( const EmaString& );
 };
 
-class OmmXmlEncoderPool : public EncoderPool< OmmXmlEncoder >
-{
-public :
-
-	OmmXmlEncoderPool( unsigned int size = 5 ) : EncoderPool< OmmXmlEncoder >( size ) {};
-
-	virtual ~OmmXmlEncoderPool() {}
-
-private :
-
-	OmmXmlEncoderPool( const OmmXmlEncoderPool& );
-	OmmXmlEncoderPool& operator=( const OmmXmlEncoderPool& );
-};
-
 }
 
 }

@@ -12,9 +12,6 @@
 #include "GenericMsg.h"
 #include "MsgImpl.h"
 
-#include "EmaPool.h"
-
-#include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
 namespace refinitiv {
@@ -102,21 +99,6 @@ private :
 	mutable EmaBufferInt	_permission;
 	EmaBuffer				_permissionData;
 
-};
-
-
-class GenericMsgImplPool : public DecoderPool< GenericMsgImpl >
-{
-public :
-
-	GenericMsgImplPool( unsigned int size = 5 ) : DecoderPool< GenericMsgImpl >( size ) {};
-
-	~GenericMsgImplPool() {}
-
-private :
-
-	GenericMsgImplPool( const GenericMsgImplPool& );
-	GenericMsgImplPool& operator=( const GenericMsgImplPool& );
 };
 
 }

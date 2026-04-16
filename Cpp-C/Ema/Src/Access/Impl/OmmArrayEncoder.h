@@ -11,7 +11,6 @@
 
 #include "Encoder.h"
 #include "OmmReal.h"
-#include "EmaPool.h"
 #include "rtr/rsslArray.h"
 #include "OmmState.h"
 
@@ -112,20 +111,6 @@ private :
 	void endEncodingEntry() const;
 
 	RsslArray			_rsslArray;
-};
-
-class OmmArrayEncoderPool : public EncoderPool< OmmArrayEncoder >
-{
-public :
-
-	OmmArrayEncoderPool( unsigned int size = 5 ) : EncoderPool< OmmArrayEncoder >( size ) {};
-
-	virtual ~OmmArrayEncoderPool() {}
-
-private :
-
-	OmmArrayEncoderPool( const OmmArrayEncoderPool& );
-	OmmArrayEncoderPool& operator=( const OmmArrayEncoderPool& );
 };
 
 }

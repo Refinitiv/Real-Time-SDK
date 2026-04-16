@@ -11,7 +11,7 @@
 
 #include "Encoder.h"
 #include "ComplexType.h"
-#include "EmaPool.h"
+
 #include "rtr/rsslSeries.h"
 
 namespace refinitiv {
@@ -76,21 +76,6 @@ private :
 	DataType::DataTypeEnum	_emaLoadType;
 
 	bool					_containerInitialized;
-};
-
-
-class SeriesEncoderPool : public EncoderPool< SeriesEncoder >
-{
-public :
-
-	SeriesEncoderPool( unsigned int size = 5 ) : EncoderPool< SeriesEncoder >( size ) {};
-
-	virtual ~SeriesEncoderPool() {}
-
-private :
-
-	SeriesEncoderPool( const SeriesEncoderPool& );
-	SeriesEncoderPool& operator=( const SeriesEncoderPool& );
 };
 
 }

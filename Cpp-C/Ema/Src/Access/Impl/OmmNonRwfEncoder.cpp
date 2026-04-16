@@ -6,9 +6,10 @@
  *|-----------------------------------------------------------------------------
  */
 
+#include "ExceptionTranslator.h"
 #include "OmmNonRwfEncoder.h"
+
 #include "rtr/rsslDataUtils.h"
-#include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;
 

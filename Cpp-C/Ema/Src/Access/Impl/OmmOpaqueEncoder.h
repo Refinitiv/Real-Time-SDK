@@ -30,20 +30,6 @@ public :
 	void set( const EmaString& );
 };
 
-class OmmOpaqueEncoderPool : public EncoderPool< OmmOpaqueEncoder >
-{
-public :
-
-	OmmOpaqueEncoderPool( unsigned int size = 5 ) : EncoderPool< OmmOpaqueEncoder >( size ) {};
-
-	virtual ~OmmOpaqueEncoderPool() {}
-
-private :
-
-	OmmOpaqueEncoderPool( const OmmOpaqueEncoderPool& );
-	OmmOpaqueEncoderPool& operator=( const OmmOpaqueEncoderPool& );
-};
-
 }
 
 }

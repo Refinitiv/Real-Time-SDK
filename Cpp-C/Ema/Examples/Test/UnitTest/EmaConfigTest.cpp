@@ -9,14 +9,16 @@
 #include "TestUtilities.h"
 #include "EmaAppClient.h"
 #include "OmmConsumerConfigImpl.h"
-#include "OmmIProviderConfigImpl.h"
-#include "OmmNiProviderConfigImpl.h"
 #include "OmmConsumerImpl.h"
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderImpl.h"
+#include "OmmNiProviderConfigImpl.h"
 #include "EmaConfig.h"
 #include "ConsumerRoutingChannel.h"
 #include "NiProviderRoutingChannel.h"
+#include "GlobalConfig.h"
+
+#include "GlobalPool.h"
 
 using namespace refinitiv::ema::access;
 using namespace refinitiv::ema::rdm;
@@ -52,6 +54,8 @@ public:
 		SCOPED_TRACE("Loading Ema config file from ");
 		SCOPED_TRACE(configPath);
 
+		g_pool.resetMode();
+
 		SCOPED_TRACE("Starting provider1 with port 14002 and provider2 with port 14008\n");
 		try
 		{
@@ -63,10 +67,15 @@ public:
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
 			EXPECT_TRUE(false) << "Unexpected exception in testLoadingConfigurationFromProgrammaticConfigHttp()";
 		}
+
+		g_pool.resetMode();
+
 		hasRun = true;
 	}
 
-	void TearDown() {
+	void TearDown()
+	{
+		g_pool.resetMode();
 	}
 
 	static bool hasRun;
@@ -147,6 +156,19 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	RsslReactorWarmStandbyMode warmStandbyMode;
 
 	config.configErrors().clear();
+
+	// Global configuration
+	{
+		UInt64 tmp;
+		EXPECT_TRUE(config.get<UInt64>("GlobalConfig|EmaObjectManagerMsgTypeLimit", tmp));
+		ASSERT_EQ(5, tmp);
+
+		EXPECT_TRUE(config.get<UInt64>("GlobalConfig|EmaObjectManagerComplexTypeLimit", tmp));
+		ASSERT_EQ(6, tmp);
+
+		EXPECT_TRUE(config.get<UInt64>("GlobalConfig|EmaObjectManagerDataTypeLimit", tmp));
+		ASSERT_EQ(7, tmp);
+	}
 
 	// get default consumer name from the DefaultXML.h file
 	debugResult = config.get<EmaString>( "hostName", retrievedValue );
@@ -1012,6 +1034,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 
 	try
 	{
+		elementList.addUInt("EmaObjectManagerMsgTypeLimit", 15)
+			.addUInt("EmaObjectManagerComplexTypeLimit", 16)
+			.addUInt("EmaObjectManagerDataTypeLimit", 17)
+			.complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		elementList.clear();
+
 		elementList.addAscii("DefaultConsumer", "Consumer_1");
 
 		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
@@ -1129,6 +1158,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap));
 				
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>( ommConsumerImpl.getActiveConfig() );
+
+		// Global settings
+		ASSERT_EQ(15, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+		ASSERT_EQ(16, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+		ASSERT_EQ(17, activeConfig.globalConfig.dataTypePoolLimit.getValue());
+
 		bool found = ommConsumerImpl.getInstanceName().find( "Consumer_1" ) >= 0 ? true : false;
 		EXPECT_TRUE( found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_1" ) << "Connection name , \"Channel_1\"";
@@ -1211,6 +1246,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 
 	try
 	{
+		elementList.addUInt("EmaObjectManagerMsgTypeLimit", 25)
+			.addUInt("EmaObjectManagerComplexTypeLimit", 26)
+			.addUInt("EmaObjectManagerDataTypeLimit", 27)
+			.complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		elementList.clear();
+
 		elementList.addAscii("DefaultConsumer", "Consumer_1");
 
 		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
@@ -1338,6 +1380,11 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		//OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap));
 
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+		// Global settings
+		ASSERT_EQ(25, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+		ASSERT_EQ(26, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+		ASSERT_EQ(27, activeConfig.globalConfig.dataTypePoolLimit.getValue());
+
 		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
 		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
@@ -1640,6 +1687,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 	ElementList elementList;
 	try
 	{
+		elementList.addUInt("EmaObjectManagerMsgTypeLimit", 35)
+			.addUInt("EmaObjectManagerComplexTypeLimit", 36)
+			.addUInt("EmaObjectManagerDataTypeLimit", 37)
+			.complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		elementList.clear();
+
 		elementList.addAscii("DefaultConsumer", "Consumer_1");
 
 		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum, ElementList()
@@ -1769,6 +1823,12 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap));
 
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+
+		// Global settings
+		ASSERT_EQ(35, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+		ASSERT_EQ(36, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+		ASSERT_EQ(37, activeConfig.globalConfig.dataTypePoolLimit.getValue());
+
 		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
 		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1" ) << "Connection name , \"Channel_1\"";
@@ -2457,9 +2517,15 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 
 			std::cout << std::endl << " #####Now it is running test case " << testCase << std::endl;
 
+			elementList.addUInt("EmaObjectManagerMsgTypeLimit", 45)
+				.addUInt("EmaObjectManagerComplexTypeLimit", 46)
+				.addUInt("EmaObjectManagerDataTypeLimit", 47)
+				.complete();
+			outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
 			if (testCase == 1)
 			{
-
 				elementList.addAscii("DefaultConsumer", "Consumer_1");
 
 				innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum,
@@ -2551,6 +2617,8 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 				<< workingDir.c_str();
 			localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
 
+			g_pool.resetMode();
+
 			if (testCase == 1)
 			{
 				// Must load data dictionary files from current working location.
@@ -2565,6 +2633,11 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
 				EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_NEWS_ALERT) << "updateTypeFilter" << activeConfig.updateTypeFilter;
 				EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_VERIFY) << "negativeUpdateTypeFilter" << activeConfig.negativeUpdateTypeFilter;
+
+				// Global settings
+				ASSERT_EQ(45, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+				ASSERT_EQ(46, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+				ASSERT_EQ(47, activeConfig.globalConfig.dataTypePoolLimit.getValue());
 			}
 			else if (testCase == 2)
 			{
@@ -2576,6 +2649,11 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_WEBSOCKET) << "connectionType , ChannelType::RSSL_WEBSOCKET";
 				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->hostName == "localhost") << "SocketChannelConfig::hostname , \"localhost\"";
 				EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
+
+				// Global settings
+				ASSERT_EQ(45, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+				ASSERT_EQ(46, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+				ASSERT_EQ(47, activeConfig.globalConfig.dataTypePoolLimit.getValue());
 			}
 		}
 	}
@@ -3724,6 +3802,13 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 		ElementList elementList;
 		try
 		{
+			elementList.addUInt("EmaObjectManagerMsgTypeLimit", 55)
+				.addUInt("EmaObjectManagerComplexTypeLimit", 56)
+				.addUInt("EmaObjectManagerDataTypeLimit", 57)
+				.complete();
+			outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+			elementList.clear();
+
 			elementList.addAscii("DefaultIProvider", "Provider_1");
 
 			innerMap.addKeyAscii("Provider_1", MapEntry::AddEnum, ElementList()
@@ -3996,10 +4081,18 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 
 			}
 
+			g_pool.resetMode();
+
 			OmmIProviderConfig iprovConfig(localConfigPath);
 			OmmIProviderImpl ommIProviderImpl(iprovConfig.config(outermostMap), appClient);
 
 			OmmIProviderActiveConfig& activeConfig = static_cast<OmmIProviderActiveConfig&>(ommIProviderImpl.getActiveConfig());
+
+			// Global settings
+			ASSERT_EQ(55, activeConfig.globalConfig.msgTypePoolLimit.getValue());
+			ASSERT_EQ(56, activeConfig.globalConfig.complexTypePoolLimit.getValue());
+			ASSERT_EQ(57, activeConfig.globalConfig.dataTypePoolLimit.getValue());
+
 			bool found = ommIProviderImpl.getInstanceName().find("Provider_1") >= 0 ? true : false;
 			EXPECT_TRUE(found) << "ommIProviderImpl.getIProviderName() , \"Provider_1_1\"";
 			EXPECT_TRUE(activeConfig.pServerConfig->name == "Server_1") << "Server name , \"Server_1\"";
@@ -6862,6 +6955,89 @@ TEST_F(EmaConfigTest, testLoadFilterValueOverflowProgrammaticConfigForIProv)
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
 			EXPECT_TRUE(false) << "Unexpected exception in testServerSharedSocketProgrammaticConfigForIProv()";
 		}
+	}
+}
+
+TEST_F(EmaConfigTest, testPoolConfigOverloadProtection)
+{
+	{
+		Map			outermostMap, innerMap;
+		ElementList elementList;
+
+		// global object pool is configured with the settings loaded from the XML config file and
+		// one parameter, EmaObjectManagerDataTypeLimit, is overlayed by the programmatic config
+		elementList.addUInt("EmaObjectManagerDataTypeLimit", 0xC0DE).complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		outermostMap.complete();
+
+		OmmConsumerConfig config{configPath};
+		config.config(outermostMap);
+
+		OmmConsumerImpl consumerImpl{config, true};
+
+		// settings are a combination of file and programmatic configs
+		ASSERT_EQ(5, GlobalConfig::getMsgTypePoolLimit());
+		ASSERT_EQ(6, GlobalConfig::getComplexTypePoolLimit());
+		ASSERT_EQ(0xC0DE, GlobalConfig::getDataTypePoolLimit());
+	}
+
+	{
+		Map			outermostMap, innerMap;
+		ElementList elementList;
+
+		// Apply programmatic config without modifying existing settings (same as loaded from the
+		// XML config file)
+		elementList.clear();
+		outermostMap.clear();
+
+		elementList.addUInt("EmaObjectManagerMsgTypeLimit", 5)
+			.addUInt("EmaObjectManagerComplexTypeLimit", 6)
+			.addUInt("EmaObjectManagerDataTypeLimit", 0xC0DE)
+			.complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		outermostMap.complete();
+
+		ASSERT_NO_THROW({
+			OmmConsumerImpl consumerImpl(OmmConsumerConfig(configPath).config(outermostMap), true);
+		});
+
+		// settings are still the same as before
+		ASSERT_EQ(5, GlobalConfig::getMsgTypePoolLimit());
+		ASSERT_EQ(6, GlobalConfig::getComplexTypePoolLimit());
+		ASSERT_EQ(0xC0DE, GlobalConfig::getDataTypePoolLimit());
+	}
+
+	{
+		// Modify settings with the GlobalConfig functions several times.
+		for (unsigned i = 0; i < 13; i++)
+		{
+			GlobalConfig::setMsgTypePoolLimit(0xF00D + 2 * i);
+			GlobalConfig::setComplexTypePoolLimit(0xF00D + 3 * i);
+			GlobalConfig::setDataTypePoolLimit(0xF00D + 5 * i);
+
+			ASSERT_EQ(0xF00D + 2 * i, GlobalConfig::getMsgTypePoolLimit());
+			ASSERT_EQ(0xF00D + 3 * i, GlobalConfig::getComplexTypePoolLimit());
+			ASSERT_EQ(0xF00D + 5 * i, GlobalConfig::getDataTypePoolLimit());
+		}
+	}
+
+	{
+		Map			outermostMap, innerMap;
+		ElementList elementList;
+
+		// Exception will be thrown to prevent us from modifying settings that are already configured with previous config.
+		elementList.addUInt("EmaObjectManagerMsgTypeLimit", 0xC0DE)
+			.addUInt("EmaObjectManagerComplexTypeLimit", 0xC0DE)
+			.addUInt("EmaObjectManagerDataTypeLimit", 0xC0DE)
+			.complete();
+		outermostMap.addKeyAscii("GlobalConfig", MapEntry::AddEnum, elementList);
+		outermostMap.complete();
+
+		ASSERT_THROW(
+			{
+				OmmConsumerImpl consumerImpl(OmmConsumerConfig().config(outermostMap), true);
+			},
+			OmmInvalidConfigurationException);
 	}
 }
 

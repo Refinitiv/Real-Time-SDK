@@ -11,7 +11,6 @@
 
 #include "Encoder.h"
 #include "ComplexType.h"
-#include "EmaPool.h"
 #include "VectorEntry.h"
 #include "rtr/rsslVector.h"
 
@@ -81,21 +80,6 @@ private :
 	DataType::DataTypeEnum	_emaLoadType;
 
 	bool					_containerInitialized;
-};
-
-
-class VectorEncoderPool : public EncoderPool< VectorEncoder >
-{
-public :
-
-	VectorEncoderPool( unsigned int size = 5 ) : EncoderPool< VectorEncoder >( size ) {};
-
-	virtual ~VectorEncoderPool() {}
-
-private :
-
-	VectorEncoderPool( const VectorEncoderPool& );
-	VectorEncoderPool& operator=( const VectorEncoderPool& );
 };
 
 }

@@ -30,20 +30,6 @@ public:
 	void set( const EmaString& );
 };
 
-class OmmJsonEncoderPool : public EncoderPool< OmmJsonEncoder >
-{
-public :
-
-	OmmJsonEncoderPool( unsigned int size = 5 ) : EncoderPool< OmmJsonEncoder >( size ) {};
-
-	virtual ~OmmJsonEncoderPool() {}
-
-private :
-
-	OmmJsonEncoderPool( const OmmJsonEncoderPool& );
-	OmmJsonEncoderPool& operator=( const OmmJsonEncoderPool& );
-};
-
 }
 
 }

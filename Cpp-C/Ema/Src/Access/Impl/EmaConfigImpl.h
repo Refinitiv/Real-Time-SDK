@@ -598,7 +598,7 @@ public:
 			EmaString actualNodeName = nodeName.substr( 0, dotPosition );
 			EmaString name = nodeName.substr( dotPosition + 1, nodeName.length() - dotPosition - 1 );
 			T* retVal( 0 );
-			int arrayLoc( 0 );
+
 			for ( Node* p = _theList; p; p = p->next )
 			{
 				if ( p->e->name() == actualNodeName )
@@ -728,7 +728,6 @@ public:
 		Int32 substrBeginningPosition( 0 );
 		Int32 substrEndingPosition( 0 );
 		const char* nodeSeparator( "|" );
-		const char* nameSeparator( "." );
 		EmaString attributeName;
 
 		substrEndingPosition = static_cast<EmaString>( itemToRetrieve ).find( nodeSeparator, substrBeginningPosition );

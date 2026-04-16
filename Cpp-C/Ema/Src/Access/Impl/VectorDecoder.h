@@ -113,20 +113,6 @@ private :
 	bool						_atExit;
 };
 
-class VectorDecoderPool : public DecoderPool< VectorDecoder >
-{
-public :
-
-	VectorDecoderPool( unsigned int size = 5 ) : DecoderPool< VectorDecoder >( size ) {};
-
-	virtual ~VectorDecoderPool() {}
-
-private :
-
-	VectorDecoderPool( const VectorDecoderPool& );
-	VectorDecoderPool& operator=( const VectorDecoderPool& );
-};
-
 }
 
 }

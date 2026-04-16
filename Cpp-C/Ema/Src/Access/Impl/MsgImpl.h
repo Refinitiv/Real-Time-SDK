@@ -18,6 +18,7 @@
 #include "EmaStringInt.h"
 #include "FixedBuffer.h"
 
+#include <cstdint>
 #include <type_traits>
 
 namespace refinitiv {

@@ -7,7 +7,6 @@
  */
 
 #include "ElementList.h"
-#include "OmmBuffer.h"
 #include "EmaString.h"
 #include "ExceptionTranslator.h"
 #include "ElementListDecoder.h"

@@ -12,7 +12,6 @@
 #include "FilterEntry.h"
 #include "Encoder.h"
 #include "ComplexType.h"
-#include "EmaPool.h"
 #include "rtr/rsslFilterList.h"
 
 namespace refinitiv {
@@ -77,21 +76,6 @@ private :
 	DataType::DataTypeEnum	_emaLoadType;
 
 	bool					_containerInitialized;
-};
-
-
-class FilterListEncoderPool : public EncoderPool< FilterListEncoder >
-{
-public :
-
-	FilterListEncoderPool( unsigned int size = 5 ) : EncoderPool< FilterListEncoder >( size ) {};
-
-	virtual ~FilterListEncoderPool() {}
-
-private :
-
-	FilterListEncoderPool( const FilterListEncoderPool& );
-	FilterListEncoderPool& operator=( const FilterListEncoderPool& );
 };
 
 }

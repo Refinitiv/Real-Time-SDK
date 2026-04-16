@@ -8,6 +8,8 @@
 
 #include "SummaryData.h"
 #include "FieldList.h"
+#include "Decoder.h"
+#include "ExceptionTranslator.h"
 #include "ElementList.h"
 #include "Map.h"
 #include "Vector.h"
@@ -24,7 +26,6 @@
 #include "PostMsg.h"
 #include "AckMsg.h"
 #include "GenericMsg.h"
-#include "MapDecoder.h"
 #include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;

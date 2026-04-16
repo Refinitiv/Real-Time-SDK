@@ -12,7 +12,6 @@
 #include "Encoder.h"
 #include "ComplexType.h"
 #include "OmmReal.h"
-#include "EmaPool.h"
 #include "OmmState.h"
 #include "MapEntry.h"
 #include "rtr/rsslMap.h"
@@ -196,21 +195,6 @@ private :
 	bool					_keyTypeSet;
 
 	bool					_containerInitialized;
-};
-
-
-class MapEncoderPool : public EncoderPool< MapEncoder >
-{
-public :
-
-	MapEncoderPool( unsigned int size = 5 ) : EncoderPool< MapEncoder >( size ) {};
-
-	virtual ~MapEncoderPool() {}
-
-private :
-
-	MapEncoderPool( const MapEncoderPool& );
-	MapEncoderPool& operator=( const MapEncoderPool& );
 };
 
 }

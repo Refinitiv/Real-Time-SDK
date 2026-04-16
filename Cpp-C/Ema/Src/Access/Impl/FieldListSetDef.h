@@ -9,8 +9,6 @@
 #ifndef __refinitiv_ema_access_FieldListSetDef_h
 #define __refinitiv_ema_access_FieldListSetDef_h
 
-#include "EmaPool.h"
-
 #include "rtr/rsslSetData.h"
 
 namespace refinitiv {
@@ -35,20 +33,6 @@ private :
 
 	FieldListSetDef( const FieldListSetDef& );
 	FieldListSetDef& operator=( const FieldListSetDef& );
-};
-
-class FieldListSetDefPool : public Pool< FieldListSetDef >
-{
-public :
-
-	FieldListSetDefPool( unsigned int size = 5 ) : Pool< FieldListSetDef >( size ) {};
-
-	virtual ~FieldListSetDefPool() {}
-
-private :
-
-	FieldListSetDefPool( const FieldListSetDefPool& );
-	FieldListSetDefPool& operator=( const FieldListSetDefPool& );
 };
 
 }

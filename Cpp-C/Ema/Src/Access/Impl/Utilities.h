@@ -63,8 +63,7 @@ static inline
 
 void emafail( const char* cond, const char* msg, const char* file, int line )
 {
-	static char fmt[] = "Fatal Error: %s, %s (file %s, line %d)\n";
-	fprintf(stderr, fmt, cond, msg, file, line);
+	fprintf(stderr, "Fatal Error: %s, %s (file %s, line %d)\n", cond, msg, file, line);
 	abort();
 }
 

@@ -11,8 +11,6 @@
 
 #include "MsgImpl.h"
 
-#include "EmaPool.h"
-#include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
 namespace refinitiv {
@@ -110,20 +108,6 @@ private :
 
 	mutable EmaBufferInt			_permission;
 	EmaBuffer			_permissionData;
-};
-
-class PostMsgImplPool : public DecoderPool< PostMsgImpl >
-{
-public :
-
-	PostMsgImplPool( unsigned int size = 5 ) : DecoderPool< PostMsgImpl >( size ) {};
-
-	~PostMsgImplPool() {}
-
-private :
-
-	PostMsgImplPool( const PostMsgImplPool& );
-	PostMsgImplPool& operator=( const PostMsgImplPool& );
 };
 
 }

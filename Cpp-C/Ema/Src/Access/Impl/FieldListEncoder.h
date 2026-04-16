@@ -11,7 +11,6 @@
 
 #include "Encoder.h"
 #include "OmmReal.h"
-#include "EmaPool.h"
 #include "OmmState.h"
 #include "rtr/rsslFieldList.h"
 
@@ -177,21 +176,6 @@ private :
 	DataType::DataTypeEnum	_emaLoadType;
 
 	bool					_containerInitialized;
-};
-
-
-class FieldListEncoderPool : public EncoderPool< FieldListEncoder >
-{
-public :
-
-	FieldListEncoderPool( unsigned int size = 5 ) : EncoderPool< FieldListEncoder >( size ) {};
-
-	virtual ~FieldListEncoderPool() {}
-
-private :
-
-	FieldListEncoderPool( const FieldListEncoderPool& );
-	FieldListEncoderPool& operator=( const FieldListEncoderPool& );
 };
 
 }

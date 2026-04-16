@@ -87,9 +87,9 @@ DictionaryConfig* ServiceDictionaryConfig::findDictionary(const EmaString& dicti
 	if (isDictProvided)
 	{
 		DictionaryConfig* name = dictionaryProvidedList.front();
-		int size = dictionaryProvidedList.size();
-		bool foundDefaultName = false;
-		while (name && size-- > 0)
+		UInt32 size = dictionaryProvidedList.size();
+
+		while (name != nullptr && size-- > 0)
 		{
 			if (name->dictionaryName == dictionaryName)
 				return name;
@@ -101,9 +101,9 @@ DictionaryConfig* ServiceDictionaryConfig::findDictionary(const EmaString& dicti
 	else
 	{
 		DictionaryConfig* name = dictionaryUsedList.front();
-		int size = dictionaryUsedList.size();
-		bool foundDefaultName = false;
-		while (name && size-- > 0)
+		UInt32 size = dictionaryUsedList.size();
+
+		while (name != nullptr && size-- > 0)
 		{
 			if (name->dictionaryName == dictionaryName)
 				return name;
@@ -147,10 +147,22 @@ void LoggerConfig::clear()
 	loggerType = OmmLoggerClient::FileEnum;
 }
 
+GlobalConfigImpl::GlobalConfigImpl()
+{
+}
+
+void GlobalConfigImpl::clear()
+{
+	msgTypePoolLimit.reset();
+	complexTypePoolLimit.reset();
+	dataTypePoolLimit.reset();
+}
+
 BaseConfig::BaseConfig() :
 	configuredName(),
 	instanceName(),
 	itemCountHint(DEFAULT_ITEM_COUNT_HINT),
+	globalConfig(),
 	serviceCountHint(DEFAULT_SERVICE_COUNT_HINT),
 	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
 	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
@@ -200,6 +212,7 @@ void BaseConfig::clear()
 {
 	configuredName.clear();
 	instanceName.clear();
+	globalConfig.clear();
 	itemCountHint = DEFAULT_ITEM_COUNT_HINT;
 	serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
 	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
@@ -1310,7 +1323,7 @@ void ReliableMcastChannelConfig::setUserQLimit( UInt64 value )
 	else if ( value < LOWLIMIT_USER_QLIMIT)
 		userQLimit = LOWLIMIT_USER_QLIMIT;
 	else
-		userQLimit = ( RsslUInt32 ) value;
+		userQLimit = ( RsslUInt16 ) value;
 }
 
 

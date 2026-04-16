@@ -13,7 +13,6 @@
 #include "OmmBaseImpl.h"
 #include "OmmBaseImplMap.h"
 #include "OmmConsumerErrorClient.h"
-#include "StreamId.h"
 #include "EmaVersion.h"
 #include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
@@ -24,6 +23,7 @@
 #include "NiProviderRoutingSession.h"
 #include "NiProviderRoutingChannel.h"
 
+#include <memory>
 #include <new>
 
 #define EMA_INIT_NUMBER_OF_SOCKET 5
@@ -662,7 +662,7 @@ void ChannelCallbackClient::initialize()
 			EmaVector<WarmStandbyChannelConfig*>& warmStandbyChannelSet = activeConfig.configWarmStandbySet;
 		UInt32 channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
 
-		RsslReactorConnectInfo* reactorConnectInfo = nullptr;
+		std::unique_ptr<RsslReactorConnectInfo[]> reactorConnectInfo;
 		RsslReactorWarmStandbyGroup* warmStandbyChannelGroup = nullptr;
 
 		RsslReactorConnectOptions connectOpt;
@@ -677,7 +677,7 @@ void ChannelCallbackClient::initialize()
 		{
 			try
 			{
-				reactorConnectInfo = new RsslReactorConnectInfo[activeConfigChannelSet.size()];
+				reactorConnectInfo.reset(new RsslReactorConnectInfo[activeConfigChannelSet.size()]);
 			}
 			catch (std::bad_alloc&)
 			{
@@ -694,7 +694,7 @@ void ChannelCallbackClient::initialize()
 				rsslClearReactorConnectInfo(&reactorConnectInfo[i]);
 			}
 
-			connectOpt.reactorConnectionList = reactorConnectInfo;
+			connectOpt.reactorConnectionList = reactorConnectInfo.get();
 		}
 
 
@@ -1004,17 +1004,12 @@ void ChannelCallbackClient::initialize()
 
 			_channelList.removeAllChannel();
 
-			delete [] reactorConnectInfo;
-
 			freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
 
 			throwIueException( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 			return;
 		}
-
-		if (reactorConnectInfo != nullptr)
-			delete [] reactorConnectInfo;
 
 		freeReactorWarmStandbyGroup(connectOpt, warmStandbyChannelGroup);
 	}

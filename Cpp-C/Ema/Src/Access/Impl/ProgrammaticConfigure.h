@@ -13,6 +13,7 @@
 #include "EmaVector.h"
 #include "EmaList.h"
 #include "ConfigErrorHandling.h"
+#include "GlobalPool.h"
 
 namespace refinitiv {
 
@@ -201,6 +202,8 @@ public:
 	bool getActiveDictionaryName( const EmaString&, EmaString& );
 
 	bool getActiveDirectoryName( const EmaString&, EmaString& );
+
+	void retrieveGlobalConfig(class GlobalConfigImpl& globalConfig) const;
 
 	void retrieveCommonConfig( const EmaString&, ActiveConfig& );
 

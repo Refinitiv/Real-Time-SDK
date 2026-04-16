@@ -164,6 +164,8 @@ protected:
 
 	void uninitialize(bool caughtException, bool calledFromInit);
 
+	void readGlobalConfig(EmaConfigServerImpl*);
+
 	void readConfig(EmaConfigServerImpl*);
 
 	virtual void readCustomConfig(EmaConfigServerImpl*) = 0;

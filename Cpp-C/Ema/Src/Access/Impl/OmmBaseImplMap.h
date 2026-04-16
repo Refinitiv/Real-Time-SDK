@@ -105,6 +105,66 @@ protected:
   int				_pipeReadEventFdsIdx;
 #endif
 
+  template <typename ConfigImplT, typename OmmConfigT>
+  void handlePoolConfig(ConfigImplT& pConfigImpl, OmmConfigT& activeConfig)
+  {
+	  UInt64 tmp = 0;
+
+	  if (pConfigImpl.template get<UInt64>("GlobalConfig|EmaObjectManagerMsgTypeLimit", tmp))
+	  {
+		  activeConfig.globalConfig.msgTypePoolLimit.setValue(GlobalConfigImpl::castLimit(tmp));
+	  }
+
+	  if (pConfigImpl.template get<UInt64>("GlobalConfig|EmaObjectManagerComplexTypeLimit", tmp))
+	  {
+		  activeConfig.globalConfig.complexTypePoolLimit.setValue(GlobalConfigImpl::castLimit(tmp));
+	  }
+
+	  if (pConfigImpl.template get<UInt64>("GlobalConfig|EmaObjectManagerDataTypeLimit", tmp))
+	  {
+		  activeConfig.globalConfig.dataTypePoolLimit.setValue(GlobalConfigImpl::castLimit(tmp));
+	  }
+
+	  // Programmatic config (when present) overrides settings from the XML file config
+	  ProgrammaticConfigure* ppc = pConfigImpl.getProgrammaticConfigure();
+	  if (ppc != nullptr)
+	  {
+		  ppc->retrieveGlobalConfig(activeConfig.globalConfig);
+	  }
+
+	  // Apply configuration
+	  EmaString errorMsg("Applied following limits from configuration to Global object pools: ");
+
+	  if (activeConfig.globalConfig.msgTypePoolLimit.hasValue())
+	  {
+		  g_pool.setMsgTypePoolLimit(activeConfig.globalConfig.msgTypePoolLimit.getValue(),
+									 SettingMode::Configure);
+		  errorMsg.append("MsgType=").append(g_pool.getMsgTypePoolLimit()).append(", ");
+	  }
+
+	  if (activeConfig.globalConfig.complexTypePoolLimit.hasValue())
+	  {
+		  g_pool.setComplexTypePoolLimit(activeConfig.globalConfig.complexTypePoolLimit.getValue(),
+										 SettingMode::Configure);
+		  errorMsg.append("ComplexType=").append(g_pool.getComplexTypePoolLimit()).append(", ");
+	  }
+
+	  if (activeConfig.globalConfig.dataTypePoolLimit.hasValue())
+	  {
+		  g_pool.setDataTypePoolLimit(activeConfig.globalConfig.dataTypePoolLimit.getValue(),
+									  SettingMode::Configure);
+		  errorMsg.append("DataType=").append(g_pool.getComplexTypePoolLimit()).append(", ");
+	  }
+
+	  // Log a message if any of the limits was changed by the configuration
+	  if (activeConfig.globalConfig.msgTypePoolLimit.hasValue()
+		  || activeConfig.globalConfig.complexTypePoolLimit.hasValue()
+		  || activeConfig.globalConfig.dataTypePoolLimit.hasValue())
+	  {
+		  errorMsg.append("Use GlobalConfig functions to modify them");
+		  pConfigImpl.appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+	  }
+  }
 };
 
 template <class T> class OmmBaseImplMap

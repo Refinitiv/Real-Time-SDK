@@ -168,7 +168,7 @@ void OmmLoggerClient::destroy( OmmLoggerClient*& pClient )
 	if ( pClient )
 	{
 		delete pClient;
-		pClient = 0;
+		pClient = nullptr;
 	}
 }
 

@@ -14,7 +14,6 @@
 #include "EmaConfigImpl.h"
 #include "OmmIProviderConfig.h"
 #include "OAuth2Credential.h"
-#include "OmmOAuth2CredentialImpl.h"
 #include "DataDictionary.h"
 
 #include "LoginRdmReqMsgImpl.h"
@@ -457,6 +456,66 @@ struct LoggerConfig
 	UInt32	maxFileNumber;
 };
 
+template <typename T>
+class OptionalValue final
+{
+public:
+
+	OptionalValue() :
+	 _value{},
+	 _hasValue{false}
+	{
+	}
+
+	void setValue(T value)
+	{
+		_value = value;
+		_hasValue = true;
+	}
+
+	T getValue() const
+	{
+		return _value;
+	}
+
+	bool hasValue() const
+	{
+		return _hasValue;
+	}
+
+	void reset()
+	{
+		_value = {};
+		_hasValue = false;
+	}
+
+private:
+
+	T	 _value;
+	bool _hasValue;
+};
+
+class GlobalConfigImpl final
+{
+public:
+
+	GlobalConfigImpl();
+
+	OptionalValue<UInt32> msgTypePoolLimit;
+	OptionalValue<UInt32> complexTypePoolLimit;
+	OptionalValue<UInt32> dataTypePoolLimit;
+
+	static UInt32 castLimit(UInt64 limit)
+	{
+        if (limit > RWF_MAX_32)
+            return RWF_MAX_32;
+        else
+            return static_cast<UInt32>(limit);
+	}
+
+	void clear();
+};
+
 class BaseConfig
 {
 public:
@@ -485,6 +544,7 @@ public:
 	UInt32					maxDispatchCountApiThread;
 	UInt32					maxDispatchCountUserThread;
 	Int32					maxEventsInPool;
+	GlobalConfigImpl		globalConfig;
 	Int64					xmlTraceMaxFileSize;
 	bool					xmlTraceToFile;
 	bool					xmlTraceToStdout;

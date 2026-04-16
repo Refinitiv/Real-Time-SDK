@@ -757,6 +757,8 @@ OmmBaseImpl::~OmmBaseImpl()
 		_oAuth2Credentials.removePosition(i);
 	}
 
+	if (_pLoggerClient != nullptr)
+		OmmLoggerClient::destroy(_pLoggerClient);
 }
 
 UInt8 OmmBaseImpl::getOAuthArrayIndex(EmaString& channelName)
@@ -878,6 +880,12 @@ UInt8 OmmBaseImpl::getLoginArrayIndex(EmaString& channelName)
 	errorMsg.append(channelName).append(".");
 	throwIceException(errorMsg);
 	return 0;
+}
+
+// note: can throw ICE exception if pool limit has already been set by another config
+void OmmBaseImpl::readGlobalConfig(EmaConfigImpl* pConfigImpl)
+{
+	handlePoolConfig(*pConfigImpl, _activeConfig);
 }
 
 void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
@@ -2854,6 +2862,8 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			_activeConfig.loggerConfig.maxFileSize,
 			_activeConfig.loggerConfig.maxFileNumber );
 
+		readGlobalConfig(configImpl);
+
 		readCustomConfig(configImpl);
 
 		configImpl->configErrors().log(_pLoggerClient, _activeConfig.loggerConfig.minLoggerSeverity);
@@ -3315,6 +3325,8 @@ void OmmBaseImpl::initializeForTest(EmaConfigImpl* configImpl)
 			_activeConfig.loggerConfig.loggerFileName,
 			_activeConfig.loggerConfig.maxFileSize,
 			_activeConfig.loggerConfig.maxFileNumber );
+
+		readGlobalConfig(configImpl);
 
 		readCustomConfig(configImpl);
 

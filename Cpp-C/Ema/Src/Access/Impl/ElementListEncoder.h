@@ -11,7 +11,6 @@
 
 #include "Encoder.h"
 #include "OmmReal.h"
-#include "EmaPool.h"
 #include "OmmState.h"
 #include "rtr/rsslElementList.h"
 
@@ -181,21 +180,6 @@ private :
 	DataType::DataTypeEnum		_emaLoadType;
 
 	bool						_containerInitialized;
-};
-
-
-class ElementListEncoderPool : public EncoderPool< ElementListEncoder >
-{
-public :
-
-	ElementListEncoderPool( unsigned int size = 5 ) : EncoderPool< ElementListEncoder >( size ) {};
-
-	virtual ~ElementListEncoderPool() {}
-
-private :
-
-	ElementListEncoderPool( const ElementListEncoderPool& );
-	ElementListEncoderPool& operator=( const ElementListEncoderPool& );
 };
 
 }

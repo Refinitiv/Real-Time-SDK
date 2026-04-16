@@ -154,6 +154,7 @@
 #include "Access/Include/GetTime.h"
 
 #include "Access/Include/EmaConfig.h"
+#include "Access/Include/GlobalConfig.h"
 
 #include "Access/Include/PreferredHostOptions.h"
 #include "Access/Include/PreferredHostInfo.h"

@@ -40,11 +40,20 @@
 #include "ElementListSetDef.h"
 #include "FieldListSetDef.h"
 
+#include "EmaPool.h"
+
 namespace refinitiv {
 
 namespace ema {
 
 namespace access {
+
+enum class SettingMode
+{
+	Initialize,
+	Configure,
+	Overwrite
+};
 
 #define DO_ITEM_FUNCS(item, pool)\
 item * get##item##Item()\
@@ -61,7 +70,11 @@ void returnItem(item * pEncoder)\
 
 class GlobalPool
 {
-public :
+public:
+
+	constexpr static UInt32 DEFAULT_POOL_MSGTYPE_LIMIT = RWF_MAX_32;
+	constexpr static UInt32 DEFAULT_POOL_COMPLEXTYPE_LIMIT = RWF_MAX_32;
+	constexpr static UInt32 DEFAULT_POOL_DATATYPE_LIMIT = RWF_MAX_32;
 
 	GlobalPool();
 	virtual ~GlobalPool();
@@ -72,73 +85,136 @@ public :
 		_isFinalState = true;
 	}
 
-	DO_ITEM_FUNCS(ElementListSetDef, _elementListSetDefPool)
-	DO_ITEM_FUNCS(FieldListSetDef, _fieldListSetDefPool)
+	/*!< Limit the number of message objects in the pools */
+	void setMsgTypePoolLimit(UInt32 limit, SettingMode mode);
 
-	DO_ITEM_FUNCS(EncodeIterator, _encodeIteratorPool)
-	DO_ITEM_FUNCS(OmmArrayEncoder, _arrayEncoderPool)
-	DO_ITEM_FUNCS(ElementListEncoder, _elementListEncoderPool)
-	DO_ITEM_FUNCS(FieldListEncoder, _fieldListEncoderPool)
-	DO_ITEM_FUNCS(MapEncoder, _mapEncoderPool)
-	DO_ITEM_FUNCS(VectorEncoder, _vectorEncoderPool)
-	DO_ITEM_FUNCS(SeriesEncoder, _seriesEncoderPool)
-	DO_ITEM_FUNCS(FilterListEncoder, _filterListEncoderPool)
-	DO_ITEM_FUNCS(OmmAnsiPageEncoder, _ommAnsiPageEncoderPool)
-	DO_ITEM_FUNCS(OmmOpaqueEncoder, _ommOpaqueEncoderPool)
-	DO_ITEM_FUNCS(OmmXmlEncoder, _ommXmlEncoderPool)
-	DO_ITEM_FUNCS(OmmJsonEncoder, _ommJsonEncoderPool)
+	/*!< Limit the number of complex type decoders and encoders in the pools */
+	void setComplexTypePoolLimit(UInt32 limit, SettingMode mode);
 
-	DO_ITEM_FUNCS(AckMsgImpl, _ackMsgImplPool)
-	DO_ITEM_FUNCS(GenericMsgImpl, _genericMsgImplPool)
-	DO_ITEM_FUNCS(PostMsgImpl, _postMsgImplPool)
-	DO_ITEM_FUNCS(ReqMsgImpl, _reqMsgImplPool)
-	DO_ITEM_FUNCS(RefreshMsgImpl, _refreshMsgImplPool)
-	DO_ITEM_FUNCS(StatusMsgImpl, _statusMsgImplPool)
-	DO_ITEM_FUNCS(UpdateMsgImpl, _updateMsgImplPool)
+	/*!< Limit the number of ordinary data type objects in the pools. In Ema C++ this affects only
+	 * Array encoder and decoder objects. */
+	void setDataTypePoolLimit(UInt32 limit, SettingMode mode);
 
-	DO_ITEM_FUNCS(OmmArrayDecoder, _arrayDecoderPool)
-	DO_ITEM_FUNCS(ElementListDecoder, _elementListDecoderPool)
-	DO_ITEM_FUNCS(FieldListDecoder, _fieldListDecoderPool)
-	DO_ITEM_FUNCS(FilterListDecoder, _filterListDecoderPool)
-	DO_ITEM_FUNCS(MapDecoder, _mapDecoderPool)
-	DO_ITEM_FUNCS(VectorDecoder, _vectorDecoderPool)
-	DO_ITEM_FUNCS(SeriesDecoder, _seriesDecoderPool)
+	UInt32 getMsgTypePoolLimit() const;
+
+	UInt32 getComplexTypePoolLimit() const;
+
+	UInt32 getDataTypePoolLimit() const;
+
+	UInt32 getAckMsgInPoolCount() const
+	{
+		return _ackMsgImplPool.count();
+	}
+
+	UInt32 getGenericMsgInPoolCount() const
+	{
+		return _genericMsgImplPool.count();
+	}
+
+	UInt32 getPostMsgInPoolCount() const
+	{
+		return _postMsgImplPool.count();
+	}
+
+	UInt32 getReqMsgInPoolCount() const
+	{
+		return _reqMsgImplPool.count();
+	}
+
+	UInt32 getRefreshMsgInPoolCount() const
+	{
+		return _refreshMsgImplPool.count();
+	}
+
+	UInt32 getStatusMsgInPoolCount() const
+	{
+		return _statusMsgImplPool.count();
+	}
+
+	UInt32 getUpdateMsgInPoolCount() const
+	{
+		return _updateMsgImplPool.count();
+	}
+
+	/// Used by tests to enable subsequent OmmConsumer or Provider initialization overwrite pool limits
+	/// without triggering an exception
+	void resetMode();
+
+	DO_ITEM_FUNCS(ElementListSetDef, _elementListSetDefPool);
+	DO_ITEM_FUNCS(FieldListSetDef, _fieldListSetDefPool);
+
+	DO_ITEM_FUNCS(EncodeIterator, _encodeIteratorPool);
+	DO_ITEM_FUNCS(OmmArrayEncoder, _arrayEncoderPool);
+	DO_ITEM_FUNCS(ElementListEncoder, _elementListEncoderPool);
+	DO_ITEM_FUNCS(FieldListEncoder, _fieldListEncoderPool);
+	DO_ITEM_FUNCS(MapEncoder, _mapEncoderPool);
+	DO_ITEM_FUNCS(VectorEncoder, _vectorEncoderPool);
+	DO_ITEM_FUNCS(SeriesEncoder, _seriesEncoderPool);
+	DO_ITEM_FUNCS(FilterListEncoder, _filterListEncoderPool);
+	DO_ITEM_FUNCS(OmmAnsiPageEncoder, _ommAnsiPageEncoderPool);
+	DO_ITEM_FUNCS(OmmOpaqueEncoder, _ommOpaqueEncoderPool);
+	DO_ITEM_FUNCS(OmmXmlEncoder, _ommXmlEncoderPool);
+	DO_ITEM_FUNCS(OmmJsonEncoder, _ommJsonEncoderPool);
+
+	DO_ITEM_FUNCS(AckMsgImpl, _ackMsgImplPool);
+	DO_ITEM_FUNCS(GenericMsgImpl, _genericMsgImplPool);
+	DO_ITEM_FUNCS(PostMsgImpl, _postMsgImplPool);
+	DO_ITEM_FUNCS(ReqMsgImpl, _reqMsgImplPool);
+	DO_ITEM_FUNCS(RefreshMsgImpl, _refreshMsgImplPool);
+	DO_ITEM_FUNCS(StatusMsgImpl, _statusMsgImplPool);
+	DO_ITEM_FUNCS(UpdateMsgImpl, _updateMsgImplPool);
+
+	DO_ITEM_FUNCS(OmmArrayDecoder, _arrayDecoderPool);
+
+	DO_ITEM_FUNCS(ElementListDecoder, _elementListDecoderPool);
+	DO_ITEM_FUNCS(FieldListDecoder, _fieldListDecoderPool);
+	DO_ITEM_FUNCS(FilterListDecoder, _filterListDecoderPool);
+	DO_ITEM_FUNCS(MapDecoder, _mapDecoderPool);
+	DO_ITEM_FUNCS(VectorDecoder, _vectorDecoderPool);
+	DO_ITEM_FUNCS(SeriesDecoder, _seriesDecoderPool);
 
 private:
 
 	static bool					_isFinalState;  // indicates that the global pool is destroyed, clients must stop all operations with it
 
-	ElementListSetDefPool		_elementListSetDefPool;
-	FieldListSetDefPool			_fieldListSetDefPool;
+	UInt32 _msgTypeLimit;
+	bool   _msgTypeLimitSet;
+	UInt32 _complexTypeLimit;
+	bool   _complexTypeLimitSet;
+	UInt32 _dataTypeLimit;
+	bool   _dataTypeLimitSet;
 
-	EncodeIteratorPool			_encodeIteratorPool;
-	OmmArrayEncoderPool			_arrayEncoderPool;
-	ElementListEncoderPool		_elementListEncoderPool;
-	FieldListEncoderPool		_fieldListEncoderPool;
-	MapEncoderPool				_mapEncoderPool;
-	VectorEncoderPool			_vectorEncoderPool;
-	SeriesEncoderPool			_seriesEncoderPool;
-	FilterListEncoderPool		_filterListEncoderPool;
-	OmmAnsiPageEncoderPool		_ommAnsiPageEncoderPool;
-	OmmOpaqueEncoderPool		_ommOpaqueEncoderPool;
-	OmmXmlEncoderPool			_ommXmlEncoderPool;
-	OmmJsonEncoderPool			_ommJsonEncoderPool;
+	Pool<ElementListSetDef> _elementListSetDefPool;
+	Pool<FieldListSetDef>	_fieldListSetDefPool;
 
-	AckMsgImplPool			_ackMsgImplPool;
-	GenericMsgImplPool		_genericMsgImplPool;
-	PostMsgImplPool			_postMsgImplPool;
-	ReqMsgImplPool			_reqMsgImplPool;
-	RefreshMsgImplPool		_refreshMsgImplPool;
-	StatusMsgImplPool			_statusMsgImplPool;
-	UpdateMsgImplPool		_updateMsgImplPool;
+	Pool<EncodeIterator>			_encodeIteratorPool;
+	EncoderPool<OmmArrayEncoder>	_arrayEncoderPool;
+	EncoderPool<ElementListEncoder> _elementListEncoderPool;
+	EncoderPool<FieldListEncoder>	_fieldListEncoderPool;
+	EncoderPool<MapEncoder>			_mapEncoderPool;
+	EncoderPool<VectorEncoder>		_vectorEncoderPool;
+	EncoderPool<SeriesEncoder>		_seriesEncoderPool;
+	EncoderPool<FilterListEncoder>	_filterListEncoderPool;
+	EncoderPool<OmmAnsiPageEncoder> _ommAnsiPageEncoderPool;
+	EncoderPool<OmmOpaqueEncoder>	_ommOpaqueEncoderPool;
+	EncoderPool<OmmXmlEncoder>		_ommXmlEncoderPool;
+	EncoderPool<OmmJsonEncoder>		_ommJsonEncoderPool;
 
-	OmmArrayDecoderPool			_arrayDecoderPool;
-	ElementListDecoderPool		_elementListDecoderPool;
-	FieldListDecoderPool		_fieldListDecoderPool;
-	FilterListDecoderPool		_filterListDecoderPool;
-	MapDecoderPool				_mapDecoderPool;
-	VectorDecoderPool			_vectorDecoderPool;
-	SeriesDecoderPool			_seriesDecoderPool;
+	Pool<AckMsgImpl>	 _ackMsgImplPool;
+	Pool<GenericMsgImpl> _genericMsgImplPool;
+	Pool<PostMsgImpl>	 _postMsgImplPool;
+	Pool<ReqMsgImpl>	 _reqMsgImplPool;
+	Pool<RefreshMsgImpl> _refreshMsgImplPool;
+	Pool<StatusMsgImpl>	 _statusMsgImplPool;
+	Pool<UpdateMsgImpl>	 _updateMsgImplPool;
+
+	Pool<OmmArrayDecoder>	 _arrayDecoderPool;
+	Pool<ElementListDecoder> _elementListDecoderPool;
+	Pool<FieldListDecoder>	 _fieldListDecoderPool;
+	Pool<FilterListDecoder>	 _filterListDecoderPool;
+	Pool<MapDecoder>		 _mapDecoderPool;
+	Pool<VectorDecoder>		 _vectorDecoderPool;
+	Pool<SeriesDecoder>		 _seriesDecoderPool;
 };
 
 #undef DO_ITEM_FUNCS

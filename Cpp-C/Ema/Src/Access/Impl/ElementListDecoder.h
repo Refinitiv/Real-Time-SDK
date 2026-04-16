@@ -13,9 +13,7 @@
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 #include "EmaVector.h"
-#include "EmaPool.h"
 #include "OmmError.h"
-#include "NoDataImpl.h"
 #include "rtr/rsslSetData.h"
 
 namespace refinitiv {
@@ -103,20 +101,6 @@ private :
 	bool						_decodingStarted;
 
 	bool						_atEnd;
-};
-
-class ElementListDecoderPool : public DecoderPool< ElementListDecoder >
-{
-public :
-
-	ElementListDecoderPool( unsigned int size = 5 ) : DecoderPool< ElementListDecoder >( size ) {};
-
-	virtual ~ElementListDecoderPool() {}
-
-private :
-
-	ElementListDecoderPool( const ElementListDecoderPool& );
-	ElementListDecoderPool& operator=( const ElementListDecoderPool& );
 };
 
 }

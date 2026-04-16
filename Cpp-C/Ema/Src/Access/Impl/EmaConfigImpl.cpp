@@ -22,6 +22,7 @@
 
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
+#include "ExceptionTranslator.h"
 #include "DefaultXML.h"
 #include "DictionaryCallbackClient.h"
 #include "ReqMsg.h"
@@ -32,7 +33,6 @@
 #include "ProgrammaticConfigure.h"
 #include "OmmOAuth2CredentialImpl.h"
 #include "OmmException.h"
-#include "OmmInvalidUsageException.h"
 #include "ServiceList.h"
 
 using namespace refinitiv::ema::access;

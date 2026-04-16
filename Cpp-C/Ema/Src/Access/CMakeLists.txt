@@ -105,6 +105,7 @@ else()
             Impl/GenericMsg.cpp
             Impl/GenericMsgImpl.cpp Impl/GenericMsgImpl.h
             Impl/GetTime.cpp
+            Impl/GlobalConfig.cpp
             Impl/GlobalPool.h
             # Impl/H,I,K,L
             Impl/HashTable.cpp Impl/HashTable.h
@@ -284,6 +285,7 @@ else()
             Include/FilterList.h
             Include/GenericMsg.h
             Include/GetTime.h
+            Include/GlobalConfig.h
             Include/IOCtlCode.h
             Include/IOCtlReactorCode.h
             Include/IOCtlReactorChannelCode.h

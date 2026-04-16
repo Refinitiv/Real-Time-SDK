@@ -12,9 +12,7 @@
 #include "ReqMsg.h"
 #include "MsgImpl.h"
 
-#include "EmaPool.h"
 #include "OmmQos.h"
-#include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
 namespace refinitiv {
@@ -113,7 +111,6 @@ private :
 	void adjustPayload() final;
 	void releaseMsgBuffers() final;
 
-	void setQosInt();
 	void checkBatchView( RsslBuffer* );
 
 	void clearRsslRequestMsg();
@@ -122,20 +119,6 @@ private :
 	EmaBuffer						_extHeaderData;
 
 	bool							_domainTypeSet;
-};
-
-class ReqMsgImplPool : public DecoderPool< ReqMsgImpl >
-{
-public :
-
-	ReqMsgImplPool( unsigned int size = 5 ) : DecoderPool< ReqMsgImpl >( size ) {};
-
-	~ReqMsgImplPool() {}
-
-private :
-
-	ReqMsgImplPool( const ReqMsgImplPool& );
-	ReqMsgImplPool& operator=( const ReqMsgImplPool& );
 };
 
 }

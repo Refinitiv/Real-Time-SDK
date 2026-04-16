@@ -11,7 +11,6 @@
 #include "Utilities.h"
 #include "GlobalPool.h"
 #include "RdmUtilities.h"
-#include "OmmInvalidUsageException.h"
 #include "StaticDecoder.h"
 
 using namespace refinitiv::ema::access;

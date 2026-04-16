@@ -12,8 +12,6 @@
 #include "RefreshMsg.h"
 #include "MsgImpl.h"
 
-#include "EmaPool.h"
-#include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
 namespace refinitiv {
@@ -136,20 +134,6 @@ private :
 	EmaBuffer						_permissionData;
 
 	EmaString						_statusText;
-};
-
-class RefreshMsgImplPool : public DecoderPool< RefreshMsgImpl >
-{
-public :
-
-	RefreshMsgImplPool( unsigned int size = 5 ) : DecoderPool< RefreshMsgImpl >( size ) {};
-
-	~RefreshMsgImplPool() {}
-
-private :
-
-	RefreshMsgImplPool( const RefreshMsgImplPool& );
-	RefreshMsgImplPool& operator=( const RefreshMsgImplPool& );
 };
 
 }

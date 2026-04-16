@@ -13,7 +13,6 @@
 #include "OmmError.h"
 #include "NoDataImpl.h"
 #include "EmaBufferInt.h"
-#include "EmaPool.h"
 
 namespace refinitiv {
 
@@ -88,20 +87,6 @@ private :
 	bool						_decodingStarted;
 
 	bool						_atEnd;
-};
-
-class OmmArrayDecoderPool : public DecoderPool< OmmArrayDecoder >
-{
-public :
-
-	OmmArrayDecoderPool( unsigned int size = 5 ) : DecoderPool< OmmArrayDecoder >( size ) {};
-
-	virtual ~OmmArrayDecoderPool() {}
-
-private :
-
-	OmmArrayDecoderPool( const OmmArrayDecoderPool& );
-	OmmArrayDecoderPool& operator=( const OmmArrayDecoderPool& );
 };
 
 }

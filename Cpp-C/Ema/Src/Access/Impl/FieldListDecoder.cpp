@@ -6,8 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+#include "ExceptionTranslator.h"
 #include "FieldListDecoder.h"
-#include "StaticDecoder.h"
 #include "Encoder.h"
 #include "OmmInvalidUsageException.h"
 

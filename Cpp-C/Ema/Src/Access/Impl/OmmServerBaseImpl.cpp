@@ -146,6 +146,15 @@ OmmServerBaseImpl::~OmmServerBaseImpl()
 {
 	if (_pErrorClientHandler)
 		delete _pErrorClientHandler;
+
+	if (_pLoggerClient != nullptr)
+		OmmLoggerClient::destroy(_pLoggerClient);
+}
+
+// note: can throw ICE exception if pool limit has already been set by another config
+void OmmServerBaseImpl::readGlobalConfig(EmaConfigServerImpl* pConfigServerImpl)
+{
+	handlePoolConfig(*pConfigServerImpl, _activeServerConfig);
 }
 
 void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
@@ -732,6 +741,8 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			_activeServerConfig.loggerConfig.maxFileSize,
 			_activeServerConfig.loggerConfig.maxFileNumber );
 
+		readGlobalConfig(serverConfigImpl);
+
 		serverConfigImpl->configErrors().log(_pLoggerClient, _activeServerConfig.loggerConfig.minLoggerSeverity);
 
 		readCustomConfig(serverConfigImpl);
@@ -1008,6 +1019,8 @@ void OmmServerBaseImpl::initializeForTest(EmaConfigServerImpl* serverConfigImpl)
 			_activeServerConfig.loggerConfig.loggerFileName,
 			_activeServerConfig.loggerConfig.maxFileSize,
 			_activeServerConfig.loggerConfig.maxFileNumber );
+
+		readGlobalConfig(serverConfigImpl);
 
 		serverConfigImpl->configErrors().log(_pLoggerClient, _activeServerConfig.loggerConfig.minLoggerSeverity);
 

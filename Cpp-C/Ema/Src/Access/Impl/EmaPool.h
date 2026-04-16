@@ -9,276 +9,74 @@
 #ifndef __refinitiv_ema_access_Pool_h
 #define __refinitiv_ema_access_Pool_h
 
-#include "Mutex.h"
 #include "EmaVector.h"
 #include "ExceptionTranslator.h"
+#include "Mutex.h"
+
+#include "rtr/rwfNet.h"
 
 #include <new>
 
-namespace refinitiv {
+namespace refinitiv
+{
 
-namespace ema {
+namespace ema
+{
 
-namespace access {
+namespace access
+{
 
-template< class O >
+template <class O>
 class Factory
 {
-public :
-
+public:
 	static O* create();
 
-	static void destroy( O* o ) { delete o; }
+	static void destroy(O* o)
+	{
+		delete o;
+	}
 };
 
-template< class O >
-O* Factory< O >::create()
+template <class O>
+O* Factory<O>::create()
 {
-	try {
+	try
+	{
 		return new O;
 	}
-	catch ( std::bad_alloc& )
+	catch (std::bad_alloc&)
 	{
 		const char* temp = "Failed to create object in Factory< O >::create(). Out of memory.";
-		throwMeeException( temp );
+		throwMeeException(temp);
 	}
 	return 0;
 }
 
-template < class I >
-class EncoderPool 
+template <class I>
+struct RecycleNop final
 {
-public :
-
-	EncoderPool( UInt32 size );
-
-	virtual ~EncoderPool();
-
-	void clear();
-
-	I* getItem();
-
-	void returnItem( I* );
-
-	UInt32 count();
-
-private :
-
-	Mutex				_lock;
-
-	EmaVector< I* >		_vector;
-
-	UInt32				_count;
-
-	EncoderPool();
-	EncoderPool( const EncoderPool& );
-	EncoderPool& operator=( const EncoderPool& );
+	static void recycle(I*) {};
 };
 
-template< class I >
-EncoderPool< I >::EncoderPool( UInt32 size ) :
- _count( 0 )
+/** Encoders need to be "release"d before returning to the pool. */
+template <class I>
+struct ReleaseEncoder final
 {
-	for ( UInt32 idx = 0; idx < size; ++idx )
-		_vector.push_back( 0 );
-}
-
-template< class I >
-EncoderPool< I >::~EncoderPool()
-{
-	clear();
-}
-
-template< class I >
-void EncoderPool< I >::clear()
-{
-	_lock.lock();
-
-	if ( !_count )
+	static void recycle(I* item)
 	{
-		_lock.unlock();
-		return;
-	}
-
-	for ( UInt32 idx = _vector.size(); idx != 0; --idx )
-	{
-		I* temp = _vector[ idx - 1 ];
-		if ( temp )
-		{
-			Factory< I >::destroy( temp );
-			_vector[ idx - 1 ] = 0;
-		}
-	}
-
-	_count = 0;
-
-	_lock.unlock();
-}
-
-template< class I >
-I* EncoderPool< I >::getItem()
-{
-	_lock.lock();
-
-	if ( !_count )
-	{
-		_lock.unlock();
-
-		return Factory< I >::create();
-	}
-
-	I*& itemRef = _vector[ --_count ];
-
-	I* item = itemRef;
-
-	itemRef = 0;
-	
-	_lock.unlock();
-
-	return item;
-}
-
-template< class I >
-void EncoderPool< I >::returnItem( I* item )
-{
-	item->release();
-
-	_lock.lock();
-
-	if ( _count == _vector.capacity() )
-		do { _vector.push_back( 0 ); } while ( _vector.size() < _vector.capacity() );
-
-	_vector[ _count++ ] = item;
-
-	_lock.unlock();
-}
-
-template< class I >
-UInt32 EncoderPool< I >::count()
-{
-	return _count;
-}
-
-template < class I >
-class DecoderPool 
-{
-public :
-
-	DecoderPool( UInt32 size );
-
-	virtual ~DecoderPool();
-
-	void clear();
-
-	I* getItem();
-
-	void returnItem( I* );
-
-	UInt32 count();
-
-private :
-
-	Mutex				_lock;
-
-	EmaVector< I* >		_vector;
-
-	UInt32				_count;
-
-	DecoderPool();
-	DecoderPool( const DecoderPool& );
-	DecoderPool& operator=( const DecoderPool& );
+		item->release();
+	};
 };
 
-template< class I >
-DecoderPool< I >::DecoderPool( UInt32 size ) :
- _count( 0 )
-{
-	for ( UInt32 idx = 0; idx < size; ++idx )
-		_vector.push_back( 0 );
-}
-
-template< class I >
-DecoderPool< I >::~DecoderPool()
-{
-	clear();
-}
-
-template< class I >
-void DecoderPool< I >::clear()
-{
-	_lock.lock();
-
-	if ( !_count )
-	{
-		_lock.unlock();
-		return;
-	}
-
-	for ( UInt32 idx = _vector.size(); idx != 0; --idx )
-	{
-		I* temp = _vector[ idx - 1 ];
-		if ( temp )
-		{
-			temp->setAtExit();
-			Factory< I >::destroy( temp );
-			_vector[ idx - 1 ] = 0;
-		}
-	}
-
-	_count = 0;
-
-	_lock.unlock();
-}
-
-template< class I >
-I* DecoderPool< I >::getItem()
-{
-	_lock.lock();
-
-	if ( !_count )
-	{
-		_lock.unlock();
-
-		return Factory< I >::create();
-	}
-
-	I*& itemRef = _vector[ --_count ];
-
-	I* item = itemRef;
-
-	itemRef = 0;
-	
-	_lock.unlock();
-
-	return item;
-}
-
-template< class I >
-void DecoderPool< I >::returnItem( I* item )
-{
-	_lock.lock();
-
-	if ( _count == _vector.capacity() )
-		do { _vector.push_back( 0 ); } while ( _vector.size() < _vector.capacity() );
-
-	_vector[ _count++ ] = item;
-
-	_lock.unlock();
-}
-
-template< class I >
-UInt32 DecoderPool< I >::count()
-{
-	return _count;
-}
-
-
-template < class I, class T = I >
+template <class I, class RecyclingPolicy = RecycleNop<I>>
 class Pool
 {
-public :
+public:
 
-	Pool( UInt32 size );
+	constexpr static UInt32 DEFAULT_INIT_SIZE = 5;
+
+	Pool(UInt32 size = DEFAULT_INIT_SIZE);
 
 	virtual ~Pool();
 
@@ -286,54 +84,68 @@ public :
 
 	I* getItem();
 
-	void returnItem( I* );
+	void returnItem(I*);
 
-	UInt32 count();
+	UInt32 count() const;
 
-private :
+	void setLimit(UInt32);
 
-	Mutex	_lock;
+	Pool(const Pool&) = delete;
+	Pool(Pool&&) = delete;
+	Pool& operator=(const Pool&) = delete;
+	Pool& operator=(Pool&&) = delete;
 
-	EmaVector< I* >		_vector;
+private:
 
-	UInt32				_count;
+	mutable Mutex _lock;
 
-	Pool();
-	Pool( const Pool& ); 
-	Pool& operator=( const Pool& );
+	EmaVector<I*> _vector;
+
+	// current number of objects in the pool
+	UInt32 _count;
+
+	// number of objects in the pool above which returned objects are deleted, not reused
+	UInt32 _limit;
 };
 
-template< class I, class T >
-Pool< I, T >::Pool( UInt32 size ) :
- _count( 0 )
+template <class I, class R>
+Pool<I, R>::Pool(UInt32 size) :
+ _lock(),
+ _vector(size),
+ _count(0),
+ _limit(RWF_MAX_32)
 {
-	for ( UInt32 idx = 0; idx < size; ++idx )
-		_vector.push_back( 0 );
+	for (UInt32 idx = 0; idx < size; ++idx)
+	{
+		_vector.push_back(nullptr);
+	}
 }
 
-template< class I, class T >
-Pool< I, T >::~Pool()
+template <class I, class R>
+Pool<I, R>::~Pool()
 {
 	clear();
 }
 
-template< class I, class T >
-void Pool< I, T >::clear()
+template <class I, class R>
+void Pool<I, R>::clear()
 {
 	_lock.lock();
 
-	if ( !_count )
+	if (!_count)
 	{
 		_lock.unlock();
 		return;
 	}
 
-	for ( UInt32 idx = _vector.size(); idx != 0; --idx )
+	for (UInt32 idx = _vector.size(); idx != 0; --idx)
 	{
-		I* temp = _vector[ idx - 1 ];
-		if ( temp )
-			Factory< I >::destroy( temp );
-		_vector[ idx - 1 ] = 0;
+		I* temp = _vector[idx - 1];
+		if (temp)
+		{
+			Factory<I>::destroy(temp);
+		}
+		_vector[idx - 1] = 0;
 	}
 
 	_count = 0;
@@ -341,52 +153,81 @@ void Pool< I, T >::clear()
 	_lock.unlock();
 }
 
-template< class I, class T >
-I* Pool< I, T >::getItem()
+template <class I, class R>
+I* Pool<I, R>::getItem()
 {
 	_lock.lock();
 
-	if ( !_count )
+	if (!_count)
 	{
 		_lock.unlock();
 
-		return Factory< T >::create();
+		return Factory<I>::create();
 	}
 
-	I*& itemRef = _vector[ --_count ];
+	I*& itemRef = _vector[--_count];
 
 	I* item = itemRef;
 
-	itemRef = 0;
-	
+	itemRef = nullptr;
+
 	_lock.unlock();
 
 	return item;
 }
 
-template< class I, class T >
-void Pool< I, T >::returnItem( I* item )
+template <class I, class R>
+void Pool<I, R>::returnItem(I* item)
 {
+	R::recycle(item);
+
 	_lock.lock();
 
-	if ( _count == _vector.capacity() )
-		do { _vector.push_back( 0 ); } while ( _vector.size() < _vector.capacity() ); 
+	if (_count < _limit)
+	{
+		// configured limit is not reached yet, object can be put back into pool
+		if (_count == _vector.size())
+		{
+			_vector.push_back(nullptr);
+		}
 
-	_vector[ _count++ ] = item;
+		_vector[_count++] = item;
+	}
+	else
+	{
+		// number of objects in the pool exceeds configured pool limit, discard returned object
+		Factory<I>::destroy(item);
+	}
 
 	_lock.unlock();
 }
 
-template< class I, class T >
-UInt32 Pool< I, T >::count()
+template <class I, class R>
+UInt32 Pool<I, R>::count() const
 {
+	const MutexLocker guard{_lock};
+
 	return _count;
 }
 
+template <class I, class R>
+void Pool<I, R>::setLimit(UInt32 limit)
+{
+	_lock.lock();
+
+	_limit = limit;
+
+	_lock.unlock();
 }
 
-}
+// Encoders need to be "release()"-ed before put into the pool
+template <class I>
+using EncoderPool = Pool<I, ReleaseEncoder<I>>;
 
-}
+} // namespace access
+
+} // namespace ema
+
+} // namespace refinitiv
 
 #endif // __refinitiv_ema_access_Pool_h

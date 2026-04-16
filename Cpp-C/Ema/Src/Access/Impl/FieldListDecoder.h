@@ -13,10 +13,10 @@
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 #include "EmaVector.h"
-#include "EmaPool.h"
-#include "rtr/rsslSetData.h"
 
 #include "DataDictionaryImpl.h"
+
+#include "rtr/rsslSetData.h"
 
 namespace refinitiv {
 
@@ -129,20 +129,6 @@ private :
 	bool						_atEnd;
 
 	refinitiv::ema::rdm::DataDictionary*				_pDataDictionary;
-};
-
-class FieldListDecoderPool : public DecoderPool< FieldListDecoder >
-{
-public :
-
-	FieldListDecoderPool( unsigned int size = 5 ) : DecoderPool< FieldListDecoder >( size ) {};
-
-	virtual ~FieldListDecoderPool() {}
-
-private :
-
-	FieldListDecoderPool( const FieldListDecoderPool& );
-	FieldListDecoderPool& operator=( const FieldListDecoderPool& );
 };
 
 }

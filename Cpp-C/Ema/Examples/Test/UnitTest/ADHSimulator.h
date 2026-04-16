@@ -140,7 +140,7 @@ public:
 		rejectLogin(adhOpts.rejectLogin.load())
 	{
 		memset(this->portNo, 0, sizeof(this->portNo));
-		if ( adhOpts.portNo )
+		if (adhOpts.portNo[0] != '\0')
 		{
 			strncpy(this->portNo, adhOpts.portNo, sizeof(this->portNo) - 1);
 		}
@@ -159,7 +159,7 @@ public:
 			rejectLogin = adhOpts.rejectLogin.load();
 
 			memset(this->portNo, 0, sizeof(this->portNo));
-			if ( adhOpts.portNo )
+			if (adhOpts.portNo[0] != '\0')
 			{
 				strncpy(this->portNo, adhOpts.portNo, sizeof(this->portNo) - 1);
 			}

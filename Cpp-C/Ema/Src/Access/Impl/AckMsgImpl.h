@@ -12,7 +12,6 @@
 #include "AckMsg.h"
 #include "MsgImpl.h"
 
-#include "EmaPool.h"
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
@@ -96,20 +95,6 @@ private :
 	mutable EmaBufferInt	_extHeader;
 	EmaBuffer				_extHeaderData;
 
-};
-
-class AckMsgImplPool : public DecoderPool< AckMsgImpl >
-{
-public :
-
-	AckMsgImplPool( unsigned int size = 5 ) : DecoderPool< AckMsgImpl >( size ) {};
-
-	~AckMsgImplPool() {}
-
-private :
-
-	AckMsgImplPool( const AckMsgImplPool& );
-	AckMsgImplPool& operator=( const AckMsgImplPool& );
 };
 
 }

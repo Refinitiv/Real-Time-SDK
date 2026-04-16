@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+#include "ExceptionTranslator.h"
 #include "FilterListDecoder.h"
 #include "StaticDecoder.h"
 #include "OmmInvalidUsageException.h"

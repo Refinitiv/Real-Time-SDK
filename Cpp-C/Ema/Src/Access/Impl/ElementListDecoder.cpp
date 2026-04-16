@@ -6,9 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
-#include "ElementListDecoder.h"
-#include "StaticDecoder.h"
 #include "Encoder.h"
+#include "ElementListDecoder.h"
+#include "ExceptionTranslator.h"
 #include "OmmInvalidUsageException.h"
 
 using namespace refinitiv::ema::access;

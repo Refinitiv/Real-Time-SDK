@@ -116,6 +116,9 @@ Series100Consumer110-ConsFunc-007
 Series100Consumer110-ConsFunc-008
     Alters consumer to request an item with qos ReqMsg::BestTimelinessEnum, ReqMsg::BestRateEnum. 
 
+Series100Consumer110-ObjectPoolSize-001
+    Alters consumer FileConfig to verify GlobalConfig set/get PoolLimit.
+
 Module:  Series100Consumer112
 -----------------------------
 
@@ -461,6 +464,9 @@ Series400Consumer421-PTimeout-001
 	.addUInt("InitializationTimeout", 10)
     Note: to display the curl_easy_setopt's parameters in runBlockingLibcurlProxyConnection use eta-PTimeout-001
 
+
+Series400Consumer421-ObjectPoolSize-001
+    Alters consumer ProgrammaticConfig to verify GlobalConfig set/get PoolLimit.
 
 Module:  Series400Consumer430
 -----------------------------
