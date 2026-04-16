@@ -670,7 +670,7 @@ void NIProviderThread::sendPackedMsg(const UpdateMsg* msg, ProvItemInfo* itemInf
 			}
 			catch (const OmmInvalidUsageException& exp2)
 			{
-				if (exp.getErrorCode() == OmmInvalidUsageException::BufferTooSmallEnum)
+				if (exp2.getErrorCode() == OmmInvalidUsageException::BufferTooSmallEnum)
 				{
 					// This message can't fit, just submit it as-is
 					provider->submit(*msg, itemInfo->getHandle());
