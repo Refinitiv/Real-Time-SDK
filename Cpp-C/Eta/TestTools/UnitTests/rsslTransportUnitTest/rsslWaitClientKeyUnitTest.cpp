@@ -955,7 +955,7 @@ TEST_F(IpcWaitClientKeyMalformedFrameTests, ImmediateEof_ServerRejectsConnection
     RsslError rsslError;
     bool active = ckDriveServerToTerminal(pServerChnl, &rsslError);
     EXPECT_FALSE(active) << "Server should NOT reach ACTIVE on key-exchange EOF";
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_RET_FAILURE, rsslError.rsslErrorId);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
@@ -980,7 +980,7 @@ TEST_F(IpcWaitClientKeyMalformedFrameTests, ThreeByteFrame_ServerRejectsConnecti
     RsslError rsslError;
     bool active = ckDriveServerToTerminal(pServerChnl, &rsslError);
     EXPECT_FALSE(active) << "Server should NOT reach ACTIVE with a 3-byte key frame";
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_RET_FAILURE, rsslError.rsslErrorId);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }

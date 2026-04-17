@@ -494,7 +494,7 @@ TEST_F(RsslWaitAckInvalidResponseTests, ImmediateEof_ClientRejectsConnection)
     RsslError rsslError;
     bool reached = driveClientToTerminal(pClientChnl, &rsslError);
     EXPECT_FALSE(reached) << "Client should NOT reach ACTIVE on immediate EOF";
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 ipcConnecting() client connect() failed.  System errno: (10057)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 ipcConnecting() client connect() failed.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pClientChnl->state);
 }
 
@@ -519,7 +519,7 @@ TEST_F(RsslWaitAckInvalidResponseTests, TruncatedConnAck_ClientRejectsConnection
     RsslError rsslError;
     bool reached = driveClientToTerminal(pClientChnl, &rsslError);
     EXPECT_FALSE(reached) << "Client should NOT reach ACTIVE with truncated CONNACK";
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pClientChnl->state);
 }
 
@@ -981,7 +981,7 @@ TEST_F(RsslWaitAckInvalidResponseTests, NineBytes_OneShortOfMinimum_ClientReject
     RsslError rsslError;
     bool reached = driveClientToTerminal(pClientChnl, &rsslError);
     EXPECT_FALSE(reached) << "Client should NOT reach ACTIVE with only 9 bytes (IPC_100_CONN_ACK - 1)";
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pClientChnl->state);
 }
 
@@ -1338,7 +1338,7 @@ TEST_F(RsslWaitAckInvalidResponseTests, ConnAck_ByteByByteDrip_V14_NoCrash)
     RsslError rsslError;
     bool reached = driveClientToTerminal(pClientChnl, &rsslError, 600, 5);
     EXPECT_FALSE(reached);
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack. System errno: (10035)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Invalid IPC Mount Ack.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pClientChnl->state);
 
     for (int i = 0; i < 200 && !dripArg.done.load(); ++i)

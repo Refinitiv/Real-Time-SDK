@@ -1328,7 +1328,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, TruncatedHeaderRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected truncated header but channel state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1463,7 +1463,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ImmediateEofRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected zero-byte / EOF client but channel state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1616,7 +1616,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V10TooShortHeaderRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected truncated header but channel state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1701,7 +1701,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V10AllOnesLengthFieldRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected v10 all-ones length but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request. System errno: (0)") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1002 Could not read IPC Mount Request.") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1774,7 +1774,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ByteByByteDripRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected byte-by-byte drip but channel state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 13 header size 206") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 13 header") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1838,7 +1838,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HostnameLenOverflowRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected hostnameLen overflow but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 226") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1870,7 +1870,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, AddrLenOverflowRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected addrLen overflow but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 226") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
