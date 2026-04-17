@@ -2,6 +2,7 @@ set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
 	rsslTransportUnitTest.cpp
 	rsslTransportNullParamTest.cpp
+	rsslBufferToRawHexDumpUnitTest.cpp
 	rsslInitChannelUnitTest.cpp
 	rsslWaitAckUnitTest.cpp
 	rsslWaitClientKeyUnitTest.cpp

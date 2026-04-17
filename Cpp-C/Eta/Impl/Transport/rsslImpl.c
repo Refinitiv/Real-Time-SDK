@@ -3101,7 +3101,16 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 	if (valuesPerLine > 70)
 		valuesPerLine = 70;
 	else if (valuesPerLine & 0x01)
+	{
 		valuesPerLine--;
+
+		if (valuesPerLine == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToHexDump() Error: 0002 valuesPerLine resolved to 0 after odd number adjustment.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+	}
 
 	bufferNeeded = rsslCalculateHexDumpOutputSize(bufferToHexDump, valuesPerLine);
 

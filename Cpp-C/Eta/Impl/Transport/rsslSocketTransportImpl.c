@@ -3062,7 +3062,7 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 	RsslInt32			iovPriority[RIPC_MAXIOVLEN + 1];
 	RsslInt32			wrtveclen = 0;
 	RsslInt32			cont = 1;
-	RsslInt32			tempOutList = 0;
+	RsslUInt32			tempOutList = 0;
 	RsslInt32			i = 0;
 	RsslRet				retVal = RSSL_RET_SUCCESS;
 	RsslInt32			iovLength = RIPC_MAXIOVLEN;

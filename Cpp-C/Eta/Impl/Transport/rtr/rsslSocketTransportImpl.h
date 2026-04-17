@@ -470,7 +470,7 @@ typedef struct
 	RsslUInt8			encryptionType; /* encryption type definitions */
 	RIPC_PRIORITY_WRITE	priorityQueues[RIPC_MAX_PRIORITY_QUEUE];
 	RsslInt8			flushStrategy[RIPC_MAX_FLUSH_STRATEGY + 1];  /* the flush strategy  */
-	RsslInt32			currentOutList;		/* points into the flush strategy so we know which out list we are on */
+	RsslUInt32			currentOutList;		/* points into the flush strategy so we know which out list we are on */
 	RsslInt8			compressQueue;      /* since we should only allow compression on one queue - or reinitialize
 												to avoid potential zlib dictionary issues, we keep track of the first
 												queue compression was done on and only allow it on that queue */
