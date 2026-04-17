@@ -428,6 +428,16 @@
 			<Dictionary value="Dictionary_1"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
+		<Consumer>
+			<Name value="SingleConnection_15005_ZLib"/>
+			<ChannelSet value="TestChannel_15005_ZLib"/>
+			<LoginRequestTimeOut value="5000"/>
+			<SessionEnhancedItemRecovery value="1"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<DirectoryRequestTimeOut value="2000"/>
+			<RequestTimeout value="2000"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -549,6 +559,22 @@
 			<XmlTracePing value="1"/>
 			<XmlTraceHex value="1"/>
 		</NiProvider>
+		<NiProvider>
+			<!-- Name is mandatory																		-->
+			<Name value="Provider_4_15005_ZLib"/>
+			<Channel value="TestChannel_15005_ZLib"/>
+			<Directory value="Directory_1"/>
+			<Logger value="Logger_2"/>
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
+		<NiProvider>
+			<!-- Name is mandatory																		-->
+			<Name value="Provider_5"/>
+			<Channel value="TestChannel_16000"/>
+			<Directory value="Directory_1"/>
+			<Logger value="Logger_2"/>
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -666,6 +692,19 @@
 			<!-- Name is mandatory                                                              -->
 			<Name value="TestProvider_15004"/>
 			<Server value="TestServer_15004"/>
+			<RefreshFirstRequired value="1"/>
+			<Logger value="Logger_2"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>		
+			<Directory value="Directory_2"/>
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                              -->
+			<Name value="TestProvider_15005_ZLib"/>
+			<Server value="TestServer_15005_ZLib"/>
 			<RefreshFirstRequired value="1"/>
 			<Logger value="Logger_2"/>
 			<RequestTimeout value="8000"/>
@@ -880,6 +919,25 @@
 			<Port value="15004"/>
 		</Channel>
 		<Channel>
+			<Name value="TestChannel_15005_ZLib"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::ZLib"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="15005"/>
+		</Channel>
+		<Channel>
+			<Name value="TestChannel_16000"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="16000"/>
+		</Channel>
+		<Channel>
 			<Name value="Channel_Websocket"/>
 			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
 			<CompressionType value="CompressionType::None"/>
@@ -1048,6 +1106,21 @@
 			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
 			<TcpNodelay value="1"/>
 			<Port value="15004"/>
+			<ServerSharedSocket value="0"/>
+		</Server>
+		<Server>
+			<Name value="TestServer_15005_ZLib"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::ZLib"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="15005"/>
 			<ServerSharedSocket value="0"/>
 		</Server>
 	</ServerList>

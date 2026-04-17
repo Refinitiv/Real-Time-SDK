@@ -21,6 +21,7 @@
 #include "BaseRoutingChannel.h"
 #include "ConsumerRoutingSession.h"
 #include "ConsumerRoutingChannel.h"
+#include "IOCtlCode.h"
 
 using namespace refinitiv::ema::access;
 
@@ -773,7 +774,7 @@ void OmmConsumerImpl::getChannelStatistics(ChannelStatistics& cs)
 	_userLock.unlock();
 }
 
-void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
+void OmmConsumerImpl::modifyIOCtl(Int32 code, void* value)
 {
 	_userLock.lock();
 
@@ -790,13 +791,13 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 		Channel* pChannel = static_cast<Channel*>(_pReactorChannel->userSpecPtr);
 
 		RsslError rsslError;
-			RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError);
+		RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &rsslError);
 
 		if (ret != RSSL_RET_SUCCESS)
 		{
 			_userLock.unlock();
 			EmaString temp("Failed to modify I/O option for code = ");
-				temp.append(code).append(".").append(CR)
+			temp.append(code).append(".").append(CR)
 				.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
 				.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
 				.append("Internal sysError ").append(rsslError.sysError).append(CR)
@@ -810,10 +811,11 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 		// Apply to all channels
 		for (UInt32 i = 0; i < _pRoutingSession->routingChannelList.size(); i++)
 		{
-			if (_pRoutingSession->routingChannelList[i]->pReactorChannel != NULL)
+			RsslReactorChannel* pReactorChannel = _pRoutingSession->routingChannelList[i]->pReactorChannel;
+			if (pReactorChannel != NULL)
 			{
 				RsslError rsslError;
-				RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError);
+				RsslRet ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &rsslError);
 
 				if (ret != RSSL_RET_SUCCESS)
 				{
@@ -832,6 +834,37 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 	}
 
 	_userLock.unlock();
+}
+
+void OmmConsumerImpl::modifyIOCtl(Int32 code, const EmaString& value)
+{
+	/* The PriorityFlushOrder code supports a string value only. */
+	if (code == IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)value.c_str());
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for a string value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+}
+
+void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
+{
+	if (code != IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)&value);
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for an integer value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
 }
 void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials) {
 	RsslErrorInfo rsslErrorInfo;

@@ -2221,20 +2221,15 @@ TEST_F(OmmNiProviderCreateTestFixture, modifyIOCtl)
 
 		ASSERT_FALSE(errorClient.isCalledAnyErrorHandler()) << "Did not expect that the errorClient handled any error.";
 
-#if 0	// disabled because RTSDK-10324
 		/* RSSL_PRIORITY_FLUSH_ORDER: negative cases */
 		{
-			char testFlush[32] = "";
+			int invalidPriorityFlush = 555;
+			pNiProvider->modifyIOCtl(RSSL_PRIORITY_FLUSH_ORDER, invalidPriorityFlush);
 
-			Value = reinterpret_cast<Int32>( testFlush );
-			pNiProvider->modifyIOCtl(RSSL_PRIORITY_FLUSH_ORDER, Value);
-
-			cout << "modifyIOCtl with RSSL_PRIORITY_FLUSH_ORDER testFlush should fail: " << errorClient.isCalledAnyErrorHandler() << endl;
 			ASSERT_TRUE(errorClient.isCalledAnyErrorHandler()) << "The test case expects an error.";
 			ASSERT_EQ(errorClient.getCountOnInvalidUsage(), 1) << "Expected that errorClient handled invalid usage.";
 			errorClient.clear();
 		}
-#endif
 
 		/* RSSL_SERVER_NUM_POOL_BUFFERS: this is a negative case, because NiProvider is not supported it */
 		Value = 100;

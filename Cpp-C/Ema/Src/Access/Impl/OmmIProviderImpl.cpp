@@ -28,6 +28,7 @@
 #include "OmmInvalidUsageException.h"
 #include "PackedMsgImpl.h"
 #include "StatusMsgImpl.h"
+#include "IOCtlCode.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4355)
@@ -1647,23 +1648,23 @@ void OmmIProviderImpl::getSessionInformation(EmaVector<ChannelInformation>&) {
 	throwIueException("IProvider applications do not support the getSessionInformation method", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
-void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+void OmmIProviderImpl::modifyIOCtl(Int32 code, void* value, UInt64 handle)
 {
 	_userLock.lock();
 
 	RsslError rsslError;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslIoctlCodes ioCtlCode = (RsslIoctlCodes)code;
-		
+
 	if (ioCtlCode == RSSL_SERVER_NUM_POOL_BUFFERS)
 	{
-		ret = rsslServerIoctl(_pRsslServer, ioCtlCode, &value, &rsslError);
+		ret = rsslServerIoctl(_pRsslServer, ioCtlCode, value, &rsslError);
 	}
 	else
 	{
 		ItemInfoPtr itemInfo = getItemInfo(handle);
 
-		if ( itemInfo == 0 )
+		if (itemInfo == 0)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to modify I/O option with non existent Handle = ");
@@ -1673,14 +1674,14 @@ void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 		}
 
 		RsslReactorChannel* pReactorChannel = itemInfo->getClientSession()->getChannel();
-		ret = rsslIoctl(pReactorChannel->pRsslChannel, ioCtlCode, &value, &rsslError);
+		ret = rsslIoctl(pReactorChannel->pRsslChannel, ioCtlCode, value, &rsslError);
 	}
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
 		_userLock.unlock();
 		EmaString temp("Failed to modify I/O option for code = ");
-			temp.append(code).append(".").append(CR)
+		temp.append(code).append(".").append(CR)
 			.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
 			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
 			.append("Internal sysError ").append(rsslError.sysError).append(CR)
@@ -1690,6 +1691,37 @@ void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 	}
 
 	_userLock.unlock();
+}
+
+void OmmIProviderImpl::modifyIOCtl(Int32 code, const EmaString& value, UInt64 handle)
+{
+	/* The PriorityFlushOrder code supports a string value only. */
+	if (code == IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)value.c_str(), handle);
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for a string value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+}
+
+void OmmIProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+{
+	if (code != IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)&value, handle);
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for an integer value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
 }
 
 void OmmIProviderImpl::closeChannel(UInt64 clientHandle)

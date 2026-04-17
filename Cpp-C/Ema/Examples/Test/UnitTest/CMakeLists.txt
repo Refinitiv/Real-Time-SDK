@@ -16,6 +16,7 @@ set(_UnitTestSrcFiles
         FieldListTests.cpp FilterListTests.cpp
         GenericMsgTests.cpp LoginHelperTest.cpp
         MapTests.cpp
+	ModifyIOCtlTests.cpp
         NiProviderTests.cpp
         NoDataExceptionTest.cpp
         NoDataSizeTest.cpp

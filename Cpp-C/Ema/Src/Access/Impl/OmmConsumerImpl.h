@@ -100,9 +100,13 @@ public:
 
 	void fallbackPreferredHost();
 
+	void modifyIOCtl(Int32 code, const EmaString& value);
+
 private :
 
 	void readCustomConfig( EmaConfigImpl* );
+
+	void modifyIOCtl(Int32 code, void* value);
 
 	OmmConsumerImpl( const OmmConsumerImpl& );
 	OmmConsumerImpl& operator=( const OmmConsumerImpl& );

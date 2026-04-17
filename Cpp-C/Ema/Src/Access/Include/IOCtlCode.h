@@ -54,6 +54,8 @@ public:
 
 		SystemWriteBuffers = 5,		   /*!< Used to change the TCP send buffer size. */
 
+		PriorityFlushOrderEnum = 7,		   /*!< Used to set the priority flush order. */
+
 		ServerNumPoolBuffersEnum = 8,  /*!< Used to increase or decrease the number of server shared pool buffers. This option is used for Interactive Provider applications only. */
 
 		CompressionThresholdEnum = 9,  /*!< When compression is on, this value is the smallest size packet that will be compressed. */

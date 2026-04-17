@@ -24,6 +24,7 @@
 #include "OmmInvalidUsageException.h"
 #include "PackedMsgImpl.h"
 #include "StatusMsgImpl.h"
+#include "IOCtlCode.h"
 #include "BaseRoutingChannel.h"
 #include "BaseRoutingSession.h"
 #include "NiProviderRoutingChannel.h"
@@ -3204,7 +3205,7 @@ void OmmNiProviderImpl::getSessionInformation(EmaVector<ChannelInformation>& inf
 	return;
 }
 
-void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+void OmmNiProviderImpl::modifyIOCtl(Int32 code, void* value, UInt64 handle)
 {
 	_userLock.lock();
 
@@ -3217,13 +3218,13 @@ void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 	}
 
 	RsslError rsslError;
-	RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, &value, &rsslError);
+	RsslRet ret = rsslIoctl(_pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &rsslError);
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
 		_userLock.unlock();
 		EmaString temp("Failed to modify I/O option for code = ");
-			temp.append(code).append(".").append(CR)
+		temp.append(code).append(".").append(CR)
 			.append("RsslChannel ").append(ptrToStringAsHex(rsslError.channel)).append(CR)
 			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
 			.append("Internal sysError ").append(rsslError.sysError).append(CR)
@@ -3233,6 +3234,37 @@ void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
 	}
 
 	_userLock.unlock();
+}
+
+void OmmNiProviderImpl::modifyIOCtl(Int32 code, const EmaString& value, UInt64 handle)
+{
+	/* The PriorityFlushOrder code supports a string value only. */
+	if (code == IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)value.c_str(), handle);
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for a string value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+}
+
+void OmmNiProviderImpl::modifyIOCtl(Int32 code, Int32 value, UInt64 handle)
+{
+	if (code != IOCtlCode::PriorityFlushOrderEnum)
+	{
+		modifyIOCtl(code, (void*)&value, handle);
+	}
+	else
+	{
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Text ").append("invalid code for an integer value.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
 }
 
 void OmmNiProviderImpl::closeChannel(UInt64 clientHandle)

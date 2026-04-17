@@ -39,6 +39,7 @@ ChannelInformation::ChannelInformation( const EmaString& connectedComponentInfo,
 	_compressionThreshold = 0;
 	_encryptionProtocol = 0;
 	_preferredHostInfo.clear();
+	_priorityFlushStrategy.clear();
  }
 
 ChannelInformation::~ChannelInformation() {}
@@ -112,8 +113,9 @@ const EmaString& ChannelInformation::toString() const
 	  default:
 		  _toString.append("none"); break;
 	}
-	_toString.append("\n\tcompression threshold: ").append( _compressionThreshold )
-		.append("\n\tencryption protocol: ").append( _encryptionProtocol );
+	_toString.append("\n\tcompression threshold: ").append(_compressionThreshold)
+		.append("\n\tencryption protocol: ").append(_encryptionProtocol)
+		.append("\n\tpriority flush strategy: ").append(_priorityFlushStrategy);
 	
 	_toString.append(_preferredHostInfo.toString());
 
@@ -147,6 +149,7 @@ void ChannelInformation::clear() {
   _compressionThreshold = 0;
   _encryptionProtocol = 0;
   _preferredHostInfo.clear();
+  _priorityFlushStrategy.clear();
 }
 
 ChannelInformation& ChannelInformation::name(const EmaString& value) 
@@ -265,6 +268,12 @@ ChannelInformation& ChannelInformation::encryptionProtocol(UInt64 encryptionProt
   return *this;
 }
 
+ChannelInformation& ChannelInformation::priorityFlushStrategy(const char* priorityFlushStrategy)
+{
+	_priorityFlushStrategy.set(priorityFlushStrategy);
+	return *this;
+}
+
 ChannelInformation& ChannelInformation::preferredHostInfo(void* rsslPreferredHostInfo, const void* channel) 
 {
 	_preferredHostInfo.enablePreferredHostOptions(((RsslReactorPreferredHostInfo*)rsslPreferredHostInfo)->isPreferredHostEnabled != RSSL_FALSE);
@@ -357,7 +366,8 @@ void refinitiv::ema::access::ChannelInfoImpl::getChannelInformation(const RsslRe
 			.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
 			.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
 			.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
-			.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+			.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol)
+			.priorityFlushStrategy(rsslReactorChannelInfo.rsslChannelInfo.priorityFlushStrategy);
 
 		if (implType != OmmCommonImpl::NiProviderEnum && implType != OmmCommonImpl::IProviderEnum)
 			ci.preferredHostInfo(&rsslReactorChannelInfo.rsslPreferredHostInfo, rsslReactorChannel->userSpecPtr);

@@ -120,6 +120,8 @@ public :
 
 	void closeChannel(UInt64 clientHandle);
 
+	void modifyIOCtl(Int32 code, const EmaString& value, UInt64 handle);
+
 private :
 
 	void reLoadConfigSourceDirectory(BaseRoutingSessionChannel*);
@@ -135,6 +137,8 @@ private :
 	bool isApiDispatching() const;
 
 	UInt64 generateHandle(UInt64);
+
+	void modifyIOCtl(Int32 code, void* value, UInt64 handle);
 
 	OmmNiProviderImpl();
 	OmmNiProviderImpl( const OmmNiProviderImpl& );

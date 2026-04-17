@@ -359,6 +359,15 @@ public :
 	*/
 	void modifyIOCtl(Int32 code, Int32 value);
 
+	/** Allows modifying some I/O values programmatically for a channel to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.
+		@param[in] value provides Value to modify I/O option to
+		@return void
+		@throw OmmInvalidUsageException if failed to modify I/O option to
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void modifyIOCtl(Int32 code, const EmaString& value);
+
 	/** Allows modifying some I/O values programmatically for Reactor to override the default values.
 		@param[in] code provides Code of I/O option defined in IOCtlReactorCode::IOCtlReactorCodeEnum to modify.
 		@param[in] value provides Value to modify I/O option to

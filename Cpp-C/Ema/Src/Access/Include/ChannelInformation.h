@@ -236,6 +236,11 @@ public:
   */
   UInt64 getEncryptionProtocol() const { return _encryptionProtocol; }
 
+  /** Gets the priority flush strategy
+	  @return The current priority flush strategy being used.
+  */
+  const EmaString& getPriorityFlushStrategy() const { return _priorityFlushStrategy; }
+
 
 	/** Gets configured name of the connection
 	@return The name of the connection, as defined by the configuration.
@@ -393,6 +398,12 @@ public:
 	 @return reference to this object
   */
   ChannelInformation& encryptionProtocol(UInt64 encryptionProtocol);
+
+  /** Specifies the priority flush strategy
+   @param[in] priorityFlushStrategy specifies the priority flush strategy
+   @return reference to this object
+*/
+  ChannelInformation& priorityFlushStrategy(const char* priorityFlushStrategy);
   //@}
 
 private:
@@ -419,6 +430,7 @@ private:
   UInt64 _encryptionProtocol;
   PreferredHostInfo _preferredHostInfo;
   mutable EmaString _toString;
+  EmaString _priorityFlushStrategy;
 
   ChannelInformation& preferredHostInfo(void* preferredHostInfo, const void* channel);
 

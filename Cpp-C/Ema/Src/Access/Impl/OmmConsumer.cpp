@@ -203,6 +203,11 @@ void OmmConsumer::modifyIOCtl(Int32 code, Int32 value)
 	_pImpl->modifyIOCtl(code, value);
 }
 
+void OmmConsumer::modifyIOCtl(Int32 code, const EmaString& value)
+{
+	_pImpl->modifyIOCtl(code, value);
+}
+
 void OmmConsumer::modifyReactorIOCtl(Int32 code, Int32 value)
 {
 	_pImpl->modifyReactorIOCtl(code, value);

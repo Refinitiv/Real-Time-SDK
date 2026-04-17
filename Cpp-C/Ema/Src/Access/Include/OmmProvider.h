@@ -403,6 +403,16 @@ public :
 	*/
 	void modifyIOCtl( Int32 code, Int32 value, UInt64 handle = 0 );
 
+	/** Allows modifying some I/O values programmatically for a channel to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlCode::IOCtlCodeEnum to modify.
+		@param[in] value provides Value to modify I/O option to
+		@param[in] identifies handle associated with an item or login stream. This parameter is needed or IProvider applications only.
+		@return void
+		@throw OmmInvalidUsageException if fails to modify I/O option to
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void modifyIOCtl(Int32 code, const EmaString& value, UInt64 handle = 0);
+
 	/** Closes channel for connected client's channel and associated items.  Only relevant to IProvider
 		applications. This method throws an exception is called by NiProvider applications.
 		@param[in] clientHandle specifies a client handle to close its channel.

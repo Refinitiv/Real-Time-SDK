@@ -2331,7 +2331,8 @@ void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInfor
 			.sysRecvBufSize(rsslReactorChannelInfo.rsslChannelInfo.sysRecvBufSize)
 			.compressionType(rsslReactorChannelInfo.rsslChannelInfo.compressionType)
 			.compressionThreshold(rsslReactorChannelInfo.rsslChannelInfo.compressionThreshold)
-			.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol);
+			.encryptionProtocol(rsslReactorChannelInfo.rsslChannelInfo.encryptionProtocol)
+			.priorityFlushStrategy(rsslReactorChannelInfo.rsslChannelInfo.priorityFlushStrategy);
 	}
 
 	ci.push_back(item);

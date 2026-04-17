@@ -90,6 +90,8 @@ public:
 
 	void closeChannel(UInt64 clientHandle);
 
+	void modifyIOCtl(Int32 code, const EmaString& value, UInt64 handle);
+
 private:
 
 	bool encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase );
@@ -101,6 +103,8 @@ private:
 	void handleItemInfo(int domainType, UInt64 handle, RsslState& state, bool refreshComplete = false);
 
 	void handleItemGroup(ItemInfo* itemInfo, RsslBuffer& groupId, RsslState&);
+
+	void modifyIOCtl(Int32 code, void* value, UInt64 handle);
 
 	OmmIProviderActiveConfig						_ommIProviderActiveConfig;
 	OmmIProviderDirectoryStore						_ommIProviderDirectoryStore;
