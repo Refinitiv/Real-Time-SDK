@@ -41,11 +41,11 @@ class BasicPrimitiveConverter {
     private static final int INT_MAX_STORED = (int) Math.pow(10, CHUNK_LENGTH) - 1;
     private static final int INT_DIVISOR = (int) Math.pow(10, CHUNK_LENGTH);
     private final static char[][] charInts;
-    private static final StringBuilder sb = new StringBuilder();
 
-    private static final RmtesDecoder decoder = CodecFactory.createRmtesDecoder();
-    private static RmtesCacheBuffer cacheBuffer = CodecFactory.createRmtesCacheBuffer(2000);
-    private static RmtesBuffer rmtesBuffer = CodecFactory.createRmtesBuffer(2000);
+    private static final ThreadLocal<StringBuilder> sb = ThreadLocal.withInitial(StringBuilder::new);
+    private static final ThreadLocal<RmtesDecoder> decoder = ThreadLocal.withInitial(CodecFactory::createRmtesDecoder);
+    private static final ThreadLocal<RmtesCacheBuffer> cacheBuffer = ThreadLocal.withInitial(() -> CodecFactory.createRmtesCacheBuffer(2000));
+    private static final ThreadLocal<RmtesBuffer> rmtesBuffer = ThreadLocal.withInitial(() -> CodecFactory.createRmtesBuffer(2000));
 
     static {
         charInts = new char[INT_MAX_STORED + 1][];
@@ -426,13 +426,14 @@ class BasicPrimitiveConverter {
         else if (val == Float.NEGATIVE_INFINITY)
             return BufferHelper.writeArray(ConstCharArrays.infNeg, buffer, asString, error);
         else {
-            sb.delete(0, sb.length());
-            sb.append(val);
-            if (BufferHelper.checkAndResize(buffer, asString ? sb.length() + 2 : sb.length(), error)) {
+            StringBuilder strBuilder = sb.get();
+            strBuilder.delete(0, strBuilder.length());
+            strBuilder.append(val);
+            if (BufferHelper.checkAndResize(buffer, asString ? strBuilder.length() + 2 : strBuilder.length(), error)) {
                 if (asString)
                     buffer.data[buffer.position++] = '\"';
-                for (int i = 0; i < sb.length(); i++) {
-                    buffer.data[buffer.position++] = (byte)sb.charAt(i);
+                for (int i = 0; i < strBuilder.length(); i++) {
+                    buffer.data[buffer.position++] = (byte)strBuilder.charAt(i);
                 }
                 if (asString)
                     buffer.data[buffer.position++] = '\"';
@@ -461,13 +462,14 @@ class BasicPrimitiveConverter {
         else if (val == Double.NEGATIVE_INFINITY)
             return BufferHelper.writeArray(ConstCharArrays.infNeg, buffer, asString, error);
         else {
-            sb.delete(0, sb.length());
-            sb.append(val);
-            if (BufferHelper.checkAndResize(buffer, asString ? sb.length() + 2 : sb.length(), error)) {
+            StringBuilder strBuilder = sb.get();
+            strBuilder.delete(0, strBuilder.length());
+            strBuilder.append(val);
+            if (BufferHelper.checkAndResize(buffer, asString ? strBuilder.length() + 2 : strBuilder.length(), error)) {
                 if (asString)
                     buffer.data[buffer.position++] = '\"';
-                for (int i = 0; i < sb.length(); i++) {
-                    buffer.data[buffer.position++] = (byte)sb.charAt(i);
+                for (int i = 0; i < strBuilder.length(); i++) {
+                    buffer.data[buffer.position++] = (byte)strBuilder.charAt(i);
                 }
                 if (asString)
                     buffer.data[buffer.position++] = '\"';
@@ -1147,48 +1149,56 @@ class BasicPrimitiveConverter {
 
     static boolean writeRMTESString(Buffer rmtes, JsonBuffer buffer, JsonConverterError error) {
 
-        rmtesBuffer.clear();
-        cacheBuffer.clear();
+        RmtesBuffer localRmtesBuffer = rmtesBuffer.get();
+        RmtesCacheBuffer localCacheBuffer = cacheBuffer.get();
+        RmtesDecoder localDecoder = decoder.get();
+
+        localRmtesBuffer.clear();
+        localCacheBuffer.clear();
 
         if (rmtes.isBlank() || rmtes.length() == 0) {
             if (BufferHelper.checkAndResize(buffer, ConstCharArrays.nullBytes.length, error)) {
                 BufferHelper.copyToByteArray(ConstCharArrays.nullBytes, buffer);
                 return true;
-            } else
+            } else {
                 return false;
+            }
 
         } else {
 
-            if (cacheBuffer.allocatedLength() < rmtes.length() * 3) {
-                cacheBuffer = CodecFactory.createRmtesCacheBuffer(rmtes.length() * 3); //in decoder.RMTESApplyToCache one byte from rmtes can turn into 3 in the cache
+            if (localCacheBuffer.allocatedLength() < rmtes.length() * 3) {
+                localCacheBuffer = CodecFactory.createRmtesCacheBuffer(rmtes.length() * 3); //in decoder.RMTESApplyToCache one byte from rmtes can turn into 3 in the cache
+                cacheBuffer.set(localCacheBuffer);
             }
 
-            if(decoder.hasPartialRMTESUpdate(rmtes))
+            if(localDecoder.hasPartialRMTESUpdate(rmtes))
             {
                 for (int i = rmtes.position(); i < rmtes.length() + rmtes.position(); i++)
                 {
-                    cacheBuffer.byteData().put(rmtes.data().get(i));
+                    localCacheBuffer.byteData().put(rmtes.data().get(i));
                 }
-                cacheBuffer.length(rmtes.length());
+                localCacheBuffer.length(rmtes.length());
             }
             else
-                decoder.RMTESApplyToCache(rmtes, cacheBuffer);
+                localDecoder.RMTESApplyToCache(rmtes, localCacheBuffer);
 
             int length = rmtes.length() * 9; //in decoder.RMTESToUTF8 one byte from cacheBuffer can turn into 3
-            if (length > rmtesBuffer.allocatedLength())
+            if (length > localRmtesBuffer.allocatedLength())
                 reallocateRMTESBuffer(length);
 
-            int ret = decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer);
+            localRmtesBuffer = rmtesBuffer.get(); // Re-fetch in case reallocateRMTESBuffer modified it
+            int ret = localDecoder.RMTESToUTF8(localRmtesBuffer, localCacheBuffer);
             while (ret == CodecReturnCodes.BUFFER_TOO_SMALL) {
-                reallocateRMTESBuffer(rmtesBuffer.allocatedLength() * 2);
-                ret = decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer);
+                reallocateRMTESBuffer(localRmtesBuffer.allocatedLength() * 2);
+                localRmtesBuffer = rmtesBuffer.get(); // Re-fetch after reallocation
+                ret = localDecoder.RMTESToUTF8(localRmtesBuffer, localCacheBuffer);
             }
 
-            if (ret == CodecReturnCodes.SUCCESS && rmtesBuffer.length() != 0) {
-                if (BufferHelper.checkAndResize(buffer, rmtesBuffer.length() * 6 + 2, error)) {
+            if (ret == CodecReturnCodes.SUCCESS && localRmtesBuffer.length() != 0) {
+                if (BufferHelper.checkAndResize(buffer, localRmtesBuffer.length() * 6 + 2, error)) {
                     buffer.data[buffer.position++] = '\"';
-                    for (int i = 0; i < rmtesBuffer.length(); i ++) {
-                        writeByteChar(rmtesBuffer.byteData().get(i), buffer);
+                    for (int i = 0; i < localRmtesBuffer.length(); i ++) {
+                        writeByteChar(localRmtesBuffer.byteData().get(i), buffer);
                     }
                     buffer.data[buffer.position++] = '\"';
                     return true;
@@ -1199,7 +1209,6 @@ class BasicPrimitiveConverter {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -1228,12 +1237,13 @@ class BasicPrimitiveConverter {
     private static boolean reallocateRMTESBuffer(int newLength) {
 
         try {
-            JsonFactory.releaseByteArray(rmtesBuffer.byteData().array());
+            RmtesBuffer localRmtesBuffer = rmtesBuffer.get();
+            JsonFactory.releaseByteArray(localRmtesBuffer.byteData().array());
             byte[] newArray = JsonFactory.createByteArray(newLength);
             ByteBuffer bb = ByteBuffer.wrap(newArray);
-            rmtesBuffer.clear();
-            rmtesBuffer.data(bb);
-            rmtesBuffer.allocatedLength(newArray.length);
+            localRmtesBuffer.clear();
+            localRmtesBuffer.data(bb);
+            localRmtesBuffer.allocatedLength(newArray.length);
             return true;
         } catch (OutOfMemoryError e) {
             return false;
