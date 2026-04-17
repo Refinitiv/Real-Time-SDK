@@ -4112,6 +4112,15 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				return(RIPC_CONN_ERROR);
 			}
 		}
+		else if (opCode != 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1007 Invalid Ripc opcode (%d) for connection request\n",
+				__FILE__, __LINE__, opCode);
+
+			return(RIPC_CONN_ERROR);
+		}
 		else
 		{
 			{
@@ -4726,6 +4735,16 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 					/* get the host name here */
 					rsslSocketChannel->clientHostname = (char*)_rsslMalloc(hostnameLen + 1);
 
+					if (rsslSocketChannel->clientHostname == 0)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1001 Could not allocate memory for client hostname\n",
+							__FILE__, __LINE__);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					MemCopyByInt(rsslSocketChannel->clientHostname, &(hdrStart[hdrCursor]), hostnameLen);
 
 					rsslSocketChannel->clientHostname[hostnameLen] = '\0';
@@ -4739,6 +4758,17 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				{
 					/* get the ip address here */
 					rsslSocketChannel->clientIP = (char*)_rsslMalloc(addrLen + 1);
+
+					if (rsslSocketChannel->clientIP == 0)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1001 Could not allocate memory for client IP address\n",
+							__FILE__, __LINE__);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					MemCopyByInt(rsslSocketChannel->clientIP, &(hdrStart[hdrCursor]), addrLen);
 					rsslSocketChannel->clientIP[addrLen] = '\0';
 				}
@@ -4781,6 +4811,17 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 							/* cant put this in the same place we got it from  because ack isnt sent until after this */
 							/* get the version string - with ripc, there will only ever be one */
 							rsslSocketChannel->outComponentVer = (char*)_rsslMalloc(compStringLen + 1);
+
+							if (rsslSocketChannel->outComponentVer == 0)
+							{
+								_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+								snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+									"<%s:%d> Error: 1001 Could not allocate memory for component version\n",
+									__FILE__, __LINE__);
+
+								return(RIPC_CONN_ERROR);
+							}
+
 							/* copy string here */
 							MemCopyByInt(rsslSocketChannel->outComponentVer, (hdrStart + tempIter), componentStringLen);
 							rsslSocketChannel->outComponentVer[componentStringLen] = '\0';
@@ -7066,7 +7107,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 		ripcDumpInFuncImpl(__FUNCTION__, buf, cc, rsslSocketChannel->stream, rsslSocketChannel->protocolType);
 	}
 
-	if (cc < IPC_100_CONN_ACK)  /* 451 ACK is more so it safe to asume an error */
+	if (cc < IPC_100_CONN_ACK)  /* 451 ACK is more so it safe to assume an error */
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -7092,8 +7133,18 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			/* error text is present */
 			if (nakTextLen > 0)
 			{
+				memset(error->text, 0, MAX_RSSL_ERROR_TEXT);
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				int currentTextCursor = snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1006 This connection has received a negative acknowledgement response from the server with text: ",
+					__FILE__, __LINE__);
+
+				int remainingTextSize = MAX_RSSL_ERROR_TEXT - currentTextCursor - 1; // include null character at the end
+
 				/* text is actually there */
-				MemCopyByInt(error->text, buf + (8 + idOffset), nakTextLen);
+				MemCopyByInt(error->text + currentTextCursor, buf + (8 + idOffset), (nakTextLen < remainingTextSize) ? nakTextLen : remainingTextSize);
+
+				return(RIPC_CONN_REFUSED);
 			}
 		}
 
@@ -7151,6 +7202,17 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			return(RIPC_CONN_ERROR);
 		}
 
+		/* Checks for buffer overflow before accessing the header data */
+		if (cc < IPC_100_CONN_ACK_AND_COMMON_HEADERS)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Invalid IPC Mount Ack. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			return(RIPC_CONN_ERROR);
+		}
+
 		rsslSocketChannel->rsslFlags = (RsslInt32)buf[12 + idOffset];
 
 		/* get ping interval */
@@ -7160,9 +7222,42 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 		_move_u16_swap(&comp, (buf + 16 + idOffset));
 		if (versionNumber > RIPC_VERSION_10)
 		{
+			if (cc < IPC_100_CONN_ACK_AND_COMMON_HEADERS + 1)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1007 Invalid IPC Mount Ack(%d). Failed to get compression level.\n",
+					__FILE__, __LINE__, errno);
+
+				return(RIPC_CONN_ERROR);
+			}
+
 			rsslSocketChannel->zlibCompLevel = (char)buf[18 + idOffset];
 		}
 		_move_u16_swap(&maxMsgSize, (buf + 10 + idOffset));
+
+		if (maxMsgSize == 0)
+		{
+			/*  error */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1007 Invalid maximum user message size: (%d)\n",
+				__FILE__, __LINE__, maxMsgSize);
+
+			return(RIPC_CONN_ERROR);
+		}
+
+		/* set up compression */
+		if (comp > RSSL_COMP_MAX_TYPE)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1007 Server has specified an unknown compression type (%d)\n",
+				__FILE__, __LINE__, comp);
+
+			return(RIPC_CONN_ERROR);
+		}
+
 		/* Need to iterate and parse the handshake */
 		/* Initialize iterator so it can be used through both of the following sections*/
 		tempIter = 19 + idOffset;
@@ -7178,12 +7273,33 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			RsslUInt8 encLen = 0;
 
 			tempIter += 1;
+
+			if (cc < IPC_100_CONN_ACK_AND_COMMON_HEADERS + 4)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1002 Invalid IPC Mount Ack(%d). Failed to get encryption type and length.\n",
+					__FILE__, __LINE__, errno);
+
+				return(RIPC_CONN_ERROR);
+			}
+
 			tempIter += rwfGet8(encType, (buf + tempIter));
 			tempIter += rwfGet8(encLen, (buf + tempIter));
 			/* Server tells us the type to do.  This version of product only knows TR_SL_1,
 			* if we see soemthing else, skip it */
 			if (encType == TR_SL_1)
 			{
+				if (cc < IPC_100_CONN_ACK_AND_COMMON_HEADERS + 4 + 24)
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1002 Invalid IPC Mount Ack(%d). Failed to get encryption keys.\n",
+						__FILE__, __LINE__, errno);
+
+					return(RIPC_CONN_ERROR);
+				}
+
 				tempIter += rwfGet64(rsslSocketChannel->P, (buf + tempIter));
 				tempIter += rwfGet64(rsslSocketChannel->G, (buf + tempIter));
 				tempIter += rwfGet64(rsslSocketChannel->send_key, (buf + tempIter));
@@ -7205,17 +7321,79 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			/* get component versioning info */
 
 			/* get overall length of component versioning */
+			int remainingLength = (cc - tempIter);
+
+			/* Check to ensure that is a byte to read for component version length */
+			if (remainingLength < 1)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1007 Invalid IPC Mount Ack (%d). Failed to get component version length.\n",
+					__FILE__, __LINE__, errno);
+
+				return(RIPC_CONN_ERROR);
+			}
+
 			tempIter += rwfGet8(componentVersionLen, (buf + tempIter));
+
 			if (componentVersionLen > 0)
 			{
+				/* Checks for overflow condition */
+				if (componentVersionLen > remainingLength)
+				{
+					/*  error */
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1007 Invalid component version length: (%d)\n",
+						__FILE__, __LINE__, componentVersionLen);
+
+					return(RIPC_CONN_ERROR);
+				}
+
 				/* get version string length */
+				remainingLength = (cc - tempIter);
+
+				/* Check to ensure that is a byte to read for component string length */
+				if (remainingLength < 1)
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 1007 Invalid IPC Mount Ack (%d). Failed to get component string length.\n",
+						__FILE__, __LINE__, errno);
+
+					return(RIPC_CONN_ERROR);
+				}
+
 				tempIter += rwfGet8(componentStringLen, (buf + tempIter));
 				/* write version string */
 				if (componentStringLen > 0)
 				{
+					/* Checks for overflow condition */
+					if (componentStringLen > remainingLength)
+					{
+						/*  error */
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1007 Invalid component version string length: (%d)\n",
+							__FILE__, __LINE__, componentStringLen);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					/* cant put this in the same place we got it from  because ack isnt sent until after this */
 					/* get the version string - with ripc, there will only ever be one */
 					rsslSocketChannel->outComponentVer = (char*)_rsslMalloc(componentStringLen + 1);
+
+					if (rsslSocketChannel->outComponentVer == 0)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1001 Could not allocate memory for component version\n",
+							__FILE__, __LINE__);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					/* copy string here */
 					MemCopyByInt(rsslSocketChannel->outComponentVer, (buf + tempIter), componentStringLen);
 					rsslSocketChannel->outComponentVer[componentStringLen] = '\0';
@@ -7225,17 +7403,6 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			}
 			/* in case we need it later, update tempIter to skip over full componentVersionLen (in case we add other things that this version of code is unaware of) */
 			tempIter = skipIter + componentVersionLen;
-		}
-
-		/* set up compression */
-		if (comp > RSSL_COMP_MAX_TYPE)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1007 Server has specified an unknown compression type (%d)\n",
-				__FILE__, __LINE__, comp);
-
-			return(RIPC_CONN_ERROR);
 		}
 
 		/* Version specific compression */

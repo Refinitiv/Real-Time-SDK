@@ -2,6 +2,9 @@ set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
 	rsslTransportUnitTest.cpp
 	rsslTransportNullParamTest.cpp
+	rsslInitChannelUnitTest.cpp
+	rsslWaitAckUnitTest.cpp
+	rsslWaitClientKeyUnitTest.cpp
 	rwsValidateWebSocketRequestUnitTest.cpp
 	rwsWaitResponseHandshakeUnitTest.cpp
 

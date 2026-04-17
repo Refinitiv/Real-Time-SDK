@@ -182,6 +182,7 @@ static const u32 _conn_version_14	=	CONN_VERSION_14;
 #define IPC_100_OTHER_HEADER_SIZE	8	/* Non Data opcode header size */
 #define IPC_100_CONN_ACK		    10	
 #define IPC_100_DATA_HEADER_SIZE	3  /* Data header size for ripc1.0 */
+#define IPC_100_CONN_ACK_AND_COMMON_HEADERS		18
 
 
 #define OURSOCKADDR_SIZE		16
