@@ -271,8 +271,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		chnlInfo.reactorChannelType(event.reactorChannel().reactorChannelType());
 
 		_baseImpl._rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-		if (channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
-				((SocketChannelConfig) channelConfig).directWrite)
+		
+		if (((SocketChannelConfig) channelConfig).directWrite)
 			_baseImpl._rsslSubmitOptions.writeArgs().flags( _baseImpl._rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 
 		switch(event.eventType())

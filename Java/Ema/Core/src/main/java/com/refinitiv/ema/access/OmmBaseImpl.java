@@ -1716,6 +1716,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 					tunnelingChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
+					tunnelingChannelCfg.directWrite = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 
 				HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
 				tunnelingChannelCfg.objectName = programTunnelingChannelCfg.objectName;
@@ -1776,6 +1779,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 					encryptedChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
+					encryptedChannelConfig.directWrite = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 				
 				encryptedChannelConfig.encryptionConfig.copy(configImpl.encryptionCfg());
 
@@ -1880,6 +1886,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 				tunnelingChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+			
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
+				tunnelingChannelCfg.directWrite = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 
 			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
 			tunnelingChannelCfg.objectName = programTunnelingChannelCfg.objectName;

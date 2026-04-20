@@ -1755,8 +1755,8 @@ class ProgrammaticConfigure
 		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null,
 				location = null, wsProtocols = null;
 		int flags = ChannelEntryFlag.CHANNELTYPE_FLAG | ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG,
-				channelType = ConnectionTypes.SOCKET, compressionType = 0, tunnelingFlags = 0,
-				encryptedProtocol = ConnectionTypes.SOCKET, webSocketFlags = 0, result = 0;
+				channelType, compressionType = 0, tunnelingFlags = 0,
+				encryptedProtocol, webSocketFlags = 0, result = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
 		long connectionPingTimeout= 0;
@@ -1768,6 +1768,17 @@ class ProgrammaticConfigure
 		long tcpNodelay = 0, directWrite = 0, enableSessionMgnt = 0;
 		long wsMaxMsgSize = 0;
 		int serviceDiscoveryRetryCount = 0;
+		
+		if(fileCfg != null)
+		{
+			channelType = fileCfg.rsslConnectionType;
+			encryptedProtocol = fileCfg.encryptedProtocolType;
+		}
+		else
+		{
+			channelType = ConnectionTypes.SOCKET;
+			encryptedProtocol = ConnectionTypes.SOCKET;
+		}
 	
 		for (ElementEntry channelEntry : mapEntry.elementList())
 		{
@@ -1925,361 +1936,373 @@ class ProgrammaticConfigure
 			}
 		}
 
-		if ((flags & ChannelEntryFlag.CHANNELTYPE_FLAG) != 0) {
-			
-			if(activeConfig != null)
-			{
-				if (setByFnCalled == ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
-					channelType = ConnectionTypes.SOCKET;
-					channelSet.clear();
-				} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
-					channelSet.clear();
-				}
+		if(activeConfig != null)
+		{
+			if (setByFnCalled == ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
+				channelType = ConnectionTypes.SOCKET;
+				channelSet.clear();
+			} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
+				channelSet.clear();
 			}
-
-			ChannelConfig currentChannelConfig = null;
-
-			if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET) {
-				SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
-				socketChannelConfig.serviceName = defaultServiceName;
-				socketChannelConfig.rsslConnectionType = channelType;
-				currentChannelConfig = socketChannelConfig;
-				channelSet.add(currentChannelConfig);
-
-				SocketChannelConfig fileCfgSocket = null;
-				if (fileCfg != null
-						&& (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET || fileCfg.rsslConnectionType == ConnectionTypes.WEBSOCKET))
-					fileCfgSocket = (SocketChannelConfig) (fileCfg);
-				
-				if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
-					socketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
-				else if (fileCfgSocket != null) {
-					socketChannelConfig.enableSessionMgnt = fileCfgSocket.enableSessionMgnt;
-				}
-
-				if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
-					socketChannelConfig.location = location;
-				else if (fileCfgSocket != null) {
-					socketChannelConfig.location = fileCfgSocket.location;
-				}
-
-				if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
-					socketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
-				else if (fileCfgSocket != null)
-					socketChannelConfig.tcpNodelay = fileCfgSocket.tcpNodelay;
-
-				if ((flags & ChannelEntryFlag.DIRECTWRITE_FLAG) != 0)
-					socketChannelConfig.directWrite = (directWrite == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE);
-				else if (fileCfgSocket != null)
-					socketChannelConfig.directWrite = fileCfgSocket.directWrite;
-
-				if ((flags & ChannelEntryFlag.HOST_FLAG) != 0 && setByFnCalled == 0)
-					socketChannelConfig.hostName = host;
-				else if (fileCfgSocket != null)
-					socketChannelConfig.hostName = fileCfgSocket.hostName;
-
-				if ((flags & ChannelEntryFlag.PORT_FLAG) != 0 && setByFnCalled == 0)
-					socketChannelConfig.serviceName = port;
-				else if (fileCfgSocket != null)
-					socketChannelConfig.serviceName = fileCfgSocket.serviceName;
-
-				if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
-					socketChannelConfig.httpProxyPort = tunnelingProxyPort;
-				else if (fileCfgSocket != null)
-					socketChannelConfig.httpProxyPort = fileCfgSocket.httpProxyPort;
-
-				if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
-					socketChannelConfig.httpProxyHostName = tunnelingProxyHost;
-				else if (fileCfgSocket != null)
-					socketChannelConfig.httpProxyHostName = fileCfgSocket.httpProxyHostName;
-
-				if ((socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length() > 0) ||
-						(socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
-					socketChannelConfig.httpProxy = true;
-
-				//need to copy other tunneling setting from function calls.
-				if (fileCfgSocket != null) {
-					socketChannelConfig.httpProxyUserName = fileCfgSocket.httpProxyUserName;
-					socketChannelConfig.httpproxyPasswd = fileCfgSocket.httpproxyPasswd;
-					socketChannelConfig.httpProxyDomain = fileCfgSocket.httpProxyDomain;
-					socketChannelConfig.httpProxyLocalHostName = fileCfgSocket.httpProxyLocalHostName;
-					socketChannelConfig.httpProxyKRB5ConfigFile = fileCfgSocket.httpProxyKRB5ConfigFile;
-
-				}
-			} else if (channelType == ConnectionTypes.HTTP) {
-				HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig();
-				httpChannelConfig.rsslConnectionType = channelType;
-				currentChannelConfig = httpChannelConfig;
-				channelSet.add(currentChannelConfig);
-
-				HttpChannelConfig fileCfgEncrypt = null;
-				if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
-					fileCfgEncrypt = (HttpChannelConfig) (fileCfg);
-
-				if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
-					httpChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.tcpNodelay = fileCfgEncrypt.tcpNodelay;
-
-				if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
-					httpChannelConfig.hostName = host;
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.hostName = fileCfgEncrypt.hostName;
-
-				if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
-					httpChannelConfig.serviceName = port;
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.serviceName = fileCfgEncrypt.serviceName;
-
-				if ((tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0)
-					httpChannelConfig.objectName = objectName;
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.objectName = fileCfgEncrypt.objectName;
-
-				if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
-					httpChannelConfig.httpProxyPort = tunnelingProxyPort;
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.httpProxyPort = fileCfgEncrypt.httpProxyPort;
-
-				if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
-					httpChannelConfig.httpProxyHostName = tunnelingProxyHost;
-				else if (fileCfgEncrypt != null)
-					httpChannelConfig.httpProxyHostName = fileCfgEncrypt.httpProxyHostName;
-
-				if ((httpChannelConfig.httpProxyPort != null && httpChannelConfig.httpProxyPort.length() > 0) ||
-						(httpChannelConfig.httpProxyHostName != null && httpChannelConfig.httpProxyHostName.length() > 0))
-					httpChannelConfig.httpProxy = true;
-
-				//need to copy other tunneling setting from function calls.
-				if (fileCfgEncrypt != null) {
-					httpChannelConfig.httpProxyUserName = fileCfgEncrypt.httpProxyUserName;
-					httpChannelConfig.httpproxyPasswd = fileCfgEncrypt.httpproxyPasswd;
-					httpChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
-					httpChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
-					httpChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
-				}
-			} else if (channelType == ConnectionTypes.ENCRYPTED) {
-				/* Default the encrypted protocol if it was not set here */
-				if ((flags & ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG) == 0) {
-					encryptedProtocol = ConnectionTypes.SOCKET;
-				}
-
-				switch (encryptedProtocol) {
-					case ConnectionTypes.HTTP:
-						EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
-						encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
-						encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.HTTP;
-						currentChannelConfig = encryptedChannelConfig;
-						channelSet.add(currentChannelConfig);
-
-						HttpChannelConfig fileCfgEncrypt = null;
-						if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
-							fileCfgEncrypt = (HttpChannelConfig) (fileCfg);
-
-						if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
-							encryptedChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.tcpNodelay = fileCfgEncrypt.tcpNodelay;
-
-						if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
-							encryptedChannelConfig.hostName = host;
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.hostName = fileCfgEncrypt.hostName;
-
-						if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
-							encryptedChannelConfig.serviceName = port;
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.serviceName = fileCfgEncrypt.serviceName;
-
-						if (channelType == ConnectionTypes.ENCRYPTED) {
-							if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
-								encryptedChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
-							else if ((fileCfgEncrypt != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
-								encryptedChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig) fileCfgEncrypt).enableSessionMgnt;
-							}
-
-							if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
-								encryptedChannelConfig.location = location;
-							else if ((fileCfgEncrypt != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
-								encryptedChannelConfig.location = ((EncryptedChannelConfig) fileCfgEncrypt).location;
-							}
-						}
-
-						if ((tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0)
-							encryptedChannelConfig.objectName = objectName;
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.objectName = fileCfgEncrypt.objectName;
-
-						if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
-							encryptedChannelConfig.httpProxyPort = tunnelingProxyPort;
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.httpProxyPort = fileCfgEncrypt.httpProxyPort;
-
-						if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
-							encryptedChannelConfig.httpProxyHostName = tunnelingProxyHost;
-						else if (fileCfgEncrypt != null)
-							encryptedChannelConfig.httpProxyHostName = fileCfgEncrypt.httpProxyHostName;
-
-						if ((encryptedChannelConfig.httpProxyPort != null && encryptedChannelConfig.httpProxyPort.length() > 0) ||
-								(encryptedChannelConfig.httpProxyHostName != null && encryptedChannelConfig.httpProxyHostName.length() > 0))
-							encryptedChannelConfig.httpProxy = true;
-
-						//need to copy other tunneling setting from function calls.
-						if (fileCfgEncrypt != null) {
-							encryptedChannelConfig.httpProxyUserName = fileCfgEncrypt.httpProxyUserName;
-							encryptedChannelConfig.httpproxyPasswd = fileCfgEncrypt.httpproxyPasswd;
-							encryptedChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
-							encryptedChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
-							encryptedChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
-
-							if (fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED) {
-								encryptedChannelConfig.encryptionConfig.copy(fileCfgEncrypt.encryptionConfig);
-							}
-						}
-						break;
-					case ConnectionTypes.SOCKET:
-					case ConnectionTypes.WEBSOCKET:
-						EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
-						encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
-						encryptedSocketChannelConfig.encryptedProtocolType = encryptedProtocol;
-						currentChannelConfig = encryptedSocketChannelConfig;
-						channelSet.add(currentChannelConfig);
-
-						EncryptedChannelConfig fileCfgEncryptSocket = null;
-						if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED))
-							fileCfgEncryptSocket = (EncryptedChannelConfig) (fileCfg);
-
-						if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
-							encryptedSocketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
-						else if (fileCfgEncryptSocket != null)
-							encryptedSocketChannelConfig.tcpNodelay = fileCfgEncryptSocket.tcpNodelay;
-
-						if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
-							encryptedSocketChannelConfig.hostName = host;
-						else if (fileCfgEncryptSocket != null)
-							encryptedSocketChannelConfig.hostName = fileCfgEncryptSocket.hostName;
-
-						if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
-							encryptedSocketChannelConfig.serviceName = port;
-						else if (fileCfgEncryptSocket != null)
-							encryptedSocketChannelConfig.serviceName = fileCfgEncryptSocket.serviceName;
-
-						if (channelType == ConnectionTypes.ENCRYPTED) {
-							if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
-								encryptedSocketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
-							else if ((fileCfgEncryptSocket != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
-								encryptedSocketChannelConfig.enableSessionMgnt = fileCfgEncryptSocket.enableSessionMgnt;
-							}
-
-							if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
-								encryptedSocketChannelConfig.location = location;
-							else if ((fileCfgEncryptSocket != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
-								encryptedSocketChannelConfig.location = fileCfgEncryptSocket.location;
-							}
-						}
-
-						if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
-							encryptedSocketChannelConfig.httpProxyPort = tunnelingProxyPort;
-						else if (fileCfgEncryptSocket != null)
-							encryptedSocketChannelConfig.httpProxyPort = fileCfgEncryptSocket.httpProxyPort;
-
-						if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
-							encryptedSocketChannelConfig.httpProxyHostName = tunnelingProxyHost;
-						else if (fileCfgEncryptSocket != null)
-							encryptedSocketChannelConfig.httpProxyHostName = fileCfgEncryptSocket.httpProxyHostName;
-
-						if ((encryptedSocketChannelConfig.httpProxyPort != null && encryptedSocketChannelConfig.httpProxyPort.length() > 0) ||
-								(encryptedSocketChannelConfig.httpProxyHostName != null && encryptedSocketChannelConfig.httpProxyHostName.length() > 0))
-							encryptedSocketChannelConfig.httpProxy = true;
-
-						//need to copy other tunneling setting from function calls.
-						if (fileCfgEncryptSocket != null) {
-							encryptedSocketChannelConfig.httpProxyUserName = fileCfgEncryptSocket.httpProxyUserName;
-							encryptedSocketChannelConfig.httpproxyPasswd = fileCfgEncryptSocket.httpproxyPasswd;
-							encryptedSocketChannelConfig.httpProxyDomain = fileCfgEncryptSocket.httpProxyDomain;
-							encryptedSocketChannelConfig.httpProxyLocalHostName = fileCfgEncryptSocket.httpProxyLocalHostName;
-							encryptedSocketChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncryptSocket.httpProxyKRB5ConfigFile;
-
-							if (fileCfgEncryptSocket.rsslConnectionType == ConnectionTypes.ENCRYPTED) {
-								encryptedSocketChannelConfig.encryptionConfig.copy((fileCfgEncryptSocket).encryptionConfig);
-							}
-						}
-						break;
-				}
-			}
-
-			currentChannelConfig.name = channelName;
-
-			boolean useFileCfg = (fileCfg != null && fileCfg.rsslConnectionType == currentChannelConfig.rsslConnectionType) ? true : false;
-
-			if ((flags & ChannelEntryFlag.INTERFACENAME_FLAG) != 0)
-				currentChannelConfig.interfaceName = interfaceName;
-			else if (useFileCfg)
-				currentChannelConfig.interfaceName = fileCfg.interfaceName;
-
-			if ((flags & ChannelEntryFlag.COMPRESSION_TYPE_FLAG) != 0)
-				currentChannelConfig.compressionType = compressionType;
-			else if (useFileCfg)
-				currentChannelConfig.compressionType = fileCfg.compressionType;
-
-			if ((flags & ChannelEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0) {
-				currentChannelConfig.compressionThresholdSet = true;
-				currentChannelConfig.compressionThreshold = convertToInt(compressionThreshold);
-			} else if (useFileCfg)
-				currentChannelConfig.compressionThreshold = fileCfg.compressionThreshold;
-
-			if ((flags & ChannelEntryFlag.GUARANTEED_OUTPUTBUFFERS_FLAG) != 0 && guaranteedOutputBuffers >= 0)
-				currentChannelConfig.guaranteedOutputBuffers = convertToInt(guaranteedOutputBuffers);
-			else if (useFileCfg)
-				currentChannelConfig.guaranteedOutputBuffers = fileCfg.guaranteedOutputBuffers;
-
-			if ((flags & ChannelEntryFlag.NUM_INPUTBUFFERS_FLAG) != 0 && numInputBuffers >= 0)
-				currentChannelConfig.numInputBuffers = convertToInt(numInputBuffers);
-			else if (useFileCfg)
-				currentChannelConfig.numInputBuffers = fileCfg.numInputBuffers;
-
-			if ((flags & ChannelEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize > 0)
-				currentChannelConfig.sysRecvBufSize = convertToInt(sysRecvBufSize);
-			else if (useFileCfg)
-				currentChannelConfig.sysRecvBufSize = fileCfg.sysRecvBufSize;
-
-			if ((flags & ChannelEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize > 0)
-				currentChannelConfig.sysSendBufSize = convertToInt(sysSendBufSize);
-			else if (useFileCfg)
-				currentChannelConfig.sysSendBufSize = fileCfg.sysSendBufSize;
-
-			if ((flags & ChannelEntryFlag.HIGH_WATERMARK_FLAG) != 0 && highWaterMark >= 0)
-				currentChannelConfig.highWaterMark = convertToInt(highWaterMark);
-			else if (useFileCfg)
-				currentChannelConfig.highWaterMark = fileCfg.highWaterMark;
-
-			if ((flags & ChannelEntryFlag.CONN_PING_TIMEOUT_FLAG) != 0 && connectionPingTimeout >= 0)
-				currentChannelConfig.connectionPingTimeout = convertToInt(connectionPingTimeout);
-			else if (useFileCfg)
-				currentChannelConfig.connectionPingTimeout = fileCfg.connectionPingTimeout;
-
-			if ((flags & ChannelEntryFlag.INIT_TIMEOUT_FLAG) != 0 && initializationTimeout >= 0)
-				currentChannelConfig.initializationTimeout = convertToInt(initializationTimeout);
-			else if (useFileCfg)
-				currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
-
-			if ((webSocketFlags & WebSocketFlag.WS_PROTOCOLS_FLAG) != 0 && wsProtocols != null) {
-				currentChannelConfig.wsProtocols = wsProtocols;
-			} else if (useFileCfg) {
-				currentChannelConfig.wsProtocols = fileCfg.wsProtocols;
-			}
-
-			if ((webSocketFlags & WebSocketFlag.WS_MAX_MSG_SIZE_FLAG) != 0 && wsProtocols != null) {
-				currentChannelConfig.wsMaxMsgSize = convertToInt(wsMaxMsgSize);
-			} else if (useFileCfg) {
-				currentChannelConfig.wsMaxMsgSize = fileCfg.wsMaxMsgSize;
-			}
-
-			if ((flags & ChannelEntryFlag.SERVICE_DISCOVERY_RETRY_COUNT_FLAG) != 0)
-				currentChannelConfig.serviceDiscoveryRetryCount(serviceDiscoveryRetryCount);
-			else if (useFileCfg)
-				currentChannelConfig.serviceDiscoveryRetryCount(fileCfg.serviceDiscoveryRetryCount);
 		}
+
+		ChannelConfig currentChannelConfig = null;
+
+		if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET) {
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
+			socketChannelConfig.serviceName = defaultServiceName;
+			socketChannelConfig.rsslConnectionType = channelType;
+			currentChannelConfig = socketChannelConfig;
+			channelSet.add(currentChannelConfig);
+
+			SocketChannelConfig fileCfgSocket = null;
+			if (fileCfg != null
+					&& (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET || fileCfg.rsslConnectionType == ConnectionTypes.WEBSOCKET))
+				fileCfgSocket = (SocketChannelConfig) (fileCfg);
+			
+			if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
+				socketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+			else if (fileCfgSocket != null) {
+				socketChannelConfig.enableSessionMgnt = fileCfgSocket.enableSessionMgnt;
+			}
+
+			if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
+				socketChannelConfig.location = location;
+			else if (fileCfgSocket != null) {
+				socketChannelConfig.location = fileCfgSocket.location;
+			}
+
+			if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
+				socketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+			else if (fileCfgSocket != null)
+				socketChannelConfig.tcpNodelay = fileCfgSocket.tcpNodelay;
+
+			if ((flags & ChannelEntryFlag.DIRECTWRITE_FLAG) != 0)
+				socketChannelConfig.directWrite = (directWrite == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE);
+			else if (fileCfgSocket != null)
+				socketChannelConfig.directWrite = fileCfgSocket.directWrite;
+
+			if ((flags & ChannelEntryFlag.HOST_FLAG) != 0 && setByFnCalled == 0)
+				socketChannelConfig.hostName = host;
+			else if (fileCfgSocket != null)
+				socketChannelConfig.hostName = fileCfgSocket.hostName;
+
+			if ((flags & ChannelEntryFlag.PORT_FLAG) != 0 && setByFnCalled == 0)
+				socketChannelConfig.serviceName = port;
+			else if (fileCfgSocket != null)
+				socketChannelConfig.serviceName = fileCfgSocket.serviceName;
+
+			if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
+				socketChannelConfig.httpProxyPort = tunnelingProxyPort;
+			else if (fileCfgSocket != null)
+				socketChannelConfig.httpProxyPort = fileCfgSocket.httpProxyPort;
+
+			if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
+				socketChannelConfig.httpProxyHostName = tunnelingProxyHost;
+			else if (fileCfgSocket != null)
+				socketChannelConfig.httpProxyHostName = fileCfgSocket.httpProxyHostName;
+
+			if ((socketChannelConfig.httpProxyPort != null && socketChannelConfig.httpProxyPort.length() > 0) ||
+					(socketChannelConfig.httpProxyHostName != null && socketChannelConfig.httpProxyHostName.length() > 0))
+				socketChannelConfig.httpProxy = true;
+
+			//need to copy other tunneling setting from function calls.
+			if (fileCfgSocket != null) {
+				socketChannelConfig.httpProxyUserName = fileCfgSocket.httpProxyUserName;
+				socketChannelConfig.httpproxyPasswd = fileCfgSocket.httpproxyPasswd;
+				socketChannelConfig.httpProxyDomain = fileCfgSocket.httpProxyDomain;
+				socketChannelConfig.httpProxyLocalHostName = fileCfgSocket.httpProxyLocalHostName;
+				socketChannelConfig.httpProxyKRB5ConfigFile = fileCfgSocket.httpProxyKRB5ConfigFile;
+
+			}
+		} else if (channelType == ConnectionTypes.HTTP) {
+			HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig();
+			httpChannelConfig.rsslConnectionType = channelType;
+			currentChannelConfig = httpChannelConfig;
+			channelSet.add(currentChannelConfig);
+
+			HttpChannelConfig fileCfgEncrypt = null;
+			if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
+				fileCfgEncrypt = (HttpChannelConfig) (fileCfg);
+
+			if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
+				httpChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.tcpNodelay = fileCfgEncrypt.tcpNodelay;
+			
+			if ((flags & ChannelEntryFlag.DIRECTWRITE_FLAG) != 0)
+				httpChannelConfig.directWrite = (directWrite == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE);
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.directWrite = fileCfgEncrypt.directWrite;
+
+			if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
+				httpChannelConfig.hostName = host;
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.hostName = fileCfgEncrypt.hostName;
+
+			if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
+				httpChannelConfig.serviceName = port;
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.serviceName = fileCfgEncrypt.serviceName;
+
+			if ((tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0)
+				httpChannelConfig.objectName = objectName;
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.objectName = fileCfgEncrypt.objectName;
+
+			if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
+				httpChannelConfig.httpProxyPort = tunnelingProxyPort;
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.httpProxyPort = fileCfgEncrypt.httpProxyPort;
+
+			if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
+				httpChannelConfig.httpProxyHostName = tunnelingProxyHost;
+			else if (fileCfgEncrypt != null)
+				httpChannelConfig.httpProxyHostName = fileCfgEncrypt.httpProxyHostName;
+
+			if ((httpChannelConfig.httpProxyPort != null && httpChannelConfig.httpProxyPort.length() > 0) ||
+					(httpChannelConfig.httpProxyHostName != null && httpChannelConfig.httpProxyHostName.length() > 0))
+				httpChannelConfig.httpProxy = true;
+
+			//need to copy other tunneling setting from function calls.
+			if (fileCfgEncrypt != null) {
+				httpChannelConfig.httpProxyUserName = fileCfgEncrypt.httpProxyUserName;
+				httpChannelConfig.httpproxyPasswd = fileCfgEncrypt.httpproxyPasswd;
+				httpChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
+				httpChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
+				httpChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
+			}
+		} else if (channelType == ConnectionTypes.ENCRYPTED) {
+			/* Default the encrypted protocol if it was not set here */
+			if ((flags & ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG) == 0) {
+				encryptedProtocol = ConnectionTypes.SOCKET;
+			}
+
+			switch (encryptedProtocol) {
+				case ConnectionTypes.HTTP:
+					EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
+					encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.HTTP;
+					currentChannelConfig = encryptedChannelConfig;
+					channelSet.add(currentChannelConfig);
+
+					HttpChannelConfig fileCfgEncrypt = null;
+					if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED || fileCfg.rsslConnectionType == ConnectionTypes.HTTP))
+						fileCfgEncrypt = (HttpChannelConfig) (fileCfg);
+
+					if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
+						encryptedChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.tcpNodelay = fileCfgEncrypt.tcpNodelay;
+					
+					if ((flags & ChannelEntryFlag.DIRECTWRITE_FLAG) != 0)
+						encryptedChannelConfig.directWrite = (directWrite == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE);
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.directWrite = fileCfgEncrypt.directWrite;
+
+					if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
+						encryptedChannelConfig.hostName = host;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.hostName = fileCfgEncrypt.hostName;
+
+					if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
+						encryptedChannelConfig.serviceName = port;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.serviceName = fileCfgEncrypt.serviceName;
+
+					if (channelType == ConnectionTypes.ENCRYPTED) {
+						if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
+							encryptedChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+						else if ((fileCfgEncrypt != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
+							encryptedChannelConfig.enableSessionMgnt = ((EncryptedChannelConfig) fileCfgEncrypt).enableSessionMgnt;
+						}
+
+						if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
+							encryptedChannelConfig.location = location;
+						else if ((fileCfgEncrypt != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
+							encryptedChannelConfig.location = ((EncryptedChannelConfig) fileCfgEncrypt).location;
+						}
+					}
+
+					if ((tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0)
+						encryptedChannelConfig.objectName = objectName;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.objectName = fileCfgEncrypt.objectName;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
+						encryptedChannelConfig.httpProxyPort = tunnelingProxyPort;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.httpProxyPort = fileCfgEncrypt.httpProxyPort;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
+						encryptedChannelConfig.httpProxyHostName = tunnelingProxyHost;
+					else if (fileCfgEncrypt != null)
+						encryptedChannelConfig.httpProxyHostName = fileCfgEncrypt.httpProxyHostName;
+
+					if ((encryptedChannelConfig.httpProxyPort != null && encryptedChannelConfig.httpProxyPort.length() > 0) ||
+							(encryptedChannelConfig.httpProxyHostName != null && encryptedChannelConfig.httpProxyHostName.length() > 0))
+						encryptedChannelConfig.httpProxy = true;
+
+					//need to copy other tunneling setting from function calls.
+					if (fileCfgEncrypt != null) {
+						encryptedChannelConfig.httpProxyUserName = fileCfgEncrypt.httpProxyUserName;
+						encryptedChannelConfig.httpproxyPasswd = fileCfgEncrypt.httpproxyPasswd;
+						encryptedChannelConfig.httpProxyDomain = fileCfgEncrypt.httpProxyDomain;
+						encryptedChannelConfig.httpProxyLocalHostName = fileCfgEncrypt.httpProxyLocalHostName;
+						encryptedChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncrypt.httpProxyKRB5ConfigFile;
+
+						if (fileCfgEncrypt.rsslConnectionType == ConnectionTypes.ENCRYPTED) {
+							encryptedChannelConfig.encryptionConfig.copy(fileCfgEncrypt.encryptionConfig);
+						}
+					}
+					break;
+				case ConnectionTypes.SOCKET:
+				case ConnectionTypes.WEBSOCKET:
+					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
+					encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					encryptedSocketChannelConfig.encryptedProtocolType = encryptedProtocol;
+					currentChannelConfig = encryptedSocketChannelConfig;
+					channelSet.add(currentChannelConfig);
+
+					EncryptedChannelConfig fileCfgEncryptSocket = null;
+					if (fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED))
+						fileCfgEncryptSocket = (EncryptedChannelConfig) (fileCfg);
+
+					if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
+						encryptedSocketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.tcpNodelay = fileCfgEncryptSocket.tcpNodelay;
+					
+					if ((flags & ChannelEntryFlag.DIRECTWRITE_FLAG) != 0)
+						encryptedSocketChannelConfig.directWrite = (directWrite == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE);
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.directWrite = fileCfgEncryptSocket.directWrite;
+
+					if ((flags & ChannelEntryFlag.HOST_FLAG) != 0)
+						encryptedSocketChannelConfig.hostName = host;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.hostName = fileCfgEncryptSocket.hostName;
+
+					if ((flags & ChannelEntryFlag.PORT_FLAG) != 0)
+						encryptedSocketChannelConfig.serviceName = port;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.serviceName = fileCfgEncryptSocket.serviceName;
+
+					if (channelType == ConnectionTypes.ENCRYPTED) {
+						if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
+							encryptedSocketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+						else if ((fileCfgEncryptSocket != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
+							encryptedSocketChannelConfig.enableSessionMgnt = fileCfgEncryptSocket.enableSessionMgnt;
+						}
+
+						if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
+							encryptedSocketChannelConfig.location = location;
+						else if ((fileCfgEncryptSocket != null) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED)) {
+							encryptedSocketChannelConfig.location = fileCfgEncryptSocket.location;
+						}
+					}
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYPORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
+						encryptedSocketChannelConfig.httpProxyPort = tunnelingProxyPort;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.httpProxyPort = fileCfgEncryptSocket.httpProxyPort;
+
+					if ((tunnelingFlags & TunnelingEntryFlag.PROXYHOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
+						encryptedSocketChannelConfig.httpProxyHostName = tunnelingProxyHost;
+					else if (fileCfgEncryptSocket != null)
+						encryptedSocketChannelConfig.httpProxyHostName = fileCfgEncryptSocket.httpProxyHostName;
+
+					if ((encryptedSocketChannelConfig.httpProxyPort != null && encryptedSocketChannelConfig.httpProxyPort.length() > 0) ||
+							(encryptedSocketChannelConfig.httpProxyHostName != null && encryptedSocketChannelConfig.httpProxyHostName.length() > 0))
+						encryptedSocketChannelConfig.httpProxy = true;
+
+					//need to copy other tunneling setting from function calls.
+					if (fileCfgEncryptSocket != null) {
+						encryptedSocketChannelConfig.httpProxyUserName = fileCfgEncryptSocket.httpProxyUserName;
+						encryptedSocketChannelConfig.httpproxyPasswd = fileCfgEncryptSocket.httpproxyPasswd;
+						encryptedSocketChannelConfig.httpProxyDomain = fileCfgEncryptSocket.httpProxyDomain;
+						encryptedSocketChannelConfig.httpProxyLocalHostName = fileCfgEncryptSocket.httpProxyLocalHostName;
+						encryptedSocketChannelConfig.httpProxyKRB5ConfigFile = fileCfgEncryptSocket.httpProxyKRB5ConfigFile;
+
+						if (fileCfgEncryptSocket.rsslConnectionType == ConnectionTypes.ENCRYPTED) {
+							encryptedSocketChannelConfig.encryptionConfig.copy((fileCfgEncryptSocket).encryptionConfig);
+						}
+					}
+					break;
+			}
+		}
+
+		currentChannelConfig.name = channelName;
+
+		boolean useFileCfg = (fileCfg != null && fileCfg.rsslConnectionType == currentChannelConfig.rsslConnectionType) ? true : false;
+
+		if ((flags & ChannelEntryFlag.INTERFACENAME_FLAG) != 0)
+			currentChannelConfig.interfaceName = interfaceName;
+		else if (useFileCfg)
+			currentChannelConfig.interfaceName = fileCfg.interfaceName;
+
+		if ((flags & ChannelEntryFlag.COMPRESSION_TYPE_FLAG) != 0)
+			currentChannelConfig.compressionType = compressionType;
+		else if (useFileCfg)
+			currentChannelConfig.compressionType = fileCfg.compressionType;
+
+		if ((flags & ChannelEntryFlag.COMPRESSION_THRESHOLD_FLAG) != 0 && compressionThreshold >= 0) {
+			currentChannelConfig.compressionThresholdSet = true;
+			currentChannelConfig.compressionThreshold = convertToInt(compressionThreshold);
+		} else if (useFileCfg)
+			currentChannelConfig.compressionThreshold = fileCfg.compressionThreshold;
+
+		if ((flags & ChannelEntryFlag.GUARANTEED_OUTPUTBUFFERS_FLAG) != 0 && guaranteedOutputBuffers >= 0)
+			currentChannelConfig.guaranteedOutputBuffers = convertToInt(guaranteedOutputBuffers);
+		else if (useFileCfg)
+			currentChannelConfig.guaranteedOutputBuffers = fileCfg.guaranteedOutputBuffers;
+
+		if ((flags & ChannelEntryFlag.NUM_INPUTBUFFERS_FLAG) != 0 && numInputBuffers >= 0)
+			currentChannelConfig.numInputBuffers = convertToInt(numInputBuffers);
+		else if (useFileCfg)
+			currentChannelConfig.numInputBuffers = fileCfg.numInputBuffers;
+
+		if ((flags & ChannelEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize > 0)
+			currentChannelConfig.sysRecvBufSize = convertToInt(sysRecvBufSize);
+		else if (useFileCfg)
+			currentChannelConfig.sysRecvBufSize = fileCfg.sysRecvBufSize;
+
+		if ((flags & ChannelEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize > 0)
+			currentChannelConfig.sysSendBufSize = convertToInt(sysSendBufSize);
+		else if (useFileCfg)
+			currentChannelConfig.sysSendBufSize = fileCfg.sysSendBufSize;
+
+		if ((flags & ChannelEntryFlag.HIGH_WATERMARK_FLAG) != 0 && highWaterMark >= 0)
+			currentChannelConfig.highWaterMark = convertToInt(highWaterMark);
+		else if (useFileCfg)
+			currentChannelConfig.highWaterMark = fileCfg.highWaterMark;
+
+		if ((flags & ChannelEntryFlag.CONN_PING_TIMEOUT_FLAG) != 0 && connectionPingTimeout >= 0)
+			currentChannelConfig.connectionPingTimeout = convertToInt(connectionPingTimeout);
+		else if (useFileCfg)
+			currentChannelConfig.connectionPingTimeout = fileCfg.connectionPingTimeout;
+
+		if ((flags & ChannelEntryFlag.INIT_TIMEOUT_FLAG) != 0 && initializationTimeout >= 0)
+			currentChannelConfig.initializationTimeout = convertToInt(initializationTimeout);
+		else if (useFileCfg)
+			currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
+
+		if ((webSocketFlags & WebSocketFlag.WS_PROTOCOLS_FLAG) != 0 && wsProtocols != null) {
+			currentChannelConfig.wsProtocols = wsProtocols;
+		} else if (useFileCfg) {
+			currentChannelConfig.wsProtocols = fileCfg.wsProtocols;
+		}
+
+		if ((webSocketFlags & WebSocketFlag.WS_MAX_MSG_SIZE_FLAG) != 0 && wsProtocols != null) {
+			currentChannelConfig.wsMaxMsgSize = convertToInt(wsMaxMsgSize);
+		} else if (useFileCfg) {
+			currentChannelConfig.wsMaxMsgSize = fileCfg.wsMaxMsgSize;
+		}
+
+		if ((flags & ChannelEntryFlag.SERVICE_DISCOVERY_RETRY_COUNT_FLAG) != 0)
+			currentChannelConfig.serviceDiscoveryRetryCount(serviceDiscoveryRetryCount);
+		else if (useFileCfg)
+			currentChannelConfig.serviceDiscoveryRetryCount(fileCfg.serviceDiscoveryRetryCount);
 	}
 
 	void retrieveServerInfo(MapEntry mapEntry, String serverName,

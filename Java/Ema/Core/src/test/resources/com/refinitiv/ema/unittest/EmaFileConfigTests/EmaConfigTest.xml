@@ -450,6 +450,24 @@
 			<ServiceDiscoveryRetryCount value="0"/>
 		</Channel>
 		<Channel>
+			<Name value="Channel_2ProgrammaticOverlay"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<InterfaceName value="localhost4file" />
+			<CompressionType value="CompressionType::ZLib"/>
+			<GuaranteedOutputBuffers value="6000"/>
+			<NumInputBuffers value = "9000" />
+			<SysRecvBufSize value= "23656" />
+			<SysSendBufSize value= "63656" />
+			<CompressionThreshold value= "4096" />
+			<ConnectionPingTimeout value="55555"/>
+			<Host value="0.0.0.2"/>
+			<Port value="15008"/>
+			<TcpNodelay value="0"/>
+			<ObjectName value="HttpObjectName"/>
+			<InitializationTimeout value="55"/>
+			<ServiceDiscoveryRetryCount value="0"/>
+		</Channel>
+		<Channel>
 			<Name value="Channel_3"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<!--<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/> -->

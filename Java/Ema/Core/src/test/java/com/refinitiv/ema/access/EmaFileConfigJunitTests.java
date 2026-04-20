@@ -2161,9 +2161,9 @@ public class EmaFileConfigJunitTests extends TestCase
 		}
 	}
 	
-	public void testMergCfgBetweenFileAndProgrammaticConfig()
+	public void testMergCfgBetweenFileAndProgrammaticConfigNoProgrammaticChannelType()
 	{
-		TestUtilities.printTestHead("testMergCfgBetweenFileAndProgrammaticConfig","Test merge all configuration parameters between config file and programmatically config");
+		TestUtilities.printTestHead("testMergCfgBetweenFileAndProgrammaticConfigNoProgrammaticChannelType","Test merge all configuration parameters between config file and programmatically config");
 		
 		Map configDB1 = EmaFactory.createMap();
 		Map configDB2 = EmaFactory.createMap();
@@ -2174,7 +2174,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		
 		try
 		{
-			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2ProgrammaticOverlay"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_2"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ItemCountHint", 9000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ServiceCountHint", 9000));
@@ -2208,7 +2208,6 @@ public class EmaFileConfigJunitTests extends TestCase
 			configDB1.add(EmaFactory.createMapEntry().keyAscii( "ConsumerGroup", MapEntry.MapAction.ADD, elementList ));
 			elementList.clear();
 
-			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_SOCKET"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
@@ -2224,7 +2223,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 77));
 			
-			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_2", MapEntry.MapAction.ADD, innerElementList));
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_2ProgrammaticOverlay", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 
 			elementList.add(EmaFactory.createElementEntry().map( "ChannelList", innerMap ));
@@ -2267,7 +2266,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("DefaultConsumer value == Consumer_2", defaultConsName.contentEquals("Consumer_2") );
 			String ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
 			TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
-			TestUtilities.checkResult("Channel value == Channel_2", ConsChannelVal.contentEquals("Channel_2") );
+			TestUtilities.checkResult("Channel value == Channel_2ProgrammaticOverlay", ConsChannelVal.contentEquals("Channel_2ProgrammaticOverlay") );
 			String ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 			TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
@@ -2324,7 +2323,7 @@ public class EmaFileConfigJunitTests extends TestCase
 
 			ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
 			TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
-			TestUtilities.checkResult("Channel value == Channel_2", ConsChannelVal.contentEquals("Channel_2") );
+			TestUtilities.checkResult("Channel value == Channel_2ProgrammaticOverlay", ConsChannelVal.contentEquals("Channel_2ProgrammaticOverlay") );
 			ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
 			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 			TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
@@ -2334,7 +2333,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			ConsChannelVal = "Channel_2";
 			System.out.println("\nRetrieving Channel_2 configuration values "); 
 			int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
-			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_SOCKET", channelConnType == ChannelTypeSocket);
+			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
 		
 			String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
 			TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));

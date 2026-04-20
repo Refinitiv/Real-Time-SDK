@@ -2440,14 +2440,26 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore, wsProtocols;
 	EmaString cipherSuite, cipherSuite_TLSV1_3;
-	UInt16 channelType, compressionType, encryptedProtocolType;
+	UInt16 compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
 	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize, directWrite, proxyConnectionTimeout;
 	UInt64 serviceDiscoveryRetryCount;
 
+	RsslConnectionTypes channelType;
+
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
+
+	// If fileCfg is not null, set the ChannelType to what was configured in the fileCfg.
+	if (fileCfg != NULL)
+	{
+		channelType = fileCfg->connectionType;
+	}
+	else
+	{
+		channelType = RSSL_CONN_TYPE_SOCKET;
+	}
 
 	while ( elementListChannel.forth() )
 	{
@@ -2561,7 +2573,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 		case DataType::EnumEnum:
 			if ( channelEntry.getName() == "ChannelType" )
 			{
-				channelType = channelEntry.getEnum();
+				channelType = (RsslConnectionTypes)channelEntry.getEnum();
 
 				switch ( channelType )
 				{
@@ -2774,260 +2786,259 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 		}
 	}
 
-	if ( flags & ChannelTypeEnum)
+	if (setByFnCalled & (SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL | SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
 	{
-		if ( setByFnCalled & (SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL | SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL) )
-		{
-			channelType = RSSL_CONN_TYPE_SOCKET;
-			activeConfig.clearChannelSet();
-		}
-
-		unsigned int positionFound = 0;
-		ChannelConfig* pCurrentChannelConfig = 0;
-		EmaVector< ChannelConfig* >* activeConfigChannelSet;
-
-		if (sessionConfig == NULL)
-		{
-			activeConfigChannelSet = &activeConfig.configChannelSet;
-		}
-		else
-		{
-			activeConfigChannelSet = &sessionConfig->configChannelSet;
-		}
-
-		try
-		{
-			if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
-			{
-				ReliableMcastChannelConfig* reliableMcastChannelCfg = new ReliableMcastChannelConfig();
-				pCurrentChannelConfig = reliableMcastChannelCfg;
-				EmaString errorMsg;
-
-				pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
-
-				if ( setReliableMcastChannelInfo( reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg ) )
-					activeConfigChannelSet->push_back( pCurrentChannelConfig );
-				else
-				{
-					throwIceException( errorMsg );
-					return;
-				}
-			}
-			else if (channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP || channelType == RSSL_CONN_TYPE_WEBSOCKET)
-			{
-				SocketChannelConfig* socketChannelConfig;
-
-				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
-				{
-					/*	Both host and port is set as empty string by default to support the Reactor's session management
-						to query them from RDP service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
-					*/
-					socketChannelConfig = new SocketChannelConfig("", "", (RsslConnectionTypes)channelType);
-					socketChannelConfig->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
-				}
-				else
-				{
-					socketChannelConfig = new SocketChannelConfig(DEFAULT_HOST_NAME, activeConfig.defaultServiceName(), (RsslConnectionTypes)channelType);
-				}
-
-				pCurrentChannelConfig = socketChannelConfig;
-				// This will be set to the routing channel object that owns this object, otherwise NULL.
-				pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
-				activeConfigChannelSet->push_back(pCurrentChannelConfig);
-
-				SocketChannelConfig* fileCfgSocket = NULL;
-				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) || (fileCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)))
-					fileCfgSocket = static_cast<SocketChannelConfig*>(fileCfg);
-
-				if (flags & TcpNodelayEnum)
-					socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if (fileCfgSocket)
-					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
-
-				if (flags & HostEnum && !(setByFnCalled & SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL))
-					socketChannelConfig->hostName = host;
-				else if (fileCfgSocket)
-					socketChannelConfig->hostName = fileCfgSocket->hostName;
-
-				if (flags & PortEnum && !(setByFnCalled & SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
-					socketChannelConfig->serviceName = port;
-				else if (fileCfgSocket)
-					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
-
-				if (flags & ObjectNameEnum && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
-					socketChannelConfig->objectName = objectName;
-				else if (fileCfgSocket)
-					socketChannelConfig->objectName = fileCfgSocket->objectName;
-
-				if (flags & ProxyPortEnum && !(setByFnCalled & PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
-					socketChannelConfig->proxyPort = tunnelingProxyPort;
-				else if (fileCfgSocket)
-					socketChannelConfig->proxyPort = fileCfgSocket->proxyPort;
-
-				if (flags & ProxyHostEnum && !(setByFnCalled & PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
-					socketChannelConfig->proxyHostName = tunnelingProxyHost;
-				else if (fileCfgSocket)
-					socketChannelConfig->proxyHostName = fileCfgSocket->proxyHostName;
-
-				if (flags & EncryptedProtocolTypeEnum)
-					socketChannelConfig->encryptedConnectionType = (RsslConnectionTypes)encryptedProtocolType;
-				else if (fileCfgSocket)
-					socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
-
-				if (flags & OpenSSLCAStoreEnum)
-					socketChannelConfig->sslCAStore = sslCAStore;
-				else if (fileCfgSocket)
-					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
-
-				if (flags & CipherSuiteEnum)
-					socketChannelConfig->cipherSuite = cipherSuite;
-				else if (fileCfgSocket)
-					socketChannelConfig->cipherSuite = fileCfgSocket->cipherSuite;
-
-				if (flags & CipherSuiteEnum_TLSV1_3)
-					socketChannelConfig->cipherSuite_TLSV1_3 = cipherSuite_TLSV1_3;
-				else if (fileCfgSocket)
-					socketChannelConfig->cipherSuite_TLSV1_3 = fileCfgSocket->cipherSuite_TLSV1_3;
-
-				if (channelType == RSSL_CONN_TYPE_WEBSOCKET || (channelType == RSSL_CONN_TYPE_ENCRYPTED && socketChannelConfig->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
-				{
-					if (flags & WsProtocolsEnum)
-						socketChannelConfig->wsProtocols = wsProtocols;
-					else if (fileCfgSocket)
-						socketChannelConfig->wsProtocols = fileCfgSocket->wsProtocols;
-
-					if (flags & WsMaxMsgSizeEnum)
-						socketChannelConfig->setWsMaxMsgSize(wsMaxMsgSize);
-					else if (fileCfgSocket)
-						socketChannelConfig->wsMaxMsgSize = fileCfgSocket->wsMaxMsgSize;
-				}
-
-				if ((setByFnCalled & PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
-					socketChannelConfig->proxyUserName = fileCfgSocket->proxyUserName;
-
-				if ((setByFnCalled & PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
-					socketChannelConfig->proxyPasswd = fileCfgSocket->proxyPasswd;
-
-				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
-					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
-
-				if (flags & ProxyConnectionTimeoutEnum)
-					socketChannelConfig->setProxyConnectionTimeout(proxyConnectionTimeout);
-				else if (fileCfgSocket)
-					socketChannelConfig->proxyConnectionTimeout = fileCfgSocket->proxyConnectionTimeout;
-
-				if (flags & EnableSessionManagementEnum)
-					socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
-				else if (fileCfgSocket)
-					socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
-
-				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
-				{
-					if (flags & LocationEnum)
-						socketChannelConfig->location = location;
-					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
-						socketChannelConfig->location = fileCfgSocket->location;
-
-					if (flags & ServiceDiscoveryRetryCountEnum)
-						socketChannelConfig->setServiceDiscoveryRetryCount(serviceDiscoveryRetryCount);
-					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
-						socketChannelConfig->serviceDiscoveryRetryCount = fileCfgSocket->serviceDiscoveryRetryCount;
-
-					if (flags & SecurityProtocolEnum)
-					{
-						socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
-					}
-					//need to copy other tunneling setting from function calls.
-					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
-					{
-						socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
-					}
-				}
-			}
-		}
-		catch ( std::bad_alloc& )
-		{
-			const char* temp = "Failed to allocate memory for ChannelConfig. Out of memory!";
-			throwMeeException( temp );
-		}
-
-		pCurrentChannelConfig->name = channelName;
-
-		bool useFileCfg = ( fileCfg && fileCfg->connectionType == pCurrentChannelConfig->connectionType ) ? true : false;
-
-		if ( flags & InterfaceNameEnum)
-			pCurrentChannelConfig->interfaceName = interfaceName;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->interfaceName = fileCfg->interfaceName;
-
-		if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
-		{
-			if ( flags & CompressionTypeEnum)
-				pCurrentChannelConfig->compressionType = ( RsslCompTypes )compressionType;
-			else if ( useFileCfg )
-				pCurrentChannelConfig->compressionType = fileCfg->compressionType;
-
-			if (flags & CompressionThresholdEnum)
-			{
-				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
-				pCurrentChannelConfig->compressionThresholdSet = true;
-			}
-			else if ( useFileCfg ) {
-				pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
-
-				/* unfortunately fileCfg->compressionThreshold is set regardless of whether or
-				 * not "compressionThreshold" appears in the configuration file. Thus, if the
-				 * user sets compression to LZ4 programmatically and the compressionThreshold
-				 * equals the ZLib default, we'll set the threshold to the LZ4 default. In
-				 * theory, this may override a user setting in the configuration file, but only
-				 * in the case where the user set it to 30 which is invalid for LZ4 anyway.
-				 */
-				if ( flags & CompressionTypeEnum && compressionType == RSSL_COMP_LZ4 &&
-					 pCurrentChannelConfig->compressionThreshold == DEFAULT_COMPRESSION_THRESHOLD)
-				  pCurrentChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
-			}
-		}
-
-		if ( flags & GuaranteedOutputBuffersEnum)
-			pCurrentChannelConfig->setGuaranteedOutputBuffers( guaranteedOutputBuffers );
-		else if ( useFileCfg )
-			pCurrentChannelConfig->guaranteedOutputBuffers = fileCfg->guaranteedOutputBuffers;
-
-		if ( flags & NumInputBuffersEnum)
-			pCurrentChannelConfig->setNumInputBuffers( numInputBuffers );
-		else if ( useFileCfg )
-			pCurrentChannelConfig->numInputBuffers = fileCfg->numInputBuffers;
-
-		if ( flags & SysRecvBufSizeEnum)
-			pCurrentChannelConfig->sysRecvBufSize = sysRecvBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysRecvBufSize;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->sysRecvBufSize = fileCfg->sysRecvBufSize;
-
-		if ( flags & SysSendBufSizeEnum)
-			pCurrentChannelConfig->sysSendBufSize = sysSendBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysSendBufSize;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->sysSendBufSize = fileCfg->sysSendBufSize;
-
-		if ( flags & HighWaterMarkEnum)
-			pCurrentChannelConfig->highWaterMark = highWaterMark > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32) highWaterMark;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->highWaterMark = fileCfg->highWaterMark;
-
-		if ( flags & ConnectionPingTimeoutEnum)
-			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > MAX_UNSIGNED_INT32  ? MAX_UNSIGNED_INT32 : ( UInt32 )connectionPingTimeout;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
-
-		if (flags & InitializationTimeoutEnum)
-			pCurrentChannelConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
-		else if (useFileCfg)
-			pCurrentChannelConfig->initializationTimeout = fileCfg->initializationTimeout;
-
-		if (flags & DirectWriteEnum)
-			pCurrentChannelConfig->directWrite = directWrite > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)directWrite;
-		else if (useFileCfg)
-			pCurrentChannelConfig->directWrite = fileCfg->directWrite;
+		channelType = RSSL_CONN_TYPE_SOCKET;
+		activeConfig.clearChannelSet();
 	}
+
+	unsigned int positionFound = 0;
+	ChannelConfig* pCurrentChannelConfig = 0;
+	EmaVector< ChannelConfig* >* activeConfigChannelSet;
+
+	if (sessionConfig == NULL)
+	{
+		activeConfigChannelSet = &activeConfig.configChannelSet;
+	}
+	else
+	{
+		activeConfigChannelSet = &sessionConfig->configChannelSet;
+	}
+
+	try
+	{
+		if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
+		{
+			ReliableMcastChannelConfig* reliableMcastChannelCfg = new ReliableMcastChannelConfig();
+			pCurrentChannelConfig = reliableMcastChannelCfg;
+			EmaString errorMsg;
+
+			pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
+
+			if ( setReliableMcastChannelInfo( reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg ) )
+				activeConfigChannelSet->push_back( pCurrentChannelConfig );
+			else
+			{
+				delete reliableMcastChannelCfg;
+				throwIceException( errorMsg );
+				return;
+			}
+		}
+		else if (channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP || channelType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			SocketChannelConfig* socketChannelConfig;
+
+			if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				/*	Both host and port is set as empty string by default to support the Reactor's session management
+					to query them from RDP service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
+				*/
+				socketChannelConfig = new SocketChannelConfig("", "", (RsslConnectionTypes)channelType);
+				socketChannelConfig->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
+			}
+			else
+			{
+				socketChannelConfig = new SocketChannelConfig(DEFAULT_HOST_NAME, activeConfig.defaultServiceName(), (RsslConnectionTypes)channelType);
+			}
+
+			pCurrentChannelConfig = socketChannelConfig;
+			// This will be set to the routing channel object that owns this object, otherwise NULL.
+			pCurrentChannelConfig->pRoutingChannelConfig = static_cast<BaseRoutingSessionChannelConfig*>(sessionConfig);
+			activeConfigChannelSet->push_back(pCurrentChannelConfig);
+
+			SocketChannelConfig* fileCfgSocket = NULL;
+			if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) || (fileCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)))
+				fileCfgSocket = static_cast<SocketChannelConfig*>(fileCfg);
+
+			if (flags & TcpNodelayEnum)
+				socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
+			else if (fileCfgSocket)
+				socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
+
+			if (flags & HostEnum && !(setByFnCalled & SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL))
+				socketChannelConfig->hostName = host;
+			else if (fileCfgSocket)
+				socketChannelConfig->hostName = fileCfgSocket->hostName;
+
+			if (flags & PortEnum && !(setByFnCalled & SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
+				socketChannelConfig->serviceName = port;
+			else if (fileCfgSocket)
+				socketChannelConfig->serviceName = fileCfgSocket->serviceName;
+
+			if (flags & ObjectNameEnum && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
+				socketChannelConfig->objectName = objectName;
+			else if (fileCfgSocket)
+				socketChannelConfig->objectName = fileCfgSocket->objectName;
+
+			if (flags & ProxyPortEnum && !(setByFnCalled & PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
+				socketChannelConfig->proxyPort = tunnelingProxyPort;
+			else if (fileCfgSocket)
+				socketChannelConfig->proxyPort = fileCfgSocket->proxyPort;
+
+			if (flags & ProxyHostEnum && !(setByFnCalled & PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
+				socketChannelConfig->proxyHostName = tunnelingProxyHost;
+			else if (fileCfgSocket)
+				socketChannelConfig->proxyHostName = fileCfgSocket->proxyHostName;
+
+			if (flags & EncryptedProtocolTypeEnum)
+				socketChannelConfig->encryptedConnectionType = (RsslConnectionTypes)encryptedProtocolType;
+			else if (fileCfgSocket)
+				socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
+
+			if (flags & OpenSSLCAStoreEnum)
+				socketChannelConfig->sslCAStore = sslCAStore;
+			else if (fileCfgSocket)
+				socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
+
+			if (flags & CipherSuiteEnum)
+				socketChannelConfig->cipherSuite = cipherSuite;
+			else if (fileCfgSocket)
+				socketChannelConfig->cipherSuite = fileCfgSocket->cipherSuite;
+
+			if (flags & CipherSuiteEnum_TLSV1_3)
+				socketChannelConfig->cipherSuite_TLSV1_3 = cipherSuite_TLSV1_3;
+			else if (fileCfgSocket)
+				socketChannelConfig->cipherSuite_TLSV1_3 = fileCfgSocket->cipherSuite_TLSV1_3;
+
+			if (channelType == RSSL_CONN_TYPE_WEBSOCKET || (channelType == RSSL_CONN_TYPE_ENCRYPTED && socketChannelConfig->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+			{
+				if (flags & WsProtocolsEnum)
+					socketChannelConfig->wsProtocols = wsProtocols;
+				else if (fileCfgSocket)
+					socketChannelConfig->wsProtocols = fileCfgSocket->wsProtocols;
+
+				if (flags & WsMaxMsgSizeEnum)
+					socketChannelConfig->setWsMaxMsgSize(wsMaxMsgSize);
+				else if (fileCfgSocket)
+					socketChannelConfig->wsMaxMsgSize = fileCfgSocket->wsMaxMsgSize;
+			}
+
+			if ((setByFnCalled & PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+				socketChannelConfig->proxyUserName = fileCfgSocket->proxyUserName;
+
+			if ((setByFnCalled & PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+				socketChannelConfig->proxyPasswd = fileCfgSocket->proxyPasswd;
+
+			if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+				socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
+
+			if (flags & ProxyConnectionTimeoutEnum)
+				socketChannelConfig->setProxyConnectionTimeout(proxyConnectionTimeout);
+			else if (fileCfgSocket)
+				socketChannelConfig->proxyConnectionTimeout = fileCfgSocket->proxyConnectionTimeout;
+
+			if (flags & EnableSessionManagementEnum)
+				socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
+			else if (fileCfgSocket)
+				socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
+
+			if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				if (flags & LocationEnum)
+					socketChannelConfig->location = location;
+				else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+					socketChannelConfig->location = fileCfgSocket->location;
+
+				if (flags & ServiceDiscoveryRetryCountEnum)
+					socketChannelConfig->setServiceDiscoveryRetryCount(serviceDiscoveryRetryCount);
+				else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+					socketChannelConfig->serviceDiscoveryRetryCount = fileCfgSocket->serviceDiscoveryRetryCount;
+
+				if (flags & SecurityProtocolEnum)
+				{
+					socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
+				}
+				//need to copy other tunneling setting from function calls.
+				else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
+				{
+					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
+				}
+			}
+		}
+	}
+	catch ( std::bad_alloc& )
+	{
+		delete pCurrentChannelConfig;
+		const char* temp = "Failed to allocate memory for ChannelConfig. Out of memory!";
+		throwMeeException( temp );
+	}
+
+	pCurrentChannelConfig->name = channelName;
+
+	bool useFileCfg = ( fileCfg && fileCfg->connectionType == pCurrentChannelConfig->connectionType ) ? true : false;
+
+	if ( flags & InterfaceNameEnum)
+		pCurrentChannelConfig->interfaceName = interfaceName;
+	else if ( useFileCfg )
+		pCurrentChannelConfig->interfaceName = fileCfg->interfaceName;
+
+	if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
+	{
+		if ( flags & CompressionTypeEnum)
+			pCurrentChannelConfig->compressionType = ( RsslCompTypes )compressionType;
+		else if ( useFileCfg )
+			pCurrentChannelConfig->compressionType = fileCfg->compressionType;
+
+		if (flags & CompressionThresholdEnum)
+		{
+			pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
+			pCurrentChannelConfig->compressionThresholdSet = true;
+		}
+		else if ( useFileCfg ) {
+			pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
+
+			/* unfortunately fileCfg->compressionThreshold is set regardless of whether or
+				* not "compressionThreshold" appears in the configuration file. Thus, if the
+				* user sets compression to LZ4 programmatically and the compressionThreshold
+				* equals the ZLib default, we'll set the threshold to the LZ4 default. In
+				* theory, this may override a user setting in the configuration file, but only
+				* in the case where the user set it to 30 which is invalid for LZ4 anyway.
+				*/
+			if ( flags & CompressionTypeEnum && compressionType == RSSL_COMP_LZ4 &&
+					pCurrentChannelConfig->compressionThreshold == DEFAULT_COMPRESSION_THRESHOLD)
+				pCurrentChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+		}
+	}
+
+	if ( flags & GuaranteedOutputBuffersEnum)
+		pCurrentChannelConfig->setGuaranteedOutputBuffers( guaranteedOutputBuffers );
+	else if ( useFileCfg )
+		pCurrentChannelConfig->guaranteedOutputBuffers = fileCfg->guaranteedOutputBuffers;
+
+	if ( flags & NumInputBuffersEnum)
+		pCurrentChannelConfig->setNumInputBuffers( numInputBuffers );
+	else if ( useFileCfg )
+		pCurrentChannelConfig->numInputBuffers = fileCfg->numInputBuffers;
+
+	if ( flags & SysRecvBufSizeEnum)
+		pCurrentChannelConfig->sysRecvBufSize = sysRecvBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysRecvBufSize;
+	else if ( useFileCfg )
+		pCurrentChannelConfig->sysRecvBufSize = fileCfg->sysRecvBufSize;
+
+	if ( flags & SysSendBufSizeEnum)
+		pCurrentChannelConfig->sysSendBufSize = sysSendBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysSendBufSize;
+	else if ( useFileCfg )
+		pCurrentChannelConfig->sysSendBufSize = fileCfg->sysSendBufSize;
+
+	if ( flags & HighWaterMarkEnum)
+		pCurrentChannelConfig->highWaterMark = highWaterMark > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32) highWaterMark;
+	else if ( useFileCfg )
+		pCurrentChannelConfig->highWaterMark = fileCfg->highWaterMark;
+
+	if ( flags & ConnectionPingTimeoutEnum)
+		pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > MAX_UNSIGNED_INT32  ? MAX_UNSIGNED_INT32 : ( UInt32 )connectionPingTimeout;
+	else if ( useFileCfg )
+		pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
+
+	if (flags & InitializationTimeoutEnum)
+		pCurrentChannelConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
+	else if (useFileCfg)
+		pCurrentChannelConfig->initializationTimeout = fileCfg->initializationTimeout;
+
+	if (flags & DirectWriteEnum)
+		pCurrentChannelConfig->directWrite = directWrite > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)directWrite;
+	else if (useFileCfg)
+		pCurrentChannelConfig->directWrite = fileCfg->directWrite;
 }
 
 void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, const EmaString& serverInfoName, EmaConfigErrorList& emaConfigErrList,
@@ -3164,21 +3175,21 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 				EmaString queryName = fileConfig->channelConfig->name;
 				if (sessionConfig == NULL)
 				{
-				if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
-				{
-					currentCfg->channelConfig = activeConfig.configChannelSet[pos];
-				}
-				else
-				{
-					/* Get channel config from programmatic configuration instead */
-					retrieveChannelConfig(queryName, activeConfig, false);
-
 					if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
 					{
 						currentCfg->channelConfig = activeConfig.configChannelSet[pos];
 					}
+					else
+					{
+						/* Get channel config from programmatic configuration instead */
+						retrieveChannelConfig(queryName, activeConfig, false);
+
+						if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
+						{
+							currentCfg->channelConfig = activeConfig.configChannelSet[pos];
+						}
+					}
 				}
-			}
 				else
 				{
 					if (activeConfig.findChannelConfig(sessionConfig->configChannelSet, queryName, pos))

@@ -358,8 +358,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	        _providerRole.defaultMsgCallback(_marketItemHandler);
 	        
 			_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-			if ((_activeServerConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET || _activeServerConfig.serverConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
-					&& ((SocketServerConfig) _activeServerConfig.serverConfig).directWrite )
+			if (((SocketServerConfig) _activeServerConfig.serverConfig).directWrite )
 			{
 				_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 			}

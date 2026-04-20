@@ -1618,13 +1618,19 @@ public class JUnitTestConnect
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 					return ((SocketChannelConfig)chanConfig).tcpNodelay;
-				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP )
 					return ((HttpChannelConfig)chanConfig).tcpNodelay;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((EncryptedChannelConfig)chanConfig).tcpNodelay;
 			}
 			else if (configParam == DirectWrite)
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 					return ((SocketChannelConfig)chanConfig).directWrite;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP )
+					return ((HttpChannelConfig)chanConfig).directWrite;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((EncryptedChannelConfig)chanConfig).directWrite;
 			}
 			else if (configParam == EnableSessionMgnt)
 			{

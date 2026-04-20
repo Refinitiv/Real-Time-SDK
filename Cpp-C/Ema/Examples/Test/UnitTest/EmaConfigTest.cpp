@@ -2872,6 +2872,212 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 	}
 }
 
+TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfigNoProgrammaticChannelType)
+{
+	Map configDB1, configDB2, configDB3, configDB4, innerMap;
+	ElementList elementList;
+
+	try
+	{
+		// Default Consumer name Consumer_2 is defined in EmaConfig.xml
+		innerMap.addKeyAscii("Consumer_2", MapEntry::AddEnum,
+			ElementList()
+			.addAscii("Channel", "Channel_2")
+			.addAscii("ChannelSet", "Channel_1, Channel_2")
+			.addAscii("Logger", "Logger_2")
+			.addAscii("Dictionary", "Dictionary_2")
+			.addAscii("RestLogFileName", "Rest.log")
+			.addUInt("RestEnableLog", 1)
+			.addUInt("RestVerboseMode", 1)
+			.addUInt("SendJsonConvError", 0)
+			.addUInt("ItemCountHint", 9000)
+			.addUInt("ServiceCountHint", 9000)
+			.addUInt("ObeyOpenWindow", 1)
+			.addUInt("PostAckTimeout", 9000)
+			.addUInt("RequestTimeout", 9000)
+			.addUInt("MaxOutstandingPosts", 9000)
+			.addInt("DispatchTimeoutApiThread", 5656)
+			.addUInt("CatchUnhandledException", 1)
+			.addUInt("MaxDispatchCountApiThread", 900)
+			.addUInt("MaxDispatchCountUserThread", 900)
+			.addInt("MaxEventsInPool", 900)
+			.addAscii("XmlTraceFileName", "ConfigDbXMLTrace")
+			.addInt("XmlTraceMaxFileSize", 70000000)
+			.addUInt("XmlTraceToFile", 1)
+			.addUInt("XmlTraceToStdout", 0)
+			.addUInt("XmlTraceToMultipleFiles", 0)
+			.addUInt("XmlTraceWrite", 0)
+			.addUInt("XmlTraceRead", 0)
+			.addUInt("XmlTracePing", 0)
+			.addUInt("XmlTracePingOnly", 0)
+			.addUInt("XmlTraceHex", 0)
+			.addUInt("MsgKeyInUpdates", 0)
+			.addInt("ReconnectAttemptLimit", 70)
+			.addInt("ReconnectMinDelay", 7000)
+			.addInt("ReconnectMaxDelay", 7000)
+			.addDouble("TokenReissueRatio", 0.90)
+			.addInt("ReissueTokenAttemptLimit", 20)
+			.addInt("ReissueTokenAttemptInterval", 15000)
+			.addAscii("RestProxyHostName", "restProxyNonLocalHost")
+			.addAscii("RestProxyPort", "9083")
+			.addUInt("EnablePreferredHostOptions", 1)
+			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
+			.addUInt("PHDetectionTimeInterval", 321)
+			.addAscii("PreferredChannelName", "Channel_1")
+			.addAscii("PreferredWSBChannelName", "Channel_2")
+			.addUInt("PHFallBackWithInWSBGroup", 1)
+			.addUInt("UpdateTypeFilter", UPD_EVENT_FILTER_TYPE_NEWS_ALERT)
+			.addUInt("NegativeUpdateTypeFilter", UPD_EVENT_FILTER_TYPE_VERIFY)
+			.complete()).complete();
+
+		elementList.addMap("ConsumerList", innerMap).complete();
+		innerMap.clear();
+
+		configDB1.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList).complete();
+		elementList.clear();
+
+		innerMap.addKeyAscii("Channel_2", MapEntry::AddEnum,
+			ElementList()
+			.addAscii("InterfaceName", "localhost")
+			.addEnum("CompressionType", 2)
+			.addUInt("GuaranteedOutputBuffers", 7000)
+			.addUInt("NumInputBuffers", 888888)
+			.addUInt("SysRecvBufSize", 550000)
+			.addUInt("SysSendBufSize", 700000)
+			.addUInt("CompressionThreshold", 12758)
+			.addUInt("ConnectionPingTimeout", 70000)
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "14002")
+			.addUInt("TcpNodelay", 1)
+			.addUInt("InitializationTimeout", 77) // Overried the 55 value defined in the config file
+			.addUInt("DirectWrite", 1)
+			.addUInt("EnableSessionManagement", 0) // Override the 1 value defined in the config file as the OAuth credential is required by the session mgnt.
+			.complete()).complete();
+
+		elementList.addMap("ChannelList", innerMap).complete();
+		innerMap.clear();
+
+		configDB2.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList).complete();
+		elementList.clear();
+
+		innerMap.addKeyAscii("Logger_2", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("LoggerType", 0)
+			.addUInt("IncludeDateInLoggerOutput", 1)
+			.addAscii("FileName", "ConfigDB2_logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
+			.addEnum("LoggerSeverity", 4).complete()).complete();
+
+		elementList.addMap("LoggerList", innerMap).complete();
+		innerMap.clear();
+
+		configDB3.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList).complete();
+		elementList.clear();
+
+		innerMap.addKeyAscii("Dictionary_2", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("DictionaryType", 1)
+			.addAscii("RdmFieldDictionaryFileName", "./ConfigDB3_RDMFieldDictionary")
+			.addAscii("EnumTypeDefFileName", "./ConfigDB3_enumtype.def").complete()).complete();
+
+		elementList.addMap("DictionaryList", innerMap).complete();
+		innerMap.clear();
+
+		configDB4.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList).complete();
+		elementList.clear();
+
+		EmaString workingDir;
+		ASSERT_EQ(getCurrentDir(workingDir), true)
+			<< "Error: failed to load config file from current working dir "
+			<< workingDir.c_str();
+		EmaString localConfigPath;
+		localConfigPath.append(workingDir).append(emaConfigXMLFileNameTest);
+
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig(localConfigPath).config(configDB1).config(configDB2).config(configDB3).config(configDB4), true);
+
+		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+
+		bool found = ommConsumerImpl.getInstanceName().find("Consumer_2") >= 0 ? true : false;
+		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_2_3\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->name == "Channel_2") << "Connection name , \"Channel_2\"";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_2") << "Logger name , \"Logger_2\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2") << "dictionaryName , \"Dictionary_2\"";
+		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
+		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.restVerboseMode == 1) << "restVerboseMode , \"True\"";
+		EXPECT_TRUE(activeConfig.sendJsonConvError == 0) << "SendJsonConvError , \"False\"";
+		EXPECT_TRUE(activeConfig.itemCountHint == 9000) << "itemCountHint , 9000";
+		EXPECT_TRUE(activeConfig.serviceCountHint == 9000) << "serviceCountHint , 9000";
+		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
+		EXPECT_TRUE(activeConfig.postAckTimeout == 9000) << "postAckTimeout , 9000";
+		EXPECT_TRUE(activeConfig.requestTimeout == 9000) << "requestTimeout , 9000";
+		EXPECT_TRUE(activeConfig.maxOutstandingPosts == 9000) << "maxOutstandingPosts , 9000";
+		EXPECT_TRUE(activeConfig.dispatchTimeoutApiThread == 5656) << "dispatchTimeoutApiThread , 5656";
+		EXPECT_TRUE(activeConfig.catchUnhandledException == 1) << "catchUnhandledException , 1";
+		EXPECT_TRUE(activeConfig.maxDispatchCountApiThread == 900) << "maxDispatchCountApiThread , 900";
+		EXPECT_TRUE(activeConfig.maxDispatchCountUserThread == 900) << "maxDispatchCountUserThread , 900";
+		EXPECT_TRUE(activeConfig.maxEventsInPool == 900) << "maxEventsInPool , 900";
+		EXPECT_TRUE(activeConfig.reconnectAttemptLimit == 70) << "reconnectAttemptLimit , 70";
+		EXPECT_TRUE(activeConfig.reconnectMinDelay == 7000) << "reconnectMinDelay , 7000";
+		EXPECT_TRUE(activeConfig.reconnectMaxDelay == 7000) << "reconnectMaxDelay , 7000";
+		EXPECT_TRUE(activeConfig.xmlTraceFileName == "ConfigDbXMLTrace") << "xmlTraceFileName , \"ConfigDbXMLTrace\"";
+		EXPECT_TRUE(activeConfig.xmlTraceMaxFileSize == 70000000) << "xmlTraceMaxFileSize , 70000000";
+		EXPECT_TRUE(activeConfig.xmlTraceToFile == 1) << "xmlTraceToFile , 1";
+		EXPECT_TRUE(activeConfig.xmlTraceToStdout == 0) << "xmlTraceToStdout , 0";
+		EXPECT_TRUE(activeConfig.xmlTraceToMultipleFiles == 0) << "xmlTraceToMultipleFiles , 0";
+		EXPECT_TRUE(activeConfig.xmlTraceWrite == 0) << "xmlTraceWrite , 0";
+		EXPECT_TRUE(activeConfig.xmlTraceRead == 0) << "xmlTraceRead , 0";
+		EXPECT_TRUE(activeConfig.xmlTracePing == 0) << "xmlTracePing , 0";
+		EXPECT_TRUE(activeConfig.xmlTracePingOnly == 0) << "xmlTracePingOnly , 0";
+		EXPECT_TRUE(activeConfig.xmlTraceHex == 0) << "xmlTraceHex , 0";
+		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 0) << "msgKeyInUpdates , 0";
+		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.90) << "tokenReissueRatio , 0.90";
+		EXPECT_TRUE(activeConfig.reissueTokenAttemptLimit == 20) << "reissueTokenAttemptLimit , 20";
+		EXPECT_TRUE(activeConfig.reissueTokenAttemptInterval == 15000) << "reissueTokenAttemptInterval , 15000";
+		EXPECT_TRUE(activeConfig.restProxyHostName == "restProxyNonLocalHost") << "restProxyHostName , \"restProxyNonLocalHost\"";
+		EXPECT_TRUE(activeConfig.restProxyPort == "9083") << "restProxyPort , \"9083\"";
+		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
+		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "prefferdDetectionTimeSchedule , 45 23 * * 6";
+		EXPECT_TRUE(activeConfig.phDetectionTimeInterval == 321) << "phDetectionTimeSchedule , 321";
+		EXPECT_TRUE(activeConfig.preferredChannelName == "Channel_1") << "preferredChannelName , Channel_1";
+		EXPECT_TRUE(activeConfig.preferredWSBChannelName == "Channel_2") << "preferredWSBChannelName , Channel_2";
+		EXPECT_TRUE(activeConfig.phFallBackWithInWSBGroup == 1) << "phFallBackWithInWSBGroup , \"True\"";
+		EXPECT_TRUE(activeConfig.updateTypeFilter == UPD_EVENT_FILTER_TYPE_NEWS_ALERT) << "updateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.negativeUpdateTypeFilter == UPD_EVENT_FILTER_TYPE_VERIFY) << "negativeUpdateTypeFilter , \"True\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->compressionType == 2) << "compressionType , 2";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->guaranteedOutputBuffers == 7000) << "guaranteedOutputBuffers , 7000";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->numInputBuffers == 888888) << "numInputBuffers , 888888";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->sysRecvBufSize == 550000) << "sysRecvBufSize , 550000";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->sysSendBufSize == 700000) << "sysSendBufSize , 700000";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->compressionThreshold == 12758) << "compressionThreshold , compressionThreshold";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE(activeConfig.configChannelSet[1]->directWrite == 1) << "directWrite , 1";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1])->hostName == "localhost") << "SocketChannelConfig::hostname , \"localhost\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1])->serviceName == "14002") << "SocketChannelConfig::serviceName , \"14002\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1])->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1])->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1])->enableSessionMgnt == 0) << "SocketChannelConfig::enableSessionMgnt , 0";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.includeDateInLoggerOutput) << "includeDateInLoggerOutput is true";
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile") << "loggerFileName = \"ConfigDB2_logFile\"";
+		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum) << "dictionaryType , Dictionary::ChannelDictionaryEnum";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./ConfigDB3_RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./ConfigDB3_RDMFieldDictionary\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./ConfigDB3_enumtype.def") << "enumtypeDefFileName , \"./ConfigDB3_enumtype.def\"";
+	}
+	catch (const OmmException& excp)
+	{
+		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+		EXPECT_TRUE(false) << "Unexpected exception in testMergingConfigBetweenFileAndProgrammaticConfig()";
+	}
+}
+
 TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfigRequestRouting)
 {
 	Map configDB1, configDB2, configDB3, configDB4, innerMap;
