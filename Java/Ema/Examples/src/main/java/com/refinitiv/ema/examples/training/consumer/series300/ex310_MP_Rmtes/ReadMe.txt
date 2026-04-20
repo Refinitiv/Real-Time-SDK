@@ -28,6 +28,11 @@ ex310_MP_Rmtes implements the following high level steps:
   and logs into the specified server.
 + Opens a streaming item interest
   - MarketPrice N2_UBMS item from DIRECT_FEED service
++ Reads and process messages containing RMTES_STRING data, including
+  partial update messages.
+  - Partial updates are stored in the application via a map containing
+    the item name as a key and the partial update data as a buffer.
+    When the final part is received, the message is reconstructed and output.
 + Processes data received from API for 60 seconds
   - all received messages are processed on API thread of control
 + Exits
