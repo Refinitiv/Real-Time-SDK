@@ -1312,6 +1312,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             if (_server != null)
             {
                 _server.removeChannel(this);
+                _server = null;
             }
 
             // reset this channel to default values, prior to adding back in the pool.

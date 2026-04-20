@@ -528,6 +528,38 @@
 			<PHDetectionTimeInterval value="7"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_40_1"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_1" />
+			<PHFallBackWithInWSBGroup value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHDetectionTimeInterval value="15"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_40_2"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_2" />
+			<PHFallBackWithInWSBGroup value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="3000" />
+			<ReconnectMaxDelay value="3000" />
+			<PHDetectionTimeInterval value="15"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_41"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_18, WarmStandbyChannel_19" />
 			<PreferredWSBChannelName value="WarmStandbyChannel_19" />
@@ -560,7 +592,7 @@
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
 		<Consumer>
-			<Name value="Consumer_56"/>
+			<Name value="Consumer_56_1"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_3" />
 			<Dictionary value="Dictionary_3"/>
 			<LoginRequestTimeOut value="8000"/>
@@ -572,6 +604,21 @@
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_56"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_3" />
+			<EnablePreferredHostOptions value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+
+		<Consumer>
 			<Name value="Consumer_57"/>
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1,WarmStandbyChannel_2" />
 			<Dictionary value="Dictionary_3"/>
@@ -579,11 +626,24 @@
 			<DirectoryRequestTimeOut value="30000"/>
 			<RequestTimeout value="30000"/>
 			<XmlTraceToStdout value="1"/>
-			<ReconnectAttemptLimit value="2"/>
+			<ReconnectAttemptLimit value="1"/>
 			<ReconnectMinDelay value="1000" />
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
-
+		<Consumer>
+			<Name value="Consumer_58"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_3" />
+			<EnablePreferredHostOptions value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
 		<Consumer>
 			<Name value="Consumer_PackJSON"/>
 			<ChannelSet value="Channel_JSON" />
@@ -792,6 +852,44 @@
 			<RefreshFirstRequired value="1" />
 			<SendJsonConvError value="1" />
 			<XmlTraceToStdout value="0"/>
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_3_1"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_2"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_7"/>
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_3_2"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_2"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_5"/>
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
+			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
 		</IProvider>
     </IProviderList>
 </IProviderGroup>

@@ -3931,7 +3931,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 	        submitOptions.clear();
 	        assertTrue(provider.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
 	        
-	        consumer.testReactor().dispatchFailure(1, 1000, false);
+	        consumer.testReactor().dispatch(1, 1000, false);
 	        
     		/* Consumer receives channel-ready. */
     		event = consumer.testReactor().pollEvent();
@@ -4094,7 +4094,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 	        submitOptions.clear();
 	        assertTrue(provider.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
 	        
-	        consumer.testReactor().dispatchFailure(1, 1000, false);
+	        consumer.testReactor().dispatch(1, 1000, false);
 	        
     		/* Consumer receives channel-ready. */
     		event = consumer.testReactor().pollEvent();

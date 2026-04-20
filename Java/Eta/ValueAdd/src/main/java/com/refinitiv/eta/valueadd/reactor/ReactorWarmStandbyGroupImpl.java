@@ -71,6 +71,7 @@ class ReactorWarmStandbyGroupImpl implements ReactorWarmStandbyGroup
 	public void clear()
 	{
 		startingActiveServer.clear();
+
 		if (standbyServerList == null)
 		{
 			standbyServerList = new LinkedList<ReactorWarmStandbyServerInfo>();
@@ -170,6 +171,7 @@ class ReactorWarmStandbyGroupImpl implements ReactorWarmStandbyGroup
 		copyTo.clear();
 		
 		startingActiveServer.copy(copyTo.startingActiveServer);
+
 		for (int i = 0; i < standbyServerList.size(); ++i)
 		{
 			ReactorWarmStandbyServerInfo standbyInfo = new ReactorWarmStandbyServerInfo();

@@ -528,7 +528,7 @@ class BufferImpl implements Buffer
                 hashCode = _data.get(_position) + 31;
             }
         }
-        else
+        else if (_data != null)
         {
             hashCode = _data.get(_position) + 31;
             int multiplier = 1;
@@ -537,6 +537,10 @@ class BufferImpl implements Buffer
                 multiplier *= 31;
                 hashCode += (_data.get(i) + 30) * multiplier;
             }
+        }
+        else
+        {
+            hashCode = 0;
         }
 
         return hashCode;

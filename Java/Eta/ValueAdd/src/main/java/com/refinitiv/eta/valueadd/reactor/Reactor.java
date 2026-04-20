@@ -13,14 +13,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -2465,6 +2458,7 @@ public class Reactor
 
 		int originalEventType = eventType;
 		boolean closeChannelAfterCallback = false;
+		boolean forceCloseFromServerRemove = false;
 		boolean incrementWsbGroupIndex = false;
 		boolean movingtoWsbGroupOrChanelSet = false;
 		ReactorWarmStandbyHandler warmStandbyHandler = null;
@@ -2477,17 +2471,17 @@ public class Reactor
 			{
 				((ConsumerRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
 				((ConsumerRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
-			} else if (reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER)
+			}
+			else if (reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER)
 			{
 				((NIProviderRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
 				((NIProviderRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
 			}
 		}
 
-		if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN
-				|| eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+		if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN || eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 		{
-			if (reactorChannel.watchlist() == null)
+			if (reactorChannel.watchlist() == null) // the channel is already closed
 			{
 				_tmpState.clear();
 				_tmpState.streamState(StreamStates.CLOSED_RECOVER);
@@ -2508,17 +2502,15 @@ public class Reactor
 			} 
 			else
 			{
-				if (reactorHandlesWarmStandby(reactorChannel) && this._reactorActive == true)
+				if (reactorHandlesWarmStandby(reactorChannel) && this._reactorActive == true) // We are not currently in a state of moving to channel list and Reactor is active
 				{
 					warmStandbyHandler = reactorChannel.warmStandByHandlerImpl;
 					warmStandbyGroupImpl = warmStandbyHandler.currentWarmStandbyGroupImpl();
 
 					// If Watchlist enabled and warm standby enabled, handle channel down. 
 					//	If reconnect attempt limit is zero, we have no chance for reconnection and can send the callback now
-					if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN
-							&& reactorChannel.reconnectAttemptLimit() != 0)
+					if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN && reactorChannel.reconnectAttemptLimit() != 0)
 					{
-
 						boolean recoverChannel = false;
 						int warmStandbyChannelListSize = warmStandbyHandler.channelList().size();
 						int numberOfStandbyChannels = warmStandbyChannelListSize > 0 ? warmStandbyChannelListSize - 1 : 0; // Gets the current number of standby channels.
@@ -2530,14 +2522,46 @@ public class Reactor
 						 */
 						if (reactorChannel.isStartingServerConfig)
 						{
+							boolean currentlyOnPreferredWSBGroup = warmStandbyHandler.startingReactorChannel()._preferredHostOptions.isPreferredHostEnabled()
+									&& (warmStandbyHandler.currentWarmStandbyGroupIndex() == warmStandbyHandler.startingReactorChannel()._preferredHostOptions.warmStandbyGroupListIndex());
+							boolean fallbackWithinGroupEnabled = warmStandbyHandler.startingReactorChannel()._preferredHostOptions.isPreferredHostEnabled()
+									&& warmStandbyHandler.startingReactorChannel()._preferredHostOptions.fallBackWithInWSBGroup();
+							boolean theRestOfTheGroupStillRunning = !(numberOfStandbyChannels == 0 || numberOfStandbyChannels == warmStandbyGroupImpl.closingStandbyCount());
+
+							// In case there are servers in this WSB group that are still running and either this is a preferred WSB group or fallbackWithinWSBGroup is set,
+							// we allow the reconnection attempts to the starting server of this WSB group
+							if (theRestOfTheGroupStillRunning && (currentlyOnPreferredWSBGroup || fallbackWithinGroupEnabled))
+							{
+								recoverChannel = true;
+
+								/* Transfer the timer to the remaining WSB channels as the starting channel is down. */
+								if (reactorChannel._currentPHTimerEvent != null)
+								{
+									for (ReactorChannel wsbChannel : reactorChannel.warmStandByHandlerImpl.channelList())
+									{
+										if (reactorChannel != wsbChannel)
+										{
+											if(wsbChannel.state() != State.DOWN && wsbChannel.state() != State.DOWN_RECONNECTING)
+											{
+												reactorChannel._currentPHTimerEvent.reactorChannel(wsbChannel);
+												wsbChannel._currentPHTimerEvent = reactorChannel._currentPHTimerEvent;
+												reactorChannel._currentPHTimerEvent = null;
+												break;
+											}
+										}
+									}
+								}
+
+								reactorChannel.resetReconnectTimers();
+							}
 							// Checks whether there is an additional warm standby group or a channel list to
 							// switch to.
-							if ((warmStandbyHandler.currentWarmStandbyGroupIndex() + 1) < warmStandbyHandler
-									.getConnectionOptions().reactorWarmStandbyGroupList().size())
+							else if ((warmStandbyHandler.currentWarmStandbyGroupIndex() + 1) < warmStandbyHandler.getConnectionOptions().reactorWarmStandbyGroupList().size() )
 							{
 								warmStandbyHandler.setMoveToNextWSBGroupState();
 								recoverChannel = true;
-							} else if (warmStandbyHandler.getConnectionOptions().connectionList().size() > 0)
+							}
+							else if (warmStandbyHandler.getConnectionOptions().connectionList().size() > 0)
 							{
 								recoverChannel = true;
 							}
@@ -2547,7 +2571,7 @@ public class Reactor
 								recoverChannel = true;
 								
 								/* Transfer the timer to the remaining WSB channels as the starting channel is down. */
-								if(reactorChannel._currentPHTimerEvent != null)
+								if (reactorChannel._currentPHTimerEvent != null)
 								{
 									for (ReactorChannel wsbChannel : reactorChannel.warmStandByHandlerImpl.channelList())
 					            	{
@@ -2584,6 +2608,7 @@ public class Reactor
 								isSelectedTeableChannelRemoved = warmStandbyHandler.mainReactorChannelImpl().warmStandbyChannelInfo()
 										.selectableChannelList().remove(reactorChannel.channel().selectableChannel());
 							}
+
 							if (!isWarmStandbyChannelClosed(warmStandbyHandler, reactorChannel)
 									&& !reactorChannel.switchingToPreferredHost()
 									&& !reactorChannel.switchingToPreferredWSBGroup())
@@ -2599,11 +2624,12 @@ public class Reactor
 								
 								/* The FD_CHANGE event should not be sent to user as there is no actual FD change for the users while
 								 *  the Reactor fails to connect with the staring server */
-								if(isSelectedTeableChannelRemoved == false)
+								if (isSelectedTeableChannelRemoved == false)
 								{
 									sendCallbackToUser = false;
 								}
-							} else
+							}
+							else
 							{
 								if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN && reactorChannel._phForcingChannelDown)
 								{
@@ -2632,11 +2658,11 @@ public class Reactor
 						else
 						{
 							/* Transfer the timer to the remaining WSB channels as the starting channel is down. */
-							if(reactorChannel._currentPHTimerEvent != null)
+							if (reactorChannel._currentPHTimerEvent != null)
 							{
 								for (ReactorChannel wsbChannel : reactorChannel.warmStandByHandlerImpl.channelList())
 				            	{
-									if(reactorChannel != wsbChannel)
+									if (reactorChannel != wsbChannel)
 									{
 										if(wsbChannel.state() != State.DOWN && wsbChannel.state() != State.DOWN_RECONNECTING)
 										{
@@ -2649,8 +2675,7 @@ public class Reactor
 				            	}
 							}
 							
-							if ((warmStandbyHandler.currentWarmStandbyGroupIndex() + 1) < warmStandbyHandler
-									.getConnectionOptions().reactorWarmStandbyGroupList().size()
+							if ((warmStandbyHandler.currentWarmStandbyGroupIndex() + 1) < warmStandbyHandler.getConnectionOptions().reactorWarmStandbyGroupList().size()
 									|| warmStandbyHandler.hasConnectionList())
 							{
 								eventType = ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING;
@@ -2670,7 +2695,8 @@ public class Reactor
 								}
 
 								eventType = ReactorChannelEventTypes.FD_CHANGE;
-							} else if (((warmStandbyHandler.getConnectionOptions().reactorWarmStandbyGroupList().size() > 1)
+							}
+							else if (((warmStandbyHandler.getConnectionOptions().reactorWarmStandbyGroupList().size() > 1)
 									|| warmStandbyHandler.hasConnectionList())
 									&& warmStandbyHandler.startingReactorChannel()._preferredHostOptions.isPreferredHostEnabled())
 							{
@@ -2690,7 +2716,15 @@ public class Reactor
 								warmStandbyHandler.setMoveToNextWSBGroupState();
 							}
 							
-							closeChannelAfterCallback = true;
+							if (!reactorChannel._tryToForceClose)
+							{
+								closeChannelAfterCallback = true;
+							}
+							else
+							{
+								forceCloseFromServerRemove = true;
+							}
+
 							warmStandbyHandler.warmStandByHandlerLock().lock();
 							try
 							{
@@ -2703,7 +2737,6 @@ public class Reactor
 
 							// Increment the closing count for the group here
 							warmStandbyGroupImpl.incrementClosingStandbyCount();
-							
 						}
 						
 						if (warmStandbyHandler.currentWarmStandbyGroupImpl().startingServerIsDown
@@ -2716,9 +2749,17 @@ public class Reactor
 							warmStandbyHandler.warmStandbyHandlerState(state);
 							reactorChannel._ignoreClosedStandbyCount = false;
 							movingtoWsbGroupOrChanelSet = true;
-							
+							warmStandbyHandler.startingReactorChannel()._skipReconnection = false;
+
+							warmStandbyHandler.currentWarmStandbyGroupImpl().sendReqQueueCount = 0;
+
+							if (!recoverChannel && reactorChannel._tryToForceClose)
+							{
+								forceCloseFromServerRemove = true;
+							}
+
 							/* Checks whether this channel is recoverable before moving to a WSB group or channel list */
-							if(eventType != ReactorChannelEventTypes.CHANNEL_DOWN)
+							if (eventType != ReactorChannelEventTypes.CHANNEL_DOWN)
 							{
 								if ((warmStandbyHandler.warmStandbyHandlerState()
 										& ReactorWarmStandbyHandlerState.MOVE_TO_NEXT_WSB_GROUP) != 0)
@@ -2758,7 +2799,8 @@ public class Reactor
 							warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
 						}
 						
-					} else if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+					}
+					else if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 					{
 						if (reactorChannel.selectableChannel() != null)
 						{
@@ -2782,8 +2824,7 @@ public class Reactor
 							warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
 						}
 					}
-					else if (!reactorChannel.isStartingServerConfig 
-							&& reactorChannel.reconnectAttemptLimit() == 0)
+					else if (!reactorChannel.isStartingServerConfig && reactorChannel.reconnectAttemptLimit() == 0)
 					{
 						// Check if this is a Standby server where reconnect attempt limit is zero
 						if (!isWarmStandbyChannelClosed(warmStandbyHandler, reactorChannel))
@@ -2839,7 +2880,8 @@ public class Reactor
 									}
 								}
 
-							} else
+							}
+							else
 							{
 								// Checks whether there is an active channel
 								if (warmStandbyHandler.activeReactorChannel() == null)
@@ -2885,7 +2927,8 @@ public class Reactor
 									}
 								}
 							}
-						} else
+						}
+						else
 						{
 							ReactorWarmStandbyEvent reactorWarmStandbyEvent = reactorWarmStandbyEventPool
 									.getEvent(errorInfo);
@@ -2897,19 +2940,27 @@ public class Reactor
 							sendWarmStandbyEvent(reactorChannel, reactorWarmStandbyEvent, errorInfo);
 						}
 					}
-				} else
+				}
+				else
 				{
-					if(reactorChannel.warmStandByHandlerImpl != null)
+					if (reactorChannel.warmStandByHandlerImpl != null)
 					{
 						/* Check whether this is standby channel in order to close after the callback when moving from a WSB group. */
-						if(!reactorChannel.isStartingServerConfig)
+						if (!reactorChannel.isStartingServerConfig)
 						{
-							closeChannelAfterCallback = true;
+							if (!reactorChannel._tryToForceClose)
+							{
+								closeChannelAfterCallback = true;
+							}
+							else
+							{
+								forceCloseFromServerRemove = true;
+							}
 	
 							eventType = ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING;
 						}
 						
-						if(eventType == ReactorChannelEventTypes.CHANNEL_DOWN)
+						if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN)
 						{
 							reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl().state(State.DOWN);
 						}
@@ -2939,7 +2990,8 @@ public class Reactor
 						reactorChannel.hashCode(), ReactorDebugger.getChannelId(reactorChannel));
 			}
 
-		} else if (eventType == ReactorChannelEventTypes.CHANNEL_UP)
+		}
+		else if (eventType == ReactorChannelEventTypes.CHANNEL_UP)
 		{
 			if (reactorHandlesWarmStandby(reactorChannel)
 					|| (reactorChannel.warmStandByHandlerImpl != null && reactorChannel._preferredHostOptions.isPreferredHostEnabled()))
@@ -3033,7 +3085,8 @@ public class Reactor
 				if (!reactorChannel._preferredHostOptions.isPreferredHostEnabled())
 					reactorChannel._haveAttemptedFirstConnectionListEntry = true;
 			}
-		} else if (eventType == ReactorChannelEventTypes.CHANNEL_READY)
+		}
+		else if (eventType == ReactorChannelEventTypes.CHANNEL_READY)
 		{
 			if (reactorHandlesWarmStandby(reactorChannel))
 			{
@@ -3071,8 +3124,7 @@ public class Reactor
 		
 		// In the case where we had to remove the old channel, it was active, and we were switching to preferred host or group
 		Channel tempHoldChannel = null;
-		if ((originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN
-				|| originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+		if ((originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN || originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 				&&
 				(reactorChannel.warmStandByHandlerImpl != null && (reactorChannel.warmStandByHandlerImpl.startingReactorChannel().switchingToPreferredHost() || 
 						reactorChannel.warmStandByHandlerImpl.startingReactorChannel().switchingToPreferredWSBGroup())
@@ -3086,7 +3138,7 @@ public class Reactor
 
 		int retval = ReactorCallbackReturnCodes.SUCCESS;
 		
-		if(sendCallbackToUser)
+		if (sendCallbackToUser)
 		{
 			retval = sendChannelEventCallback(eventType, reactorChannel, errorInfo);
 		
@@ -3134,14 +3186,19 @@ public class Reactor
 			reactorChannel.oldSelectableChannel(reactorChannel.selectableChannel());
 		}
 
+		reactorChannel._tryToForceClose = false;
+		if (forceCloseFromServerRemove)
+		{
+			closeChannel(reactorChannel, errorInfo);
+		}
+
 		/*
 		 * Channel callback complete. If channel is not already closed(and is in a
 		 * CHANNEL_DOWN or RECONNECTING STATE), notify worker.
 		 */
-		if (originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN
-				|| originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+		if (originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN || originalEventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 		{
-			if(reactorChannel.watchlist() != null)
+			if (reactorChannel.watchlist() != null)
 			{
 				// If watchlist is on, it will send status messages to the tunnel streams (so
 				// don't do it ourselves). 
@@ -3155,7 +3212,7 @@ public class Reactor
 			/* Now set the active channels to null, if the current channel is a warm standby active */
 			if (reactorHandlesWarmStandby(reactorChannel) && this._reactorActive == true)
 			{
-				if (warmStandbyGroupImpl.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+				if (warmStandbyGroupImpl != null && warmStandbyGroupImpl.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
 				{
 					if (reactorChannel.isActiveServer)
 					{
@@ -3165,7 +3222,7 @@ public class Reactor
 				}
 			}
 			
-			if(incrementWsbGroupIndex && 
+			if (incrementWsbGroupIndex &&
 					!reactorChannel._phForcingChannelDown &&
 					!reactorChannel.warmStandByHandlerImpl.startingReactorChannel()._preferredHostOptions.isPreferredHostEnabled())
 			{
@@ -3180,7 +3237,7 @@ public class Reactor
 			if (reactorChannel.state() != State.CLOSED && !reactorChannel._phForcingChannelDown)
 			{
 				/* This indicates moving from WSB group to either WSB group or ChannelSet. So, the staring channel must be sent to the worker to recover the connection. */
-				if(movingtoWsbGroupOrChanelSet && warmStandbyHandler != null)
+				if (movingtoWsbGroupOrChanelSet && warmStandbyHandler != null)
 				{
 					sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, warmStandbyHandler.startingReactorChannel());
 				}
@@ -3216,7 +3273,7 @@ public class Reactor
 		}
 		
 		/* This channel is a secondary WSB channel, so we can clean it up here */
-		if(closeChannelAfterCallback)
+		if (closeChannelAfterCallback)
 		{
 			closeChannel(reactorChannel, errorInfo);
 		}
@@ -6090,96 +6147,17 @@ public class Reactor
 						 * or bad source directory response
 						 */
 
-						ReactorChannel callbackChannel;
-						int callbackEventType;
-
-						// Mark this channel info as inactive and remove from the recovery list.
 						if (reactorChannel.isStartingServerConfig)
 						{
-							warmStandbyGroup.startingActiveServer().isActiveChannelConfig(false);
-						} else
-						{
-							warmStandbyGroup.standbyServerList().get(reactorChannel.standByServerListIndex)
-									.isActiveChannelConfig(false);
+							if (reactorChannel.reconnectAttemptLimit() != 0) reactorChannel._skipReconnection = true;
 						}
-
-						callbackChannel = reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl();
-						callbackChannel.selectableChannelFromChannel(reactorChannel.channel());
-						callbackChannel.userSpecObj(reactorChannel.userSpecObj());
-						callbackChannel.reactorChannelType(reactorChannel.reactorChannelType());
-
-						event.reactorChannel(callbackChannel);
-
-						// Sends the channel down event if this is the only channel
-						if (reactorChannel.warmStandByHandlerImpl.channelList().size() == 1)
+						reactorChannel._tryToForceClose = true;
+						if  (sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+								ReactorChannelEventTypes.CHANNEL_DOWN,
+								reactorChannel, errorInfo) == ReactorReturnCodes.SUCCESS)
 						{
-							callbackEventType = ReactorChannelEventTypes.CHANNEL_DOWN;
-						} else
-						{
-							callbackEventType = ReactorChannelEventTypes.FD_CHANGE;
+							errorInfo.clear();
 						}
-						if (event.errorInfo() != null)
-						{
-							event._errorInfo = event.errorInfo();
-						}
-
-						SelectableChannel selectableChannel = reactorChannel.channel().selectableChannel();
-
-						callbackChannel.warmStandbyChannelInfo().selectableChannelList()
-								.remove(selectableChannel);
-
-						int retval = sendChannelEventCallback(callbackEventType, callbackChannel, event._errorInfo);
-
-						callbackChannel.warmStandbyChannelInfo().oldSelectableChannelList()
-								.remove(selectableChannel);
-
-						// check return code from callback.
-						if (retval == ReactorCallbackReturnCodes.FAILURE)
-						{
-							populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-									"processWorkerCallback.RemoveServerFromWSBGroup",
-									"ReactorCallbackReturnCodes.FAILURE was returned from reactorChannelEventCallback(). This caused the Reactor to shutdown.");
-							shutdown(errorInfo);
-							return ReactorReturnCodes.FAILURE;
-						} else if (retval == ReactorCallbackReturnCodes.RAISE)
-						{
-							// RAISE is not a valid return code for the
-							// reactorChannelEventCallback.
-							populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-									"processWorkerCallback.RemoveServerFromWSBGroup",
-									"ReactorCallbackReturnCodes.RAISE is not a valid return code from reactorChannelEventCallback(). This caused the Reactor to shutdown.");
-							shutdown(errorInfo);
-							return ReactorReturnCodes.FAILURE;
-
-						} else if (retval != ReactorCallbackReturnCodes.SUCCESS)
-						{
-							// retval is not a valid ReactorReturnCodes.
-							populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-									"processWorkerCallback.RemoveServerFromWSBGroup", "retval of " + retval
-											+ " is not a valid ReactorCallbackReturnCodes. This caused the Reactor to shutdown.");
-							shutdown(errorInfo);
-							return ReactorReturnCodes.FAILURE;
-						}
-						
-						// Increment the closing count for the group here
-						((ReactorWarmStandbyGroupImpl)reactorChannel.warmStandByHandlerImpl
-							.warmStandbyGroupList().get(reactorChannel.standByGroupListIndex))
-								.incrementClosingStandbyCount();
-						
-						warmStandByHandlerImpl.warmStandByHandlerLock().lock();
-						try
-						{
-							reactorChannel.warmStandByHandlerImpl.channelList().remove(reactorChannel);
-						}
-						finally
-						{
-							warmStandByHandlerImpl.warmStandByHandlerLock().unlock();
-						}
-						
-						ret = closeChannel(reactorChannel, errorInfo);
-						if (ret != ReactorReturnCodes.SUCCESS)
-							return ret;
-
 						break;
 					case ReactorWarmStandbyEventTypes.CONNECT_SECONDARY_SERVER:
 						int index = 0;
@@ -6444,7 +6422,7 @@ public class Reactor
 								// The channel has been set to EDP_RT_DONE if session management is turned on, so set the state to 
 								// INITIALIZING here
 								standbyReactorChannel.state(ReactorChannel.State.INITIALIZING);
-								standbyReactorChannel._preferredHostOptions = startingReactorChannel._preferredHostOptions;
+								startingReactorChannel._preferredHostOptions.copy(standbyReactorChannel._preferredHostOptions);
 
 								if (channel == null)
 								{
@@ -10614,7 +10592,7 @@ public class Reactor
 			long lastSubmitionTime = -1;
 			List<ReactorWLSubmitMsgOptions> unsubmittedMsgList = null;
 			
-			boolean addMsgToRecoveryQueue = wsbHandler.latestMsgSubmissionTime > wsbHandler.lastMsgRecoveryCheckTime;
+			boolean addMsgToRecoveryQueue = wsbHandler.latestMsgSubmissionTime >= wsbHandler.lastMsgRecoveryCheckTime;
 			
 			if (addMsgToRecoveryQueue)
 			{
@@ -10693,7 +10671,7 @@ public class Reactor
 				
 				// Adds the unsubmitted messages here from the list to the main message queue.
 				// The last submit time of the staring server is less than the unsubmitted messages in order to submit it later
-				if(unsubmittedMsgList != null)
+				if (unsubmittedMsgList != null)
 				{
 					wsbHandler.watchlistSentFirstRequests(false);
 
@@ -10723,8 +10701,9 @@ public class Reactor
 	boolean wsbServiceInStartupList(ReactorWarmStandbyGroupImpl wsbGroup, WlService service,
 			ReactorChannel reactorChannel)
 	{
-		ReactorWSBService startupService = wsbGroup._startupServiceNameList
-				.get(service._rdmService.info().serviceName());
+		ReactorWSBService startupService = service._rdmService.info().serviceName() != null
+				? wsbGroup._startupServiceNameList.get(service._rdmService.info().serviceName())
+				: null;
 
 		if (startupService != null)
 		{

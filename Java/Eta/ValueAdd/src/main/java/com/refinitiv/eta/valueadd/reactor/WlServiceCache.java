@@ -56,7 +56,7 @@ class WlServiceCache
                 case MapEntryActions.ADD:
                     // add to cache
                     wlService = addToCache(service);
-                    if(initDirectory && wsbActive)
+                    if (initDirectory && wsbActive)
                     	wsbUpdateCachedService(wlService, MapEntryActions.ADD, errorInfo);
                     
                     // notify item handler service added
@@ -210,11 +210,16 @@ class WlServiceCache
 		    		wsbHandler.setSecondaryDirectoryResponseState();
 	        		
 		    		/* Check to see if this directory response is correct */
-	        		if(wsbCompareRDMServiceInfo() == false)
+	        		if (wsbCompareRDMServiceInfo() == false)
 	        		{
+						removeChannelFromAllServices();
+
 	        			ReactorWarmStandbyEvent reactorWarmStandbyEvent = _watchlist._reactorChannel.reactor().reactorWarmStandbyEventPool.getEvent(errorInfo);
 	        			_watchlist._reactorChannel.reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-								"processServiceList", "The source directory response from standby server does not match with the primary server.");
+								"processServiceList",
+								_watchlist._reactorChannel.isStartingServerConfig
+										? "The source directory response from the primary server does not match with the existing services in cache."
+										: "The source directory response from standby server does not match with the primary server.");
 						reactorWarmStandbyEvent.eventType = ReactorWarmStandbyEventTypes.REMOVE_SERVER_FROM_WSB_GROUP;
 		
 			    		_watchlist._reactorChannel.reactor().sendWarmStandbyEvent(channel, reactorWarmStandbyEvent, errorInfo);
@@ -256,11 +261,15 @@ class WlServiceCache
 	    		wsbHandler.setSecondaryDirectoryResponseState();
         		
 	    		/* Check to see if this directory response is correct */
-        		if(wsbCompareRDMServiceInfo() == false)
+        		if (wsbCompareRDMServiceInfo() == false)
         		{
-        			ReactorWarmStandbyEvent reactorWarmStandbyEvent = _watchlist._reactorChannel.reactor().reactorWarmStandbyEventPool.getEvent(errorInfo);
+					removeChannelFromAllServices();
+
+					ReactorWarmStandbyEvent reactorWarmStandbyEvent = _watchlist._reactorChannel.reactor().reactorWarmStandbyEventPool.getEvent(errorInfo);
         			_watchlist._reactorChannel.reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-							"processServiceList", "The source directory response from standby server does not match with the primary server.");
+							"processServiceList", _watchlist._reactorChannel.isStartingServerConfig
+									? "The source directory response from the primary server does not match with the existing services in cache."
+									: "The source directory response from standby server does not match with the primary server.");
 					reactorWarmStandbyEvent.eventType = ReactorWarmStandbyEventTypes.REMOVE_SERVER_FROM_WSB_GROUP;
 	
 		    		_watchlist._reactorChannel.reactor().sendWarmStandbyEvent(channel, reactorWarmStandbyEvent, errorInfo);
@@ -302,7 +311,26 @@ class WlServiceCache
         
         return ret;        
     }
-    
+
+	void removeChannelFromAllServices()
+	{
+		WlService wlService = null;
+		ReactorWarmStandbyGroupImpl wsbGroup = _watchlist._reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
+		ReactorWSBService wsbService = null;
+
+		// Iterate through the warmstandby group's services
+		Iterator<Map.Entry<WlInteger, ReactorWSBService>> iter = wsbGroup._perServiceById.entrySet().iterator();
+
+		while (iter.hasNext())
+		{
+			wsbService = iter.next().getValue();
+			if (wsbService.channels.contains(_watchlist._reactorChannel))
+			{
+				wsbService.channels.remove(_watchlist._reactorChannel);
+			}
+		}
+	}
+
     /* Adds a service to the service cache. */
     WlService addToCache(Service service)
     {
@@ -578,7 +606,7 @@ class WlServiceCache
 				if(newService.rdmService().state().serviceState() == 1)
 				{
 					wsbService.serviceState.serviceState(1);
-					if(!containsChannel)
+					if (!containsChannel)
 						wsbService.channels.add(_watchlist._reactorChannel);
 					
 					wsbService.updateServiceFilter |= ServiceFlags.HAS_STATE;
@@ -587,9 +615,9 @@ class WlServiceCache
 					sendWsbMsg = true;
 					
 				}
-				else if(newService.rdmService().state().serviceState() == 0)
+				else if (newService.rdmService().state().serviceState() == 0)
 				{
-					if(containsChannel)
+					if (containsChannel)
 					{
 						wsbService.channels.remove(_watchlist._reactorChannel);
 					}

@@ -10,13 +10,7 @@ package com.refinitiv.eta.valueadd.reactor;
 
 import java.nio.channels.SelectableChannel;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.quartz.CronExpression;
@@ -103,7 +97,7 @@ public class ReactorChannel extends VaNode
     private int _reconnectDelay;
     private long _nextRecoveryTime;
     int _listIndex;
-    List<ConnectOptionsInfo> _connectOptionsInfoList = new ArrayList<ConnectOptionsInfo>();;
+    List<ConnectOptionsInfo> _connectOptionsInfoList = new ArrayList<ConnectOptionsInfo>();
 
     // tunnel stream support
     private TunnelStreamManager _tunnelStreamManager = new TunnelStreamManager();
@@ -133,7 +127,6 @@ public class ReactorChannel extends VaNode
 
     /* For Preferred Host feature */
     ReactorPreferredHostOptions _preferredHostOptions = ReactorFactory.createReactorPreferredHostOptions();
-    ReactorPreferredHostOptions _preferredHostOptionsOriginal = _preferredHostOptions;
     ReactorPreferredHostOptions _preferredHostOptionsIoctl;	// Used to temporarily store new preferred host options until reactor and worker are ready to change it
     boolean _switchingToPreferredHost = false;	// Indicates if the ReactorChannel is currently switching hosts to preferred host
     boolean _switchingToPreferredWSBGroup = false; // Indicates if the ReactorChannel is currently switching hosts to preferred WSB Group
@@ -164,6 +157,8 @@ public class ReactorChannel extends VaNode
 	boolean _phResetPHIndexForRecovery = false; // Used to reset the recovery logic for connection recovery with PH feature. This is set to true when the Channel is up.
 	
 	Channel oldPHStartingChannel; // This is old channel which will be closed by worker thread if any for the Preferred host feature only.
+    boolean _skipReconnection;
+    boolean _tryToForceClose;
 	
 	// Original Login Request Information
 	Buffer userName;
@@ -450,8 +445,6 @@ public class ReactorChannel extends VaNode
         
         _preferredHostTimersStartedByChannelUp = false;
         _currentPHTimerEvent = null;
-        if (_preferredHostOptions != _preferredHostOptionsOriginal)
-        	_preferredHostOptions = _preferredHostOptionsOriginal;
         _preferredHostOptions.clear();
 
         isClosedAckSent = false;
@@ -472,6 +465,9 @@ public class ReactorChannel extends VaNode
         _ignoreClosedStandbyCount = false;
         _phSwitchingFromChannelListToWSB = false;
         _phSwitchingFromWSBToChannelList = false;
+
+        _skipReconnection = false;
+        _tryToForceClose = false;
     }
 
     @Override
@@ -915,7 +911,7 @@ public class ReactorChannel extends VaNode
 			if(_reactor.reactorHandlesWarmStandby(channelImpl))
 			{
 				/* Updates the latest message submission time to sync the recovery message queue for the WSB feature.*/
-				if (warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
+				if(warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
 					warmStandByHandlerImpl.latestMsgSubmissionTime = System.nanoTime();
 				
 				return _reactor.submitWSBMsg(this, msg, submitOptions, errorInfo);
@@ -923,7 +919,7 @@ public class ReactorChannel extends VaNode
 			else if (warmStandByHandlerImpl != null)
 			{
 				/* Updates the latest message submission time to sync the recovery message queue for the WSB feature.*/
-				if(warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
+				if (warmStandByHandlerImpl.lastMsgRecoveryCheckTime >= warmStandByHandlerImpl.latestMsgSubmissionTime)
 					warmStandByHandlerImpl.latestMsgSubmissionTime = System.nanoTime();
 				
 				// We are currently on the ChannelList while we have WSB handler active.
@@ -2539,7 +2535,7 @@ public class ReactorChannel extends VaNode
     	if ( (warmStandByHandlerImpl != null && !warmStandByHandlerImpl.startingReactorChannel()._preferredHostOptions.isPreferredHostEnabled()) || 
     		 (warmStandByHandlerImpl == null && !_preferredHostOptions.isPreferredHostEnabled()))
     	{
-    		if(errorInfo != null) /* errorInfo is not null when calling by the fallbackPreferredHost() method. */
+    		if (errorInfo != null) /* errorInfo is not null when calling by the fallbackPreferredHost() method. */
     		{
     			_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                         "ReactorChannel.fallbackPreferredHost",
@@ -2551,11 +2547,10 @@ public class ReactorChannel extends VaNode
 
     	ReactorChannel reactorChannel = this;
     	
-    	while(true)
+    	while (true)
     	{
 	    	// If we are currently reconnecting to a channel, abandon this fallback and log to API with failure success
-	    	if (reactorChannel.state() == State.DOWN
-	    			|| reactorChannel.state() == State.DOWN_RECONNECTING)
+	    	if (reactorChannel.state() == State.DOWN || reactorChannel.state() == State.DOWN_RECONNECTING)
 	    	{
 	    		
 	    		/* Checks to get an active reactor channel from the WSB group when this function is called by the timer */
@@ -2620,7 +2615,7 @@ public class ReactorChannel extends VaNode
 	    				checkActiveReactorChannel = warmStandByHandlerImpl.activeReactorChannel() != null;
 	    			}
 	    			
-	    			if(checkActiveReactorChannel)
+	    			if (checkActiveReactorChannel)
 	    			{
 	    				// Log this in API and return success when fallBackWithinWSBGroup is false
 		    			if (!warmStandByHandlerImpl.startingReactorChannel()._preferredHostOptions.fallBackWithInWSBGroup())
@@ -2976,7 +2971,7 @@ public class ReactorChannel extends VaNode
 				if (!switchingFromChannelListToWSB)
     				_reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN,
     						startingActive,_errorInfoEDP);
-		else
+		        else
                 {
                     startingActive._queueRequestsForDiscovery = true;
                     _reactor.sendAndHandleChannelEventCallback("ReactorChannel.initiateSwitch", ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
