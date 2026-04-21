@@ -49,7 +49,7 @@ class DataDictionaryImpl implements DataDictionary
     
     private static final int									DEFAULT_DICTIONARY_ENTRY_SIZE = 40;
     private static final int									DEFAULT_ENUM_TABLE_ENTRY_SIZE = 1024;
-    private static final int                                    DEFAULT_FRAGMENTATION_SIZE = 12800;
+    private static final int                                    DEFAULT_FRAGMENTATION_SIZE = 21000;
     private static final String									queryingOnlyText = "This DataDictionary instance is used for query data dictionary information only";
 
     private ReentrantLock                                       dictionaryLock = new ReentrantLock();

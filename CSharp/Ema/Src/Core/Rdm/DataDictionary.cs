@@ -1337,7 +1337,7 @@ public sealed class DataDictionary
 
     private const int DEFAULT_DICTIONARY_ENTRY_SIZE = 40;
     private const int DEFAULT_ENUM_TABLE_ENTRY_SIZE = 1024;
-    private const int DEFAULT_FRAGMENTATION_SIZE = 12800;
+    private const int DEFAULT_FRAGMENTATION_SIZE = 21000;
     private const string QUERYING_ONLY_ERROR_TEXT = "This DataDictionary instance is used for query data dictionary information only";
 
 

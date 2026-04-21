@@ -35,7 +35,7 @@ namespace LSEG.Eta.Example.Common
     {
         private static readonly int MAX_MSG_SIZE = 1024;
         private static readonly int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192;
-        private static readonly int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+        private static readonly int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
         private static readonly int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
 
         private static readonly string FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";

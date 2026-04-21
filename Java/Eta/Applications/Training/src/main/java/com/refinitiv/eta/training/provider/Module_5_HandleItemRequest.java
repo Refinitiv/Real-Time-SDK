@@ -3477,7 +3477,7 @@ public class Module_5_HandleItemRequest
         int retval;
         Error error = TransportFactory.createError();
         TransportBuffer msgBuf = null;
-        int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+        int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
         int dictionaryFid = -32768; // MIN_FID
         Int tmpInt = CodecFactory.createInt();
         String stateText = null;

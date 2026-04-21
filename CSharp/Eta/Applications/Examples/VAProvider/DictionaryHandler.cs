@@ -22,7 +22,7 @@ namespace LSEG.Eta.ValueAdd.Provider
     public class DictionaryHandler
     {
         private const int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192;
-        private const int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+        private const int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
         private const int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
 
         private const string FIELD_DICTIONARY_NAME = "RWFFld";

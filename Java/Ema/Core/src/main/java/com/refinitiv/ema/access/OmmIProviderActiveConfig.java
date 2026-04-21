@@ -26,7 +26,7 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 	static final String DEFAULT_IPROVIDER_PORT 							= 	"14002";
 	static final String DEFAULT_SERVICE_NAME							=   "DIRECT_FEED";
 	static final int DEFAULT_FIELD_DICT_FRAGMENT_SIZE         = 8192;
-	static final int DEFAULT_ENUM_TYPE_FRAGMENT_SIZE        = 12800;
+	static final int DEFAULT_ENUM_TYPE_FRAGMENT_SIZE        = 21000;
 	static final int DEFAULT_REQUEST_TIMEOUT				= 15000;
 	    
 	

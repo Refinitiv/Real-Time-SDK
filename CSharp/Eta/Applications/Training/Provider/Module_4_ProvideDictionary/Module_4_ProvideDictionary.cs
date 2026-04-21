@@ -3471,7 +3471,7 @@ namespace LSEG.Eta.Training.Provider
             TransportReturnCode retval;
             Error error;
             ITransportBuffer? msgBuf;
-            int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+            int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
             int dictionaryFid = -32768; // MIN_FID
             Int tmpInt = new();
             string stateText = string.Empty;

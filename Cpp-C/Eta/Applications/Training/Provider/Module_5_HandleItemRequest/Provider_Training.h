@@ -255,7 +255,7 @@ extern "C" {
 /* EnumType Dictionary now supports fragmenting at a message level -
  * However, some EnumType Dictionary message can be still very large, up to 10K
  */
-#define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 12800
+#define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 21000
 
 #ifdef _WIN32
 #ifdef _WIN64

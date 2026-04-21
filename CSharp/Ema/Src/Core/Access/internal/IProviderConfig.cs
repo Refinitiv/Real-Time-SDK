@@ -80,7 +80,7 @@ namespace LSEG.Ema.Access
             AcceptMessageWithoutBeingLogin = false;
             AcceptMessageWithoutQosInRange = false;
             EnforceAckIDValidation = false;
-            EnumTypeFragmentSize = 12800;
+            EnumTypeFragmentSize = 21000;
             FieldDictionaryFragmentSize = 8192;
             ClientSessionCountHint = 10;
             ClientSessionPoolLimit = -1;
