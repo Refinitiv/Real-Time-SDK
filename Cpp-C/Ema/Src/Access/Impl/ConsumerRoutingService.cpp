@@ -129,47 +129,51 @@ ConsumerRoutingService::AggregationResultEnum ConsumerRoutingService::aggregateD
 				RsslUInt oldAcceptingRequests = _service.state.acceptingRequests;
 				RsslUInt oldServiceState = _service.state.serviceState;
 
-				if (newDirectory._service.state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS)
+				// Always send accepting requests.  
+				_service.state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
+				// AcceptingRequests defaults to 1, so if the flag is not present AND the oldAcceptingRequests is 1, then the service should be considered to have AcceptingRequests = 1.
+				// If oldAcceptingRequests is 0 and the newDirectory does not have the AcceptingRequests flag, then the value has not changed, so AcceptingRequests should be 0 and 
+				// we should check all of the channels with this service to see if any have acceptingRequests set to 1.
+				// Otherwise, if the AcceptingRequests flag is present and the value is 0, check all channels with this service to see if any have acceptingRequests set to 1.
+				// As long as one channel has acceptingRequests set to 1, the service should be considered to have acceptingRequests = 1
+				if (((newDirectory._service.state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS) == 0 && oldAcceptingRequests == 0) 
+					|| ((newDirectory._service.state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS) != 0 && newDirectory._service.state.acceptingRequests == 0))
 				{
-					_service.state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
-					if (newDirectory._service.state.acceptingRequests == 0)
+					bool acceptingRequests = false;
+					for (UInt32 i = 0; i < routingChannelList.size(); i++)
 					{
-						bool acceptingRequests = false;
-						for (UInt32 i = 0; i < routingChannelList.size(); i++)
+						if (routingChannelList[i] == NULL)
+							continue;
+
+						DirectoryPtr* chnlDirectoryPtr = routingChannelList[i]->serviceByName.find(&newDirectory._name);
+
+						if (chnlDirectoryPtr == NULL)
 						{
-							if (routingChannelList[i] == NULL)
-								continue;
-
-							DirectoryPtr* chnlDirectoryPtr = routingChannelList[i]->serviceByName.find(&newDirectory._name);
-
-							if (chnlDirectoryPtr == NULL)
-							{
-								const char* temp = "Failed to create chnlDirectoryPtr in aggregregateDirectoryInfo. Out of memory.";
-								throwMeeException(temp);
-							}
-							Directory* pDirectory = *chnlDirectoryPtr;
-
-							if (pDirectory->_service.state.acceptingRequests == 1)
-							{
-								acceptingRequests = true;
-								break;
-							}
+							const char* temp = "Failed to create chnlDirectoryPtr in aggregregateDirectoryInfo. Out of memory.";
+							throwMeeException(temp);
 						}
+						Directory* pDirectory = *chnlDirectoryPtr;
 
-						if (acceptingRequests == false)
-							_service.state.acceptingRequests = 0;
-
-					}
-					else
-					{
-						// Doesn't matter what the previous value(s) were, we have at least one service now accepting requests.
-						_service.state.acceptingRequests = newDirectory._service.state.acceptingRequests;
+						if (pDirectory->_service.state.acceptingRequests == 1)
+						{
+							acceptingRequests = true;
+							break;
+						}
 					}
 
-					if (oldAcceptingRequests != _service.state.acceptingRequests)
-					{
-						sendUpdate = true;
-					}
+					if (acceptingRequests == false)
+						_service.state.acceptingRequests = 0;
+
+				}
+				else
+				{
+					// Doesn't matter what the previous value(s) were, we have at least one service now accepting requests.
+					_service.state.acceptingRequests = 1;
+				}
+
+				if (oldAcceptingRequests != _service.state.acceptingRequests)
+				{
+					sendUpdate = true;
 				}
 
 				if (newDirectory._service.state.serviceState == 0)
