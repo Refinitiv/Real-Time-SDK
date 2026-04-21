@@ -10,16 +10,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
-
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Example.Common;
 
+using ByteBuffer = LSEG.Eta.Common.ByteBuffer;
 using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Eta.Tests.ValueAddTest;
@@ -1090,7 +1087,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
 
                         EncodeIterator eIter = new();
                         Codec.Buffer buffer = new();
-                        buffer.Data(new Common.ByteBuffer(1024));
+                        buffer.Data(new ByteBuffer(1024));
                         eIter.SetBufferAndRWFVersion(buffer, evt.ReactorChannel.MajorVersion, evt.ReactorChannel.MinorVersion);
                         // reset all flags and set stream id to 0 to simulate bad refresh message
                         msg.Flags = 0;
@@ -1291,7 +1288,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
     private void EncodeSymbolList(ReactorChannel rc, IRequestMsg msg, bool hasBehaviors)
     {
         Codec.Buffer buf = new();
-        buf.Data(new Common.ByteBuffer(1024));
+        buf.Data(new ByteBuffer(1024));
         EncodeIterator encodeIter = new();
 
         /* clear encode iterator */
@@ -1344,7 +1341,7 @@ public class ReactorBasicItemsDomainTest : IDisposable
     private void EncodeBatchWithView(ReactorChannel rc, IRequestMsg msg, List<int> fieldIdList)
     {
         Codec.Buffer buf = new();
-        buf.Data(new Common.ByteBuffer(1024));
+        buf.Data(new ByteBuffer(1024));
         EncodeIterator encodeIter = new();
 
         /* clear encode iterator */

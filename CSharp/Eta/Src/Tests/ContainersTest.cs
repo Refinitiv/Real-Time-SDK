@@ -9,8 +9,10 @@
 using System.Text;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using Xunit;
-using Xunit.Categories;
+using Array = LSEG.Eta.Codec.Array;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSEG.Eta.Tests.Transports
 {

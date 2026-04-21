@@ -10,8 +10,6 @@ using LSEG.Eta.ValueAdd.Reactor.Fallback.ConnectionInfoSelectors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
-using Xunit.Abstractions;
 using static LSEG.Eta.Tests.ValueAddTest.Fallback.ConnectionInfoSelectors.TestUtil;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Fallback.ConnectionInfoSelectors

@@ -6,17 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
-
-namespace LSEG.Eta.Tests.Xunit
+namespace LSEG.Eta.Tests.Common.Xunit
 {
     public static class CollectionAssertUtil
     {
         /// <summary>
-        /// Similar to <see cref="global::Xunit.Assert.Collection{T}(IEnumerable{T}, Action{T}[])"/> but doesn't take order of <paramref name="elementInspections"/> into account.
+        /// Similar to <see cref="Assert.Collection{T}(IEnumerable{T}, Action{T}[])"/> but doesn't take order of <paramref name="elementInspections"/> into account.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>

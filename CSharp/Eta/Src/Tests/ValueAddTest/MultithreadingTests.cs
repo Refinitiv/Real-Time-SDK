@@ -13,7 +13,6 @@ using System;
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Rdm;
-using Buffer = LSEG.Eta.Codec.Buffer;
 using Array = LSEG.Eta.Codec.Array;
 using LSEG.Eta.Common;
 using System.Threading;

@@ -12,7 +12,6 @@ using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Linq;
 using System.Net;
-using Xunit.Abstractions;
 using static LSEG.Eta.Rdm.Directory;
 
 using LSEG.Ema.Rdm;

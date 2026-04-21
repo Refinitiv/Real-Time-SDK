@@ -7,6 +7,7 @@
  */
 
 using AspectInjector.Broker;
+using LSEG.Eta.Tests.Common.Xunit;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -34,7 +35,7 @@ public class ExceptionDiscoverer : IDisposable
         _threadIdPredicate = threadIdPredicate;
     }
 
-    private void HandleException(object sender, CatchExceptionAspect.EventArg e)
+    private void HandleException(object? sender, CatchExceptionAspect.EventArg e)
     {
         if (_threadIdPredicate(Thread.CurrentThread.ManagedThreadId) && !IsHandledByThreadWithExceptionHandling())
         {
@@ -47,7 +48,7 @@ public class ExceptionDiscoverer : IDisposable
         => new StackTrace()
             .GetFrames()
             .Select(frame => frame.GetMethod())
-            .Any(method => method.DeclaringType == typeof(ThreadWithExceptionHandling));
+            .Any(method => method!.DeclaringType == typeof(ThreadWithExceptionHandling));
 
     private void HandleUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {

@@ -14,9 +14,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 {

@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System;
-using Xunit;
 using Xunit.Sdk;
 
 namespace LSEG.Eta.Tests.Xunit
@@ -65,6 +63,23 @@ namespace LSEG.Eta.Tests.Xunit
             {
                 var e = Assert.Throws<FailException>(() =>
                     AssertCollectionUnordered(elements, x => Assert.Equal(2, x), x => Assert.Equal(5, x)));
+                Assert.StartsWith("Collection has unsatisfied inspections", e.Message);
+            }
+
+            [Fact]
+            public void Should_pass_for_same_set_with_repeating_elements()
+            {
+                var elements = new[] { 5, 5, 2 };
+                AssertCollectionUnordered(elements, x => Assert.Equal(5, x), x => Assert.Equal(2, x), x => Assert.Equal(5, x));
+            }
+
+            [Theory]
+            [InlineData(new int[] { 5, 2, 2 })]
+            [InlineData(new int[] { 5, 2, 1 })]
+            public void Should_fail_for_different_set_with_repeating_elements(int[] elements)
+            {
+                var e = Assert.Throws<FailException>(() =>
+                    AssertCollectionUnordered(elements, x => Assert.Equal(5, x), x => Assert.Equal(2, x), x => Assert.Equal(5, x)));
                 Assert.StartsWith("Collection has unsatisfied inspections", e.Message);
             }
         }

@@ -568,7 +568,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             if (reactorChannel == null)
                 return true;
 
-            if (reactorChannel.FallbackContext!.IsSwitchingToPreferredHost)
+            if (reactorChannel.FallbackContext?.IsSwitchingToPreferredHost ?? false)
             {
                 return false;
             }

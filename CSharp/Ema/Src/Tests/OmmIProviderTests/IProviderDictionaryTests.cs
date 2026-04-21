@@ -10,7 +10,6 @@ using System;
 using System.IO;
 
 using System.Threading;
-using Xunit.Abstractions;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Rdm;
@@ -22,7 +21,9 @@ using LSEG.Ema.Access.Tests.OmmConsumerTests;
 using System.ComponentModel;
 using LSEG.Eta.Rdm;
 using LSEG.Ema.Access.Tests.OmmNiProviderTests;
-using LSEG.Eta.Tests.Utils;
+using LSEG.Eta.Tests.Common.Utils;
+
+using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 
@@ -56,7 +57,7 @@ public class IProviderDictionaryTests
     {
         // Test case setup
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
-            ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+            ? new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             : new OmmIProviderConfig();
 
         OmmProvider? provider = null;
@@ -150,7 +151,7 @@ public class IProviderDictionaryTests
     {
         // Test case setup
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
-            ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+            ? new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             : new OmmIProviderConfig();
 
         OmmProvider? provider = null;
@@ -305,7 +306,7 @@ public class IProviderDictionaryTests
     {
         // Test case setup
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
-            ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+            ? new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             : new OmmIProviderConfig();
 
         OmmProvider? provider = null;
@@ -480,7 +481,7 @@ public class IProviderDictionaryTests
 
         // Test case setup
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
-            ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+            ? new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             : new OmmIProviderConfig();
 
         ConfigureConsoleLoggerOutput(config);
@@ -616,7 +617,7 @@ public class IProviderDictionaryTests
 
         m_Output.WriteLine($"Connect with {hostString}");
 
-        OmmIProviderConfig config = new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+        OmmIProviderConfig config = new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             .ProviderName("EmaIProvider_RemoteDictionary")
             .Port(PROVIDER_PORT)
             .AdminControlDictionary(dictionaryOperationModelMode);
@@ -957,7 +958,7 @@ public class IProviderDictionaryTests
         using RedirectedConsoleOutput consoleOutput = new();
 
         OmmIProviderConfig config = (dictionaryOperationModelMode == OmmIProviderConfig.AdminControlMode.API_CONTROL)
-            ? new OmmIProviderConfig("../../../OmmIProviderTests/EmaConfigTest.xml")
+            ? new OmmIProviderConfig(BASE_TEST_CONFIG_PATH + "/OmmIProviderTests/EmaConfigTest.xml")
             : new OmmIProviderConfig();
 
         OmmProvider? provider = null;

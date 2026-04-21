@@ -8,15 +8,14 @@
 
 using System;
 using System.IO;
-using LSEG.Eta.Tests.Utils;
+using LSEG.Eta.Tests.Common.Utils;
 using LSEG.Eta.ValueAdd.Reactor;
-using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
     public class ConsumerLoggerTest
     {
-        private static readonly string EMA_FILE_PATH = "../../../OmmConsumerTests/EmaConfigLoggerTest.xml";
+        private static readonly string EMA_FILE_PATH = "../../../../Src/Tests/OmmConsumerTests/EmaConfigLoggerTest.xml";
 
         private static readonly string VERBOSE_LOG = $"{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: Consumer_1_Verbose{NewLine}    Severity: Trace    Text:    " +
             $"Print out active configuration detail.{NewLine}\tConfiguredName: Consumer_1_Verbose{NewLine}\tInstanceName: Consumer_1_Verbose{NewLine}\tItemCountHint: 100000{NewLine}\t" +
@@ -35,7 +34,7 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             $" message was populated with Filter(s){NewLine}\tRDM_DIRECTORY_SERVICE_INFO_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_STATE_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_GROUP_FILTER" +
             $"{NewLine}\tRDM_DIRECTORY_SERVICE_LOAD_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_DATA_FILTER{NewLine}\tRDM_DIRECTORY_SERVICE_LINK_FILTER{NewLine}\trequesting all services{NewLine}" +
             $"loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}    ClientName: DictionaryCallbackClient{NewLine}    Severity: Trace    Text:    Successfully loaded local dictionaries:" +
-            $" {NewLine}\tRDMFieldDictionary file named ../../../../../../etc/RDMFieldDictionary{NewLine}\tEnumTypeDef file named ../../../../../../etc/enumtype.def{NewLine}loggerMsgEnd{NewLine}{NewLine}" +
+            $" {NewLine}\tRDMFieldDictionary file named ../../../../../etc/RDMFieldDictionary{NewLine}\tEnumTypeDef file named ../../../../../etc/enumtype.def{NewLine}loggerMsgEnd{NewLine}{NewLine}" +
             $"TRACE|: loggerMsg{NewLine}    ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Created ChannelCallbackClient{NewLine}loggerMsgEnd{NewLine}{NewLine}TRACE|: loggerMsg{NewLine}" +
             $"    ClientName: ChannelCallbackClient{NewLine}    Severity: Trace    Text:    Attempt to connect using{NewLine}\t1] SOCKET{NewLine}\tChannel name Channel_1{NewLine}\tInstance name" +
             $" Consumer_1_Verbose{NewLine}\tReactor";
@@ -280,10 +279,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
             output.WriteLine($"Connect with {hostString}");
 
             OmmConsumerConfig config = new(EMA_FILE_PATH);
-            OmmException? exception = null;
             OmmConsumer? consumer = null;
 
-            try
             {
                 config.ConsumerName("Consumer_2_MultipleFiles");
 
@@ -292,12 +289,6 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
                 consumer = new OmmConsumer(config.Host(hostString));
             }
-            catch (OmmException ommException)
-            {
-                exception = ommException;
-            }
-
-            Assert.Null(exception);
 
             int processId = System.Environment.ProcessId;
             string filePath = $"emaLog_MultipleFiles_{processId}.log";

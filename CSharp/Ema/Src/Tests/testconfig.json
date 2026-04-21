@@ -1,0 +1,8 @@
+﻿{
+  "xUnit": {
+    "diagnosticMessages": true,
+    "preEnumerateTheories": true,
+    "maxParallelThreads": 1,
+    "parallelizeTestCollections": false
+  }
+}

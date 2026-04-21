@@ -336,8 +336,8 @@
 			<DictionaryType value="DictionaryType::FileDictionary"/>
 
 			<!-- dictionary names are optional: defaulted to RDMFieldDictionary and enumtype.def -->
-			<RdmFieldDictionaryFileName value="../../../../../../etc/RDMFieldDictionary"/>
-			<EnumTypeDefFileName value="../../../../../../etc/enumtype.def"/>
+			<RdmFieldDictionaryFileName value="../../../../../etc/RDMFieldDictionary"/>
+			<EnumTypeDefFileName value="../../../../../etc/enumtype.def"/>
 		</Dictionary>
 
 	</DictionaryList>

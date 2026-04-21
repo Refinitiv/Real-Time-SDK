@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using static LSEG.Eta.Rdm.Directory;
-using Buffer = LSEG.Eta.Codec.Buffer;
 using DataTypes = LSEG.Eta.Codec.DataTypes;
 
 namespace LSEG.Eta.Tests.ValueAddTest

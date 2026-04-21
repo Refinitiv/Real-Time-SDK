@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
-using Xunit.Abstractions;
-
 using LSEG.Ema.Access.Tests.OmmConsumerTests;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
@@ -19,6 +17,8 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Dynamic;
 using System;
+
+using static LSEG.Ema.Access.Tests.TestUtilities;
 
 namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 {
@@ -46,15 +46,8 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
 
         private static void LoadDictionary()
         {
-            if (DataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out _) < 0)
-            {
-                Assert.Fail("Unable to load enum dictionary.");
-            }
-
-            if (DataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out _) < 0)
-            {
-                Assert.Fail("Unable to load enum dictionary.");
-            }
+            LoadEnumTypeDictionary(DataDictionary);
+            LoadFieldDictionary(DataDictionary);
         }
 
         static ADHSimulator()

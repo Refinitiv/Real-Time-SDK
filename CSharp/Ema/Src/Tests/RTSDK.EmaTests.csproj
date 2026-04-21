@@ -2,14 +2,21 @@
   
   <PropertyGroup>
     <RootNamespace>LSEG.Ema.Access.Tests</RootNamespace>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>RTSDK.EmaTests</AssemblyName>
+    <BaseOutputPath>$(ProjectDir)..\..\Executables\RTSDK.EmaTests</BaseOutputPath>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsPublishable>False</IsPublishable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>namekeys.snk</AssemblyOriginatorKeyFile>
-    <AssemblyName>RTSDK.EmaTests</AssemblyName>
     <DelaySign>true</DelaySign>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,6 +26,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;CS8002</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="testconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.9.0" />
@@ -27,10 +41,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="Polly" Version="8.6.5" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -42,7 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Eta\Src\Tests\RTSDK.Tests.csproj" />
+    <ProjectReference Include="..\..\..\Eta\Src\TestsCommon\RTSDK.Tests.Common.csproj" />
     <ProjectReference Include="..\..\..\Eta\Src\ValueAdd\ValueAdd.csproj" />
     <ProjectReference Include="..\Core\EMA_Core.csproj" />
   </ItemGroup>

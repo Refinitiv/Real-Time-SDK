@@ -325,7 +325,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
         {
             OmmConsumerConfig consumerConfig;
 
-            consumerConfig = new OmmConsumerConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+            consumerConfig = LoadEmaTestConfig();
 
             OmmConsumerConfigImpl consConfigImpl = consumerConfig.OmmConsConfigImpl;
             Assert.Equal("TestConsumer", consConfigImpl.FirstConfiguredConsumerName);
@@ -362,7 +362,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             ConsumerRole testRole;
             ReactorConnectInfo testConnInfo;
 
-            consumerConfig = new OmmConsumerConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+            consumerConfig = LoadEmaTestConfig();
 
             OmmConsumerConfigImpl consConfigImpl = consumerConfig.OmmConsConfigImpl;
             Assert.Equal("TestConsumer", consConfigImpl.FirstConfiguredConsumerName);
@@ -786,7 +786,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             // Load a blank config so we can be sure that everything added is from the programmtic config
             // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-            consumerConfig = new OmmConsumerConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+            consumerConfig = LoadEmaBlankConfig();
 
             OmmConsumerConfigImpl consConfigImpl = consumerConfig.OmmConsConfigImpl;
 

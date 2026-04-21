@@ -12,19 +12,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit.Sdk;
+using Xunit.v3;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
 
     public class LogTestNameAttribute : BeforeAfterTestAttribute
     {
-        public override void Before(MethodInfo methodUnderTest)
+        public override void Before(MethodInfo methodUnderTest, IXunitTest test)
         {
             Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>> Starting test: {methodUnderTest.Name}");
         }
 
-        public override void After(MethodInfo methodUnderTest)
+        public override void After(MethodInfo methodUnderTest, IXunitTest test)
         {
             Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>> Finished test: {methodUnderTest.Name}");
         }

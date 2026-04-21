@@ -11,9 +11,7 @@ using LSEG.Eta.Common;
 using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.IO;
-using Xunit;
 using static LSEG.Eta.Rdm.Dictionary;
-using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.Tests.ValueAddTest
 {

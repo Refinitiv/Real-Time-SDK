@@ -6,19 +6,15 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Codec;
-using LSEG.Eta.Common;
-using LSEG.Eta.Rdm;
-using LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests;
-using LSEG.Eta.ValueAdd.Rdm;
-using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Xunit;
-using Xunit.Abstractions;
-using Buffer = LSEG.Eta.Codec.Buffer;
+
+using LSEG.Eta.Codec;
+using LSEG.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
 {

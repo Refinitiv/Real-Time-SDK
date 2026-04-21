@@ -9,11 +9,10 @@
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using LSEG.Eta.Tests.Utils;
+using LSEG.Eta.Tests.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.RequestRouting
 {

@@ -9,8 +9,6 @@
 using System.Threading;
 using System.Collections.Generic;
 
-using Xunit.Abstractions;
-
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Rdm;
 using System;

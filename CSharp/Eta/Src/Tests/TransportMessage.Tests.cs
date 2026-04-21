@@ -12,10 +12,6 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
-
 using LSEG.Eta.Common;
 using LSEG.Eta.Transports;
 using System.Text;

@@ -6,17 +6,13 @@
  *|-----------------------------------------------------------------------------
  */
 
-using Xunit;
-using Xunit.Categories;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Codec;
 using System;
-using Buffer = LSEG.Eta.Codec.Buffer;
 using System.IO;
-using Xunit.Abstractions;
 using Polly;
 
 namespace LSEG.Eta.Tests.ValueAddTest

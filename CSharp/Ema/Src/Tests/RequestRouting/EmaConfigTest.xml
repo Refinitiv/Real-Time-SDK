@@ -1002,8 +1002,8 @@
 			<!-- providers always assume DictionaryType = DictionaryType::FileDictionary -->
 			<DictionaryType value="DictionaryType::FileDictionary"/>
 			<!-- dictionary file names are optional: defaulted to ./RDMFieldDictionary and ./enumtype.def -->
-			<RdmFieldDictionaryFileName value="../../../../../../etc/RDMFieldDictionary"/>
-			<EnumTypeDefFileName value="../../../../../../etc/enumtype.def"/>
+			<RdmFieldDictionaryFileName value="../../../../../etc/RDMFieldDictionary"/>
+			<EnumTypeDefFileName value="../../../../../etc/enumtype.def"/>
 			<!-- <dictionary>ItemName represents the names shown in DictionariesProvided and DictionariesUsed
 				elements of the Directory InfoFilter -->
 			<!-- <dictionary>ItemName is optional; default values are "RWFFld" for the RdmFieldDictionary

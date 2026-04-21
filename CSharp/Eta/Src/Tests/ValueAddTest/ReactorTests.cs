@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using Xunit;
-using Xunit.Categories;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Net.Sockets;
 using LSEG.Eta.Transports;
@@ -19,7 +17,6 @@ using static LSEG.Eta.Rdm.Directory;
 using LSEG.Eta.Common;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
-using Buffer = LSEG.Eta.Codec.Buffer;
 using System.Collections.Generic;
 
 namespace LSEG.Eta.Tests.ValueAddTest
@@ -588,11 +585,11 @@ namespace LSEG.Eta.Tests.ValueAddTest
             ReactorReturnCode acceptRetCode = ReactorReturnCode.FAILURE;
             ReactorReturnCode connectRetCode = ReactorReturnCode.FAILURE;
 
-            Task acceptTask = Task.Factory.StartNew(() => { acceptRetCode = acceptChannel(server); });
-            Task connectTask = Task.Factory.StartNew(() => { connectRetCode = connectChannel(); });
+            Task acceptTask = Task.Factory.StartNew(() => { acceptRetCode = acceptChannel(server); }, TestContext.Current.CancellationToken);
+            Task connectTask = Task.Factory.StartNew(() => { connectRetCode = connectChannel(); }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -704,15 +701,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {  
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server); 
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -805,15 +802,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -908,15 +905,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1020,15 +1017,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1144,15 +1141,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1255,15 +1252,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1349,15 +1346,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1478,15 +1475,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1590,15 +1587,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1709,15 +1706,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1828,15 +1825,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(reactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(reactor, niProviderRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
@@ -1924,15 +1921,15 @@ namespace LSEG.Eta.Tests.ValueAddTest
             Task acceptTask = Task.Factory.StartNew(() =>
             {
                 acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Task connectTask = Task.Factory.StartNew(() =>
             {
                 connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
-            });
+            }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);

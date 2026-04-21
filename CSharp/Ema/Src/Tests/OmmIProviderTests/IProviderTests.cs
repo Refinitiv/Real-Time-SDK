@@ -15,7 +15,6 @@ using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests

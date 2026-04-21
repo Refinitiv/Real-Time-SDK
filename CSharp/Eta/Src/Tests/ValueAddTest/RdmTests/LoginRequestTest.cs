@@ -8,15 +8,13 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
-using Xunit;
-using Xunit.Categories;
+
 using static LSEG.Eta.Rdm.Login;
-using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.Tests.ValueAddTest
 {

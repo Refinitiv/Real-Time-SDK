@@ -6,18 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System.Collections.Generic;
-using System.Threading;
-
 using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
+using static LSEG.Ema.Access.Tests.TestUtilities;
 
 using LSEG.Eta.Transports;
 using System.Net.Sockets;
-using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {
@@ -45,17 +41,8 @@ namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 
         private static void LoadDictionary()
         {
-            if (DataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out _) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary.");
-                Assert.True(false);
-            }
-
-            if (DataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out _) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary.");
-                Assert.True(false);
-            }
+            LoadEnumTypeDictionary(DataDictionary);
+            LoadFieldDictionary(DataDictionary);
         }
 
         /// <summary>

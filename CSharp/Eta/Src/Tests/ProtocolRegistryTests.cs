@@ -8,9 +8,6 @@
 
 using System.Collections.Generic;
 
-using Xunit;
-using Xunit.Categories;
-
 using LSEG.Eta.Internal;
 using LSEG.Eta.Transports;
 

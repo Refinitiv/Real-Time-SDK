@@ -2750,7 +2750,7 @@ public class EncodersTests
 
         ElementList eList = new();
         ElementEntry eEntry = new();
-        Array elementArray = new();
+        Codec.Array elementArray = new();
         ArrayEntry ae = new();
         Buffer itemName = new();
 

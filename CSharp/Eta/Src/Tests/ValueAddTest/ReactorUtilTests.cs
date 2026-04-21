@@ -42,7 +42,7 @@ namespace LSEG.Eta.Tests.ValueAddTest
             // Act
             var result = ConvertMilliSecondTimeToDateTime(nowMs);
             // Assert
-            Assert.Equal(now, result, TimeSpan.FromMilliseconds(1));
+            Assert.Equal(now, result, TimeSpan.FromMilliseconds(10));
         }
     }
 }

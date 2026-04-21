@@ -6,9 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
-global using static System.Environment;
-global using static LSEG.Eta.Tests.Xunit.CollectionAssertUtil;
 global using Xunit;
-global using Thread = LSEG.Eta.Tests.Xunit.ThreadWithExceptionHandling;
-[assembly: LSEG.Eta.Tests.Xunit.CatchExceptionAspect]
+global using static System.Environment;
+global using static LSEG.Eta.Tests.Common.Xunit.CollectionAssertUtil;
+global using Thread = LSEG.Eta.Tests.Common.Xunit.ThreadWithExceptionHandling;
+[assembly: LSEG.Eta.Tests.Common.Xunit.CatchExceptionAspect]
 [assembly: LSEG.Ema.Access.Tests.Xunit.BeforeAfter]

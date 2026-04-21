@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 
-namespace LSEG.Eta.Tests.Xunit;
+namespace LSEG.Eta.Tests.Common.Xunit;
 
 /// <summary>
 /// Injects try-catch code to the attributed entities allowing caught exceptions to be passed to subscribers in the underlying thread.
@@ -24,15 +24,15 @@ public class CatchExceptionAspect : Attribute
 {
     public class EventArg
     {
-        public Exception Exception { get; init; }
+        public required Exception Exception { get; init; }
         public bool Handled { get; set; }
     }
 
-    public static event EventHandler<EventArg> ExceptionCaught;
+    public static event EventHandler<EventArg>? ExceptionCaught;
 
     [Advice(Kind.Around, Targets = Target.Method)]
     [DebuggerHidden]
-    public object InterceptMethods(
+    public object? InterceptMethods(
         [Argument(Source.Target)] Func<object[], object> method,
         [Argument(Source.Instance)] object instance,
         [Argument(Source.Arguments)] object[] args,
@@ -54,6 +54,6 @@ public class CatchExceptionAspect : Attribute
         }
     }
 
-    private static object GetDefaultValue(Type type)
+    private static object? GetDefaultValue(Type type)
         => type.IsValueType && type != typeof(void) ? Activator.CreateInstance(type) : null;
 }

@@ -12,8 +12,6 @@ using System.Text;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 
-using Xunit.Abstractions;
-
 namespace LSEG.Ema.Access.Tests;
 
 public class ArrayTests

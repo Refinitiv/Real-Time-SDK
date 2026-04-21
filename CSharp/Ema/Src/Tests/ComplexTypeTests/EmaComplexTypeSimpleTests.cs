@@ -10,28 +10,12 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using System;
 
+using static LSEG.Ema.Access.Tests.TestUtilities;
+
 namespace LSEG.Ema.Access.Tests
 {
     public class EmaComplexTypeSimpleTests
     {
-        private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
-
-        private void LoadFieldDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
-
         [Fact]
         public void EncodeVectorUsingPreEncodedEntries_PassTest()
         {

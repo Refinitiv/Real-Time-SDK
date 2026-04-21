@@ -9,8 +9,6 @@
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System.Collections.Generic;
-using Xunit;
-using Xunit.Categories;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
 {

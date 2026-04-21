@@ -18,9 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Xunit.Abstractions;
 using static LSEG.Ema.Access.Tests.OmmConsumerTests.ModifyIOCtlTest;
 using static LSEG.Eta.Rdm.Directory;
+using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 
 
 namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
@@ -34,7 +34,7 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
             m_Output = output;
         }
 
-        private static readonly string EMA_FILE_PATH = "../../../OmmNiProviderTests/EmaConfigNiProviderTest.xml";
+        private static readonly string EMA_FILE_PATH = BASE_TEST_CONFIG_PATH + "/OmmNiProviderTests/EmaConfigNiProviderTest.xml";
 
         [Fact]
         public void LoginRequestTimeoutTest()

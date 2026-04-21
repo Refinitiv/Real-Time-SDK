@@ -10,8 +10,6 @@ using System.Text;
 
 using LSEG.Eta.Common;
 
-using Xunit.Abstractions;
-
 namespace LSEG.Ema.Access.Tests;
 
 

@@ -13,7 +13,6 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
-using Xunit.Abstractions;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests
 {

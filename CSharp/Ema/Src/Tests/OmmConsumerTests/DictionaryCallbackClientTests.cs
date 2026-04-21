@@ -9,9 +9,7 @@
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Threading;
-using Xunit.Abstractions;
+using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
@@ -91,7 +89,7 @@ public class DictionaryCallbackClientTests
 
         output.WriteLine($"Connect with {hostString}");
 
-        OmmConsumerConfig config = new OmmConsumerConfig("../../../OmmConsumerTests/EmaDictionariesConfig.xml");
+        OmmConsumerConfig config = new OmmConsumerConfig(EMA_DICTIONARIES_CONFIG_CONFIG_FILE_PATH);
 
         config.OmmConsConfigImpl.DictionaryConfig.IsLocalDictionary = true;
         OmmConsumerConfigImpl configImpl = config.OmmConsConfigImpl;

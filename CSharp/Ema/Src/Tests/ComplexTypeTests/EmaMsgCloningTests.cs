@@ -8,8 +8,8 @@
 
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
-using System;
-using System.Linq;
+
+using static LSEG.Ema.Access.Tests.TestUtilities;
 
 namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 {
@@ -141,8 +141,8 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
 
         static EmaMsgCloningTests()
         {
-            m_DataDictionary.LoadFieldDictionary("RDMFieldDictionary");
-            m_DataDictionary.LoadEnumTypeDictionary("enumtype.def");
+            LoadEmaFieldDictionary(m_DataDictionary);
+            LoadEmaEnumTypeDictionary(m_DataDictionary);
         }
 
         private void TestRefreshMsgCloning(Func<RefreshMsg, RefreshMsg> clone)

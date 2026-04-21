@@ -10,9 +10,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit;
 
-namespace LSEG.Eta.Tests.Utils
+namespace LSEG.Eta.Tests.Common.Utils
 {
     /// <summary>
     /// Queue that allow waiting for new messages from another thread.
@@ -32,7 +31,7 @@ namespace LSEG.Eta.Tests.Utils
             return WaitForMessageInternalAsync(
                 timeout,
                 msg => true,
-                tryDequeueMessage: (out TBaseMsg msg, Func<TBaseMsg, bool> predicate) =>
+                tryDequeueMessage: (out TBaseMsg? msg, Func<TBaseMsg, bool> predicate) =>
                 {
                     return m_MessageQueue.TryPeek(out msg);
                 },
@@ -47,23 +46,24 @@ namespace LSEG.Eta.Tests.Utils
             where T : TBaseMsg
         {
             timeout ??= DefaultWaitTimeout;
-            return (T)await WaitForMessageInternalAsync(
+            var task = WaitForMessageInternalAsync(
                 timeout.Value,
                 msg => msg is T,
-                tryDequeueMessage: (out TBaseMsg msg, Func<TBaseMsg, bool> predicate) =>
+                tryDequeueMessage: (out TBaseMsg? msg, Func<TBaseMsg, bool> predicate) =>
                 {
                     if (m_MessageQueue.TryPeek(out msg) && predicate(msg))
                     {
                         m_MessageQueue.TryDequeue(out _);
                         return true;
                     }
-                    msg = default!;
+                    msg = default;
                     return false;
                 },
                 onMessageNotReceived: () =>
                     Assert.Fail($"No {typeof(T).Name} message is received during {timeout} timeout.{NewLine}" +
                         $"Message queue contents:{NewLine}" +
                         string.Join(NewLine, m_MessageQueue)));
+            return ((T)(await task)!)!;
         }
 
         public T WaitForMessage<T>(TimeSpan? timeout = null)
@@ -77,7 +77,7 @@ namespace LSEG.Eta.Tests.Utils
             Action onMessageNotReceived)
         {
             if (tryDequeueMessage(out var message, predicate))
-                return message;
+                return message!;
 
             var subscription = new TaskCompletionSource();
             m_OneTimeSubscriptionsQueue.Enqueue(msg =>
@@ -96,9 +96,9 @@ namespace LSEG.Eta.Tests.Utils
                 onMessageNotReceived();
             }
 
-            return message;
+            return message!;
         }
-        private delegate bool TryDequeueMessageDelegate(out TBaseMsg msg, Func<TBaseMsg, bool> predicate);
+        private delegate bool TryDequeueMessageDelegate(out TBaseMsg? msg, Func<TBaseMsg, bool> predicate);
 
         public void Enqueue<T>(T msg)
             where T : TBaseMsg

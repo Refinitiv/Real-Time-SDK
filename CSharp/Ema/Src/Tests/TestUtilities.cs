@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Codec;
+
 namespace LSEG.Ema.Access.Tests;
 
 internal class TestUtilities
@@ -64,5 +66,31 @@ internal class TestUtilities
             Eta.Rdm.Dictionary.VerbosityValues.NORMAL, out _));
 
         Assert.Equal(Eta.Codec.CodecReturnCode.SUCCESS, msg.EncodeComplete(encodeIter, true));
+    }
+
+    public static void LoadFieldDictionary(DataDictionary dataDictionary)
+    {
+        if (dataDictionary.LoadFieldDictionary("RDMFieldDictionary", out var error) < CodecReturnCode.SUCCESS)
+        {
+            Assert.Fail($"Unable to load field dictionary. Error: {error?.Text}");
+        }
+    }
+
+    public static void LoadEnumTypeDictionary(DataDictionary dataDictionary)
+    {
+        if (dataDictionary.LoadEnumTypeDictionary("enumtype.def", out var error) < CodecReturnCode.SUCCESS)
+        {
+            Assert.Fail($"Unable to load enum dictionary. Error: {error?.Text}");
+        }
+    }
+
+    public static void LoadEmaEnumTypeDictionary(Ema.Rdm.DataDictionary dataDictionary)
+    {
+        dataDictionary.LoadEnumTypeDictionary("enumtype.def");
+    }
+
+    public static void LoadEmaFieldDictionary(Ema.Rdm.DataDictionary dataDictionary)
+    {
+        dataDictionary.LoadFieldDictionary("RDMFieldDictionary");
     }
 }

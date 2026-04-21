@@ -6,11 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-using Xunit;
-using Xunit.Categories;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
-using Xunit.Abstractions;
 using System.IO;
 using System.Text.RegularExpressions;
 

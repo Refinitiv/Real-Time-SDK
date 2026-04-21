@@ -19,6 +19,8 @@ using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
 using Enum = LSEG.Eta.Codec.Enum;
 
+using static LSEG.Ema.Access.Tests.TestUtilities;
+
 namespace LSEG.Eta.Tests
 {
 
@@ -1888,10 +1890,9 @@ namespace LSEG.Eta.Tests
 
         public static void DecodeXMLElementListAndCheck(Buffer elementListBuf, int[] dataTypes)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             ElementList elementList = new ElementList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(elementListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1936,10 +1937,9 @@ namespace LSEG.Eta.Tests
 
         public static void DecodeXMLFieldListAndCheck(Buffer filedListBuf, int[] dataTypes)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             FieldList fieldList = new FieldList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(filedListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1990,10 +1990,9 @@ namespace LSEG.Eta.Tests
                                               VectorEntryActions[] actions,
                                               Boolean[] hasPermData)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             Vector vector = new Vector();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2067,10 +2066,9 @@ namespace LSEG.Eta.Tests
                                            Boolean hasKeyFieldId,
                                            Boolean hasTotalHintCount)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             Map map = new Map();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(mapBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2149,10 +2147,9 @@ namespace LSEG.Eta.Tests
                                               int countHint,
                                               int length)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             Series series = new Series();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2211,10 +2208,9 @@ namespace LSEG.Eta.Tests
                                                   Boolean[] permDataPresent,
                                                   int countHint)
         {
-            CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../../etc/RDMFieldDictionary", out error));
+            LoadFieldDictionary(dictionary);
             FilterList filterList = new FilterList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(filterListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());

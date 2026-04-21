@@ -13,15 +13,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace LSEG.Eta.Tests.Xunit;
+namespace LSEG.Eta.Tests.Common.Xunit;
 
 [SkipInjection]
 public class ThreadWithExceptionHandling
 {
     private readonly System.Threading.Thread _thread;
-    private Exception _exception; 
+    private Exception? _exception; 
 
-    public string Name { get { return _thread.Name; } set { _thread.Name = value; } }
+    public string? Name { get { return _thread.Name; } set { _thread.Name = value; } }
     public bool IsAlive => _thread.IsAlive;
 
     public static System.Threading.Thread CurrentThread => System.Threading.Thread.CurrentThread;
@@ -63,7 +63,7 @@ public class ThreadWithExceptionHandling
         }
     }
 
-    public Exception JoinAndReturnException()
+    public Exception? JoinAndReturnException()
     {
         _thread.Join();
         return _exception;
@@ -78,11 +78,11 @@ public class ThreadWithExceptionHandling
         var exceptions = threads
             .Select(t => t._exception)
             .Where(e => e is not null)
-            .Where(e => !IsExceptionThreadSpecific(e))
+            .Where(e => !IsExceptionThreadSpecific(e!))
             .ToArray();
         if (exceptions.Any())
         {
-            throw new AggregateException(exceptions);
+            throw new AggregateException(exceptions!);
         }
     }
 
@@ -97,4 +97,4 @@ public class ThreadWithExceptionHandling
     public System.Threading.Thread UnderlyingThread => _thread;
 
     public System.Threading.ThreadState ThreadState => _thread.ThreadState;
-    }
+}

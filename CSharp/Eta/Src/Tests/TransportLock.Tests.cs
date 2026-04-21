@@ -13,9 +13,6 @@ using System.Text;
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-using Xunit;
-using Xunit.Categories;
-
 using LSEG.Eta.Common;
 using LSEG.Eta.Transports;
 using ProtocolType = LSEG.Eta.Transports.ProtocolType;

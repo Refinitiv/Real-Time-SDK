@@ -16,6 +16,8 @@ using DateTime = LSEG.Eta.Codec.DateTime;
 using Double = LSEG.Eta.Codec.Double;
 using Enum = LSEG.Eta.Codec.Enum;
 
+using static LSEG.Ema.Access.Tests.TestUtilities;
+
 namespace LSEG.Ema.Access.Tests
 {
     public class EmaComplexTypeHandler
@@ -309,17 +311,8 @@ namespace LSEG.Ema.Access.Tests
 
         private static void LoadDictionary()
         {
-            if (m_dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out _) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary.");
-                Assert.True(false);
-            }
-
-            if (m_dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out _) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary.");
-                Assert.True(false);
-            }
+            LoadEnumTypeDictionary(m_dataDictionary);
+            LoadFieldDictionary(m_dataDictionary);
         }
 
         static EmaComplexTypeHandler()

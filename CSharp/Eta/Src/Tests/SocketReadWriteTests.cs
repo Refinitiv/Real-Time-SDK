@@ -7,16 +7,11 @@
  */
 
 using LSEG.Eta.Common;
+using LSEG.Eta.Internal;
 using LSEG.Eta.Internal.Interfaces;
-using LSEG.Eta.Tests;
+using LSEG.Eta.Transports;
 using LSEG.Eta.Transports.Internal;
 using System.Text;
-
-using Xunit;
-using Xunit.Categories;
-using LSEG.Eta.Internal;
-using System;
-using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.Tests.Transports
 {
@@ -38,7 +33,7 @@ namespace LSEG.Eta.Tests.Transports
         const int LARGE_FRAGMENT_SIZE = 310; /* This is larger than the default low compression threshold for ZLIB and LZ4 compressions. */
 
         /* 1 fastest, 6 optimal, 9 best, 0 no compression */
-        readonly int[] ZLIB_COMPRESSION_LEVELS = new int[] { 1, 6, 9, 0};
+        static readonly int[] ZLIB_COMPRESSION_LEVELS = new int[] { 1, 6, 9, 0};
 
         [Fact]
         public void WriteReadOneRIPCMessageTest()
@@ -597,18 +592,20 @@ namespace LSEG.Eta.Tests.Transports
             Transport.Uninitialize();
         }
 
-        [Fact]
-        public void WriteZLIBCompressedRWFMessage_DirectWriteTest()
+        public static IEnumerable<TheoryDataRow<int>> GetZlibCompressionLevels() => ZLIB_COMPRESSION_LEVELS.Select(level => new TheoryDataRow<int>(level));
+
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void WriteZLIBCompressedRWFMessage_DirectWriteTest(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteCompressedRWFMessages(CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteCompressedRWFMessages(CompressionType.ZLIB, true, compressionLevel);
         }
 
-        [Fact]
-        public void WriteZLIBCompressedRWFMessage_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void WriteZLIBCompressedRWFMessage_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteCompressedRWFMessages(CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteCompressedRWFMessages(CompressionType.ZLIB, false, compressionLevel);
         }
 
         [Fact]
@@ -623,18 +620,18 @@ namespace LSEG.Eta.Tests.Transports
             WriteCompressedRWFMessages(CompressionType.LZ4, false);
         }
 
-        [Fact]
-        public void WriteZLIBCompressedRWFMessage_DirectWriteTest_SmallFragment()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void WriteZLIBCompressedRWFMessage_DirectWriteTest_SmallFragment(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteCompressedRWFMessages(CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i], RWF_MSG_1.Length);
+            WriteCompressedRWFMessages(CompressionType.ZLIB, true, compressionLevel, RWF_MSG_1.Length);
         }
 
-        [Fact]
-        public void WriteZLIBCompressedRWFMessage_Test_SmallFragment()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void WriteZLIBCompressedRWFMessage_Test_SmallFragment(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteCompressedRWFMessages(CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i], RWF_MSG_1.Length);
+            WriteCompressedRWFMessages(CompressionType.ZLIB, false, compressionLevel, RWF_MSG_1.Length);
         }
 
         [Fact]
@@ -805,7 +802,13 @@ namespace LSEG.Eta.Tests.Transports
 
             if (compressionLevel != 0)
             {
-                if (compressionLevel == 1 && fragmentSize == 30 && OSVersion.Platform == PlatformID.Win32NT) // One more read
+                if (
+#if NET9_0_OR_GREATER
+                    (compressionLevel != 9 && compressionType == CompressionType.ZLIB) &&
+#else
+                    compressionLevel == 1 &&
+#endif
+                    fragmentSize == 30 && OSVersion.Platform == PlatformID.Win32NT) // One more read
                 {
                     recevBuf = channel.Read(readArgs, out error);
                     Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);
@@ -839,47 +842,47 @@ namespace LSEG.Eta.Tests.Transports
 
             Transport.Uninitialize();
         }
-
-        [Fact]
-        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_DirectWrite_Test()
+        
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_DirectWrite_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, true, compressionLevel);
         }
 
-        [Fact]
-        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, false, compressionLevel);
         }
 
-        [Fact]
-        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_DirectWrite_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_DirectWrite_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, true, compressionLevel);
         }
 
-        [Fact]
-        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, false, compressionLevel);
         }
 
-        [Fact]
-        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_DirectWrite_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_DirectWrite_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, true, compressionLevel);
         }
 
-        [Fact]
-        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i]);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, false, compressionLevel);
         }
 
         [Fact]
@@ -918,46 +921,46 @@ namespace LSEG.Eta.Tests.Transports
             WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.LZ4, false);
         }
 
-        [Fact]
-        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, true, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
-        [Fact]
-        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC14_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION14, CompressionType.ZLIB, false, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
-        [Fact]
-        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, true, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
-        [Fact]
-        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC13_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION13, CompressionType.ZLIB, false, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
-        [Fact]
-        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_DirectWrite_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, true, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, true, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
-        [Fact]
-        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test()
+        [Theory]
+        [MemberData(nameof(GetZlibCompressionLevels))]
+        public void Write_RIPC12_FragmentedRWFMessage_ZLIB_LargeFragmentSize_Test(int compressionLevel)
         {
-            for (int i = 0; i < 4; i++)
-                WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, false, ZLIB_COMPRESSION_LEVELS[i], LARGE_FRAGMENT_SIZE);
+            WriteFragmentedRWFMessage(RipcVersions.VERSION12, CompressionType.ZLIB, false, compressionLevel, LARGE_FRAGMENT_SIZE);
         }
 
         [Fact]

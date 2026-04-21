@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+using LSEG.Eta.Tests.Common.Utils;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -115,7 +116,7 @@ namespace LSEG.Eta.Tests.Utils
                 var msg = new ConcreteMsgA();
                 // Act
                 var task = queue.WaitForMessageAsync<ConcreteMsgA>(TimeSpan.FromSeconds(0.5));
-                await Task.Delay(TimeSpan.FromSeconds(0.6));
+                await Task.Delay(TimeSpan.FromSeconds(0.6), TestContext.Current.CancellationToken);
                 queue.Enqueue(msg);
                 // Assert
                 var e = await Assert.ThrowsAsync<FailException>(async () => await task);
@@ -173,7 +174,7 @@ namespace LSEG.Eta.Tests.Utils
                 var msg = new ConcreteMsgA();
                 // Act
                 var task = queue.WaitForNonEmptinessAsync(TimeSpan.FromSeconds(0.5));
-                await Task.Delay(TimeSpan.FromSeconds(0.6));
+                await Task.Delay(TimeSpan.FromSeconds(0.6), TestContext.Current.CancellationToken);
                 queue.Enqueue(msg);
                 // Assert
                 var e = await Assert.ThrowsAsync<FailException>(async () => await task);

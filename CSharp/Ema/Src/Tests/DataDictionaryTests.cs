@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Xunit.Abstractions;
-
 using LSEG.Ema.Rdm;
 using LSEG.Eta.Codec;
 
@@ -22,8 +20,8 @@ public class DataDictionaryTests
 {
     #region Helpers
 
-    public const string FIELD_DICTIONARY_FILENAME = "../../../ComplexTypeTests/RDMFieldDictionary";
-    public const string ENUM_TABLE_FILENAME = "../../../ComplexTypeTests/enumtype.def";
+    public const string FIELD_DICTIONARY_FILENAME = "RDMFieldDictionary";
+    public const string ENUM_TABLE_FILENAME = "enumtype.def";
 
     private static Eta.Codec.DataDictionary m_GlobalEtaDataDictionary;
     private static Rdm.DataDictionary m_GlobalDataDictionary;
@@ -288,9 +286,10 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.Equal(($"Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary{NewLine}\tCurrent working directory "
-                + System.IO.Directory.GetCurrentDirectory()
-                + $"{NewLine}\tReason='Can't open file: Invalid_RDMFieldDictionary'', Error Code='-1'"),
+            Assert.Equal(
+                $"Exception Type='OmmInvalidUsageException', Text='Unable to load field dictionary from file named Invalid_RDMFieldDictionary{NewLine}\tCurrent working directory "
+                    + System.IO.Directory.GetCurrentDirectory()
+                    + $"{NewLine}\tReason='Can't open file: {Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}Invalid_RDMFieldDictionary'', Error Code='-1'",
                 excp.ToString());
         }
 
@@ -302,11 +301,11 @@ public class DataDictionaryTests
         catch (OmmException excp)
         {
             Assert.Equal(OmmException.ExceptionType.OmmInvalidUsageException, excp.Type);
-            Assert.Equal((
+            Assert.Equal(
                 $"Exception Type='OmmInvalidUsageException', Text='Unable to load enumerated type definition from file named Invalid_enumtype.def{NewLine}\tCurrent working directory "
-                + System.IO.Directory.GetCurrentDirectory()
-                + $"{NewLine}\tReason='Can't open file: Invalid_enumtype.def'', Error Code='-1'"),
-            excp.ToString());
+                    + System.IO.Directory.GetCurrentDirectory()
+                    + $"{NewLine}\tReason='Can't open file: {Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}Invalid_enumtype.def'', Error Code='-1'",
+                excp.ToString());
         }
     }
 

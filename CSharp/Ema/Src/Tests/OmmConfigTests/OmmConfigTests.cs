@@ -19,6 +19,9 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using static LSEG.Ema.Access.EmaConfig;
 using static LSEG.Eta.Rdm.Directory;
+using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
+using Directory = LSEG.Eta.Rdm.Directory;
+
 namespace LSEG.Ema.Access.Tests.OmmConfigTests;
 
 public class OmmConfigTests
@@ -484,7 +487,7 @@ public class OmmConfigTests
         NIProviderRole testRole;
         ReactorConnectInfo testConnInfo;
 
-        niProviderConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+        niProviderConfig = new OmmNiProviderConfig(TEST_CONFIG_FILE_PATH);
 
         // Set adminControlDirectory to true
         niProviderConfig.AdminControlDirectory(OmmNiProviderConfig.AdminControlMode.API_CONTROL);
@@ -1742,7 +1745,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        niProviderConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        niProviderConfig = new OmmNiProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmNiProviderConfigImpl niProvConfigImpl = niProviderConfig.OmmNiProvConfigImpl;
 
@@ -1925,7 +1928,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        niProvConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        niProvConfig = new OmmNiProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmNiProviderConfigImpl niProvConfigImpl = niProvConfig.OmmNiProvConfigImpl;
 
@@ -2201,7 +2204,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        niProvConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        niProvConfig = new OmmNiProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmNiProviderConfigImpl niProvConfigImpl = niProvConfig.OmmNiProvConfigImpl;
 
@@ -2820,7 +2823,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        niProvConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        niProvConfig = new OmmNiProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmNiProviderConfigImpl niProvConfigImpl = niProvConfig.OmmNiProvConfigImpl;
 
@@ -3957,15 +3960,7 @@ public class OmmConfigTests
         OmmNiProviderConfigImpl copiedConfig;
         NIProviderRole testRole;
 
-        try
-        {
-            niProviderConfig = new OmmNiProviderConfig("../../../OmmConfigTests/EmaTestConfig.xml");
-        }
-        catch (Exception excp)
-        {
-           Assert.Fail(excp.Message);
-            return;
-        }
+        niProviderConfig = new OmmNiProviderConfig(TEST_CONFIG_FILE_PATH);
 
         OmmNiProviderConfigImpl consConfigImpl = niProviderConfig.OmmNiProvConfigImpl;
 
@@ -4153,7 +4148,7 @@ public class OmmConfigTests
         Service? testService;
         OmmIProviderConfigImpl copiedConfig;
 
-        iProviderConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+        iProviderConfig = new OmmIProviderConfig(TEST_CONFIG_FILE_PATH);
 
         // Set adminControlDirectory to true
         iProviderConfig.AdminControlDirectory(OmmIProviderConfig.AdminControlMode.API_CONTROL);
@@ -4876,7 +4871,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        iProvConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        iProvConfig = new OmmIProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmIProviderConfigImpl iProvConfigImpl = iProvConfig.OmmIProvConfigImpl;
 
@@ -5520,7 +5515,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        iProvConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        iProvConfig = new OmmIProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmIProviderConfigImpl iProvConfigImpl = iProvConfig.OmmIProvConfigImpl;
 
@@ -6672,7 +6667,7 @@ public class OmmConfigTests
         DirectoryConfig testDirectoryConfig;
         EmaServiceConfig testServiceConfig;
 
-        iProviderConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaTestConfig.xml");
+        iProviderConfig = new OmmIProviderConfig(TEST_CONFIG_FILE_PATH);
 
         // Generate a consumer role to ensuure that everything that should be null is null
         // Copy the config
@@ -6779,7 +6774,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        iProviderConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        iProviderConfig = new OmmIProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmIProviderConfigImpl iProvConfigImpl = iProviderConfig.OmmIProvConfigImpl;
 
@@ -6981,7 +6976,7 @@ public class OmmConfigTests
 
         // Load a blank config so we can be sure that everything added is from the programmtic config
         // This doesn't use the default behavior(loading EmaConfig.xml) because an EmaConfig.xml file may be present in the directory for other example apps
-        iProvConfig = new OmmIProviderConfig("../../../OmmConfigTests/EmaBlankConfig.xml");
+        iProvConfig = new OmmIProviderConfig(TEST_BLANK_CONFIG_FILE_PATH);
 
         OmmIProviderConfigImpl iProvConfigImpl = iProvConfig.OmmIProvConfigImpl;
 

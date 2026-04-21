@@ -8,8 +8,6 @@
 
 using System.Collections.Generic;
 
-using Xunit.Abstractions;
-
 using LSEG.Ema.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;

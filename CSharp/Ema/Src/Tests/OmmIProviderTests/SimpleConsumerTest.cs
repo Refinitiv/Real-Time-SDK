@@ -17,8 +17,6 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 
-using Xunit.Abstractions;
-
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 {
     internal class SimpleConsumerTest : IConsumerCallback

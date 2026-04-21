@@ -9,9 +9,6 @@
 using System;
 using System.Linq;
 
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
 using LSEG.Eta.Common;
 using LSEG.Eta.Transports.Internal;
 using LSEG.Eta.Tests;
@@ -380,9 +377,9 @@ namespace LSEG.Eta.Tests.Transports
             for (int i = 0; i < messageCount; i++)
             {
                 byte[] payload = CreatePayload(messageWidth, 0, (byte)(i << 4));
-                Buffer.BlockCopy(payload, 0, packedPayload, i * (messageWidth + sizeof(ushort)) + sizeof(ushort), messageWidth);
+                System.Buffer.BlockCopy(payload, 0, packedPayload, i * (messageWidth + sizeof(ushort)) + sizeof(ushort), messageWidth);
                 byte[] messageLength = BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(messageWidth));
-                Buffer.BlockCopy(messageLength, 0, packedPayload, i * (messageWidth + sizeof(ushort)), sizeof(ushort));
+                System.Buffer.BlockCopy(messageLength, 0, packedPayload, i * (messageWidth + sizeof(ushort)), sizeof(ushort));
             }
             return packedPayload;
         }

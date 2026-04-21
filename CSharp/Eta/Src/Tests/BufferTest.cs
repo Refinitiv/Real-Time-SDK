@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using Xunit;
-using Xunit.Categories;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 

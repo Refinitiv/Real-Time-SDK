@@ -11,10 +11,6 @@ using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
 using System;
 using System.Collections.Generic;
-using Xunit;
-using Xunit.Categories;
-using Xunit.Sdk;
-using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.Tests
 {

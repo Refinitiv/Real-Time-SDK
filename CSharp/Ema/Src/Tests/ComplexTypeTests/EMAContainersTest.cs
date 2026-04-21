@@ -13,6 +13,8 @@ using System;
 using System.Linq;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
+using static LSEG.Ema.Access.Tests.TestUtilities;
+
 namespace LSEG.Ema.Access.Tests
 {
     public class EmaContainersTest
@@ -31,24 +33,6 @@ namespace LSEG.Ema.Access.Tests
         };
 
         private bool[] boolValues = { true, false };
-
-        private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
-
-        private void LoadFieldDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
 
         [Fact]
         public void ElementListTest()

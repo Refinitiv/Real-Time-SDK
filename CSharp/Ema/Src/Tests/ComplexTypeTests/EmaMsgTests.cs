@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
+using static LSEG.Ema.Access.Tests.TestUtilities;
+
 namespace LSEG.Ema.Access.Tests
 {
     public class EmaMsgTests
@@ -23,24 +25,6 @@ namespace LSEG.Ema.Access.Tests
             (int)DataType.DataTypes.REQ_MSG, (int)DataType.DataTypes.ACK_MSG, (int)DataType.DataTypes.GENERIC_MSG, (int)DataType.DataTypes.POST_MSG };
 
         private EmaObjectManager m_objectManager = new EmaObjectManager();
-
-        private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
-
-        private void LoadFieldDictionary(DataDictionary dataDictionary)
-        {
-            if (dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out CodecError error) < 0)
-            {
-                Console.WriteLine($"Unable to load enum dictionary. Error Text: {error.Text}");
-                Assert.True(false);
-            }
-        }
 
         [Fact]
         public void EncodeAndDecodeRequestMsg()

@@ -12,6 +12,7 @@ using LSEG.Eta.Rdm;
 using System;
 using System.Text;
 using static LSEG.Ema.Access.OmmReal;
+using static LSEG.Ema.Access.Tests.TestUtilities;
 using DataDictionary = LSEG.Eta.Codec.DataDictionary;
 
 namespace LSEG.Ema.Access.Tests.ComplexTypeTests
@@ -31,29 +32,7 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                 DataType.DataTypes.ANSI_PAGE
         };
 
-        private bool[] boolValues = { true, false };        
-
-        private void LoadEnumTypeDictionary(DataDictionary dataDictionary)
-        {
-            var result = dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out CodecError error);
-            Assert.False(result < 0, $"Unable to load enum dictionary. Error Text: {error?.Text}");
-        }
-
-        private void LoadFieldDictionary(DataDictionary dataDictionary)
-        {
-            var result = dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out CodecError error);
-            Assert.False(result < 0, $"Unable to load field dictionary. Error Text: {error?.Text}");
-        }
-
-        private void LoadEmaEnumTypeDictionary(Ema.Rdm.DataDictionary dataDictionary)
-        {
-            dataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def");
-        }
-
-        private void LoadEmaFieldDictionary(Ema.Rdm.DataDictionary dataDictionary)
-        {
-            dataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary");
-        }
+        private bool[] boolValues = { true, false };
 
         [Fact]
         public void ElementListTest()

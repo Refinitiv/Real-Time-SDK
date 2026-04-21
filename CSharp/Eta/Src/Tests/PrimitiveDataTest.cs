@@ -10,8 +10,9 @@ using System.Globalization;
 using System.Text;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using Xunit;
-using Xunit.Categories;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
 namespace LSGE.Eta.Tests.Codecs
 {

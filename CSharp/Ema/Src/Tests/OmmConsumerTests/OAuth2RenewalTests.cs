@@ -12,8 +12,6 @@ using System.Threading;
 using LSEG.Ema.Access.Tests.Utils;
 using LSEG.Ema.Rdm;
 
-using Xunit.Abstractions;
-
 namespace LSEG.Ema.Access.Tests.OmmConsumerTests;
 
 public class OAuth2RenewalTests

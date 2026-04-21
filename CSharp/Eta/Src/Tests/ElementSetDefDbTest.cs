@@ -9,8 +9,6 @@
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
-using Xunit;
-using Xunit.Categories;
 
 namespace LSEG.Eta.Tests.Transports
 {

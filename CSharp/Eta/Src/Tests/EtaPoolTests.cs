@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using Xunit;
-using Xunit.Categories;
 using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.Tests.Transports

@@ -20,8 +20,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
-using Xunit.Categories;
 using System.Runtime.InteropServices;
 using ProtocolType = LSEG.Eta.Transports.ProtocolType;
 
@@ -1182,8 +1180,8 @@ namespace LSEG.Eta.Tests.Transports
 			byte[] firstHeader = { 0x17, 0x71, 0x03, 0x08, 0x00, 0x00, 0x1F, 0x40, 0x00, 0x01 };
 			byte[] secondHeader = { 0x17, 0x71, 0x03, 0x08, 0x00, 0x00, 0x1F, 0x40, 0x00, 0x20 };
 
-			Buffer.BlockCopy(firstHeader, 0, firstFragHeader, 0, firstHeader.Length);
-			Buffer.BlockCopy(secondHeader, 0, secondFragHeader, 0, secondHeader.Length);
+			System.Buffer.BlockCopy(firstHeader, 0, firstFragHeader, 0, firstHeader.Length);
+			System.Buffer.BlockCopy(secondHeader, 0, secondFragHeader, 0, secondHeader.Length);
 
 			try
             {
@@ -1198,8 +1196,8 @@ namespace LSEG.Eta.Tests.Transports
 				byte[] firstFragH = { 0x07, 0xDF, 0x03, 0x04, 0x00, 0x01 };
 				byte[] secondFragH = { 0x07, 0xDF, 0x03, 0x04, 0x00, 0x20 };
 
-				Buffer.BlockCopy(firstFragH, 0, firstFrag, 0, firstFragH.Length);
-				Buffer.BlockCopy(secondFragH, 0, secondFrag, 0, secondFragH.Length);
+				System.Buffer.BlockCopy(firstFragH, 0, firstFrag, 0, firstFragH.Length);
+				System.Buffer.BlockCopy(secondFragH, 0, secondFrag, 0, secondFragH.Length);
 
 				for (int i = 10; i < 2015; i++)
 				{
@@ -1277,7 +1275,7 @@ namespace LSEG.Eta.Tests.Transports
 
 			try
             {
-				Buffer.BlockCopy(firstHeader, 0, firstFragHeader, 0, firstHeader.Length);
+				System.Buffer.BlockCopy(firstHeader, 0, firstFragHeader, 0, firstHeader.Length);
 
 				for (int i = 10; i < 6001; i++)
 				{
@@ -1287,7 +1285,7 @@ namespace LSEG.Eta.Tests.Transports
 				byte[] firstFrag = new byte[2015];
 				byte[] firstFragH = { 0x07, 0xDF, 0x03, 0x04, 0x00, 0x01 };
 
-				Buffer.BlockCopy(firstFragH, 0, firstFrag, 0, firstFragH.Length);
+				System.Buffer.BlockCopy(firstFragH, 0, firstFrag, 0, firstFragH.Length);
 
 				for (int i = 10; i < 2015; i++)
 				{
@@ -4770,7 +4768,7 @@ namespace LSEG.Eta.Tests.Transports
 
 					for (int i = 0; i < msg3.Length; i++)
 						Assert.Equal(Encoding.ASCII.GetBytes(msg3)[i], readBuf.Data.Contents[i + readBuf.GetDataStartPosition()]);
-				});
+				}, TestContext.Current.CancellationToken);
 
 				ITransportBuffer readBuf;
 				ReadArgs readArgs = new ReadArgs();
@@ -4854,15 +4852,15 @@ namespace LSEG.Eta.Tests.Transports
                 Task clientTask = Task.Factory.StartNew(delegate
                 {
                     clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
-                });
+                }, TestContext.Current.CancellationToken);
 
                 Task serverTask = Task.Factory.StartNew(delegate
                 {
                     serverChannel = WaitUntilServerAcceptNoInit(s);
-                });
+                }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                Task.WaitAll(new Task[] { clientTask, serverTask });
+                Task.WaitAll(new Task[] { clientTask, serverTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 byte[] connectReq = { 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x26, 0x00, 0x3C, 0x00, 0x00, 0x0E, 0x00, 0x0A, 0x58,
@@ -4923,15 +4921,15 @@ namespace LSEG.Eta.Tests.Transports
                 Task clientTask = Task.Factory.StartNew(delegate
                 {
                     clientChannel = ConnectChannel(GetDefaultConnectOptions("14034"));
-                });
+                }, TestContext.Current.CancellationToken);
 
                 Task serverTask = Task.Factory.StartNew(delegate
                 {
                     serverChannel = WaitUntilServerAcceptNoInit(s);
-                });
+                }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                Task.WaitAll(new Task[] { clientTask, serverTask });
+                Task.WaitAll(new Task[] { clientTask, serverTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 byte[] connectMsg =
@@ -5899,17 +5897,17 @@ namespace LSEG.Eta.Tests.Transports
 						var ret = sc.Init(inProg, out error);
 						Assert.True(ret >= TransportReturnCode.SUCCESS);
 					}
-				});
+				}, TestContext.Current.CancellationToken);
 
 				Task connectTask = Task.Factory.StartNew(delegate
 				{
 					cc = ConnectChannel(conOpt);
 					Assert.NotNull(cc);
 					WaitUntilChannelActive(cc, inProgInfo);
-				});
+				}, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
+                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
                 Assert.NotNull(s);
 				Assert.NotNull(cc);
@@ -5998,17 +5996,17 @@ namespace LSEG.Eta.Tests.Transports
 						var ret = sc.Init(inProg, out error);
 						Assert.True(ret >= TransportReturnCode.SUCCESS);
 					}
-				});
+				}, TestContext.Current.CancellationToken);
 
 				Task connectTask = Task.Factory.StartNew(delegate
 				{
 					cc = ConnectChannel(conOpt);
 					Assert.NotNull(cc);
 					WaitUntilChannelActive(cc, inProgInfo);
-				});
+				}, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000);
+                Task.WaitAll(new Task[2] { acceptTask, connectTask }, 5000, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
                 Assert.NotNull(s);
 				Assert.NotNull(cc);

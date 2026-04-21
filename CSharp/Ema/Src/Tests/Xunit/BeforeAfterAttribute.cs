@@ -10,7 +10,7 @@ using AspectInjector.Broker;
 using LSEG.Eta.Tests.Xunit;
 using System;
 using System.Reflection;
-using Xunit.Sdk;
+using Xunit.v3;
 
 namespace LSEG.Ema.Access.Tests.Xunit;
 
@@ -20,7 +20,7 @@ public class BeforeAfterAttribute : BeforeAfterTestAttribute
     private IDisposable? clearEtaPoolSection;
     private ExceptionDiscoverer? exceptionDiscoverer;
 
-    public override void Before(MethodInfo _)
+    public override void Before(MethodInfo methodUnderTest, IXunitTest test)
     {
         EtaObjectGlobalPool.Instance.m_objectPoolTracker.Enabled = false;
         clearEtaPoolSection = EtaGlobalPoolTestUtil.CreateClearableSection();
@@ -28,7 +28,7 @@ public class BeforeAfterAttribute : BeforeAfterTestAttribute
         exceptionDiscoverer = new ExceptionDiscoverer(exceptionThread => exceptionThread != testRunnerThreadId);
     }
 
-    public override void After(MethodInfo _)
+    public override void After(MethodInfo methodUnderTest, IXunitTest test)
     {
         clearEtaPoolSection?.Dispose();
         EtaGlobalPoolTestUtil.CheckPoolSizes();

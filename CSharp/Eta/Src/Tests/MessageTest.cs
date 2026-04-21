@@ -9,8 +9,8 @@
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
 using LSEG.Eta.Rdm;
-using Xunit;
-using Xunit.Categories;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
 
 namespace LSEG.Eta.Tests.Transports
 {

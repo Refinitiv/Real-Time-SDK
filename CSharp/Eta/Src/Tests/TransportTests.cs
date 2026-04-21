@@ -10,10 +10,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
-
 using LSEG.Eta.Internal;
 using LSEG.Eta.Internal.Interfaces;
 using System.Text;
@@ -285,7 +281,7 @@ namespace LSEG.Eta.Tests.Transports
             taskA.Start();
             Thread.Sleep(250);
             taskB.Start();
-            Task.WaitAll(taskA, taskB);
+            Task.WaitAll(new Task[] { taskA, taskB }, TestContext.Current.CancellationToken);
             Assert.Equal(TransportReturnCode.INIT_NOT_INITIALIZED, Transport.Uninitialize());
         }
 
@@ -323,7 +319,7 @@ namespace LSEG.Eta.Tests.Transports
             taskA.Start();
             Thread.Sleep(500);
             taskB.Start();
-            Task.WaitAll(taskA, taskB);
+            Task.WaitAll(new Task[] { taskA, taskB }, TestContext.Current.CancellationToken);
             Assert.Equal(TransportReturnCode.INIT_NOT_INITIALIZED, Transport.Uninitialize());
         }
 
@@ -484,7 +480,7 @@ namespace LSEG.Eta.Tests.Transports
             Assert.Null(error);
             mockChannel.GetNetworkBuffer().Flip();
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -526,7 +522,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("ABCDEFGHIJKL123456789");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -580,7 +576,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("ABCDEFGHIJKL123456789");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -646,7 +642,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("ABCDEF");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -665,7 +661,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray2 = Encoding.ASCII.GetBytes("123456789");
 
-            TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer2 = new TransportBuffer(new ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
             int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
@@ -705,7 +701,7 @@ namespace LSEG.Eta.Tests.Transports
             Assert.Equal(ripcMsgLength + ripcMsgLength2, mockChannel.GetNetworkBuffer().Limit);
             Assert.Equal(expectedBuffer.Data.Limit + expectedBuffer2.Data.Limit, mockChannel.GetNetworkBuffer().Limit);
 
-            TransportBuffer totalExpectedBuffers = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, false);
+            TransportBuffer totalExpectedBuffers = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, false);
             totalExpectedBuffers.Data.Put(expectedBuffer.Data).Put(expectedBuffer2.Data);
 
             Assert.True(totalExpectedBuffers.Data.Equals(mockChannel.GetNetworkBuffer()));
@@ -737,7 +733,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("LOW");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -756,7 +752,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray2 = Encoding.ASCII.GetBytes("MEDIUM");
 
-            TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer2 = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
             int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
@@ -775,7 +771,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray3 = Encoding.ASCII.GetBytes("HIGH");
 
-            TransportBuffer expectedBuffer3 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer3 = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer3.Data.Put(dataByteArray3);
 
             int ripcMsgLength3 = expectedBuffer3.Length() + RipcDataMessage.HeaderSize;
@@ -810,7 +806,7 @@ namespace LSEG.Eta.Tests.Transports
             Assert.Equal(ripcMsgLength + ripcMsgLength2 + ripcMsgLength3, mockChannel.GetNetworkBuffer().Limit);
             Assert.Equal(expectedBuffer.Data.Limit + expectedBuffer2.Data.Limit + expectedBuffer3.Data.Limit, mockChannel.GetNetworkBuffer().Limit);
 
-            TransportBuffer totalExpectedBuffers = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, false);
+            TransportBuffer totalExpectedBuffers = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, false);
             totalExpectedBuffers.Data.Put(expectedBuffer3.Data).Put(expectedBuffer2.Data).Put(expectedBuffer.Data);
 
             Assert.True(totalExpectedBuffers.Data.Equals(mockChannel.GetNetworkBuffer()));
@@ -842,7 +838,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("LOW");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -861,7 +857,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray2 = Encoding.ASCII.GetBytes("MEDIUM");
 
-            TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer2 = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
             int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
@@ -880,7 +876,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray3 = Encoding.ASCII.GetBytes("HIGH");
 
-            TransportBuffer expectedBuffer3 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer3 = new TransportBuffer(new ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer3.Data.Put(dataByteArray3);
 
             int ripcMsgLength3 = expectedBuffer3.Length() + RipcDataMessage.HeaderSize;
@@ -915,7 +911,7 @@ namespace LSEG.Eta.Tests.Transports
             Assert.Equal(ripcMsgLength + ripcMsgLength2 + ripcMsgLength3, mockChannel.GetNetworkBuffer().Limit);
             Assert.Equal(expectedBuffer.Data.Limit + expectedBuffer2.Data.Limit + expectedBuffer3.Data.Limit, mockChannel.GetNetworkBuffer().Limit);
 
-            TransportBuffer totalExpectedBuffers = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, false);
+            TransportBuffer totalExpectedBuffers = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, false);
             totalExpectedBuffers.Data.Put(expectedBuffer.Data).Put(expectedBuffer2.Data).Put(expectedBuffer3.Data);
 
             Assert.True(totalExpectedBuffers.Data.Equals(mockChannel.GetNetworkBuffer()));
@@ -946,7 +942,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray = Encoding.ASCII.GetBytes("ABCDEF");
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -965,7 +961,7 @@ namespace LSEG.Eta.Tests.Transports
 
             byte[] dataByteArray2 = Encoding.ASCII.GetBytes("123456789");
 
-            TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer2 = new TransportBuffer(new ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
             int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
@@ -995,7 +991,7 @@ namespace LSEG.Eta.Tests.Transports
             Assert.Equal(ripcMsgLength + ripcMsgLength2, mockChannel.GetNetworkBuffer().Limit);
             Assert.Equal(expectedBuffer.Data.Limit + expectedBuffer2.Data.Limit, mockChannel.GetNetworkBuffer().Limit);
 
-            TransportBuffer totalExpectedBuffers = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, false);
+            TransportBuffer totalExpectedBuffers = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, false);
             totalExpectedBuffers.Data.Put(expectedBuffer.Data).Put(expectedBuffer2.Data);
 
             Assert.True(totalExpectedBuffers.Data.Equals(mockChannel.GetNetworkBuffer()));
@@ -1050,7 +1046,7 @@ namespace LSEG.Eta.Tests.Transports
 
             mockChannel.GetNetworkBuffer().Flip();
 
-            TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
+            TransportBuffer expectedBuffer = new TransportBuffer(new ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
             int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
@@ -1366,11 +1362,11 @@ namespace LSEG.Eta.Tests.Transports
             IChannel srvChannel = null;
             IChannel channel = null;
 
-            Task acceptTask = Task.Factory.StartNew(() => { srvChannel = acceptChannel(server); });
-            Task connectTask = Task.Factory.StartNew(() => { channel = connectChannel(); });
+            Task acceptTask = Task.Factory.StartNew(() => { srvChannel = acceptChannel(server); }, TestContext.Current.CancellationToken);
+            Task connectTask = Task.Factory.StartNew(() => { channel = connectChannel(); }, TestContext.Current.CancellationToken);
 
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            Task.WaitAll(new[] { acceptTask, connectTask });
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.NotNull(srvChannel);

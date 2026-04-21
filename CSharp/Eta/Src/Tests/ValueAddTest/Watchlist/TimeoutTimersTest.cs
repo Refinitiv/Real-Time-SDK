@@ -9,10 +9,6 @@
 using System;
 using System.Threading;
 
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Categories;
-
 using LSEG.Eta.ValueAdd.Reactor;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist;

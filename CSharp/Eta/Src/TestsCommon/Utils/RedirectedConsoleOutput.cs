@@ -9,7 +9,7 @@
 using System;
 using System.IO;
 
-namespace LSEG.Eta.Tests.Utils
+namespace LSEG.Eta.Tests.Common.Utils
 {
     /// <summary>
     /// Temporary redirects console output to string and disables it after <see cref="Dispose"/>.

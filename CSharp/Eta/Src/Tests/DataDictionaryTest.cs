@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
-using Xunit;
-using Xunit.Categories;
 
 namespace LSEG.Eta.Tests.Transports
 {

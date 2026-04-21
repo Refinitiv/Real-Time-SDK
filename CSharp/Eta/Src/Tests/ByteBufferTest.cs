@@ -10,9 +10,6 @@ using System;
 using System.IO;
 using System.Net;
 
-using Xunit;
-using Xunit.Categories;
-
 using LSEG.Eta.Common;
 
 namespace LSGE.Eta.Tests.Codecs

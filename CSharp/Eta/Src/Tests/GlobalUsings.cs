@@ -6,8 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
+global using Xunit;
+global using LSEG.Eta.Tests.Common.Xunit.v3;
 global using static System.Environment;
-global using static LSEG.Eta.Tests.Xunit.CollectionAssertUtil;
-global using Thread = LSEG.Eta.Tests.Xunit.ThreadWithExceptionHandling;
-[assembly: LSEG.Eta.Tests.Xunit.CatchExceptionAspect]
+global using static LSEG.Eta.Tests.Common.Xunit.CollectionAssertUtil;
+global using Thread = LSEG.Eta.Tests.Common.Xunit.ThreadWithExceptionHandling;
+global using Buffer = LSEG.Eta.Codec.Buffer;
+global using Directory = LSEG.Eta.Rdm.Directory;
+[assembly: LSEG.Eta.Tests.Common.Xunit.CatchExceptionAspect]
 [assembly: LSEG.Eta.Tests.Xunit.BeforeAfter]

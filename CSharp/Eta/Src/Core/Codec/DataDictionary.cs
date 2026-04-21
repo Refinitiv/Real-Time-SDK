@@ -346,7 +346,7 @@ namespace LSEG.Eta.Codec
                 }
 
 
-
+                filename = Path.GetFullPath(filename);
                 if (!File.Exists(filename))
                 {
                     SetError(out error, "Can't open file: " + filename);
@@ -594,6 +594,7 @@ namespace LSEG.Eta.Codec
                     return CodecReturnCode.FAILURE;
                 }
 
+                filename = Path.GetFullPath(filename);
                 if (!File.Exists(filename))
                 {
                     SetError(out error, "Can't open file: " + filename);

@@ -9,7 +9,7 @@
 using AspectInjector.Broker;
 using System.Diagnostics;
 using System.Reflection;
-using Xunit.Sdk;
+using Xunit.v3;
 
 namespace LSEG.Eta.Tests.Xunit;
 
@@ -19,13 +19,13 @@ public class BeforeAfterAttribute : BeforeAfterTestAttribute
     private ExceptionDiscoverer exceptionDiscoverer;
 
     [DebuggerHidden]
-    public override void Before(MethodInfo _)
+    public override void Before(MethodInfo methodUnderTest, IXunitTest test)
     {
         var testRunnerThreadId = Thread.CurrentThread.ManagedThreadId;
         exceptionDiscoverer = new ExceptionDiscoverer(exceptionThread => exceptionThread != testRunnerThreadId);
     }
 
-    public override void After(MethodInfo _)
+    public override void After(MethodInfo methodUnderTest, IXunitTest test)
     {
         try
         {

@@ -10,9 +10,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Xunit;
-using Xunit.Categories;
-
 using LSEG.Eta.Common;
 
 namespace LSEG.Eta.Tests.Transports
@@ -57,7 +54,7 @@ namespace LSEG.Eta.Tests.Transports
                     readers[i] = new Task(readerAction);
                     readers[i].Start();
                 }
-                Task.WaitAll(readers);
+                Task.WaitAll(readers, TestContext.Current.CancellationToken);
             }
             finally
             {
@@ -118,7 +115,7 @@ namespace LSEG.Eta.Tests.Transports
                 locker.Exit();
             }
 
-            Task.WaitAll(writers);
+            Task.WaitAll(writers, TestContext.Current.CancellationToken);
 
             Assert.Equal(0, writerCount);
         }
@@ -178,7 +175,7 @@ namespace LSEG.Eta.Tests.Transports
                 writeLocker.Exit();
             }
 
-            Task.WaitAll(readers);
+            Task.WaitAll(readers, TestContext.Current.CancellationToken);
             Assert.Equal(taskCount, readerCount);
 
             Assert.Equal(0, criticalCount);

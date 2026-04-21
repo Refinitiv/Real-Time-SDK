@@ -14,9 +14,8 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Threading;
-using Xunit.Abstractions;
 using DataDictionary = LSEG.Eta.Codec.DataDictionary;
-
+using static LSEG.Ema.Access.Tests.TestUtilities;
 
 namespace LSEG.Ema.Access.Tests
 {
@@ -26,15 +25,8 @@ namespace LSEG.Ema.Access.Tests
 
         private static void LoadDictionary()
         {
-            if (DataDictionary.LoadEnumTypeDictionary("../../../ComplexTypeTests/enumtype.def", out _) < 0)
-            {
-                Assert.Fail( "Unable to load enum dictionary.");
-            }
-
-            if (DataDictionary.LoadFieldDictionary("../../../ComplexTypeTests/RDMFieldDictionary", out _) < 0)
-            {
-                Assert.Fail( "Unable to load enum dictionary.");
-            }
+            LoadEnumTypeDictionary(DataDictionary);
+            LoadFieldDictionary(DataDictionary);
         }
 
         static PackedMsgTest()

@@ -24,8 +24,8 @@ internal class DictionaryHandler
     internal const string FIELD_DICTIONARY_NAME = "RWFFld";
     internal const string ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";
 
-    internal const string FIELD_DICTIONARY_FILENAME = "../../../ComplexTypeTests/RDMFieldDictionary";
-    internal const string ENUM_TABLE_FILENAME = "../../../ComplexTypeTests/enumtype.def";
+    internal const string FIELD_DICTIONARY_FILENAME = "RDMFieldDictionary";
+    internal const string ENUM_TABLE_FILENAME = "enumtype.def";
 
     private const int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
     private const int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192; // TODO: replace this value with 448000 when consumer issue with dictionary loading fixed.

@@ -10,8 +10,6 @@ using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
-using Xunit;
-using Xunit.Categories;
 using static LSEG.Eta.Rdm.Dictionary;
 
 namespace LSEG.Eta.Tests.ValueAddTest

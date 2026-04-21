@@ -8,21 +8,23 @@
 
 using System;
 using static LSEG.Ema.Access.EmaConfig;
+using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 
 namespace LSEG.Ema.Access.Tests.OmmConfigTests;
 
 public class XmlConfigParserTests
 {
     // this is the EmaConfig.xml in the CSharp/Ema directory, ensure that it passes validation
-    public const string EMA_DEFAULT_CONFIG = "../../../../../EmaConfig.xml";
+    public const string EMA_DEFAULT_CONFIG = "../../../../EmaConfig.xml";
 
-    public const string EMA_BLANK_CONFIG = "../../../OmmConfigTests/EmaBlankConfig.xml";
-    public const string EMA_INVALID_CONFIG = "../../../OmmConfigTests/EmaInvalidConfig.xml";
-    public const string EMA_MINIMAL_CONFIG = "../../../OmmConfigTests/EmaMinimalConfig.xml";
+    public const string EMA_BLANK_CONFIG = TEST_BLANK_CONFIG_FILE_PATH;
+    public const string EMA_INVALID_CONFIG = TEST_CONFIG_PATH + "/EmaInvalidConfig.xml";
+    public const string EMA_MINIMAL_CONFIG = TEST_CONFIG_PATH + "/EmaMinimalConfig.xml";
 
-    public const string MALFORMED_XML = "../../../OmmConfigTests/Malformed.xml";
+    public const string MALFORMED_XML = TEST_CONFIG_PATH + "/Malformed.xml";
 
-    public const string EMA_INCOMPLETE_CONFIG = "../../../OmmConfigTests/EmaIncompleteConfig.xml";
+    public const string EMA_INCOMPLETE_CONFIG = TEST_CONFIG_PATH + "/EmaIncompleteConfig.xml";
+
     [Theory]
     [InlineData(EMA_BLANK_CONFIG)]
     [InlineData(EMA_DEFAULT_CONFIG)]

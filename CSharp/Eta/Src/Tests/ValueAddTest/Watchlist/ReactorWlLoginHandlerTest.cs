@@ -9,10 +9,6 @@
 using System;
 using System.Threading;
 
-using Xunit;
-using Xunit.Categories;
-using Xunit.Abstractions;
-
 using LSEG.Eta.Codec;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
