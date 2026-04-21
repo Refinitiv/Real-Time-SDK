@@ -1167,6 +1167,7 @@
                                 <xs:simpleType>
                                   <xs:restriction base="xs:string">
                                     <xs:enumeration value="EncryptedProtocolType::RSSL_SOCKET" />
+                                    <xs:enumeration value="EncryptedProtocolType::RSSL_HTTP" />
                                     <xs:enumeration value="EncryptedProtocolType::RSSL_WEBSOCKET" />
                                   </xs:restriction>
                                 </xs:simpleType>
