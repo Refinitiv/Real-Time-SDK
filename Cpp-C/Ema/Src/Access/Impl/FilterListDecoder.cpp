@@ -240,8 +240,8 @@ bool FilterListDecoder::getNextData()
 								&_decodeIter, &_rsslFilterEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFilterEntry.encData ); 
-		return false;
+		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFilterEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFilterEntry.encData ); 
 		return false;
@@ -279,8 +279,8 @@ bool FilterListDecoder::getNextData( UInt8 id )
 								&_decodeIter, &_rsslFilterEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFilterEntry.encData ); 
-		return false;
+		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFilterEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFilterEntry.encData ); 
 		return false;

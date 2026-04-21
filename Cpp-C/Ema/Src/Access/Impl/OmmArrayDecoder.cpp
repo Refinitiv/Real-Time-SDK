@@ -319,8 +319,8 @@ bool OmmArrayDecoder::getNextData()
 		Decoder::setRsslData( &_load, _rsslArray.primitiveType, &_decodeIter, &_rsslEntryBuffer, 0, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslEntryBuffer ); 
-		return false;
+		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslEntryBuffer );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslEntryBuffer ); 
 		return false;

@@ -336,8 +336,8 @@ bool FieldListDecoder::getNextData()
 		_atEnd = true;
 		return true;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
-		return false;
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
 		return false;
@@ -385,8 +385,8 @@ bool FieldListDecoder::getNextData( Int16 fieldId )
 		_atEnd = true;
 		return true;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
-		return false;
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
 		return false;
@@ -443,8 +443,8 @@ bool FieldListDecoder::getNextData( const EmaString& name )
 		_atEnd = true;
 		return true;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
-		return false;
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
 		return false;
@@ -511,8 +511,8 @@ bool FieldListDecoder::getNextData( const EmaVector< Int16 >& intList )
 		_atEnd = true;
 		return true;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
-		return false;
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
 		return false;
@@ -585,8 +585,8 @@ bool FieldListDecoder::getNextData( const EmaVector< EmaString >& stringList )
 		_atEnd = true;
 		return true;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
-		return false;
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslFieldEntry.encData );
+		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslFieldEntry.encData ); 
 		return false;

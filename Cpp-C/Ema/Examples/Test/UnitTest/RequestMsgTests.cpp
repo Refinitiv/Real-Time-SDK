@@ -1424,3 +1424,36 @@ TEST(RequestMsgTests, testRequestMsgClone_MoveAssign)
 
 	EXPECT_TRUE(encoder.check_afterClone(cloneReqMsg)) << "ReqMsg Clone Success";
 }
+
+TEST(RequestMsgTests, testBrokenRequestMsgDecode)
+{
+	char msgDump[] =
+		"\x00\x07\x02\x00\x01\x00\x00\x80\x01\x0a\x02\x0a"
+		"\x09\xe3\x0a\x0a\x0a\x0a\x0a\x00\x46\x00\x00\x02"
+		"\x47\x00\x00\x00\x01\x00\x80\x01\x00\x00\x00"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; // padding
+	unsigned int msgDump_len = 35;
+
+	RsslDecodeIterator dIter;
+	RsslMsg msg;
+
+	RsslBuffer rsslBuf = { static_cast<rtrUInt32>(msgDump_len), msgDump };
+
+	// this is buffer used to store information from decoded message
+	char memoryBufChar[4 * 1024] = { 0 };
+	RsslBuffer memoryBuf = { sizeof(memoryBufChar), memoryBufChar };
+
+	rsslClearDecodeIterator(&dIter);
+	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	rsslSetDecodeIteratorBuffer(&dIter, &rsslBuf);
+
+	rsslClearMsg(&msg);
+
+	EXPECT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&dIter, &msg));
+
+	RefreshMsg respMsg;
+
+	StaticDecoder::setRsslData(&respMsg, &msg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, nullptr);
+
+	EXPECT_TRUE(respMsg.toString().length() > 0);
+}
