@@ -36,7 +36,9 @@ public class TransportPerfConfig
                                                             // Messages cannot be sent in this mode
     
     private static int          _connectionType;            // Type of connection
-    private static String       _connectionTypeString;      
+    private static String       _connectionTypeString;
+    private static int          _encryptedConnectionType;
+    private static String       _encryptedConnectionTypeString;
     private static String       _portNo;                    // Port number
     private static String       _interfaceName;             // Network interface to bind to
     private static boolean      _tcpNoDelay;                // TCP_NODELAY option for socket
@@ -80,6 +82,7 @@ public class TransportPerfConfig
     private static String       _keystorePasswd;            // security keystore password
 
     private static String       _securityProvider;
+    private static String       _securityProtocolVersions;
 
     static
     {
@@ -104,7 +107,8 @@ public class TransportPerfConfig
         CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
         CommandLine.addOption("noDisplayStats", false, "Stop printout of stats to screen");
         CommandLine.addOption("threads", 1, "Number of transport threads to create");
-        CommandLine.addOption("connType", "socket", "Type of connection(\"socket\", \"websocket\", \"http (client only)\", \"encrypted (client only)\", \"reliableMCast\", \"shmem\", \" seqMCast\")");
+        CommandLine.addOption("connType", "socket", "Type of connection(\"socket\", \"websocket\", \"encrypted\", \"http (client only)\", \"reliableMCast\", \"shmem\", \"seqMCast\")");
+        CommandLine.addOption("encryptedConnType", "socket", "Specifies the encrypted connection type (\"socket\", \"http\", \"websocket\"");
         CommandLine.addOption("reflectMsgs", false, "Reflect received messages back, rather than generating our own");
         CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in BindOptions/ConnectOptions)");
         CommandLine.addOption("maxFragmentSize", 6144, " Max size of buffers(configures maxFragmentSize in BindOptions/ConnectOptions)");
@@ -134,9 +138,10 @@ public class TransportPerfConfig
         CommandLine.addOption("ppasswd", "", "Password on proxy server");
         CommandLine.addOption("pdomain", "", "Proxy domain");
         CommandLine.addOption("krbfile", "C:\\Kerberos\\krb5.conf", "proxyKRBConfigFile");
-        CommandLine.addOption("keyfile", "C:\\Certificates\\internet.jks", "keystoreFile");
+        CommandLine.addOption("keyfile", "", "keystoreFile (required for encrypted connections)");
         CommandLine.addOption("keypasswd", "", "keystore password");
         CommandLine.addOption("securityProvider", "", "Specifies security provider, default is SunJSSE, also supports Conscrypt");
+        CommandLine.addOption("securityProtocolVersions", "", "Specifies TLS protocol versions (e.g., \"1.3,1.2\")");
         CommandLine.addOption("pl",  "",
                 "WebSocket sub-protocol list for requesting a protocol or listing only supported protocols respectively\n" +
                 "for client and server 'appType'. White-space or comma delinated list in order of preference\n" +
@@ -227,6 +232,33 @@ public class TransportPerfConfig
                 System.out.println(CommandLine.optionHelpString());
                 System.exit(-1);
             }
+            if (_connectionType == ConnectionTypes.ENCRYPTED)
+            {
+                _encryptedConnectionTypeString = CommandLine.value("encryptedConnType");
+                if (_encryptedConnectionTypeString == null)
+                {
+                    _encryptedConnectionType = ConnectionTypes.SOCKET;
+                }
+                else if (_encryptedConnectionTypeString.equals("socket"))
+                {
+                    _encryptedConnectionType = ConnectionTypes.SOCKET;
+                }
+                else if (_encryptedConnectionTypeString.equals("http"))
+                {
+                    _encryptedConnectionType = ConnectionTypes.HTTP;
+                }
+                else if (_encryptedConnectionTypeString.equals("websocket"))
+                {
+                    _encryptedConnectionType = ConnectionTypes.WEBSOCKET;
+                }
+                else
+                {
+                    _encryptedConnectionType = -1; // error
+                    System.out.println(CommandLine.optionHelpString());
+                    System.exit(-1);
+                }
+            }
+
             _appTypeString = CommandLine.value("appType");
             if (_appTypeString.equals("server"))
             {
@@ -313,12 +345,6 @@ public class TransportPerfConfig
             _portRoamRange = CommandLine.intValue("prr");
             
             _proxy = CommandLine.booleanValue("proxy");
-            if (_connectionType == ConnectionTypes.ENCRYPTED && !_proxy)
-            {
-                System.err.println("Config error: Requires Proxy connection when Encrypted or HTTP Connection.");
-                System.out.println(CommandLine.optionHelpString());
-                System.exit(-1);
-            }
             _proxyHost = CommandLine.value("ph");
             _proxyPort = CommandLine.intValue("pp");
             _proxyUserName = CommandLine.value("plogin");
@@ -328,6 +354,7 @@ public class TransportPerfConfig
             _keystoreFile = CommandLine.value("keyfile");
             _keystorePasswd = CommandLine.value("keypasswd");
             _securityProvider = CommandLine.value("securityProvider");
+            _securityProtocolVersions = CommandLine.value("securityProtocolVersions");
         }
         catch (NumberFormatException ile)
         {
@@ -491,6 +518,7 @@ public class TransportPerfConfig
                 "                Runtime: " + _runTime + " sec\n" +
                 "        Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
                 ((_connectionType == ConnectionTypes.RELIABLE_MCAST && _sAddr) ? multicastConfig() : unicastConfig()) + "\n" +
+                ((_connectionType == ConnectionTypes.ENCRYPTED) ? " Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnectionType) + "\n" : "") +
                 "    WebSocket protocols: " + (!_protocolList.isEmpty() ? _protocolList : "N/A") + "\n" +
                 "               App Type: " + (_appType == SERVER ? "server" : "client") + "\n" + 
                 "           Thread Count: " + _threadCount + "\n" +
@@ -518,7 +546,7 @@ public class TransportPerfConfig
                 "          Display Stats: " + (_displayStats ? "Yes" : "No") + "\n" + 
                 "                Packing: " + (TransportThreadConfig.totalBuffersPerPack() <= 1 ? "No" :  "Yes(" + TransportThreadConfig.totalBuffersPerPack() + " per pack)") + "\n";
 
-        if ( _connectionType == ConnectionTypes.ENCRYPTED || _connectionType == ConnectionTypes.HTTP)
+        if ( (_connectionType == ConnectionTypes.ENCRYPTED && _encryptedConnectionType == ConnectionTypes.HTTP)|| _connectionType == ConnectionTypes.HTTP)
         {
              _configString  += tunnelingConfig();
         }
@@ -550,7 +578,7 @@ public class TransportPerfConfig
                         "           Proxy Domain: " + _proxyDomain + "\n" + 
                         "     ProxyKRBConfigFile: " + _proxyKRBConfigFile  + "\n";
 
-            if ( _connectionType == ConnectionTypes.ENCRYPTED)
+            if ( _connectionType == ConnectionTypes.ENCRYPTED && _encryptedConnectionType == ConnectionTypes.HTTP)
             {
                 tunneling +=  "           KeyStoreFile: " + _keystoreFile + "\n" +
                               "       keyStorePassword: " + _keystorePasswd + "\n"; 
@@ -971,6 +999,14 @@ public class TransportPerfConfig
     {
         return _securityProvider;
     }
+
+    public static String[] securityProtocolVersions()
+    {
+        String[] returnVersions = null;
+        if (_securityProtocolVersions != null && !_securityProtocolVersions.isEmpty())
+            returnVersions = _securityProtocolVersions.split("[,\\s]+");
+        return returnVersions;
+    }
     /**
      *  Converts configuration parameters to a string.
      *
@@ -981,4 +1017,11 @@ public class TransportPerfConfig
         return _configString;
     }
 
+    /**
+     * Type of encrypted connection, if using encrypted connection.
+     * @return the int
+     */
+    public static int encryptionType() {
+        return _encryptedConnectionType;
+    }
 }

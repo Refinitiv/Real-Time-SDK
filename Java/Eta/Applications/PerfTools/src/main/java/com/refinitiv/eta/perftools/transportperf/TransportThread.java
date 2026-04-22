@@ -554,9 +554,15 @@ public class TransportThread extends Thread
             _copts.channelWriteLocking(true);
         }
                         
-        if (TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED)          
+        if (TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED && TransportPerfConfig.encryptionType() != ConnectionTypes.HTTP)
         {          
-            _copts.tunnelingInfo().tunnelingType("encrypted");
+            _copts.tunnelingInfo().tunnelingType("None");
+            setEncryptedConfiguration(_copts);
+        }
+        else if (TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+            _copts.tunnelingInfo().tunnelingType("http");
+            setHTTPconfiguration(_copts);
             setEncryptedConfiguration(_copts);
         }
         else if (TransportPerfConfig.connectionType() == ConnectionTypes.HTTP)
@@ -579,14 +585,26 @@ public class TransportThread extends Thread
         return chnl;
     }
     
+    private static final String[] DEFAULT_TLS_VERSIONS = {"1.3", "1.2"};
+
     private void setEncryptedConfiguration(ConnectOptions options)
     {
         setHTTPconfiguration(options); 
+        options.encryptionOptions().connectionType(TransportPerfConfig.encryptionType());
         options.encryptionOptions().KeystoreFile(TransportPerfConfig.keystoreFile());
         options.encryptionOptions().KeystorePasswd(TransportPerfConfig.kestorePassword());
+        options.encryptionOptions().KeystoreType("JKS");
+        options.encryptionOptions().SecurityProtocol("TLS");
+        options.encryptionOptions().KeyManagerAlgorithm("SunX509");
+        options.encryptionOptions().TrustManagerAlgorithm("");
         String securityProvider = TransportPerfConfig.securityProvider();
         if(securityProvider != null && !securityProvider.isEmpty())
             options.encryptionOptions().SecurityProvider(securityProvider);
+        String[] securityProtocolVersions = TransportPerfConfig.securityProtocolVersions();
+        if (securityProtocolVersions != null)
+            options.encryptionOptions().SecurityProtocolVersions(securityProtocolVersions);
+        else
+            options.encryptionOptions().SecurityProtocolVersions(DEFAULT_TLS_VERSIONS);
     }
 
     private void setHTTPconfiguration(ConnectOptions options)

@@ -159,11 +159,10 @@ public class TransportPerf implements ShutdownCallback
         System.out.println(TransportPerfConfig.configString());
 
         if (TransportPerfConfig.appType() == TransportPerfConfig.SERVER && 
-                (TransportPerfConfig.connectionType() == ConnectionTypes.HTTP || 
-                TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED ||
+                (TransportPerfConfig.connectionType() == ConnectionTypes.HTTP ||
                 TransportPerfConfig.connectionType() == ConnectionTypes.SEQUENCED_MCAST))
         {
-            System.out.printf("Error: Does not support http, encrypted, or sequenced multicast connectionType while running as server.");
+            System.out.printf("Error: Does not support http or sequenced multicast connectionType while running as server.");
             System.exit(-1);            
         }
                                 
@@ -678,6 +677,21 @@ public class TransportPerf implements ShutdownCallback
         sopts.protocolType(TransportThread.TEST_PROTOCOL_TYPE);
         sopts.tcpOpts().tcpNoDelay(TransportPerfConfig.tcpNoDelay());
         sopts.connectionType(TransportPerfConfig.connectionType());
+
+        if(TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+            sopts.encryptionOptions().keystoreFile(TransportPerfConfig.keystoreFile());
+            sopts.encryptionOptions().keystorePasswd(TransportPerfConfig.kestorePassword());
+            String securityProvider = TransportPerfConfig.securityProvider();
+            if(securityProvider != null && !securityProvider.isEmpty())
+                sopts.encryptionOptions().securityProvider(securityProvider);
+            String[] securityProtocolVersions = TransportPerfConfig.securityProtocolVersions();
+            if (securityProtocolVersions != null)
+                sopts.encryptionOptions().securityProtocolVersions(securityProtocolVersions);
+            else
+                sopts.encryptionOptions().securityProtocolVersions(new String[] {"1.3", "1.2"});
+        }
+
         sopts.maxFragmentSize(TransportPerfConfig.maxFragmentSize());
         sopts.compressionType(TransportPerfConfig.compressionType());
         sopts.compressionLevel(TransportPerfConfig.compressionLevel());
