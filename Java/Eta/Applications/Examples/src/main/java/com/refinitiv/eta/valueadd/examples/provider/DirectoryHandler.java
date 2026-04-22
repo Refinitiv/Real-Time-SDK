@@ -33,6 +33,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -130,6 +131,7 @@ class DirectoryHandler
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
@@ -143,12 +145,13 @@ class DirectoryHandler
         ret = _directoryStatus.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("DirectoryStatus.encode failed");
             return ret;
         }
 
         // send close status
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -164,14 +167,16 @@ class DirectoryHandler
             int ret = encodeRequestReject(chnl, streamId, reason, msgBuf, errorInfo);
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
             }
 
             // send request reject status 
-            return chnl.submit(msgBuf, _submitOptions, errorInfo);
+            return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
         }
         else
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("Channel.getBuffer(): Failed " + errorInfo.error().text());
             return CodecReturnCodes.FAILURE;
         }
@@ -433,6 +438,7 @@ class DirectoryHandler
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
@@ -440,12 +446,13 @@ class DirectoryHandler
         ret = _directoryRefresh.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("DirectoryRefresh.encode() failed");
             return ret;
         }
 
         // send source directory request
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*

@@ -192,6 +192,19 @@ public class ChannelSession
             return null;
         return channel.getBuffer(size, packedBuffer, error);
     }
+    
+    /**
+     * Returns the unused TransportBuffer to channel.
+     * @param msgBuf - TransportBuffer to return to channel.
+     * @param error ETA error information in case of failure.
+     * @return {@link TransportReturnCodes}
+     */
+    public int releaseBuffer(TransportBuffer msgBuf, Error error)
+    {
+    	if (channel == null)
+    		return TransportReturnCodes.FAILURE;
+    	return channel.releaseBuffer(msgBuf, error);
+    }
 
     /**
      * Retrieves the {@link ConnectOptions} .

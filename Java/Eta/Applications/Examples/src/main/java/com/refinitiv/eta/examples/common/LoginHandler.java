@@ -241,6 +241,7 @@ public class LoginHandler
         int ret = loginRequest.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("Encoding of login request failed: <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -250,35 +251,36 @@ public class LoginHandler
 
     /**
      * Sends RTT message to a channel if RTT feature had been enabled.
-     * @param channelSession The channel to send a login request to
+     * @param chnl The channel to send a login request to
      * @param error the error
      * @return Returns success if send login RTT succeeds or failure if it
      * fails.
      */
-    public int sendRttMessage(ChannelSession channelSession, Error error) {
+    public int sendRttMessage(ChannelSession chnl, Error error) {
         if (!enableRtt) { //ignore sending the RTT message.
             return TransportReturnCodes.SUCCESS;
         }
 
-        Channel channel = channelSession.channel();
-        TransportBuffer transportBuffer = channelSession
+        Channel channel = chnl.channel();
+        TransportBuffer msgBuf = chnl
                 .getTransportBuffer(TRANSPORT_BUFFER_SIZE_RTT, false, error);
-        if (Objects.isNull(transportBuffer)) {
+        if (Objects.isNull(msgBuf)) {
             return CodecReturnCodes.FAILURE;
         }
 
         encIter.clear();
-        encIter.setBufferAndRWFVersion(transportBuffer, channel.majorVersion(), channel.minorVersion());
+        encIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
 
         int ret = loginRtt.encode(encIter);
         if (!Objects.equals(CodecReturnCodes.SUCCESS, ret)) {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("Encoding of login RTT failed: <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
 
-        ret = channelSession.write(transportBuffer, error);
+        ret = chnl.write(msgBuf, error);
         if (Objects.equals(TransportReturnCodes.SUCCESS, ret)) {
-            logRttMessageSending(channelSession.socketFdValue());
+            logRttMessageSending(chnl.socketFdValue());
         }
         return ret;
     }
@@ -310,6 +312,7 @@ public class LoginHandler
         int ret = loginClose.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("Encoding of login close failed: <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }

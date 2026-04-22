@@ -140,6 +140,7 @@ public class DirectoryHandler implements ServiceNameIdConverter
         int ret = directoryRequest.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeDirectoryRequest(): Failed <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -316,6 +317,7 @@ public class DirectoryHandler implements ServiceNameIdConverter
         int ret = directoryClose.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeSourceDirectoryClose(): Failed <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }

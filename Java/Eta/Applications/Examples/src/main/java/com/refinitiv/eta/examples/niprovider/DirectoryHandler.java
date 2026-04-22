@@ -286,6 +286,7 @@ public class DirectoryHandler
         int ret = directoryRefresh.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeDirectoryRefresh(): Failed <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -320,6 +321,7 @@ public class DirectoryHandler
         int ret = directoryClose.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeSourceDirectoryClose(): Failed <" + CodecReturnCodes.toString(ret)
                     + ">");
             return ret;

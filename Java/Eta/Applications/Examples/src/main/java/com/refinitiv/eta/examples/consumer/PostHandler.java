@@ -214,7 +214,7 @@ public class PostHandler
      * This method only sends one post message, however it is called
      * periodically over a time increment by the handlePosts method
      */
-    private int sendOnstreamPostMsg(ChannelSession chnlSession, boolean postWithMsg, Error error)
+    private int sendOnstreamPostMsg(ChannelSession chnl, boolean postWithMsg, Error error)
     {
         if (streamId == 0)
         {
@@ -224,7 +224,7 @@ public class PostHandler
         }
 
         // get a buffer for the item request
-        TransportBuffer msgBuf = chnlSession.getTransportBuffer(TRANSPORT_BUFFER_SIZE_MSG_POST, false, error);
+        TransportBuffer msgBuf = chnl.getTransportBuffer(TRANSPORT_BUFFER_SIZE_MSG_POST, false, error);
         if (msgBuf == null)
             return CodecReturnCodes.FAILURE;
 
@@ -232,21 +232,23 @@ public class PostHandler
         if (postWithMsg == true)
         {
 
-            if ((ret = encodePostWithMsg(chnlSession, msgBuf)) != CodecReturnCodes.SUCCESS)
+            if ((ret = encodePostWithMsg(chnl, msgBuf)) != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, error);
                 return ret;
             }
         }
         else
         {
-            if ((ret = encodePostWithData(chnlSession, msgBuf)) != CodecReturnCodes.SUCCESS)
+            if ((ret = encodePostWithData(chnl, msgBuf)) != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, error);
                 return ret;
             }
         }
 
         // send post message
-        return chnlSession.write(msgBuf, error);
+        return chnl.write(msgBuf, error);
     }
 
     /**
@@ -255,19 +257,22 @@ public class PostHandler
      * This method only sends one post message, however it is called
      * periodically over a time increment by the handlePosts method
      */
-    private int sendOffstreamPostMsg(ChannelSession chnlSession, boolean postWithMsg, Error error)
+    private int sendOffstreamPostMsg(ChannelSession chnl, boolean postWithMsg, Error error)
     {
         // get a buffer for the item request
-        TransportBuffer msgBuf = chnlSession.getTransportBuffer(TRANSPORT_BUFFER_SIZE_DATA_POST, false, error);
+        TransportBuffer msgBuf = chnl.getTransportBuffer(TRANSPORT_BUFFER_SIZE_DATA_POST, false, error);
         if (msgBuf == null)
             return CodecReturnCodes.FAILURE;
 
-        int ret = encodePostWithMsg(chnlSession, msgBuf);
+        int ret = encodePostWithMsg(chnl, msgBuf);
         if (ret != CodecReturnCodes.SUCCESS)
+        {
+        	chnl.releaseBuffer(msgBuf, error);
             return ret;
+        }
 
         // send post message
-        ret = chnlSession.write(msgBuf, error);
+        ret = chnl.write(msgBuf, error);
         if (ret != TransportReturnCodes.SUCCESS)
             return CodecReturnCodes.FAILURE;
 
@@ -584,18 +589,18 @@ public class PostHandler
     /**
      * This function encodes and sends an off-stream post close status message.
      *
-     * @param channelSession the channel session
+     * @param chnl the channel session
      * @param error the error
      * @return the int
      */
-    public int closeOffStreamPost(ChannelSession channelSession, Error error)
+    public int closeOffStreamPost(ChannelSession chnl, Error error)
     {
         // first check if we have sent offstream posts
         if (!offstreamPostSent)
             return CodecReturnCodes.SUCCESS;
 
         // get a buffer for the item request
-        TransportBuffer msgBuf = channelSession.getTransportBuffer(TRANSPORT_BUFFER_SIZE_MSG_POST, false, error);
+        TransportBuffer msgBuf = chnl.getTransportBuffer(TRANSPORT_BUFFER_SIZE_MSG_POST, false, error);
         if (msgBuf == null)
             return CodecReturnCodes.FAILURE;
 
@@ -637,6 +642,7 @@ public class PostHandler
         	}
         	catch (Exception e)
         	{
+        		chnl.releaseBuffer(msgBuf, error);
         		System.out.println("Populating postUserInfo failed. InetAddress.getLocalHost().getHostAddress exception: " + e.getLocalizedMessage());
         		return CodecReturnCodes.FAILURE;
         	}
@@ -654,9 +660,10 @@ public class PostHandler
 
         // encode post message
         encIter.clear();
-        int ret = encIter.setBufferAndRWFVersion(msgBuf, channelSession.channel().majorVersion(), channelSession.channel().minorVersion());
+        int ret = encIter.setBufferAndRWFVersion(msgBuf, chnl.channel().majorVersion(), chnl.channel().minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("Encoder.setBufferAndRWFVersion() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -664,6 +671,7 @@ public class PostHandler
         ret = postMsg.encodeInit(encIter, 0);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("PostMsg.encodeInit() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -672,6 +680,7 @@ public class PostHandler
         ret = statusMsg.encodeInit(encIter, 0);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("StatusMsg.encodeInit() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -680,6 +689,7 @@ public class PostHandler
         ret = statusMsg.encodeComplete(encIter, true);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("StatusMsg.encodeComplete() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -688,12 +698,13 @@ public class PostHandler
         ret = postMsg.encodeComplete(encIter, true);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("PostMsg.encodeComplete() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
 
         // send post message
-        return channelSession.write(msgBuf, error);
+        return chnl.write(msgBuf, error);
     }
 
     /**

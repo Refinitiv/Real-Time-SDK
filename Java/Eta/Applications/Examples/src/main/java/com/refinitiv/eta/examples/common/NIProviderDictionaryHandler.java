@@ -166,6 +166,7 @@ public class NIProviderDictionaryHandler
 		int ret = encodeIter.setBufferAndRWFVersion(msgBuf, chnl.channel().majorVersion(), chnl.channel().minorVersion());
 		if (ret != CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, error);
 			error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
 			return ret;
 		}
@@ -173,6 +174,7 @@ public class NIProviderDictionaryHandler
 		ret = dictionaryRequest.encode(encodeIter);
 		if (ret != CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, error);
 			error.text("encodeDictionaryRequest(): Failed <code: " + error.errorId() + ">");
 			return ret;
 		}
@@ -342,6 +344,7 @@ public class NIProviderDictionaryHandler
         int ret = dictionaryClose.encode(encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("encodeDictionaryClose(): Failed <code: " + CodecReturnCodes.toString(ret) + ">");
             return false;
         }

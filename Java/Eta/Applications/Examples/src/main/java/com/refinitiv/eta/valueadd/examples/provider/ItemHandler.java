@@ -70,6 +70,7 @@ import com.refinitiv.eta.valueadd.cache.CacheFactory;
 import com.refinitiv.eta.valueadd.cache.PayloadEntry;
 import com.refinitiv.eta.valueadd.examples.common.CacheHandler;
 import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -380,11 +381,12 @@ class ItemHandler
         ret = encodeBatchCloseStatus(chnl, msg.domainType(), msgBuf, msg.streamId(), dataState, errorInfo);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             return ret;
         }
 
         //send batch status close
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -505,10 +507,10 @@ class ItemHandler
     /*
      * Sends an item request reject status message.
      */
-    int sendItemRequestReject(ReactorChannel channel, int streamId, int domainType, ItemRejectReason reason, boolean isPrivateStream, ReactorErrorInfo errorInfo)
+    int sendItemRequestReject(ReactorChannel chnl, int streamId, int domainType, ItemRejectReason reason, boolean isPrivateStream, ReactorErrorInfo errorInfo)
     {
         //get a buffer for the item request reject status
-        TransportBuffer msgBuf = channel.getBuffer(REJECT_MSG_SIZE, false, errorInfo);
+        TransportBuffer msgBuf = chnl.getBuffer(REJECT_MSG_SIZE, false, errorInfo);
         if (msgBuf == null)
             return CodecReturnCodes.FAILURE;
 
@@ -579,9 +581,10 @@ class ItemHandler
         _encodeIter.clear();
         _marketPriceStatus.streamId(streamId);
         _marketPriceStatus.domainType(domainType);
-        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
@@ -589,13 +592,14 @@ class ItemHandler
         ret = _marketPriceStatus.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("MarketPriceStatus.encode() failed");
             return ret;
         }
 
         System.out.println("Rejecting Item Request with streamId=" + streamId + " and domain " + DomainTypes.toString(domainType) + ".  Reason: " + ItemRejectReason.toString(reason));
 
-        return channel.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -712,10 +716,10 @@ class ItemHandler
     /*
      * Sends an item close status message.
      */
-    private int sendCloseStatus(ReactorChannel channel, ItemRequestInfo itemReqInfo, ReactorErrorInfo errorInfo)
+    private int sendCloseStatus(ReactorChannel chnl, ItemRequestInfo itemReqInfo, ReactorErrorInfo errorInfo)
     {
         //get a buffer for the close status
-        TransportBuffer msgBuf = channel.getBuffer(1024, false, errorInfo);
+        TransportBuffer msgBuf = chnl.getBuffer(1024, false, errorInfo);
         if (msgBuf == null)
             return CodecReturnCodes.FAILURE;
 
@@ -731,9 +735,10 @@ class ItemHandler
         _marketPriceStatus.state().text().data("Stream closed for item: " + itemReqInfo.itemName());
 
         _encodeIter.clear();
-        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
@@ -741,11 +746,12 @@ class ItemHandler
         ret = _marketPriceStatus.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("MarketPriceStatus.encode() failed");
             return ret;
         }
 
-        return channel.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -868,9 +874,12 @@ class ItemHandler
 
             int ret = encodeAck(msgBuf, chnl, postMsg, nakCode, errText, errorInfo);
             if (ret != CodecReturnCodes.SUCCESS)
+            {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
+            }
 
-            return chnl.submit(msgBuf, _submitOptions, errorInfo);
+            return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
         }
 
         return CodecReturnCodes.SUCCESS;
@@ -1081,7 +1090,7 @@ class ItemHandler
             System.out.println("encodeSymbolListResponse() failed");
         }
 
-        if (reactorChannel.submit(msgBuf, _submitOptions, errorInfo) == TransportReturnCodes.FAILURE)
+        if (SendMessage.sendMessage(reactorChannel, msgBuf, _submitOptions, errorInfo) == TransportReturnCodes.FAILURE)
             System.out.println("Error writing message: " + _error.text());
     }
 
@@ -1131,6 +1140,7 @@ class ItemHandler
                 		_dictionaryHandler.dictionary(), errorInfo.error(), _cacheInfo, getPayloadEntry(itemReqInfo.itemInfo(), _cacheInfo));
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
+                	chnl.releaseBuffer(msgBuf, errorInfo);
                     return ret;
                 }
                 break;
@@ -1140,6 +1150,7 @@ class ItemHandler
                 		_dictionaryHandler.dictionary(), errorInfo.error(), _cacheInfo, getPayloadEntry(itemReqInfo.itemInfo(), _cacheInfo));
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
+                	chnl.releaseBuffer(msgBuf, errorInfo);
                     return ret;
                 }
                 break;
@@ -1154,6 +1165,7 @@ class ItemHandler
                                                                   SymbolListItems.SYMBOL_LIST_REFRESH, errorInfo.error());
                     if (ret != CodecReturnCodes.SUCCESS)
                     {
+                    	chnl.releaseBuffer(msgBuf, errorInfo);
                         return ret;
                     }
                 }
@@ -1165,11 +1177,12 @@ class ItemHandler
                 break;
             default:
                 errorInfo.error().text("Received unhandled domain " + itemReqInfo.domainType() + " for item ");
+                chnl.releaseBuffer(msgBuf, errorInfo);
                 return CodecReturnCodes.FAILURE;
         }
 
         //send item response
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -1203,11 +1216,12 @@ class ItemHandler
             		_dictionaryHandler.dictionary(), errorInfo.error(), _cacheInfo, cacheEntry);
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
             }
 
             //send item response
-            return chnl.submit(msgBuf, _submitOptions, errorInfo);
+            return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
         }
 
         return CodecReturnCodes.SUCCESS;
@@ -1235,12 +1249,17 @@ class ItemHandler
             	continue;
             }
             else if (ret != CodecReturnCodes.SUCCESS)
-                return ret;
+            {
+            	chnl.releaseBuffer(localMsgBuf, errorInfo);
+            	return ret;
+            }
 
             //send item response
-            ret = chnl.submit(localMsgBuf, _submitOptions, errorInfo);
+            ret = SendMessage.sendMessage(chnl, localMsgBuf, _submitOptions, errorInfo);
             if (ret != TransportReturnCodes.SUCCESS)
+            {
                 return ret;
+            }
             
             localMultiPartNo++;
     	}
@@ -1264,13 +1283,16 @@ class ItemHandler
 	            		_dictionaryHandler.dictionary(), i, errorInfo.error(), _cacheInfo, getPayloadEntry(itemReqInfo.itemInfo(), _cacheInfo));
 	            if (ret != CodecReturnCodes.SUCCESS)
 	            {
+	            	chnl.releaseBuffer(msgBuf, errorInfo);
 	                return ret;
 	            }
 	
 	            //send item response
-	            ret = chnl.submit(msgBuf, _submitOptions, errorInfo);
+	            ret = SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
 	            if (ret != TransportReturnCodes.SUCCESS)
+	            {
 	                return ret;
+	            }
 	        }
 	
 	        //send an update between each part of the refresh
@@ -1289,11 +1311,12 @@ class ItemHandler
 	            		_dictionaryHandler.dictionary(), errorInfo.error(), _cacheInfo, getPayloadEntry(itemReqInfo.itemInfo(), _cacheInfo));
 	            if (ret != CodecReturnCodes.SUCCESS)
 	            {
+	            	chnl.releaseBuffer(msgBuf, errorInfo);
 	                return ret;
 	            }
 	
 	            //send item response
-	            ret = chnl.submit(msgBuf, _submitOptions, errorInfo);
+	            ret = SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
 	            if (ret != TransportReturnCodes.SUCCESS)
 	            {
 	                return ret;
@@ -1560,8 +1583,7 @@ class ItemHandler
                         errorInfo.error().text("nestedMsg.encode() failed");
                         return CodecReturnCodes.FAILURE;
                     }
-
-                    ret = itemReqInfoL.reactorChannel().submit(sendBuf, _submitOptions, errorInfo);
+                    ret = SendMessage.sendMessage(itemReqInfoL.reactorChannel(), sendBuf, _submitOptions, errorInfo);
                     if (ret < TransportReturnCodes.SUCCESS)
                         return CodecReturnCodes.FAILURE;
 
@@ -1580,7 +1602,7 @@ class ItemHandler
                         return CodecReturnCodes.FAILURE;
                     }
 
-                    ret = itemReqInfoL.reactorChannel().submit(sendBuf, _submitOptions, errorInfo);
+                    ret = SendMessage.sendMessage(itemReqInfoL.reactorChannel(), sendBuf, _submitOptions, errorInfo);
                     if (ret < TransportReturnCodes.SUCCESS)
                         return CodecReturnCodes.FAILURE;
                 }

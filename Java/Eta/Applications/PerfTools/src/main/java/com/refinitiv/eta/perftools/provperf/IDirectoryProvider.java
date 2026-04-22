@@ -19,6 +19,7 @@ import com.refinitiv.eta.perftools.common.ChannelHandler;
 import com.refinitiv.eta.perftools.common.ClientChannelInfo;
 import com.refinitiv.eta.perftools.common.DirectoryProvider;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
+import com.refinitiv.eta.perftools.common.SendMessage;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.Error;
 import com.refinitiv.eta.transport.TransportBuffer;
@@ -206,6 +207,7 @@ public class IDirectoryProvider extends DirectoryProvider
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	reactorChannel.releaseBuffer(msgBuf, _errorInfo);
             error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             error.errorId(ret);
             return PerfToolsReturnCodes.FAILURE;
@@ -213,13 +215,14 @@ public class IDirectoryProvider extends DirectoryProvider
         ret = _directoryRefresh.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	reactorChannel.releaseBuffer(msgBuf, _errorInfo);
             error.text("DirectoryRefresh.encode() failed with return code: " + CodecReturnCodes.toString(ret));
             error.errorId(ret);
             return PerfToolsReturnCodes.FAILURE;
         }
 
         // send source directory refresh
-        return reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
+        return SendMessage.sendMessage(reactorChannel, msgBuf, _reactorSubmitOptions, _errorInfo);
     }
 
     /* Returns directoryRequest. */

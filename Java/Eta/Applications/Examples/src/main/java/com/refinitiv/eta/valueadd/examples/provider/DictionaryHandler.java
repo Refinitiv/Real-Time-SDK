@@ -29,6 +29,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefreshFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -206,6 +207,7 @@ class DictionaryHandler
             int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
                 return ret;
             }
@@ -220,12 +222,13 @@ class DictionaryHandler
             ret = _dictionaryStatus.encode(_encodeIter);
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 System.out.println("encodeDictionaryCloseStatus() failed with return code: " + ret);
                 return ret;
             }
 
             // send close status
-            return chnl.submit(msgBuf, _submitOptions, errorInfo);
+            return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
         }
         else
         {
@@ -247,11 +250,12 @@ class DictionaryHandler
             int ret = encodeDictionaryRequestReject(chnl, streamId, reason, msgBuf, errorInfo);
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
             }
 
             // send request reject status 
-            return chnl.submit(msgBuf, _submitOptions, errorInfo);
+            return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
         }
         else
         {
@@ -354,6 +358,7 @@ class DictionaryHandler
             int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
                 return ret;
             }
@@ -370,13 +375,16 @@ class DictionaryHandler
             ret = _dictionaryRefresh.encode(_encodeIter);
             if (ret < CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 errorInfo.error().text("DictionaryRefresh.encode() failed");
                 return ret;
             }
 
             // send dictionary response
-            if (chnl.submit(msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
+            if (SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
+            {
                 return CodecReturnCodes.FAILURE;
+            }
 
             // break out of loop when all dictionary responses sent
             if (ret == CodecReturnCodes.SUCCESS)
@@ -441,6 +449,7 @@ class DictionaryHandler
 	        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
 	        if (ret < CodecReturnCodes.SUCCESS)
 	        {
+	        	chnl.releaseBuffer(msgBuf, errorInfo);
 	            errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
 	            return ret;
 	        }
@@ -457,13 +466,16 @@ class DictionaryHandler
 	        ret = _dictionaryRefresh.encode(_encodeIter);
 	        if (ret < CodecReturnCodes.SUCCESS)
 	        {
+	        	chnl.releaseBuffer(msgBuf, errorInfo);
 	            errorInfo.error().text("DictionaryRefresh.encode() failed");
 	            return ret;
 	        }
 	
 	        // send dictionary response
-	        if (chnl.submit(msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
+	        if (SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
+	        {
 	            return CodecReturnCodes.FAILURE;
+	        }
 	        
             // break out of loop when all dictionary responses sent
             if (ret == CodecReturnCodes.SUCCESS)

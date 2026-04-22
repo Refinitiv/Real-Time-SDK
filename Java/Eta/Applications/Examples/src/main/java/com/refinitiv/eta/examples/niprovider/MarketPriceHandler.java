@@ -110,8 +110,10 @@ public class MarketPriceHandler
         int ret = closeMessage.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             System.out.println("encodeMarketPriceClose(): Failed <"
                         + CodecReturnCodes.toString(ret) + ">");
+            return ret;
         }
         return chnl.write(msgBuf, error);
     }
@@ -237,6 +239,7 @@ public class MarketPriceHandler
         int ret = marketPriceContent.encode(encIter);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("MarketPriceResponse.encode failed");
             error.errorId(ret);
             return ret;

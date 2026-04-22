@@ -44,6 +44,7 @@ import com.refinitiv.eta.codec.VectorEntry;
 import com.refinitiv.eta.codec.VectorEntryActions;
 import com.refinitiv.eta.valueadd.examples.common.CacheHandler;
 import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.examples.consumer.StreamIdWatchList.StreamIdKey;
 import com.refinitiv.eta.valueadd.examples.consumer.StreamIdWatchList.WatchListEntry;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -167,10 +168,12 @@ class YieldCurveHandler
 		int ret = closeMessage.encode(encIter);
 		if (ret < CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, errorInfo);
 			System.out.println("encodeYieldCurveClose(): Failed <"
 					+ CodecReturnCodes.toString(ret) + ">");
+			return ret;
 		}
-		return chnl.submit(msgBuf, submitOptions, errorInfo);
+		return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
 	}
 
 	private boolean hasYieldCurveCapability(List<Long> capabilities)
@@ -304,13 +307,14 @@ class YieldCurveHandler
 		int ret = yieldCurveRequest.encode(encIter);
 		if (ret < CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, errorInfo);
 			errorInfo.error().text("YieldCurveRequest.encode() failed");
 			errorInfo.error().errorId(ret);
 			return ret;
 		}
 
 		System.out.println(yieldCurveRequest.toString());
-		return chnl.submit(msgBuf, submitOptions, errorInfo);
+		return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
 	}
 
 	/*

@@ -43,6 +43,7 @@ import com.refinitiv.eta.codec.UInt;
 import com.refinitiv.eta.codec.UpdateMsg;
 import com.refinitiv.eta.valueadd.examples.common.CacheHandler;
 import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.examples.consumer.StreamIdWatchList.StreamIdKey;
 import com.refinitiv.eta.valueadd.examples.consumer.StreamIdWatchList.WatchListEntry;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -166,10 +167,12 @@ class MarketPriceHandler
         int ret = closeMessage.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("encodeMarketPriceClose(): Failed <" + CodecReturnCodes.toString(ret) + ">");
+            return ret;
         }
       
-		return chnl.submit(msgBuf, submitOptions, errorInfo);
+		return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     /*
@@ -327,13 +330,14 @@ class MarketPriceHandler
         int ret = marketPriceRequest.encode(encIter);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("MarketPriceRequest.encode() failed");
             errorInfo.error().errorId(ret);
             return ret;
         }
 
         System.out.println(marketPriceRequest.toString());
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     /*

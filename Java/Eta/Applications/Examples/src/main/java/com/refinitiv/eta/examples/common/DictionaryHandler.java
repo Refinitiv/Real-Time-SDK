@@ -240,6 +240,7 @@ public class DictionaryHandler
             int ret = dictionaryRequest.encode(encIter);
             if (ret != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, error);
                 error.text("encodeDictionaryRequest(): Failed <code: " + error.errorId() + ">");
                 return ret;
             }
@@ -409,6 +410,7 @@ public class DictionaryHandler
         int ret = dictionaryClose.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeDictionaryClose(): Failed <code: " + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }

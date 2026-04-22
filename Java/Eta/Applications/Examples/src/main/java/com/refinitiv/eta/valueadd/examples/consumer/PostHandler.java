@@ -41,6 +41,7 @@ import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.InstrumentNameTypes;
 import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -230,6 +231,7 @@ class PostHandler
 
             if ((ret = encodePostWithMsg(chnl, msgBuf)) != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
             }
         }
@@ -237,12 +239,13 @@ class PostHandler
         {
             if ((ret = encodePostWithData(chnl, msgBuf)) != CodecReturnCodes.SUCCESS)
             {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
             }
         }
 
         // send post message
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     /**
@@ -260,12 +263,17 @@ class PostHandler
 
         int ret = encodePostWithMsg(chnl, msgBuf);
         if (ret != CodecReturnCodes.SUCCESS)
+        {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             return ret;
+        }
 
         // send post message
-        ret = chnl.submit(msgBuf, submitOptions, errorInfo);
+        ret = SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
         if (ret != TransportReturnCodes.SUCCESS)
+        {
             return CodecReturnCodes.FAILURE;
+        }
 
         offstreamPostSent = true;
         return CodecReturnCodes.SUCCESS;
@@ -636,6 +644,7 @@ class PostHandler
         	}
         	catch (Exception e)
         	{
+        		chnl.releaseBuffer(msgBuf, errorInfo);
         		System.out.println("Populating postUserInfo failed. InetAddress.getLocalHost().getHostAddress exception: " + e.getLocalizedMessage());
         		return CodecReturnCodes.FAILURE;
         	}
@@ -656,6 +665,7 @@ class PostHandler
         int ret = encIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("Encoder.setBufferAndRWFVersion() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -663,6 +673,7 @@ class PostHandler
         ret = postMsg.encodeInit(encIter, 0);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("PostMsg.encodeInit() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -671,6 +682,7 @@ class PostHandler
         ret = statusMsg.encodeInit(encIter, 0);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("StatusMsg.encodeInit() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -679,6 +691,7 @@ class PostHandler
         ret = statusMsg.encodeComplete(encIter, true);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("StatusMsg.encodeComplete() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
@@ -687,12 +700,13 @@ class PostHandler
         ret = postMsg.encodeComplete(encIter, true);
         if (ret < CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("PostMsg.encodeComplete() failed:  <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
 
         // send post message
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     /*

@@ -34,6 +34,7 @@ import com.refinitiv.eta.shared.rdm.marketprice.MarketPriceClose;
 import com.refinitiv.eta.shared.rdm.symbollist.SymbolListRequest;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
@@ -159,10 +160,11 @@ class SymbolListHandler
         int ret = symbolListRequest.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             return ret;
         }
 
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     @SuppressWarnings("fallthrough")
@@ -283,10 +285,11 @@ class SymbolListHandler
         int ret = closeMessage.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("encodeSymbolListClose(): Failed <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
     private String mapEntryActionToString(int mapEntryAction)

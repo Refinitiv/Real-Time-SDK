@@ -170,8 +170,10 @@ public class YieldCurveHandler
 		int ret = closeMessage.encode(encIter);
 		if (ret < CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, error);
 			System.out.println("encodeYieldCurveClose(): Failed <"
 					+ CodecReturnCodes.toString(ret) + ">");
+			return ret;
 		}
 		return chnl.write(msgBuf, error);
 	}
@@ -319,6 +321,7 @@ public class YieldCurveHandler
 		int ret = yieldCurveRequest.encode(encIter);
 		if (ret < CodecReturnCodes.SUCCESS)
 		{
+			chnl.releaseBuffer(msgBuf, error);
 			error.text("YieldCurveRequest.encode() failed");
 			error.errorId(ret);
 			return ret;

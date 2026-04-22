@@ -22,6 +22,7 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.perftools.common.ChannelHandler;
 import com.refinitiv.eta.perftools.common.ClientChannelInfo;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
+import com.refinitiv.eta.perftools.common.SendMessage;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.*;
 import com.refinitiv.eta.transport.Error;
@@ -284,6 +285,7 @@ public class LoginProvider
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	reactorChannel.releaseBuffer(msgBuf, _errorInfo);
             error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             error.errorId(ret);
             return PerfToolsReturnCodes.FAILURE;
@@ -292,13 +294,14 @@ public class LoginProvider
         ret = _loginRefresh.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	reactorChannel.releaseBuffer(msgBuf, _errorInfo);
             error.text("LoginRefresh.encode() failed with return code: " + CodecReturnCodes.toString(ret));
             error.errorId(ret);
             return PerfToolsReturnCodes.FAILURE;
         }
 
         //send login response
-        return reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
+        return SendMessage.sendMessage(reactorChannel, msgBuf, _reactorSubmitOptions, _errorInfo);
     }
 
     /**

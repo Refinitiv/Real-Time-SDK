@@ -194,6 +194,7 @@ public class SymbolListHandler
         int ret = symbolListRequest.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             return ret;
         }
 
@@ -332,6 +333,7 @@ public class SymbolListHandler
         int ret = closeMessage.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, error);
             error.text("encodeSymbolListClose(): Failed <" + CodecReturnCodes.toString(ret) + ">");
             return ret;
         }

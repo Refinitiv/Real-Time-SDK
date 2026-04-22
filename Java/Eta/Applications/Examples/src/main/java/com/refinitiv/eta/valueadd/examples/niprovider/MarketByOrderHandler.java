@@ -27,6 +27,7 @@ import com.refinitiv.eta.codec.StateCodes;
 import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.valueadd.examples.common.CacheHandler;
 import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.examples.niprovider.StreamIdWatchList.WatchListEntry;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
@@ -112,10 +113,12 @@ class MarketByOrderHandler
         int ret = closeMessage.encode(encIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("encodeMarketByOrderClose(): Failed <"
                         + CodecReturnCodes.toString(ret) + ">");
+            return ret;
         }
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     	}
     	return ReactorReturnCodes.SUCCESS;
     }
@@ -256,24 +259,32 @@ class MarketByOrderHandler
         	Msg msg = marketContent.encodeMsg();
             int ret = msg.encodeInit(encIter, 0);
             if (ret < CodecReturnCodes.SUCCESS)
+            {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
+            }
 
             ret = CacheHandler.retrieveFromCache(encIter, wle.cacheEntry, cacheInfo);
         	if (ret != CodecReturnCodes.SUCCESS)
         	{
+        		chnl.releaseBuffer(msgBuf, errorInfo);
         		errorInfo.error().text(" Error retrieving payload from cache : " + cacheInfo.cacheError.text());
         		return ret;
         	}
         	
             ret = msg.encodeComplete(encIter, true);
             if (ret < CodecReturnCodes.SUCCESS)
+            {
+            	chnl.releaseBuffer(msgBuf, errorInfo);
                 return ret;
+            }
         }
         else
         {
 	        int ret = marketContent.encode(encIter);
 	        if (ret < CodecReturnCodes.SUCCESS)
 	        {
+	        	chnl.releaseBuffer(msgBuf, errorInfo);
 	            errorInfo.error().text("MarketByOrderResponse.encode failed");
 	            errorInfo.error().errorId(ret);
 	            return ret;
@@ -286,10 +297,15 @@ class MarketByOrderHandler
 	        	ret = CacheHandler.applyMsgBufferToCache(encIter.majorVersion(), encIter.minorVersion(), 
 	        										wle.cacheEntry, cacheInfo, msgBuf);
 	        	if (ret != CodecReturnCodes.SUCCESS)
-	        		 errorInfo.error().text(" Error Applying payload to cache : " + cacheInfo.cacheError.text());
+	        	{
+	        		chnl.releaseBuffer(msgBuf, errorInfo);
+	        		errorInfo.error().text(" Error Applying payload to cache : " + cacheInfo.cacheError.text());
+	        		errorInfo.error().errorId(ret);
+	        		return ret;
+	        	}
 	        }
         }
-        return chnl.submit(msgBuf, submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, submitOptions, errorInfo);
     }
 
 }

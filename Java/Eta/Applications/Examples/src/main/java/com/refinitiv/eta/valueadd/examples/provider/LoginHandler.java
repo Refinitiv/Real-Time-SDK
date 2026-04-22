@@ -20,6 +20,7 @@ import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.*;
+import com.refinitiv.eta.valueadd.examples.common.SendMessage;
 import com.refinitiv.eta.valueadd.reactor.*;
 
 import java.util.Objects;
@@ -137,9 +138,10 @@ class LoginHandler
         int ret = encodeRequestReject(chnl, streamId, reason, msgBuf, errorInfo);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             return ret;
         }
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /**
@@ -165,10 +167,11 @@ class LoginHandler
                 loginRTT.updateRTTActualTicks();
                 int ret = loginRTT.encode(_encodeIter);
                 if (ret != CodecReturnCodes.SUCCESS) {
+                	reactorChannel.releaseBuffer(msgBuf, errorInfo);
                     return ret;
                 }
                 _submitOptions.clear();
-                return reactorChannel.submit(msgBuf, _submitOptions, errorInfo);
+                return SendMessage.sendMessage(reactorChannel, msgBuf, _submitOptions, errorInfo);
             }
         }
         return ReactorReturnCodes.SUCCESS;
@@ -260,17 +263,19 @@ class LoginHandler
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
         ret = _loginStatus.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("LoginStatus.encode() failed");
             return ret;
         }
         
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
@@ -342,6 +347,7 @@ class LoginHandler
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             System.out.println("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
@@ -349,11 +355,12 @@ class LoginHandler
         ret = _loginRefresh.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
+        	chnl.releaseBuffer(msgBuf, errorInfo);
             errorInfo.error().text("LoginRefresh.encode() failed");
             return ret;
         }
 
-        return chnl.submit(msgBuf, _submitOptions, errorInfo);
+        return SendMessage.sendMessage(chnl, msgBuf, _submitOptions, errorInfo);
     }
 
     /*
