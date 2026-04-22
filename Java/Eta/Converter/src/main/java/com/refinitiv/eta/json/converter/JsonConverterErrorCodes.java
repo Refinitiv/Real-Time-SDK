@@ -27,14 +27,15 @@ public class JsonConverterErrorCodes {
     public final static int JSON_ERROR_UNEXPECTED_KEY = 14; // Unexpected Key
     public final static int JSON_ERROR_UNEXPECTED_FID = 15; // Unexpected FID
     public final static int JSON_ERROR_RSSL_DICT_NOT_INIT = 16; // RsslDataDictionary is not initialized.
-
+    public final static int JSON_ERROR_DECODING_FAILED = 17;
+    public final static int JSON_ERROR_OUT_OF_MEMORY = 18;
+    public final static int JSON_ERROR = 19;
+    
     public static final int JSON_ERROR_UNSUPPORTED_PROTOCOL = 20;
     public static final int JSON_ERROR_UNKNOWN_PROPERTY = 21;
     public final static int JSON_ERROR_UNSUPPORTED_MESSAGE = 50;
 
-    public final static int JSON_ERROR_DECODING_FAILED = 15;
-    public final static int JSON_ERROR_OUT_OF_MEMORY = 16;
-    public final static int JSON_ERROR = 17;
+
 
     public final static int JSON_ERROR_OPERATION_NOT_SUPPORTED = 100;
 }
