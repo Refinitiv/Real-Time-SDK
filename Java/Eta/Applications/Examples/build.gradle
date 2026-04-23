@@ -7,8 +7,8 @@ eclipse {
 }
 
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.20.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.20.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.21.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.21.2'
 	implementation project(':Eta:AnsiPage')
 	implementation project(':Eta:ValueAdd')
 	implementation project(':Eta:ValueAddCache')

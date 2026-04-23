@@ -119,7 +119,7 @@ allprojects {
 			exclude group: 'org.hamcrest'
 		}
 		testImplementation 'org.hamcrest:hamcrest:3.0'
-		testImplementation 'org.mockito:mockito-core:5.20.0'
+		testImplementation 'org.mockito:mockito-core:5.23.0'
 	}
 
 	tasks.named('compileJava', JavaCompile).configure {

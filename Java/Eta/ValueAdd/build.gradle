@@ -147,9 +147,9 @@ eclipse.classpath.file.whenMerged {
 }
 
 dependencies {
-    api group: 'org.json', name: 'json', version: '20250517'
-    api group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
-    implementation('org.apache.httpcomponents.client5:httpclient5:5.5.1') {
+    api group: 'org.json', name: 'json', version: '20251224'
+    api group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.2'
+    implementation('org.apache.httpcomponents.client5:httpclient5:5.6') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.17'
@@ -162,13 +162,13 @@ dependencies {
 	// needs to be executed with the -Pmavencentral
 	if (project.hasProperty("mavencentral"))
 	{
-        testImplementation('org.mockito:mockito-core:5.20.0'){
+        testImplementation('org.mockito:mockito-core:5.23.0'){
             exclude group: 'org.hamcrest'
         }
 	}
 	else
 	{
-        implementation('org.mockito:mockito-core:5.20.0'){
+        implementation('org.mockito:mockito-core:5.23.0'){
             exclude group: 'org.hamcrest'
         }
 	}
