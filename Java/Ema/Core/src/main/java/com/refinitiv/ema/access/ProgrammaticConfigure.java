@@ -695,12 +695,12 @@ class ProgrammaticConfigure
 			retrieveServer(map, serverName, activeServerConfig, portFnCalled, fileCfg);
 	}
 
-	GlobalConfig retrieveGlobalConfig() {
+	void retrieveGlobalConfig(GlobalConfig config) {
+
 		MapEntry globalConfigEntry = getElementListByNameFromConfigList(_configList, "GlobalConfig");
 		if (globalConfigEntry == null) {
-			return null;
+			return;
 		}
-		GlobalConfig config = new GlobalConfig();
 		ElementEntry reactorMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorMsgEventPoolLimit");
 		ElementEntry reactorChannelEventPoolLimit = getIntElementEntry(globalConfigEntry, "ReactorChannelEventPoolLimit");
 		ElementEntry workerEventPoolLimit = getIntElementEntry(globalConfigEntry, "WorkerEventPoolLimit");
@@ -710,6 +710,11 @@ class ProgrammaticConfigure
 		ElementEntry watchlistObjectsPoolLimit = getIntElementEntry(globalConfigEntry, "WatchlistObjectsPoolLimit");
 		ElementEntry watchlistPoolLimit = getIntElementEntry(globalConfigEntry, "WatchlistPoolLimit");
 		ElementEntry socketProtocolPoolLimit = getIntElementEntry(globalConfigEntry, "SocketProtocolPoolLimit");
+		ElementEntry dataTypePoolLimit = getIntElementEntry(globalConfigEntry, "EmaObjectManagerDataTypeLimit");
+		ElementEntry complexTypePoolLimit = getIntElementEntry(globalConfigEntry, "EmaObjectManagerComplexTypeLimit");
+		ElementEntry msgTypePoolLimit = getIntElementEntry(globalConfigEntry, "EmaObjectManagerMsgTypeLimit");
+		ElementEntry etaObjectsPoolLimit = getIntElementEntry(globalConfigEntry, "EmaObjectManagerEtaObjectsLimit");
+		ElementEntry sessionObjectsPoolLimit = getIntElementEntry(globalConfigEntry, "EmaObjectManagerSessionObjectsLimit");
 
 		if (reactorMsgEventPoolLimit != null) {
 			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
@@ -742,8 +747,23 @@ class ProgrammaticConfigure
 		if (socketProtocolPoolLimit != null) {
 			config.socketProtocolPoolLimit = getSocketProtocolPoolsSize(socketProtocolPoolLimit.intValue());
 		}
-		return config;
+		if (dataTypePoolLimit != null) {
+			config.dataTypePoolLimit = getPoolLimit(dataTypePoolLimit.intValue(), "EmaObjectManagerDataTypeLimit");
+		}
+		if (complexTypePoolLimit != null) {
+			config.complexTypePoolLimit = getPoolLimit(complexTypePoolLimit.intValue(), "EmaObjectManagerComplexTypeLimit");
+		}
+		if (msgTypePoolLimit != null) {
+			config.msgTypePoolLimit = getPoolLimit(msgTypePoolLimit.intValue(), "EmaObjectManagerMsgTypeLimit");
+		}
+		if (etaObjectsPoolLimit != null) {
+			config.etaObjectsPoolLimit = getPoolLimit(etaObjectsPoolLimit.intValue(), "EmaObjectManagerEtaObjectsLimit");
+		}
+		if (sessionObjectsPoolLimit != null) {
+			config.sessionObjectsPoolLimit = getPoolLimit(sessionObjectsPoolLimit.intValue(), "EmaObjectManagerSessionObjectsLimit");
+		}
 	}
+
 	void  retrieveDictionaryConfig( String dictionaryName, ActiveConfig activeConfig )
 	{
 		 for (Map map : _configList)
@@ -1096,6 +1116,41 @@ class ProgrammaticConfigure
 										{
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
+										else if ( eentry.name().equals("EmaObjectManagerDataTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.dataTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.dataTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerComplexTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.complexTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.complexTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerMsgTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.msgTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.msgTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerEtaObjectsLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.etaObjectsPoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.etaObjectsPoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerSessionObjectsLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.sessionObjectsPoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.sessionObjectsPoolLimit = -1;
+										}
 										break;
 									case DataTypes.UINT:
 										if (eentry.name().equals("SendJsonConvError")) {
@@ -1257,6 +1312,41 @@ class ProgrammaticConfigure
 										} else if (eentry.name().equals("CloseChannelFromConverterFailure"))
 										{
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerDataTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.dataTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.dataTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerComplexTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.complexTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.complexTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerMsgTypeLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.msgTypePoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.msgTypePoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerEtaObjectsLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.etaObjectsPoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.etaObjectsPoolLimit = -1;
+										}
+										else if ( eentry.name().equals("EmaObjectManagerSessionObjectsLimit") )
+										{
+											if (eentry.intValue() >= 0)
+												activeConfig.sessionObjectsPoolLimit = convertToInt(eentry.intValue());
+											else
+												activeConfig.sessionObjectsPoolLimit = -1;
 										}
 										break;
 									case DataTypes.UINT:
@@ -4288,6 +4378,29 @@ class ProgrammaticConfigure
 			return Integer.MAX_VALUE;
 		}
 		return (int) socketProtocolPoolsSize;
+	}
+
+	private int getPoolLimit(long poolsSize, String parameterName)
+	{
+		if (poolsSize < -1)
+		{
+			_emaConfigErrList.append(parameterName).append( " value should be equal or greater than -1.")
+					.append( " It will be set to default value: -1 (no limit).")
+					.create(Severity.WARNING);
+			return GlobalConfig.DEFAULT_SOCKET_PROTOCOL_POOL_LIMIT;
+		}
+
+		if (poolsSize > Integer.MAX_VALUE)
+		{
+			_emaConfigErrList.append(parameterName).append(" value should not be greater than ")
+					.append(Integer.MAX_VALUE)
+					.append(". It will be set to ")
+					.append(Integer.MAX_VALUE)
+					.append(".")
+					.create(Severity.WARNING);
+			return Integer.MAX_VALUE;
+		}
+		return (int) poolsSize;
 	}
 
 	private Predicate<MapEntry> filterMapEntry(String name) {

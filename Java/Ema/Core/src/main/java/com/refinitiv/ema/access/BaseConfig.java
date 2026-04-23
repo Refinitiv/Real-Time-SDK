@@ -24,6 +24,7 @@ abstract class BaseConfig
 	final static boolean DEFAULT_CATCH_UNKNOWN_JSON_FIDS		= true;
 	final static boolean DEFAULT_CLOSE_CHANNEL_FROM_FAILURE		= true;
 	final static boolean DEFAULT_SEND_JSON_CONV_ERROR			= false;
+	final static int DEFAULT_EMA_POOLS_LIMIT = -1;
 
 
 	BaseConfig()
@@ -52,6 +53,12 @@ abstract class BaseConfig
 		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 		sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
+
+		dataTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		complexTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		msgTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		etaObjectsPoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		sessionObjectsPoolLimit = DEFAULT_EMA_POOLS_LIMIT;
 	}
 	
 	void clear()
@@ -83,6 +90,12 @@ abstract class BaseConfig
 		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 		sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
 		catchUnhandledExceptions = false;
+
+		dataTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		complexTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		msgTypePoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		etaObjectsPoolLimit = DEFAULT_EMA_POOLS_LIMIT;
+		sessionObjectsPoolLimit = DEFAULT_EMA_POOLS_LIMIT;
 	}
 	
 	StringBuilder configTrace()
@@ -111,11 +124,21 @@ abstract class BaseConfig
 		.append("\n\t closeChannelFromFailure: ").append(closeChannelFromFailure)
 		.append("\n\t sendJsonConvError: ").append(sendJsonConvError)
 		.append("\n\t catchUnhandledExceptions: ").append(catchUnhandledExceptions)
+		.append("\n\t dataTypePoolLimit: ").append(dataTypePoolLimit)
+		.append("\n\t complexTypePoolLimit: ").append(complexTypePoolLimit)
+		.append("\n\t msgTypePoolLimit: ").append(msgTypePoolLimit)
+		.append("\n\t etaObjectsPoolLimit: ").append(etaObjectsPoolLimit)
+		.append("\n\t sessionObjectsPoolLimit: ").append(sessionObjectsPoolLimit)
 		.append("\n\t globalConfig.reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
 		.append("\n\t globalConfig.reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
 		.append("\n\t globalConfig.workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
 		.append("\n\t globalConfig.tunnelStreamMsgEventPoolLimit: ").append(globalConfig.tunnelStreamMsgEventPoolLimit)
-		.append("\n\t globalConfig.tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit);
+		.append("\n\t globalConfig.tunnelStreamStatusEventPoolLimit: ").append(globalConfig.tunnelStreamStatusEventPoolLimit)
+		.append("\n\t globalConfig.dataTypePoolLimit: ").append(globalConfig.dataTypePoolLimit)
+		.append("\n\t globalConfig.complexTypePoolLimit: ").append(globalConfig.complexTypePoolLimit)
+		.append("\n\t globalConfig.msgTypePoolLimit: ").append(globalConfig.msgTypePoolLimit)
+		.append("\n\t globalConfig.etaObjectsPoolLimit: ").append(globalConfig.etaObjectsPoolLimit)
+		.append("\n\t globalConfig.sessionObjectsPoolLimit: ").append(globalConfig.sessionObjectsPoolLimit);
 		
 		return traceStr;
 	}
@@ -151,4 +174,10 @@ abstract class BaseConfig
 	boolean					catchUnknownJsonFids;
 	boolean					closeChannelFromFailure;
 	boolean 				sendJsonConvError;
+
+	int dataTypePoolLimit;
+	int complexTypePoolLimit;
+	int msgTypePoolLimit;
+	int etaObjectsPoolLimit;
+	int sessionObjectsPoolLimit;
 }

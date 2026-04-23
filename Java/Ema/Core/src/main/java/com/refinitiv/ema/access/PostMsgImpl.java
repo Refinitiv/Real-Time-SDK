@@ -427,18 +427,12 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		PostMsg postMsg = new PostMsgImpl(_objManager);
+		PostMsgImpl postMsg  = new PostMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
 		((MsgImpl) postMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode PostMsg with error: " + ((MsgImpl) postMsg).errorString() + "\n";
+			return "\nFailed to decode PostMsg with error: " + postMsg.errorString() + "\n";
 		}
 
 		return postMsg.toString();

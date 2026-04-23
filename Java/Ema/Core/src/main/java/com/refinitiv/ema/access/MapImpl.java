@@ -345,13 +345,7 @@ class MapImpl extends CollectionDataImpl implements Map
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		Map map = new MapImpl(_objManager);
+		Map map = new MapImpl(_objManager != null ? _objManager : EmaObjectManager.GlobalObjectManager);
 
 		((CollectionDataImpl) map).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)

@@ -89,6 +89,11 @@ public class JUnitTestConnect
 	public static final int SendJsonConvError = ConfigManager.SendJsonConvError;
 	public static final int UpdateTypeFilter = ConfigManager.UpdateTypeFilter;
 	public static final int NegativeUpdateTypeFilter = ConfigManager.NegativeUpdateTypeFilter;
+	public static final int DataTypePoolLimit = ConfigManager.DataTypePoolLimit;
+	public static final int ComplexTypePoolLimit = ConfigManager.ComplexTypePoolLimit;
+	public static final int MsgTypePoolLimit = ConfigManager.MsgTypePoolLimit;
+	public static final int EtaObjectsPoolLimit = ConfigManager.EtaObjectsPoolLimit;
+	public static final int SessionObjectsPoolLimit = ConfigManager.SessionObjectsPoolLimit;
 
 	public static final int RestProxyHostName = ConfigManager.RestProxyHostName;
 	public static final int RestProxyPort = ConfigManager.RestProxyPort;
@@ -262,7 +267,11 @@ public class JUnitTestConnect
 	public static EmaObjectManager _objManager = new EmaObjectManager();
 	
 	static {
-		_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
+		_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE,
+				EmaObjectManager.DATA_POOL_INITIAL_SIZE,
+				EmaObjectManager.DATA_POOL_INITIAL_SIZE,
+				EmaObjectManager.DATA_POOL_INITIAL_SIZE,
+				EmaObjectManager.DATA_POOL_INITIAL_SIZE);
 	}
 
 	// used only for JUNIT tests
@@ -1699,6 +1708,16 @@ public class JUnitTestConnect
 				return activeConfig.connectionListIndex;
 			else if (configParam == ConsumerWSBChannelName)
 				return activeConfig.warmStandbyGroupListIndex;
+			else if (configParam == DataTypePoolLimit)
+				return activeConfig.dataTypePoolLimit;
+			else if (configParam == ComplexTypePoolLimit)
+				return activeConfig.complexTypePoolLimit;
+			else if (configParam == MsgTypePoolLimit)
+				return activeConfig.msgTypePoolLimit;
+			else if (configParam == EtaObjectsPoolLimit)
+				return activeConfig.etaObjectsPoolLimit;
+			else if (configParam == SessionObjectsPoolLimit)
+				return activeConfig.sessionObjectsPoolLimit;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -2128,6 +2147,16 @@ public class JUnitTestConnect
 				return activeConfig.loginRequestTimeOut;
 			else if (configParam == XmlTraceMaxFileSize)
 				return (int) activeConfig.xmlTraceMaxFileSize;
+			else if (configParam == DataTypePoolLimit)
+				return activeConfig.dataTypePoolLimit;
+			else if (configParam == ComplexTypePoolLimit)
+				return activeConfig.complexTypePoolLimit;
+			else if (configParam == MsgTypePoolLimit)
+				return activeConfig.msgTypePoolLimit;
+			else if (configParam == EtaObjectsPoolLimit)
+				return activeConfig.etaObjectsPoolLimit;
+			else if (configParam == SessionObjectsPoolLimit)
+				return activeConfig.sessionObjectsPoolLimit;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -2326,6 +2355,16 @@ public class JUnitTestConnect
 				return ((OmmIProviderActiveConfig)activeConfig).maxFieldDictFragmentSize;
 			else if (configParam == XmlTraceMaxFileSize)
 				return (int) activeConfig.xmlTraceMaxFileSize;
+			else if (configParam == DataTypePoolLimit)
+				return activeConfig.dataTypePoolLimit;
+			else if (configParam == ComplexTypePoolLimit)
+				return activeConfig.complexTypePoolLimit;
+			else if (configParam == MsgTypePoolLimit)
+				return activeConfig.msgTypePoolLimit;
+			else if (configParam == EtaObjectsPoolLimit)
+				return activeConfig.etaObjectsPoolLimit;
+			else if (configParam == SessionObjectsPoolLimit)
+				return activeConfig.sessionObjectsPoolLimit;
 		}
 		else if (type == ConfigGroupTypeServer)
 		{

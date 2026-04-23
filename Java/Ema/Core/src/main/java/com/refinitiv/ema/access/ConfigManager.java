@@ -312,6 +312,11 @@ class ConfigManager
 	public static final int WatchlistObjectsPoolLimit = 1106;
 	public static final int WatchlistPoolLimit = 1107;
 	public static final int SocketProtocolPoolLimit = 1108;
+	public static final int DataTypePoolLimit = 1109;
+	public static final int ComplexTypePoolLimit = 1110;
+	public static final int MsgTypePoolLimit = 1111;
+	public static final int EtaObjectsPoolLimit = 1112;
+	public static final int SessionObjectsPoolLimit = 1113;
 
 	// WarmStandby
 	public static final int ConsumerWarmStandbyChannelSet = 1200;
@@ -425,6 +430,11 @@ class ConfigManager
 		ConsumerTagDict.add("SessionEnhancedItemRecovery", ConsumerSessionEnhancedItemRecovery);
 		ConsumerTagDict.add("UpdateTypeFilter", UpdateTypeFilter);
 		ConsumerTagDict.add("NegativeUpdateTypeFilter", NegativeUpdateTypeFilter);
+		ConsumerTagDict.add( "EmaObjectManagerDataTypeLimit", DataTypePoolLimit );
+		ConsumerTagDict.add( "EmaObjectManagerComplexTypeLimit", ComplexTypePoolLimit );
+		ConsumerTagDict.add( "EmaObjectManagerMsgTypeLimit", MsgTypePoolLimit );
+		ConsumerTagDict.add( "EmaObjectManagerEtaObjectsLimit", EtaObjectsPoolLimit );
+		ConsumerTagDict.add( "EmaObjectManagerSessionObjectsLimit", SessionObjectsPoolLimit );
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -534,6 +544,11 @@ class ConfigManager
 		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		NiProviderTagDict.add("SendJsonConvError", SendJsonConvError);
+		NiProviderTagDict.add( "EmaObjectManagerDataTypeLimit", DataTypePoolLimit );
+		NiProviderTagDict.add( "EmaObjectManagerComplexTypeLimit", ComplexTypePoolLimit );
+		NiProviderTagDict.add( "EmaObjectManagerMsgTypeLimit", MsgTypePoolLimit );
+		NiProviderTagDict.add( "EmaObjectManagerEtaObjectsLimit", EtaObjectsPoolLimit );
+		NiProviderTagDict.add( "EmaObjectManagerSessionObjectsLimit", SessionObjectsPoolLimit );
 		NiProviderTagDict.add("CatchUnhandledExceptions", CatchUnhandledExceptions);
 
 		
@@ -621,6 +636,11 @@ class ConfigManager
 		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		IProviderTagDict.add("SendJsonConvError", SendJsonConvError);
 		IProviderTagDict.add("CatchUnhandledExceptions", CatchUnhandledExceptions);
+		IProviderTagDict.add( "EmaObjectManagerDataTypeLimit", DataTypePoolLimit );
+		IProviderTagDict.add( "EmaObjectManagerComplexTypeLimit", ComplexTypePoolLimit );
+		IProviderTagDict.add( "EmaObjectManagerMsgTypeLimit", MsgTypePoolLimit );
+		IProviderTagDict.add( "EmaObjectManagerEtaObjectsLimit", EtaObjectsPoolLimit );
+		IProviderTagDict.add( "EmaObjectManagerSessionObjectsLimit", SessionObjectsPoolLimit );
 
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -656,6 +676,11 @@ class ConfigManager
 		GlobalConfigDict.add( "WatchlistPoolLimit", WatchlistPoolLimit );
 		GlobalConfigDict.add( "WatchlistObjectsPoolLimit", WatchlistObjectsPoolLimit );
 		GlobalConfigDict.add( "SocketProtocolPoolLimit", SocketProtocolPoolLimit );
+		GlobalConfigDict.add( "EmaObjectManagerDataTypeLimit", DataTypePoolLimit );
+		GlobalConfigDict.add( "EmaObjectManagerComplexTypeLimit", ComplexTypePoolLimit );
+		GlobalConfigDict.add( "EmaObjectManagerMsgTypeLimit", MsgTypePoolLimit );
+		GlobalConfigDict.add( "EmaObjectManagerEtaObjectsLimit", EtaObjectsPoolLimit );
+		GlobalConfigDict.add( "EmaObjectManagerSessionObjectsLimit", SessionObjectsPoolLimit );
 
 		WarmStandbyGroupDict.add( "WarmStandbyGroup", WarmStandbyGroup);
 		WarmStandbyGroupDict.add( "WarmStandbyList", WarmStandbyList);
@@ -866,7 +891,12 @@ class ConfigManager
 		"TunnelStreamStatusEventPoolLimit",
 		"WatchlistPoolLimit",
 		"WatchlistObjectsPoolLimit",
-		"SocketProtocolPoolLimit"
+		"SocketProtocolPoolLimit",
+		"EmaObjectManagerDataTypeLimit",
+		"EmaObjectManagerComplexTypeLimit",
+		"EmaObjectManagerMsgTypeLimit",
+		"EmaObjectManagerEtaObjectsLimit",
+		"EmaObjectManagerSessionObjectsLimit"
 	};
 
 	public static String UInt64Values[] = {

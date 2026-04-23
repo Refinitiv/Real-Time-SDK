@@ -37,17 +37,28 @@ class MapIterImpl implements Iterator<MapEntry>
 		}
 		if (_rsslMap != null)
 		{
-			_mapImpl._objManager._rsslMapPool.add(_rsslMap);
+			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0 && (_mapImpl._objManager._rsslMapPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_mapImpl._objManager._rsslMapPool.add(_rsslMap);
+			}
 			_rsslMap = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_mapImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_mapImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 		if (_keyDecodeIter != null)
 		{
-			_mapImpl._objManager._etaDecodeIteratorPool.add(_keyDecodeIter);
+			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_mapImpl._objManager._etaDecodeIteratorPool.add(_keyDecodeIter);
+			}
 			_keyDecodeIter = null;
 		}
 	}

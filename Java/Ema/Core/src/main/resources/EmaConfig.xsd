@@ -420,6 +420,32 @@
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceHex" minOccurs="0" maxOccurs="1" />
 
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerEtaObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerSessionObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+
                         </xs:all>
 
                       </xs:complexType>
@@ -638,6 +664,32 @@
                           <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceHex" minOccurs="0" maxOccurs="1" />
+
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerEtaObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerSessionObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
 
                         </xs:all>
                       </xs:complexType>
@@ -873,6 +925,32 @@
                           <xs:element ref="XmlTraceRead" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTracePing" minOccurs="0" maxOccurs="1" />
                           <xs:element ref="XmlTraceHex" minOccurs="0" maxOccurs="1" />
+
+                          <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerEtaObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EmaObjectManagerSessionObjectsLimit" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="value" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
 
                         </xs:all>
                       </xs:complexType>
@@ -1913,6 +1991,32 @@
               </xs:element>
 
               <xs:element name="SocketProtocolPoolLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="EmaObjectManagerDataTypeLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="EmaObjectManagerComplexTypeLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="EmaObjectManagerMsgTypeLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="EmaObjectManagerEtaObjectsLimit" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="EmaObjectManagerSessionObjectsLimit" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                   <xs:attribute name="value" type="xs:int" use="required" />
                 </xs:complexType>

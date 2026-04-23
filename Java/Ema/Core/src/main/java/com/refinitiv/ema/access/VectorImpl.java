@@ -241,13 +241,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		Vector vector = new VectorImpl(_objManager);
+		Vector vector = new VectorImpl(_objManager != null ? _objManager : EmaObjectManager.GlobalObjectManager);
 
 		((CollectionDataImpl) vector).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)

@@ -202,18 +202,12 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		ReqMsg reqMsg = new ReqMsgImpl(_objManager);
+		ReqMsgImpl reqMsg  = new ReqMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
 		((MsgImpl) reqMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode ReqMsg with error: " + ((MsgImpl) reqMsg).errorString() + "\n";
+			return "\nFailed to decode ReqMsg with error: " + reqMsg.errorString() + "\n";
 		}
 
 		return reqMsg.toString();

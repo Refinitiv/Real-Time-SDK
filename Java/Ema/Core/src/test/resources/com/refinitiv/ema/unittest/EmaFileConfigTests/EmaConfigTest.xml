@@ -10,6 +10,11 @@
 		<WatchlistObjectsPoolLimit value="50000"/>
 		<WatchlistPoolLimit value="12"/>
 		<SocketProtocolPoolLimit value="42"/>
+		<EmaObjectManagerDataTypeLimit value="7" />
+		<EmaObjectManagerComplexTypeLimit value="8" />
+		<EmaObjectManagerMsgTypeLimit value="9" />
+		<EmaObjectManagerEtaObjectsLimit value="10" />
+		<EmaObjectManagerSessionObjectsLimit value="11" />
 	</GlobalConfig>
 	
 <!-- defaultConsumer parameter defines which consumer configuration is used by OmmConsumer		-->
@@ -70,6 +75,12 @@
 			<RestProxyPort value="9083"/>
 			<UpdateTypeFilter value="4" />
 			<CatchUnhandledExceptions value="1" />
+
+			<EmaObjectManagerDataTypeLimit value="2" />
+			<EmaObjectManagerComplexTypeLimit value="3" />
+			<EmaObjectManagerMsgTypeLimit value="4" />
+			<EmaObjectManagerEtaObjectsLimit value="5" />
+			<EmaObjectManagerSessionObjectsLimit value="6" />
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -216,6 +227,12 @@
 			<XmlTraceRead value="0"/>
 			<XmlTracePing value="0"/>
 			<CatchUnhandledExceptions value="1" />
+
+			<EmaObjectManagerDataTypeLimit value="11" />
+			<EmaObjectManagerComplexTypeLimit value="12" />
+			<EmaObjectManagerMsgTypeLimit value="13" />
+			<EmaObjectManagerEtaObjectsLimit value="14" />
+			<EmaObjectManagerSessionObjectsLimit value="15" />
 		</NiProvider>
 		
 		<NiProvider>
@@ -368,6 +385,12 @@
 			<XmlTraceRead value="0"/>
 			<XmlTracePing value="0"/>
 			<CatchUnhandledExceptions value="1" />
+
+			<EmaObjectManagerDataTypeLimit value="21" />
+			<EmaObjectManagerComplexTypeLimit value="22" />
+			<EmaObjectManagerMsgTypeLimit value="23" />
+			<EmaObjectManagerEtaObjectsLimit value="24" />
+			<EmaObjectManagerSessionObjectsLimit value="25" />
         </IProvider>
 		<IProvider>
             <!-- Name is mandatory                                                                       -->

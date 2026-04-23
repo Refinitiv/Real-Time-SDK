@@ -35,12 +35,20 @@ class FieldListIterImpl implements Iterator<FieldEntry>
 		}
 		if (_rsslFieldList != null)
 		{
-			_fieldListImpl._objManager._rsslFieldListPool.add(_rsslFieldList);
+			if (_fieldListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_fieldListImpl._objManager._rsslFieldListPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_fieldListImpl._objManager._rsslFieldListPool.add(_rsslFieldList);
+			}
 			_rsslFieldList = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_fieldListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_fieldListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_fieldListImpl._objManager._etaDecodeIteratorPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_fieldListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslFieldList = null;
 		}
 	}

@@ -240,15 +240,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if (_dispatchLock.isHeldByCurrentThread()) _dispatchLock.unlock();
 		}
 	}
-	
+
 	void initialize(ActiveConfig activeConfig,EmaConfigImpl config)
 	{
 		_activeConfig = activeConfig;
 		
 		try
 		{
-			_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
-			
 			GlobalPool.lock();
 			GlobalPool.initialize();
 			GlobalPool.unlock();
@@ -268,7 +266,37 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
 					"Print out active configuration detail." + activeConfig.configTrace().toString(), Severity.TRACE));
 			}
-			
+
+			switch (EmaObjectManager.GlobalObjectManager.setObjectPoolsLimits(_activeConfig.globalConfig.dataTypePoolLimit,
+					_activeConfig.globalConfig.complexTypePoolLimit,
+					_activeConfig.globalConfig.msgTypePoolLimit,
+					_activeConfig.globalConfig.sessionObjectsPoolLimit,
+					_activeConfig.globalConfig.etaObjectsPoolLimit))
+			{
+				case NO_CHANGE:
+					if (_loggerClient.isWarnEnabled())
+					{
+						_loggerClient.warn(formatLogMessage(_activeConfig.instanceName, "Global pools limits already initialized from configuration, use GlobalConfig methods to change them. ", Severity.WARNING));
+					}
+					break;
+				case FAILURE:
+					if (_loggerClient.isErrorEnabled())
+					{
+						_loggerClient.error(formatLogMessage(_activeConfig.instanceName, "Attempt to set Global pools limits from configuration multiple times.", Severity.ERROR));
+					}
+					throw new OmmInvalidUsageExceptionImpl()
+							.message("Attempt to set Global pools limits from configuration multiple times.", OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+				case SUCCESS:
+				default:
+					break;
+			}
+
+			_objManager.initialize(activeConfig.dataTypePoolLimit,
+					_activeConfig.complexTypePoolLimit,
+					_activeConfig.msgTypePoolLimit,
+					_activeConfig.sessionObjectsPoolLimit,
+					_activeConfig.etaObjectsPoolLimit);
+
 			ReactorFactory.setReactorMsgEventPoolLimit(activeConfig.globalConfig.reactorMsgEventPoolLimit);
 			ReactorFactory.setReactorChannelEventPoolLimit(activeConfig.globalConfig.reactorChannelEventPoolLimit);
 			ReactorFactory.setWorkerEventPoolLimit(activeConfig.globalConfig.workerEventPoolLimit);
@@ -1088,7 +1116,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.PreferredDetectionTimeInterval)) != null) {
 				_activeConfig.detectionTimeInterval(ce.intLongValue());
 			}
-
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerSessionEnhancedItemRecovery)) != null) {
 				_activeConfig.sessionEnhancedItemRecovery = ce.intLongValue() > 0;
 			}
@@ -1096,7 +1123,22 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnhandledExceptions)) != null) {
 				_activeConfig.catchUnhandledExceptions = ce.intLongValue() > 0;
 			}
-			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.DataTypePoolLimit)) != null) {
+				_activeConfig.dataTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ComplexTypePoolLimit)) != null) {
+				_activeConfig.complexTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgTypePoolLimit)) != null) {
+				_activeConfig.msgTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.EtaObjectsPoolLimit)) != null) {
+				_activeConfig.etaObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.SessionObjectsPoolLimit)) != null) {
+				_activeConfig.sessionObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+
 			// Get session channels from the programmatic configuration or file configuration.
 			String sessionChannelSet = config.sessionChannel(_activeConfig.configuredName);
 			 
@@ -1236,6 +1278,21 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			{
 				_activeConfig.globalConfig.socketProtocolPoolLimit = ce.intValue();
 			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.DataTypePoolLimit)) != null) {
+				_activeConfig.globalConfig.dataTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ComplexTypePoolLimit)) != null) {
+				_activeConfig.globalConfig.complexTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.MsgTypePoolLimit)) != null) {
+				_activeConfig.globalConfig.msgTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.EtaObjectsPoolLimit)) != null) {
+				_activeConfig.globalConfig.etaObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.SessionObjectsPoolLimit)) != null) {
+				_activeConfig.globalConfig.sessionObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
 		}
 		
 		ProgrammaticConfigure pc = config.programmaticConfigure();
@@ -1243,10 +1300,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			pc.retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
 
-			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
-			if(globalConfig != null){
-				_activeConfig.globalConfig = globalConfig;
-			}
+			if (_activeConfig.globalConfig  == null) _activeConfig.globalConfig = new GlobalConfig();
+			pc.retrieveGlobalConfig(_activeConfig.globalConfig);
 
 			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
 			if (channelOrChannelSet == null)
@@ -1555,10 +1610,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
 
-			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
-			if(globalConfig != null){
-				_activeConfig.globalConfig = globalConfig;
-			}
+			if (_activeConfig.globalConfig  == null) _activeConfig.globalConfig = new GlobalConfig();
+			pc.retrieveGlobalConfig(_activeConfig.globalConfig);
 			
 			String warmStandbyChannelSet = pc.activeEntryNames(_activeConfig.configuredName, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
 			if (warmStandbyChannelSet != null && !warmStandbyChannelSet.isEmpty())

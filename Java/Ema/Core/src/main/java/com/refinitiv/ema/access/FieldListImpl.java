@@ -234,13 +234,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		FieldList fieldList = new FieldListImpl(_objManager);
+		FieldList fieldList = new FieldListImpl(_objManager != null ? _objManager : EmaObjectManager.GlobalObjectManager);
 
 		((CollectionDataImpl) fieldList).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)

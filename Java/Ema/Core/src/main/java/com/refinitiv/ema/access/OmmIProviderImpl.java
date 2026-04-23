@@ -53,7 +53,6 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	private OmmIProviderDirectoryStore _ommIProviderDirectoryStore;
 	private boolean _storeUserSubmitted;
 	private DirectoryMsg	_fanoutDirectoryMsg;
-	protected EmaObjectManager _objManager = new EmaObjectManager();
 	private ItemWatchList	_itemWatchList;
 	private ServiceIdConverter	_serviceIdConverter;
 	private static final long MIN_LONG_VALUE = 1;

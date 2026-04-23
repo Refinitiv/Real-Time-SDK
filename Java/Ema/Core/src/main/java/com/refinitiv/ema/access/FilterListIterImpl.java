@@ -37,12 +37,20 @@ class FilterListIterImpl implements Iterator<FilterEntry>
 		}
 		if (_rsslFilterList != null)
 		{
-			_filterListImpl._objManager._rsslFilterListPool.add(_rsslFilterList);
+			if (_filterListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_filterListImpl._objManager._rsslFilterListPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_filterListImpl._objManager._rsslFilterListPool.add(_rsslFilterList);
+			}
 			_rsslFilterList = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_filterListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_filterListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_filterListImpl._objManager._etaDecodeIteratorPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_filterListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 	}

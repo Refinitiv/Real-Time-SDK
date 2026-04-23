@@ -201,15 +201,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if (_dispatchLock.isHeldByCurrentThread()) _dispatchLock.unlock();
 		}
 	}
-	
+
 	void initialize(ActiveServerConfig activeConfig,EmaConfigServerImpl config)
 	{
 		_activeServerConfig = activeConfig;
 		
 		try
 		{
-			_objManager.initialize(EmaObjectManager.DATA_POOL_INITIAL_SIZE);
-			
 			GlobalPool.lock();
 			GlobalPool.initialize();
 			GlobalPool.unlock();
@@ -221,6 +219,36 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			readConfiguration(config);
 			
 			readCustomConfig(config);
+
+			switch (EmaObjectManager.GlobalObjectManager.setObjectPoolsLimits(_activeServerConfig.globalConfig.dataTypePoolLimit,
+					_activeServerConfig.globalConfig.complexTypePoolLimit,
+					_activeServerConfig.globalConfig.msgTypePoolLimit,
+					_activeServerConfig.globalConfig.sessionObjectsPoolLimit,
+					_activeServerConfig.globalConfig.etaObjectsPoolLimit))
+			{
+				case NO_CHANGE:
+					if (_loggerClient.isWarnEnabled())
+					{
+						_loggerClient.warn(formatLogMessage(_activeServerConfig.instanceName, "Global pools limits already initialized from configuration, use GlobalConfig methods to change them. ", Severity.WARNING));
+					}
+					break;
+				case FAILURE:
+					if (_loggerClient.isErrorEnabled())
+					{
+						_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, "Attempt to set Global pools limits from configuration multiple times.", Severity.ERROR));
+					}
+					throw new OmmInvalidUsageExceptionImpl()
+							.message("Attempt to set Global pools limits from configuration multiple times.", OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+				case SUCCESS:
+				default:
+					break;
+			}
+
+			_objManager.initialize(_activeServerConfig.dataTypePoolLimit,
+					_activeServerConfig.complexTypePoolLimit,
+					_activeServerConfig.msgTypePoolLimit,
+					_activeServerConfig.sessionObjectsPoolLimit,
+					_activeServerConfig.etaObjectsPoolLimit);
 
 			_serverPool.initialize(this,
 					_activeServerConfig.clientSessionCountHint,
@@ -804,6 +832,21 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 				_activeServerConfig.catchUnhandledExceptions = ce.intLongValue() > 0;
 			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.DataTypePoolLimit)) != null) {
+				_activeServerConfig.dataTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ComplexTypePoolLimit)) != null) {
+				_activeServerConfig.complexTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgTypePoolLimit)) != null) {
+				_activeServerConfig.msgTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.EtaObjectsPoolLimit)) != null) {
+				_activeServerConfig.etaObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.SessionObjectsPoolLimit)) != null) {
+				_activeServerConfig.sessionObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
 		}
 
 		// .........................................................................
@@ -868,6 +911,21 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 				_activeServerConfig.globalConfig.socketProtocolPoolLimit = ce.intValue();
 			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.DataTypePoolLimit)) != null) {
+				_activeServerConfig.globalConfig.dataTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.ComplexTypePoolLimit)) != null) {
+				_activeServerConfig.globalConfig.complexTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.MsgTypePoolLimit)) != null) {
+				_activeServerConfig.globalConfig.msgTypePoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.EtaObjectsPoolLimit)) != null) {
+				_activeServerConfig.globalConfig.etaObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.SessionObjectsPoolLimit)) != null) {
+				_activeServerConfig.globalConfig.sessionObjectsPoolLimit = ce.intValue() >= 0 ? ce.intValue() : -1;
+			}
 		}
 		
 		ProgrammaticConfigure pc = config.programmaticConfigure();
@@ -893,11 +951,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					fileServerConfig = null;
 				}
 			}
-			
-			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
-			if(globalConfig != null){
-				_activeServerConfig.globalConfig = globalConfig;
-			}
+
+			if (_activeServerConfig.globalConfig  == null) _activeServerConfig.globalConfig = new GlobalConfig();
+			pc.retrieveGlobalConfig(_activeServerConfig.globalConfig);
 		}
 
 		_activeServerConfig.userDispatch = config.operationModel();

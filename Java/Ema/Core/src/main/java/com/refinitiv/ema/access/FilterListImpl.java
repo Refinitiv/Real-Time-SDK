@@ -191,13 +191,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 
 	public String toString(DataDictionary dictionary)
 	{
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		FilterList filterList = new FilterListImpl(_objManager);
+		FilterList filterList = new FilterListImpl(_objManager != null ? _objManager : EmaObjectManager.GlobalObjectManager);
 
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";

@@ -14,6 +14,7 @@ package com.refinitiv.eta.valueadd.common;
  */
 public class LimitedVaPool extends VaPool
 {
+	int _limit = -1;
 	/**
 	 * Creates a pool. This pool is not thread safe. This pool is not limited by default.
 	 * 
@@ -52,6 +53,16 @@ public class LimitedVaPool extends VaPool
 	 */
 	public void setLimit(int limit)
 	{
+		_limit = limit;
 		_queue.setLimit(limit);
+	}
+
+	/**
+	 * Gets the currently set limit for this LimitedVaPool instance
+	 * @return the limit currently set
+	 */
+	public int getLimit()
+	{
+		return _limit;
 	}
 }

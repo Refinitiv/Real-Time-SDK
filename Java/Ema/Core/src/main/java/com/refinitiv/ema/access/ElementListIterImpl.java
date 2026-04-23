@@ -36,12 +36,20 @@ class ElementListIterImpl implements Iterator<ElementEntry>
 		}
 		if (_rsslElementList != null)
 		{
-			_elementListImpl._objManager._rsslElementListPool.add(_rsslElementList);
+			if (_elementListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_elementListImpl._objManager._rsslElementListPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_elementListImpl._objManager._rsslElementListPool.add(_rsslElementList);
+			}
 			_rsslElementList = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_elementListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_elementListImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_elementListImpl._objManager._etaDecodeIteratorPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_elementListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 	}

@@ -36,12 +36,20 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 		}
 		if (_rsslArray != null)
 		{
-			_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
+			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
+			}
 			_rsslArray = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 	}
@@ -108,8 +116,16 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 		else
 		{
 			_ommArrayEntry.returnToPool();
-			_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
-			_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
+			}
+			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			return false;
 		}
 	}

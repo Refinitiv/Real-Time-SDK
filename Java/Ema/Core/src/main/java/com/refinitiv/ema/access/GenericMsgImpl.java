@@ -355,18 +355,12 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		GenericMsg genericMsg = new GenericMsgImpl(_objManager);
+		GenericMsgImpl genericMsg  = new GenericMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
 		((MsgImpl) genericMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode GenericMsg with error: " + ((MsgImpl) genericMsg).errorString() + "\n";
+			return "\nFailed to decode GenericMsg with error: " + genericMsg.errorString() + "\n";
 		}
 
 		return genericMsg.toString();

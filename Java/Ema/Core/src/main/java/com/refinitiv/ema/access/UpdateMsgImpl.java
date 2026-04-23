@@ -423,18 +423,12 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		UpdateMsg updateMsg = new UpdateMsgImpl(_objManager);
+		UpdateMsgImpl updateMsg  = new UpdateMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
 		((MsgImpl) updateMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode UpdateMsg with error: " + ((MsgImpl) updateMsg).errorString() + "\n";
+			return "\nFailed to decode UpdateMsg with error: " + updateMsg.errorString() + "\n";
 		}
 
 		return updateMsg.toString();

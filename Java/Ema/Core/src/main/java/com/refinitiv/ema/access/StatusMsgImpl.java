@@ -419,13 +419,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		StatusMsg statusMsg = new StatusMsgImpl(_objManager);
+		StatusMsg statusMsg = new StatusMsgImpl(_objManager != null ? _objManager : EmaObjectManager.GlobalObjectManager);
 
 		((MsgImpl) statusMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)

@@ -406,18 +406,12 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
-
-		AckMsg ackMsg  = new AckMsgImpl(_objManager);
+		AckMsgImpl ackMsg  = new AckMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
 		((MsgImpl) ackMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode AckMsg with error: " + ((MsgImpl) ackMsg).errorString() + "\n";
+			return "\nFailed to decode AckMsg with error: " + ackMsg.errorString() + "\n";
 		}
 
 		return ackMsg.toString();

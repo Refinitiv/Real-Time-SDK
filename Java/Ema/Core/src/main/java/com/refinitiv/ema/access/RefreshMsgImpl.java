@@ -547,21 +547,15 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		if (!dictionary.isFieldDictionaryLoaded() || !dictionary.isEnumTypeDefLoaded())
 			return "\nDictionary is not loaded.\n";
 
-		if (_objManager == null)
-		{
-			_objManager = new EmaObjectManager();
-			_objManager.initialize(((DataImpl)this).dataType());
-		}
+		RefreshMsgImpl refreshMsg  = new RefreshMsgImpl(_objManager == null ? EmaObjectManager.GlobalObjectManager : _objManager);
 
-		RefreshMsg refreshMsgMsg = new RefreshMsgImpl(_objManager);
-
-		((MsgImpl) refreshMsgMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
+		((MsgImpl) refreshMsg).decode(((DataImpl)this).encodedData(), Codec.majorVersion(), Codec.minorVersion(), ((DataDictionaryImpl)dictionary).rsslDataDictionary(), null);
 		if (_errorCode != ErrorCode.NO_ERROR)
 		{
-			return "\nFailed to decode RefreshMsg with error: " + ((MsgImpl) refreshMsgMsg).errorString() + "\n";
+			return "\nFailed to decode RefreshMsg with error: " + refreshMsg.errorString() + "\n";
 		}
 
-		return refreshMsgMsg.toString();
+		return refreshMsg.toString();
 	}
 	
 	@Override

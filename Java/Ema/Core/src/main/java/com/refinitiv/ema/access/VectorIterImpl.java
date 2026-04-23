@@ -37,12 +37,20 @@ class VectorIterImpl implements Iterator<VectorEntry>
 		}
 		if (_rsslVector != null)
 		{
-			_vectorImpl._objManager._rsslVectorPool.add(_rsslVector);
+			if (_vectorImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_vectorImpl._objManager._rsslVectorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_vectorImpl._objManager._rsslVectorPool.add(_rsslVector);
+			}
 			_rsslVector = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_vectorImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_vectorImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_vectorImpl._objManager._etaDecodeIteratorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_vectorImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 	}

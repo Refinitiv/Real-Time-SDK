@@ -95,6 +95,18 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 90000 );
 		int intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DispatchTimeoutApiThread);
 		TestUtilities.checkResult("DispatchTimeoutApiThread value == 90", intValue == 90 );
+
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DataTypePoolLimit);
+		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 2 );
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ComplexTypePoolLimit);
+		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 3 );
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MsgTypePoolLimit);
+		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 4 );
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EtaObjectsPoolLimit);
+		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 5 );
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SessionObjectsPoolLimit);
+		TestUtilities.checkResult("SessionObjectsPoolLimit value == 90000", intLongValue == 6 );
+
 		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorMsgEventPoolLimit).intValue();
 		TestUtilities.checkResult("ReactorMsgEventPoolLimit value == 2000", intValue == 2000);
 		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ReactorChannelEventPoolLimit).intValue();
@@ -111,6 +123,16 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("WatchlistPoolLimit value == 12", intValue == 12);
 		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.SocketProtocolPoolLimit).intValue();
 		TestUtilities.checkResult("SocketProtocolPoolLimit value == 42", intValue == 42);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.DataTypePoolLimit).intValue();
+		TestUtilities.checkResult("DataTypePoolLimit value == 7", intValue == 7);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.ComplexTypePoolLimit).intValue();
+		TestUtilities.checkResult("ComplexTypePoolLimit value == 8", intValue == 8);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.MsgTypePoolLimit).intValue();
+		TestUtilities.checkResult("MsgTypePoolLimit value == 9", intValue == 9);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.EtaObjectsPoolLimit).intValue();
+		TestUtilities.checkResult("EtaObjectsPoolLimit value == 10", intValue == 10);
+		intValue = testConfig.xmlConfig().getGlobalConfig().getPrimitiveValue(ConfigManager.SessionObjectsPoolLimit).intValue();
+		TestUtilities.checkResult("SessionObjectsPoolLimit value == 11", intValue == 11);
 
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );
@@ -3674,6 +3696,11 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 2500));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 3000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("WatchlistPoolLimit", 12));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerDataTypeLimit", 15));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerEtaObjectsLimit", 34));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerMsgTypeLimit", 11));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerComplexTypeLimit", 18));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerSessionObjectsLimit", 10));
 			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
 			innerElementList.clear();
 			
@@ -3709,6 +3736,11 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerDataTypeLimit", 18));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerComplexTypeLimit", 55));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerMsgTypeLimit", 7));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerEtaObjectsLimit", 3));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerSessionObjectsLimit", 22));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -3941,7 +3973,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 
 			String catchUnhandledExceptions = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.CatchUnhandledExceptions);
 			TestUtilities.checkResult("CatchUnhandledExceptions value == true", catchUnhandledExceptions.contentEquals("true") );
-			
+
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.ItemCountHint);
 			TestUtilities.checkResult("ItemCountHint value == 5000", intLongValue == 5000 );
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.ItemInfoPoolLimit);
@@ -3979,6 +4011,17 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing);
 			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
 
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DataTypePoolLimit );
+			TestUtilities.checkResult("EmaObjectManagerDataTypeLimit == 18", longValue == 18);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.EtaObjectsPoolLimit );
+			TestUtilities.checkResult("EmaObjectManagerEtaObjectsLimit == 3", longValue == 3);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.SessionObjectsPoolLimit );
+			TestUtilities.checkResult("EmaObjectManagerDataTypeLimit == 22", longValue == 22);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.ComplexTypePoolLimit );
+			TestUtilities.checkResult("EmaObjectManagerComplexTypeLimit == 55", longValue == 55);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.MsgTypePoolLimit );
+			TestUtilities.checkResult("EmaObjectManagerMsgTypeLimit == 7", longValue == 7);
+
 			// Check Global configuration:
 			int value = prov.activeConfig().globalConfig.reactorMsgEventPoolLimit;
 			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  2000", value == 2000);
@@ -3992,7 +4035,17 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 3000", value == 3000);
 			value = prov.activeConfig().globalConfig.watchlistPoolLimit;
 			TestUtilities.checkResult("WatchlistPoolLimit == 12", value == 12);
-			
+			value = prov.activeConfig().globalConfig.dataTypePoolLimit;
+			TestUtilities.checkResult("dataTypePoolLimit == 15", value == 15);
+			value = prov.activeConfig().globalConfig.etaObjectsPoolLimit;
+			TestUtilities.checkResult("etaObjectsPoolLimit == 34", value == 34);
+			value = prov.activeConfig().globalConfig.msgTypePoolLimit;
+			TestUtilities.checkResult("msgTypePoolLimit == 11", value == 11);
+			value = prov.activeConfig().globalConfig.complexTypePoolLimit;
+			TestUtilities.checkResult("complexTypePoolLimit == 18", value == 18);
+			value = prov.activeConfig().globalConfig.sessionObjectsPoolLimit;
+			TestUtilities.checkResult("sessionObjectsPoolLimit == 10", value == 10);
+
 			// Check Server configuration:
 			// Check Server_1 configuration.
 			provServerVal = "Server_1";
@@ -4856,6 +4909,11 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().uintValue("CatchUnhandledExceptions", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerDataTypeLimit", 18));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerComplexTypeLimit", 55));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerMsgTypeLimit", 7));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerEtaObjectsLimit", 3));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EmaObjectManagerSessionObjectsLimit", 22));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -5095,7 +5153,18 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.XmlTracePing, -1);
 			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
-			
+
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.DataTypePoolLimit, -1);
+			TestUtilities.checkResult("EmaObjectManagerDataTypePoolLimit == 18", longValue == 18);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.EtaObjectsPoolLimit, -1);
+			TestUtilities.checkResult("EmaObjectManagerEtaObjectsPoolLimit == 3", longValue == 3);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.SessionObjectsPoolLimit, -1);
+			TestUtilities.checkResult("EmaObjectManagerDataTypePoolLimit == 22", longValue == 22);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.ComplexTypePoolLimit, -1);
+			TestUtilities.checkResult("EmaObjectManagerComplexTypePoolLimit == 55", longValue == 55);
+			longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeNiProvider, JUnitTestConnect.MsgTypePoolLimit, -1);
+			TestUtilities.checkResult("EmaObjectManagerMsgTypePoolLimit == 7", longValue == 7);
+
 			// Check Channel configuration:
 			// Check Channel_1 configuration.
 			provChannelVal = "Channel_10";

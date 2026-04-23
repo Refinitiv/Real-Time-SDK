@@ -36,12 +36,20 @@ class SeriesIterImpl implements Iterator<SeriesEntry>
 		}
 		if (_rsslSeries != null)
 		{
-			_seriesImpl._objManager._rsslSeriesPool.add(_rsslSeries);
+			if (_seriesImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_seriesImpl._objManager._rsslSeriesPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_seriesImpl._objManager._rsslSeriesPool.add(_rsslSeries);
+			}
 			_rsslSeries = null;
 		}
 		if (_rsslDecodeIter != null)
 		{
-			_seriesImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			if (_seriesImpl._objManager._etaObjectsPoolsLimit > 0
+					&& (_seriesImpl._objManager._etaDecodeIteratorPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit))
+			{
+				_seriesImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
+			}
 			_rsslDecodeIter = null;
 		}
 	}
