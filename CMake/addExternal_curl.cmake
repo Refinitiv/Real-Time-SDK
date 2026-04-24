@@ -7,14 +7,36 @@
 
 include(rcdevExternalUtils)
 
-if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_16_0/curl-8.16.0.tar.xz")
-endif()
-if(NOT curl_hash)
-	set(curl_hash "MD5=3b5aae755714b338af0f66726bceb62a")
-endif()
-if(NOT curl_version)
-	set(curl_version "8.16.0")
+set(curl_version_rh8 "8.17.0" CACHE STRING "")
+set(curl_version_rh9 "8.19.0" CACHE STRING "")
+
+if( UNIX AND ( (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 8)
+		OR
+		((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU") AND
+		 (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 20 ))
+		OR
+		(RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "KYLIN")
+	))
+	# Use Curl version compatible with OpenSSL 1.1.1
+	if(NOT curl_url)
+		set(curl_url "https://github.com/curl/curl/releases/download/curl-8_17_0/curl-${curl_version_rh8}.tar.xz")
+	endif()
+	if(NOT curl_hash)
+		set(curl_hash "MD5=7a9d4b772fc56d68479b0416f234105a")
+	endif()
+	if(NOT curl_version)
+		set(curl_version "${curl_version_rh8}")
+	endif()
+else()
+	if(NOT curl_url)
+		set(curl_url "https://github.com/curl/curl/releases/download/curl-8_19_0/curl-${curl_version_rh9}.tar.xz")
+	endif()
+	if(NOT curl_hash)
+		set(curl_hash "MD5=d5d3581ba4b4df1140a26a6efcf13e61")
+	endif()
+	if(NOT curl_version)
+		set(curl_version "${curl_version_rh9}")
+	endif()
 endif()
 
 # If the option for using the system installed 

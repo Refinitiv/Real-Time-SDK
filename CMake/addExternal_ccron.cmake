@@ -48,7 +48,7 @@ if (MSVC)
     target_compile_definitions(ccronexpr PRIVATE _CRT_SECURE_NO_WARNINGS)
 else ()
     # Strict compilation
-    target_compile_options(ccronexpr PRIVATE -ansi -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wno-unused-parameter -pedantic-errors)
+    target_compile_options(ccronexpr PRIVATE -ansi -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wno-unused-parameter -Wno-format-overflow -pedantic-errors)
 endif ()
 
 # Tests
@@ -68,13 +68,13 @@ End of work around for Linux ccron wrong gcc flag issue
 include(rcdevExternalUtils)
 
 if(NOT ccronexpr_url)
-	set(ccronexpr_url "https://github.com/exander77/supertinycron/archive/refs/tags/v2.0.0.tar.gz")
+	set(ccronexpr_url "https://github.com/exander77/supertinycron/archive/refs/tags/v2.1.0.tar.gz")
 endif()
 if(NOT ccronexpr_hash)
-	set(ccronexpr_hash "MD5=51182564507d717b9a340f3cf587a982")
+	set(ccronexpr_hash "MD5=a9c53b37e48bd12d35d922584e96a15b")
 endif()
 if(NOT ccronexpr_version)
-	set(ccronexpr_version "2.0.0")
+	set(ccronexpr_version "2.1.0")
 endif()
 	
 # If the option for using the system installed 
