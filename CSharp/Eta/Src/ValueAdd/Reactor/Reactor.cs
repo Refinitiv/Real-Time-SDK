@@ -2338,45 +2338,53 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <returns>true when message must be proceeded. Returns false if result of this method should be ignored.
         /// For instance: when <see cref="LoginMsg.LoginMsgType"/> is <see cref="LoginMsgType.RTT"/> and RTT messaging
         /// is not supported by a <see cref="ConsumerRole"/></returns> 
-        private bool ProceedLoginGenericMsg(ReactorChannel reactorChannel, DecodeIterator decodeIterator,
+        private ReactorCallbackReturnCode ProcessLoginGenericMsg(ReactorChannel reactorChannel, DecodeIterator decodeIterator,
                                            Msg msg, out ReactorErrorInfo? errorInfo)
         {
             errorInfo = null;
             LoginMsg loginGenericMsg = m_LoginMsg;
+            CodecReturnCode decodeRetCode = CodecReturnCode.SUCCESS;
             if (DataTypes.ELEMENT_LIST == msg.ContainerType)
             {
                 loginGenericMsg.LoginMsgType = LoginMsgType.RTT;
-                switch (reactorChannel.Role)
+                if ((decodeRetCode = loginGenericMsg.Decode(decodeIterator, msg)) == CodecReturnCode.SUCCESS)
                 {
-                    case ProviderRole:
-                        break;
-
-                    case ConsumerRole consumerRole:
-                        if (consumerRole.RTTEnabled)
-                        {
-                            ReturnBackRTTMessage(msg, reactorChannel, out errorInfo);
+                    switch (reactorChannel.Role)
+                    {
+                        case ProviderRole:
                             break;
-                        }
-                        else
-                        {
-                            errorInfo = null;
-                            return false;
-                        }
-                    default:
-                        {
-                            /* return false when it is not enabled for consumer or when it is NIProvider
-                             * for preventing further handling */
-                            errorInfo = null;
-                            return false;
-                        }
+
+                        case ConsumerRole consumerRole:
+                            if (consumerRole.RTTEnabled)
+                            {
+                                ReturnBackRTTMessage(msg, reactorChannel, out errorInfo);
+                                break;
+                            }
+                            else
+                            {
+                                errorInfo = null;
+                                return ReactorCallbackReturnCode.FAILURE;
+                            }
+                        default:
+                            {
+                                /* return false when it is not enabled for consumer or when it is NIProvider
+                                 * for preventing further handling */
+                                errorInfo = null;
+                                return ReactorCallbackReturnCode.FAILURE;
+                            }
+                    }
                 }
+                else
+                    return ReactorCallbackReturnCode.RAISE;
+                
             }
             else
             {
                 loginGenericMsg.LoginMsgType = LoginMsgType.CONSUMER_CONNECTION_STATUS;
+                if ((decodeRetCode = loginGenericMsg.Decode(decodeIterator, msg)) != CodecReturnCode.SUCCESS)
+                    return ReactorCallbackReturnCode.RAISE;
             }
-            loginGenericMsg.Decode(decodeIterator, msg);
-            return true;
+            return ReactorCallbackReturnCode.SUCCESS;
         }
 
 
@@ -2399,6 +2407,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             ITransportBuffer transportBuffer, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode retval = ReactorReturnCode.SUCCESS;
+            ReactorCallbackReturnCode callbackStatus = ReactorCallbackReturnCode.SUCCESS;
             LoginMsg loginMsg = new();
             errorInfo = null;
 
@@ -2422,7 +2431,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     loginMsg.LoginClose!.Decode(dIter, msg);
                     break;
                 case MsgClasses.GENERIC:
-                    if (!ProceedLoginGenericMsg(reactorChannel, dIter, msg, out errorInfo))
+                    if ((callbackStatus = ProcessLoginGenericMsg(reactorChannel, dIter, msg, out errorInfo)) == ReactorCallbackReturnCode.FAILURE)
                         return ReactorReturnCode.SUCCESS;
                     loginMsg = m_LoginMsg;
                     break;
@@ -2430,73 +2439,39 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     break;
             }
 
-            if (retval != ReactorReturnCode.FAILURE)
-            {
-                var callbackStatus = SendAndHandleLoginMsgCallback("Reactor.ProcessLoginMessage", reactorChannel, transportBuffer, msg,
+            if (callbackStatus == ReactorCallbackReturnCode.SUCCESS)
+                callbackStatus = SendAndHandleLoginMsgCallback("Reactor.ProcessLoginMessage", reactorChannel, transportBuffer, msg,
                     loginMsg, out errorInfo);
 
-                if (callbackStatus == ReactorCallbackReturnCode.RAISE)
-                    callbackStatus = SendAndHandleDefaultMsgCallback("Reactor.ProcessLoginMessage", reactorChannel, transportBuffer, msg,
-                        out errorInfo);
+            if (callbackStatus == ReactorCallbackReturnCode.RAISE)
+                callbackStatus = SendAndHandleDefaultMsgCallback("Reactor.ProcessLoginMessage", reactorChannel, transportBuffer, msg,
+                    out errorInfo);
 
-                if (callbackStatus == ReactorCallbackReturnCode.SUCCESS)
+            if (callbackStatus == ReactorCallbackReturnCode.SUCCESS)
+            {
+                /*
+                 * check if this is a reactorChannel's role is CONSUMER, a Login REFRESH, if the reactorChannel State is UP,
+                 * and that the loginRefresh's state was OK.
+                 * If all this is true, check if a directoryRequest is populated. If so, send the directoryRequest. if not, change the
+                 * reactorChannel state to READY.
+                 */
+                if (reactorChannel.State == ReactorChannelState.UP
+                    && reactorChannel.Role is ConsumerRole consumerRole
+                    && consumerRole.RdmLoginRequest != null
+                    && msg.StreamId == consumerRole.RdmLoginRequest.StreamId
+                    && loginMsg.LoginMsgType == LoginMsgType.REFRESH
+                    && loginMsg.LoginRefresh!.State.StreamState() == StreamStates.OPEN
+                    && loginMsg.LoginRefresh!.State.DataState() == DataStates.OK)
                 {
-                    /*
-                     * check if this is a reactorChannel's role is CONSUMER, a Login REFRESH, if the reactorChannel State is UP,
-                     * and that the loginRefresh's state was OK.
-                     * If all this is true, check if a directoryRequest is populated. If so, send the directoryRequest. if not, change the
-                     * reactorChannel state to READY.
-                     */
-                    if (reactorChannel.State == ReactorChannelState.UP
-                        && reactorChannel.Role is ConsumerRole consumerRole
-                        && consumerRole.RdmLoginRequest != null
-                        && msg.StreamId == consumerRole.RdmLoginRequest.StreamId
-                        && loginMsg.LoginMsgType == LoginMsgType.REFRESH
-                        && loginMsg.LoginRefresh!.State.StreamState() == StreamStates.OPEN
-                        && loginMsg.LoginRefresh!.State.DataState() == DataStates.OK)
+                    DirectoryRequest? directoryRequest = consumerRole.RdmDirectoryRequest;
+                    if (directoryRequest != null)
                     {
-                        DirectoryRequest? directoryRequest = consumerRole.RdmDirectoryRequest;
-                        if (directoryRequest != null)
-                        {
-                            // a rdmDirectoryRequest was specified, send it out.
-                            EncodeAndWriteDirectoryRequest(directoryRequest, reactorChannel, out errorInfo);
-                        }
-                        else
-                        {
-                            // no rdmDirectoryRequest defined, so just send CHANNEL_READY
-                            reactorChannel.State = ReactorChannelState.READY;
-                            if ((retval = SendAndHandleChannelEventCallback("Reactor.ProcessLoginMessage",
-                                ReactorChannelEventType.CHANNEL_READY, reactorChannel, errorInfo))
-                                    != ReactorReturnCode.SUCCESS)
-                            {
-                                return retval;
-                            }
-                        }
+                        // a rdmDirectoryRequest was specified, send it out.
+                        EncodeAndWriteDirectoryRequest(directoryRequest, reactorChannel, out errorInfo);
                     }
-
-                    /*
-                     * check if this is a reactorChannel's role is NIPROVIDER, a Login REFRESH, if the reactorChannel State is UP,
-                     * and that the loginRefresh's state was OK.
-                     * If all this is true, check if a directoryRefresh is populated. If so, send the directoryRefresh. if not, change the
-                     * reactorChannel state to READY.
-                     */
-                    if (reactorChannel.State == ReactorChannelState.UP
-                        && reactorChannel.Role is NIProviderRole niProviderRole
-                        && niProviderRole.RdmLoginRequest != null
-                        && msg.StreamId == niProviderRole.RdmLoginRequest.StreamId
-                        && loginMsg.LoginMsgType == LoginMsgType.REFRESH
-                        && loginMsg.LoginRefresh!.State.StreamState() == StreamStates.OPEN
-                        && loginMsg.LoginRefresh!.State.DataState() == DataStates.OK)
+                    else
                     {
-
-                        DirectoryRefresh? directoryRefresh = niProviderRole.RdmDirectoryRefresh;
-                        if (directoryRefresh != null)
-                        {
-                            // a rdmDirectoryRefresh was specified, send it out.
-                            EncodeAndWriteDirectoryRefresh(directoryRefresh, reactorChannel, out errorInfo);
-                        }
-
-                        // send CHANNEL_READY
+                        // no rdmDirectoryRequest defined, so just send CHANNEL_READY
                         reactorChannel.State = ReactorChannelState.READY;
                         if ((retval = SendAndHandleChannelEventCallback("Reactor.ProcessLoginMessage",
                             ReactorChannelEventType.CHANNEL_READY, reactorChannel, errorInfo))
@@ -2504,6 +2479,38 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         {
                             return retval;
                         }
+                    }
+                }
+
+                /*
+                 * check if this is a reactorChannel's role is NIPROVIDER, a Login REFRESH, if the reactorChannel State is UP,
+                 * and that the loginRefresh's state was OK.
+                 * If all this is true, check if a directoryRefresh is populated. If so, send the directoryRefresh. if not, change the
+                 * reactorChannel state to READY.
+                 */
+                if (reactorChannel.State == ReactorChannelState.UP
+                    && reactorChannel.Role is NIProviderRole niProviderRole
+                    && niProviderRole.RdmLoginRequest != null
+                    && msg.StreamId == niProviderRole.RdmLoginRequest.StreamId
+                    && loginMsg.LoginMsgType == LoginMsgType.REFRESH
+                    && loginMsg.LoginRefresh!.State.StreamState() == StreamStates.OPEN
+                    && loginMsg.LoginRefresh!.State.DataState() == DataStates.OK)
+                {
+
+                    DirectoryRefresh? directoryRefresh = niProviderRole.RdmDirectoryRefresh;
+                    if (directoryRefresh != null)
+                    {
+                        // a rdmDirectoryRefresh was specified, send it out.
+                        EncodeAndWriteDirectoryRefresh(directoryRefresh, reactorChannel, out errorInfo);
+                    }
+
+                    // send CHANNEL_READY
+                    reactorChannel.State = ReactorChannelState.READY;
+                    if ((retval = SendAndHandleChannelEventCallback("Reactor.ProcessLoginMessage",
+                        ReactorChannelEventType.CHANNEL_READY, reactorChannel, errorInfo))
+                            != ReactorReturnCode.SUCCESS)
+                    {
+                        return retval;
                     }
                 }
             }
@@ -2546,7 +2553,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private ReactorReturnCode ProcessDirectoryMessage(ReactorChannel reactorChannel, DecodeIterator dIter, Msg msg, ITransportBuffer transportBuffer, out ReactorErrorInfo? errorInfo)
         {
-            ReactorCallbackReturnCode callbackReturnCode;
+            ReactorCallbackReturnCode callbackReturnCode = ReactorCallbackReturnCode.SUCCESS;
 
             switch (msg.MsgClass)
             {
@@ -2568,7 +2575,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     break;
                 case MsgClasses.GENERIC:
                     m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.CONSUMER_STATUS;
-                    m_DirectoryMsg.DirectoryConsumerStatus!.Decode(dIter, msg);
+                    if (m_DirectoryMsg.DirectoryConsumerStatus!.Decode(dIter, msg) != CodecReturnCode.SUCCESS)
+                        callbackReturnCode = ReactorCallbackReturnCode.RAISE;
                     break;
                 case MsgClasses.UPDATE:
                     m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.UPDATE;
@@ -2578,7 +2586,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     break;
             }
 
-            callbackReturnCode = SendAndHandleDirectoryMsgCallback("Reactor.ProcessDirectoryMessage", reactorChannel, transportBuffer, msg, m_DirectoryMsg, out errorInfo);
+            errorInfo = null;
+            if (callbackReturnCode == ReactorCallbackReturnCode.SUCCESS)
+            {
+                callbackReturnCode = SendAndHandleDirectoryMsgCallback("Reactor.ProcessDirectoryMessage", reactorChannel, transportBuffer, msg, m_DirectoryMsg, out errorInfo);
+            }
 
             if (callbackReturnCode == ReactorCallbackReturnCode.RAISE)
             {

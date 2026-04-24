@@ -6,18 +6,19 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.ValueAdd.Reactor;
-using System.Net.Sockets;
-using LSEG.Eta.Transports;
 using System;
-using System.Threading.Tasks;
-using System.Threading;
-using LSEG.Eta.ValueAdd.Rdm;
-using static LSEG.Eta.Rdm.Directory;
-using LSEG.Eta.Common;
-using LSEG.Eta.Codec;
-using LSEG.Eta.Rdm;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Eta.Tests.ValueAddTest
 {
@@ -2016,6 +2017,234 @@ namespace LSEG.Eta.Tests.ValueAddTest
 
             Assert.Equal(ReactorReturnCode.SUCCESS, providerReactor.Shutdown(out errorInfo));
             Assert.Equal(ReactorReturnCode.SUCCESS, consumerReactor.Shutdown(out errorInfo));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        [Category("AdminDomain")]
+        public void ReactorInitAdminDomainsAndExchangeLoginRTT()
+        {
+            ReactorErrorInfo errorInfo;
+            ReactorOptions reactorOptions = new ReactorOptions();
+            reactorOptions.UserSpecObj = this;
+            Reactor consumerReactor = Reactor.CreateReactor(reactorOptions, out errorInfo);
+            Reactor providerReactor = Reactor.CreateReactor(reactorOptions, out errorInfo);
+
+            Socket consumerReactorEventFD = consumerReactor.EventSocket;
+            Socket providerReactorEventFD = providerReactor.EventSocket;
+
+            string serviceName = port.ToString();
+            port++;
+
+            BindOptions bindOptions = new BindOptions
+            {
+                ServiceName = serviceName,
+                ServerBlocking = false,
+                ConnectionType = ConnectionType.SOCKET,
+                ProtocolType = Eta.Transports.ProtocolType.RWF,
+                UserSpecObject = this,
+                InterfaceName = "localhost",
+                MajorVersion = Codec.Codec.MajorVersion(),
+                MinorVersion = Codec.Codec.MinorVersion(),
+                MinPingTimeout = 1,
+                PingTimeout = 255
+            };
+
+            var server = Transport.Bind(bindOptions, out Error error);
+
+            Assert.NotNull(server);
+            Assert.Equal(ChannelState.ACTIVE, server.State);
+            Assert.True(server.Socket.IsBound);
+
+            ClientComponentTest clientComponentTest = new ClientComponentTest();
+            ServerComponentTest serverComponentTest = new ServerComponentTest();
+
+            clientComponentTest.LoginRequestMsg = new LoginRequest();
+            clientComponentTest.LoginRequestMsg.StreamId = 1;
+            clientComponentTest.LoginRequestMsg.InitDefaultRequest(1);
+            clientComponentTest.LoginRequestMsg.HasAttrib = true;
+            clientComponentTest.LoginRequestMsg.LoginAttrib.HasSupportRoundTripLatencyMonitoring = true;
+            clientComponentTest.LoginRequestMsg.LoginAttrib.SupportConsumerRTTMonitoring = 1;
+
+            clientComponentTest.OnDefaultMsgReceived = eventMsg =>
+            {
+                var msg = eventMsg.Msg;
+                if (msg.DomainType == (int)DomainType.MARKET_PRICE && msg.MsgClass == MsgClasses.REFRESH)
+                {
+                    clientComponentTest.NumMarketPriceRefresh++;
+
+                }
+            };
+            clientComponentTest.CheckLoginMsg = msg =>
+            {
+                Assert.True(LoginMsgType.REFRESH == msg.LoginMsgType || LoginMsgType.RTT == msg.LoginMsgType);
+                if (LoginMsgType.REFRESH == msg.LoginMsgType)
+                    Assert.NotNull(msg.LoginRefresh);
+                else if (LoginMsgType.RTT == msg.LoginMsgType)
+                    Assert.NotNull(msg.LoginRTT);
+            };
+
+            serverComponentTest.CheckLoginMsg = msg =>
+            {
+                Assert.True(LoginMsgType.REQUEST == msg.LoginMsgType || LoginMsgType.RTT == msg.LoginMsgType);
+                if (LoginMsgType.REQUEST == msg.LoginMsgType) Assert.NotNull(msg.LoginRequest);
+            };
+
+            var onLoginAction = serverComponentTest.OnLoginMsgReceived;
+            serverComponentTest.OnLoginMsgReceived = loginEvent =>
+            {
+                if (loginEvent.LoginMsg.LoginMsgType == LoginMsgType.REQUEST)
+                {
+                    onLoginAction.Invoke(loginEvent);
+                }
+            };
+
+            ReactorReturnCode acceptRetCode = ReactorReturnCode.FAILURE;
+            ReactorReturnCode connectRetCode = ReactorReturnCode.FAILURE;
+
+            ConsumerRole consumerRole = CreateConsumerRole(clientComponentTest, false, true, false);
+            ReactorConnectOptions connectOptions = CreateDefaultReactorConnectOptions(serviceName, 3);
+
+            Task acceptTask = Task.Factory.StartNew(() =>
+            {
+                acceptRetCode = ServerAccept(providerReactor, serverComponentTest)(server);
+            }, TestContext.Current.CancellationToken);
+
+            Task connectTask = Task.Factory.StartNew(() =>
+            {
+                connectRetCode = ClientConnect(consumerReactor, consumerRole, connectOptions)();
+            }, TestContext.Current.CancellationToken);
+
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
+            Task.WaitAll(new[] { acceptTask, connectTask }, TestContext.Current.CancellationToken);
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, acceptRetCode);
+            Assert.Equal(ReactorReturnCode.SUCCESS, connectRetCode);
+
+            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
+
+            DispatchReactorEvent(providerReactorEventFD, providerReactor, dispatchOpts, 1 * 1000 * 1000);
+
+            Assert.Equal(1, serverComponentTest.NumChannelUpEvent);
+            Assert.Equal(1, serverComponentTest.NumChannelReadyEvent);
+            Assert.Equal(ChannelState.ACTIVE, serverComponentTest.ReactorChannel.Channel.State);
+
+            DispatchReactorEvent(consumerReactorEventFD, consumerReactor, dispatchOpts, 1 * 1000 * 1000);
+
+            Assert.Equal(1, clientComponentTest.NumChannelUpEvent);
+            Assert.Equal(ChannelState.ACTIVE, clientComponentTest.ReactorChannel.Channel.State);
+
+            Dispatch(providerReactor, 400);
+
+            Assert.Equal(1, serverComponentTest.NumLoginMsgEvent);
+
+            Dispatch(consumerReactor, 400);
+
+            Assert.Equal(1, clientComponentTest.NumLoginMsgEvent);
+
+            Dispatch(providerReactor, 400);
+
+            Assert.Equal(1, serverComponentTest.NumDirectoryMsgEvent);
+
+            Dispatch(consumerReactor, 400);
+
+            Assert.Equal(1, clientComponentTest.NumDirectoryMsgEvent);
+            Assert.Equal(1, clientComponentTest.NumChannelReadyEvent);
+
+            LoginRTT loginRTTMsg = new();
+            loginRTTMsg.StreamId = 1;
+            loginRTTMsg.HasRTLatency = true;
+            loginRTTMsg.HasTCPRetrans = true;
+            loginRTTMsg.RTLatency = 500;
+            loginRTTMsg.TCPRetrans = 5;
+            loginRTTMsg.Ticks = System.DateTime.Now.Ticks;
+
+            providerReactor.SubmitChannel(serverComponentTest.ReactorChannel, loginRTTMsg, new ReactorSubmitOptions(), out ReactorErrorInfo errorInfo0);
+            Dispatch(providerReactor, 400);
+            Dispatch(consumerReactor, 700);
+            Dispatch(providerReactor, 400);
+
+            // Normal Login RTT message was sent, goes to LoginMsgCallback
+            Assert.Equal(0, clientComponentTest.NumDefaultMsgEvent);
+            Assert.Equal(2, clientComponentTest.NumLoginMsgEvent);
+
+            // Send Generic Login message with ElementList payload that does not have Ticks field
+            Msg shouldRaiseMsg = new Msg();
+            shouldRaiseMsg.StreamId = 1;
+            shouldRaiseMsg.MsgClass = MsgClasses.GENERIC;
+            shouldRaiseMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+            shouldRaiseMsg.ContainerType = LSEG.Eta.Codec.DataTypes.ELEMENT_LIST;
+            shouldRaiseMsg.Flags |= GenericMsgFlags.PROVIDER_DRIVEN;
+
+            EncodeIterator encodeIter = new();
+            Buffer msgBuf = new();
+            msgBuf.Data(new ByteBuffer(2048));
+
+            encodeIter.SetBufferAndRWFVersion(msgBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            ElementEntry elementEntry = new ElementEntry();
+            ElementList elementList = new ElementList();
+            UInt tmpUInt = new UInt();
+
+            elementEntry.Clear();
+            elementList.Clear();
+            elementList.Flags = ElementListFlags.HAS_STANDARD_DATA;
+
+            elementList.EncodeInit(encodeIter, null, 0);
+
+            elementEntry.DataType = Eta.Codec.DataTypes.UINT;
+            elementEntry.Name = ElementNames.ROUND_TRIP_LATENCY;
+            tmpUInt.Value(5);
+            elementEntry.Encode(encodeIter, tmpUInt);
+
+            elementEntry.DataType = Eta.Codec.DataTypes.UINT;
+            elementEntry.Name = ElementNames.TCP_RETRANS;
+            tmpUInt.Value(8);
+            elementEntry.Encode(encodeIter, tmpUInt);
+
+            elementList.EncodeComplete(encodeIter, true);
+
+            shouldRaiseMsg.EncodedDataBody = msgBuf;
+
+            providerReactor.SubmitChannel(serverComponentTest.ReactorChannel, shouldRaiseMsg, new ReactorSubmitOptions(), out ReactorErrorInfo errorInfo2);
+
+            Dispatch(providerReactor, 400);
+            Dispatch(consumerReactor, 700);
+
+            Assert.Equal(1, clientComponentTest.NumDefaultMsgEvent);
+            Assert.Equal(2, clientComponentTest.NumLoginMsgEvent);
+
+            // Send Generic message that is not recognised as LoginMsgType.CONSUMER_STATUS and hence sent to default msg callback
+            shouldRaiseMsg.Clear();
+            shouldRaiseMsg.StreamId = 1;
+            shouldRaiseMsg.MsgClass = MsgClasses.GENERIC;
+            shouldRaiseMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+
+            providerReactor.SubmitChannel(serverComponentTest.ReactorChannel, shouldRaiseMsg, new ReactorSubmitOptions(), out errorInfo2);
+
+            Dispatch(providerReactor, 400);
+            Dispatch(consumerReactor, 700);
+
+            Assert.Equal(2, clientComponentTest.NumDefaultMsgEvent);
+            Assert.Equal(2, clientComponentTest.NumLoginMsgEvent);
+
+            // Send Generic message that is not recognised as DirectoryMsgType.CONSUMER_STATUS and hence sent to default msg callback
+            shouldRaiseMsg.Clear();
+            shouldRaiseMsg.StreamId = 2;
+            shouldRaiseMsg.MsgClass = MsgClasses.GENERIC;
+            shouldRaiseMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.SOURCE;
+
+            providerReactor.SubmitChannel(serverComponentTest.ReactorChannel, shouldRaiseMsg, new ReactorSubmitOptions(), out errorInfo2);
+
+            Dispatch(providerReactor, 400);
+            Dispatch(consumerReactor, 700);
+
+            Assert.Equal(3, clientComponentTest.NumDefaultMsgEvent);
+            Assert.Equal(1, clientComponentTest.NumDirectoryMsgEvent);
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumerReactor.Shutdown(out errorInfo));
+            Assert.Equal(ReactorReturnCode.SUCCESS, providerReactor.Shutdown(out errorInfo));
         }
 
         private void DispatchReactorEvent(Socket reactorEventFD, Reactor reactor, ReactorDispatchOptions dispatchOptions, int pollTime)
