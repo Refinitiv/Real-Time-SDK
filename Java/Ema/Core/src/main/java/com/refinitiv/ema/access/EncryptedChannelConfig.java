@@ -12,13 +12,28 @@ import com.refinitiv.eta.transport.ConnectionTypes;
 
 class EncryptedChannelConfig extends HttpChannelConfig
 {
-	EncryptedChannelConfig()
+	EncryptedChannelConfig(int rsslConnectionType)
 	{
 		clear();
+		this.rsslConnectionType = rsslConnectionType;
+
+		if (rsslConnectionType == ConnectionTypes.SOCKET)
+		{
+			clearSocketChannelConfig();
+		}
+		else if (rsslConnectionType == ConnectionTypes.WEBSOCKET)
+		{
+			clearSocketChannelConfig();
+			this.rsslConnectionType = rsslConnectionType;
+		}
+		else if (rsslConnectionType == ConnectionTypes.HTTP)
+		{
+			clearHttpChannelConfig();
+		}
 	}
 
 	@Override
-	void clear() 
+	void clear()
 	{
 		super.clear();
 		if(encryptionConfig != null)

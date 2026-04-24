@@ -13,22 +13,27 @@ import com.refinitiv.eta.transport.ConnectionTypes;
 class HttpChannelConfig extends SocketChannelConfig
 {
 	String				objectName;
-	
+
 	HttpChannelConfig()
 	{
 		clear();
 	}
 
-	@Override
-	void clear() 
+	void clearHttpChannelConfig()
 	{
-		super.clear();
-		
 		rsslConnectionType = ConnectionTypes.HTTP;
 		hostName = ActiveConfig.DEFAULT_HOST_NAME;
 		serviceName = ActiveConfig.defaultServiceName;
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		objectName = ActiveConfig.DEFAULT_OBJECT_NAME;
 		httpProxy = ActiveConfig.DEFAULT_HTTP_PROXY;
+	}
+
+	@Override
+	void clear()
+	{
+		super.clear();
+
+		clearHttpChannelConfig();
 	}
 }

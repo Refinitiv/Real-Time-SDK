@@ -948,8 +948,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	{
 		if (_tunnelingChannelCfg == null)
 		{
-			_tunnelingChannelCfg = new EncryptedChannelConfig() ;
-			_tunnelingChannelCfg.rsslConnectionType = ConnectionTypes.HTTP;
+			_tunnelingChannelCfg = new EncryptedChannelConfig(ConnectionTypes.HTTP);
 		}
 		
 		return _tunnelingChannelCfg;

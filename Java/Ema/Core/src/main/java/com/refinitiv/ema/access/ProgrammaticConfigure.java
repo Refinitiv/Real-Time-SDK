@@ -2039,9 +2039,8 @@ class ProgrammaticConfigure
 		ChannelConfig currentChannelConfig = null;
 
 		if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET) {
-			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig(channelType);
 			socketChannelConfig.serviceName = defaultServiceName;
-			socketChannelConfig.rsslConnectionType = channelType;
 			currentChannelConfig = socketChannelConfig;
 			channelSet.add(currentChannelConfig);
 
@@ -2106,8 +2105,7 @@ class ProgrammaticConfigure
 
 			}
 		} else if (channelType == ConnectionTypes.HTTP) {
-			HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig();
-			httpChannelConfig.rsslConnectionType = channelType;
+			HttpChannelConfig httpChannelConfig = new EncryptedChannelConfig(channelType);
 			currentChannelConfig = httpChannelConfig;
 			channelSet.add(currentChannelConfig);
 
@@ -2170,8 +2168,7 @@ class ProgrammaticConfigure
 
 			switch (encryptedProtocol) {
 				case ConnectionTypes.HTTP:
-					EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
-					encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig(ConnectionTypes.ENCRYPTED);
 					encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.HTTP;
 					currentChannelConfig = encryptedChannelConfig;
 					channelSet.add(currentChannelConfig);
@@ -2248,8 +2245,7 @@ class ProgrammaticConfigure
 					break;
 				case ConnectionTypes.SOCKET:
 				case ConnectionTypes.WEBSOCKET:
-					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
-					encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig(ConnectionTypes.ENCRYPTED);
 					encryptedSocketChannelConfig.encryptedProtocolType = encryptedProtocol;
 					currentChannelConfig = encryptedSocketChannelConfig;
 					channelSet.add(currentChannelConfig);

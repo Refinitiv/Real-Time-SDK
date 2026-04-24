@@ -1211,8 +1211,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		}
 		else if (warmStandbyChannelSet == null || warmStandbyChannelSet.trim().isEmpty())
 		{
-			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
-			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig(ConnectionTypes.SOCKET);
+
 			if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 			{
 				String tempHost = config.getUserSpecifiedHostname();
@@ -1381,11 +1381,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		EncryptedChannelConfig encryptedChannelConfig;
 		for(int i = 0; i < _activeConfig.channelConfigSet.size(); i++)
 		{
-			if(_activeConfig.channelConfigSet.get(i).rsslConnectionType ==  ConnectionTypes.ENCRYPTED && _activeConfig.channelConfigSet.get(i).encryptedProtocolType == ConnectionTypes.HTTP )
+			if (_activeConfig.channelConfigSet.get(i).rsslConnectionType == ConnectionTypes.ENCRYPTED)
 			{
 				encryptedChannelConfig = (EncryptedChannelConfig)_activeConfig.channelConfigSet.get(i);
 				
-				if (encryptedChannelConfig.enableSessionMgnt == false)
+				if (encryptedChannelConfig.enableSessionMgnt == false
+					&& (_activeConfig.channelConfigSet.get(i).encryptedProtocolType == ConnectionTypes.HTTP
+						|| _activeConfig.channelConfigSet.get(i).encryptedProtocolType == ConnectionTypes.SOCKET
+						|| _activeConfig.channelConfigSet.get(i).encryptedProtocolType == ConnectionTypes.WEBSOCKET))
 				{
 					if(encryptedChannelConfig.hostName == null || encryptedChannelConfig.hostName.isEmpty())
 						encryptedChannelConfig.hostName = ActiveConfig.DEFAULT_HOST_NAME;
@@ -1751,8 +1754,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			if(encrypedProtocol == ConnectionTypes.HTTP)
 			{
-				HttpChannelConfig tunnelingChannelCfg = new EncryptedChannelConfig();
-				tunnelingChannelCfg.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+				HttpChannelConfig tunnelingChannelCfg = new EncryptedChannelConfig(ConnectionTypes.ENCRYPTED);
 				tunnelingChannelCfg.encryptedProtocolType = ConnectionTypes.HTTP;
 				
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
@@ -1814,8 +1816,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 			else if(encrypedProtocol == ConnectionTypes.SOCKET || encrypedProtocol == ConnectionTypes.WEBSOCKET)
 			{
-				EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
-				encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
+				EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig(ConnectionTypes.ENCRYPTED);
 				encryptedChannelConfig.encryptedProtocolType = encrypedProtocol;
 				
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
@@ -1881,9 +1882,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		case ConnectionTypes.WEBSOCKET:
 		case ConnectionTypes.SOCKET:
 		{
-			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig();
+			SocketChannelConfig socketChannelConfig = new EncryptedChannelConfig(connectionType);
 
-			socketChannelConfig.rsslConnectionType = connectionType;
 			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
 			
 			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
@@ -1928,9 +1928,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		case ConnectionTypes.HTTP:
 		{
 			HttpChannelConfig tunnelingChannelCfg;
-			tunnelingChannelCfg = new EncryptedChannelConfig();
-			tunnelingChannelCfg.rsslConnectionType = ConnectionTypes.HTTP;
-			
+			tunnelingChannelCfg = new EncryptedChannelConfig(ConnectionTypes.HTTP);
+
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
 				tunnelingChannelCfg.hostName = ce.asciiValue();
 

@@ -20,29 +20,34 @@ class SocketChannelConfig extends ChannelConfig
 	Boolean 			httpProxy;
 	String 				httpProxyHostName;
 	String 				httpProxyPort;
-	
+
 	/* Credential configuration parameters */
 	String				httpProxyUserName;
 	String				httpproxyPasswd;
 	String				httpProxyDomain;
 	String 				httpProxyLocalHostName;
 	String				httpProxyKRB5ConfigFile;
-	
-	SocketChannelConfig() 
+
+	SocketChannelConfig()
 	{
 		 clear();
 	}
 
-	@Override
-	void clear() 
+	void clearSocketChannelConfig()
 	{
-		super.clear();
-		
-		rsslConnectionType = ConnectionTypes.SOCKET;	
+		rsslConnectionType = ConnectionTypes.SOCKET;
 		hostName = ActiveConfig.DEFAULT_HOST_NAME;
 		serviceName = ActiveConfig.defaultServiceName;
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 		httpProxy = ActiveConfig.DEFAULT_HTTP_PROXY;
+	}
+
+	@Override
+	void clear()
+	{
+		super.clear();
+
+		clearSocketChannelConfig();
 	}
 }
