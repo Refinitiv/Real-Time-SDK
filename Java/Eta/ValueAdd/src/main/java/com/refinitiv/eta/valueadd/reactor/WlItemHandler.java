@@ -3597,12 +3597,15 @@ class WlItemHandler implements WlHandler
 					{
 					case MapEntryActions.ADD:
 					case MapEntryActions.UPDATE:
-						_requestMsg.msgKey().name(_mapKey);
-						_symbolListRequestKey.clear();
-						_symbolListRequestKey.msgKey(_requestMsg.msgKey());
-						_symbolListRequestKey.msgKey().serviceId(serviceId);
-						_symbolListRequestKey.domainType(_requestMsg.domainType());
-						_symbolListRequestKey.qos(_requestMsg.qos());
+                        _requestMsg.msgKey().applyHasName();
+                        _requestMsg.msgKey().name(_mapKey);
+                        _symbolListRequestKey.clear();
+                        _symbolListRequestKey.msgKey().applyHasName();
+                        _symbolListRequestKey.msgKey(_requestMsg.msgKey());
+                        _symbolListRequestKey.msgKey().applyHasServiceId();
+                        _symbolListRequestKey.msgKey().serviceId(serviceId);
+                        _symbolListRequestKey.domainType(_requestMsg.domainType());
+                        _symbolListRequestKey.qos(_requestMsg.qos());
 						
 						if (_providerRequestTable.containsKey(_symbolListRequestKey))
 							continue;
