@@ -876,7 +876,7 @@ void EmaActiveConfigTest::OmmIProviderActiveConfigTestDefaultValues(OmmIProvider
 	// Tests default values
 	EXPECT_EQ(ommIProvideractiveServerConfig.getRefreshFirstRequired(), true);
 	EXPECT_EQ(ommIProvideractiveServerConfig.getMaxFieldDictFragmentSize(), 8192);
-	EXPECT_EQ(ommIProvideractiveServerConfig.getMaxEnumTypeFragmentSize(), 12800);
+	EXPECT_EQ(ommIProvideractiveServerConfig.getMaxEnumTypeFragmentSize(), 21000);
 }
 
 TEST_F(EmaActiveConfigTest, OmmIProviderActiveConfigTest)
