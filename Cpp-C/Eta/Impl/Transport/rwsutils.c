@@ -1518,11 +1518,17 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 			_rwsMatchBuffer(hdrLine[0].value.data, fv_WebSocketURI.length, fv_WebSocketURI.data, fv_WebSocketURI.length))
 		{
 			RsslUInt32 index = fv_WebSocketURI.length + 1;
+			RsslInt32 bufferLen = 0;
 
 			/* Skip whitespace and tab characters before the HTTP version */
 			for (; index < hdrLine[0].value.length && (hdrLine[0].value.data[index] == ' ' || hdrLine[0].value.data[index] == '\t'); index++);
 
-			if (_rwsMatchBuffer(hdrLine[0].value.data + index, rwsHdr_HTTP.length, rwsHdr_HTTP.data, rwsHdr_HTTP.length))
+			if (index < hdrLine[0].value.length)
+			{
+				bufferLen = hdrLine[0].value.length - index;
+			}
+
+			if (_rwsMatchBuffer(hdrLine[0].value.data + index, bufferLen, rwsHdr_HTTP.data, rwsHdr_HTTP.length))
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 				_DEBUG_TRACE_PARSE_HTTP("Received GET request '%s' ", hdrLine[0].data)

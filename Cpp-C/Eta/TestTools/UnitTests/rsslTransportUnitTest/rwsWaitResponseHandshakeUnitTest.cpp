@@ -419,6 +419,18 @@ TEST_F(RwsWaitResponseHandshakeTests, CompleteHttpResponse)
     ripcSessInit result = rwsWaitResponseHandshake(pChannel, &inProgress, &error);
 
     EXPECT_EQ(result, RIPC_CONN_ACTIVE) << "Expected RIPC_CONN_ACTIVE for complete response";
+
+    if (pChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pChannel->curInputBuf);
+        pChannel->curInputBuf = 0;
+    }
+
+    if (pChannel->inputBuffer)
+    {
+        rtr_smplcFreeMsg(pChannel->inputBuffer);
+        pChannel->inputBuffer = 0;
+    }
 }
 
 
@@ -846,6 +858,18 @@ TEST_F(RwsWaitResponseHandshakeTests, VeryLongHeaderValue)
 
     /* Should not crash regardless of result */
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle very long header values gracefully without crash";
+
+    if (pChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pChannel->curInputBuf);
+        pChannel->curInputBuf = 0;
+    }
+
+    if (pChannel->inputBuffer)
+    {
+        rtr_smplcFreeMsg(pChannel->inputBuffer);
+        pChannel->inputBuffer = 0;
+    }
 }
 
 /*
@@ -871,6 +895,18 @@ TEST_F(RwsWaitResponseHandshakeTests, LfLineEndingsInsteadOfCrlf)
     ripcSessInit result = rwsWaitResponseHandshake(pChannel, &inProgress, &error);
 
     EXPECT_EQ(result, RIPC_CONN_ACTIVE) << "Expected RIPC_CONN_ACTIVE for LF line endings";
+
+    if (pChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pChannel->curInputBuf);
+        pChannel->curInputBuf = 0;
+    }
+
+    if (pChannel->inputBuffer)
+    {
+        rtr_smplcFreeMsg(pChannel->inputBuffer);
+        pChannel->inputBuffer = 0;
+    }
 }
 
 /*

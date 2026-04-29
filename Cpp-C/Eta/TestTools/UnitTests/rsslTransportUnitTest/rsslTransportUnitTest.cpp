@@ -2549,6 +2549,10 @@ public:
 			if (writeCount % 10000 <= (int)numMessagesInBuffer)
 				resetDeadlockTimer();
 		}
+
+		delete pTransportBuffer;
+	        delete [] testBuffer;
+
 		return;
 	}
 };

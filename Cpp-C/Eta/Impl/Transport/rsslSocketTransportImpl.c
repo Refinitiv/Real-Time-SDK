@@ -10174,12 +10174,13 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				rsslHashTableRemoveLink(&rsslChnlImpl->assemblyBuffers, &rsslAssemblyBuf->link1);
 				_DEBUG_TRACE_BUFFER("removing from assemblyBuffers hash\n")
 
-				_rsslFree(rsslAssemblyBuf->buffer.data);
-				_rsslFree(rsslAssemblyBuf);
-
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_FAILURE, 0);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslSocketRead() Received fragment size %zu is greater than the actual data length %d.\n",
 					__FILE__, __LINE__, rsslAssemblyBuf->readCursor + ripcBuffer->length, rsslAssemblyBuf->buffer.length);
+
+				_rsslFree(rsslAssemblyBuf->buffer.data);
+				_rsslFree(rsslAssemblyBuf);
+
 				*readRet = RSSL_RET_FAILURE;
 				return NULL;
 			}

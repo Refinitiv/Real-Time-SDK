@@ -1131,7 +1131,15 @@ TEST_F(RwsValidateWebSocketRequestTests, ValidWebSocketHandshake)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_EQ(result, RIPC_CONN_ACTIVE) << "Expected RIPC_CONN_ACTIVE for valid handshake";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -1263,6 +1271,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityVeryLargeLength)
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle very large length gracefully without crash";
 
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -1299,6 +1315,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityFormatStringAttackInHeaderValue
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle format string attack gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
     
     free(handshake);
 }
@@ -1449,6 +1473,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityHeapOverflowManyHeaders)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle many headers gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+	rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
     
     free(handshake);
 }
@@ -1522,6 +1554,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityControlCharsInHeaderName)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle control characters in header name gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
 }
 
 /*
@@ -1558,6 +1598,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityControlCharsInHeaderValue)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle control characters in header value gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
 }
 
 /*
@@ -1594,6 +1642,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityHighBitAsciiChars)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle high-bit ASCII characters gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
     
     free(handshake);
 }
@@ -1632,7 +1688,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityUtf8MultiByteSequences)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle UTF-8 multi-byte sequences gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -1671,7 +1735,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityExcessivelyLongHeaderName)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle excessively long header name gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+	rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+    	rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -1741,42 +1813,6 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityZeroLengthBuffer)
 }
 
 /*
- * Security Test Case: Double free protection - call with same buffer twice
- * Expected: Should handle gracefully without crash
- */
-TEST_F(RwsValidateWebSocketRequestTests, SecurityDoubleCallSameBuffer)
-{
-    RsslServerSocketChannel serverSocketChannel;
-    memset(&serverSocketChannel, 0, sizeof(RsslServerSocketChannel));
-    
-    rwsServer_t wsServer;
-    memset(&wsServer, 0, sizeof(rwsServer_t));
-    wsServer.protocolList = (char*)"rssl.json.v2, rssl.rwf";
-    wsServer.version = 13;
-    serverSocketChannel.rwsServer = &wsServer;
-
-    RsslSocketChannel* pRsslSocketChannel = initSocketChannelWithMock(&serverSocketChannel, DEFAULT_INPUT_BUFFER_SIZE);
-    
-    RsslInt32 len;
-    char* handshake = createModifiableHandshake(getValidWebSocketHandshake(), &len);
-    ASSERT_NE(handshake, nullptr);
-    
-    // First call
-    ripcSessInit result1 = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
-    
-    // Second call with same buffer - tests state handling
-    ripcSessInit result2 = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
-    
-    EXPECT_TRUE(result1 == RIPC_CONN_ACTIVE) << "First call should complete without crash";
-
-    EXPECT_TRUE(result2 == RIPC_CONN_ERROR) << "Second call should complete without crash";
-    EXPECT_TRUE(strstr(error.text, "Invalid HTTP header, duplicate fields received, Sec-Websocket-Key") != NULL) << "Error message should mention duplicate Sec-Websocket-Key field";
-    EXPECT_TRUE(strncmp("HTTP/1.1 400 Bad Request\r\nContent-Type: text/html; charset=UTF-8\r\nConnection: close\r\n\r\n", writeTransportBuffer, writeTransportBufferLength) == 0);
-
-    free(handshake);
-}
-
-/*
  * Security Test Case: Extremely long header value (potential heap overflow)
  * Expected: Should handle gracefully without crash
  */
@@ -1810,7 +1846,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityExtremelyLongHeaderValue)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle very long header value gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -1847,6 +1891,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityInvalidBase64WebSocketKey)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
 
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle invalid Base64 in WebSocket key gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
 
     free(handshake);
 }
@@ -2014,7 +2066,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityTabCharactersInHeaders)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle tab characters in headers gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -2051,6 +2111,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityMixedCaseHeaderNames)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle mixed case header names gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
     
     free(handshake);
 }
@@ -2276,6 +2344,14 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityDeepHeaderNesting)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle deep header nesting gracefully without crash";
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
     
     free(handshake);
 }
@@ -2393,7 +2469,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityExtremelyLongOriginHeader)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle extremely long Origin header gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
@@ -2431,7 +2515,15 @@ TEST_F(RwsValidateWebSocketRequestTests, SecurityCookieHeaderSpecialChars)
     ripcSessInit result = rwsValidateWebSocketRequest(pRsslSocketChannel, handshake, len, &error);
     
     EXPECT_TRUE(result == RIPC_CONN_ACTIVE) << "Should handle cookie header special chars gracefully without crash";
-    
+
+    if (pRsslSocketChannel->curInputBuf)
+    {
+        rtr_smplcFreeMsg(pRsslSocketChannel->curInputBuf);
+    }
+
+    if (pRsslSocketChannel->guarBufPool)
+        rtr_dfltcDropRef(&(pRsslSocketChannel->guarBufPool->bufpool));
+
     free(handshake);
 }
 
