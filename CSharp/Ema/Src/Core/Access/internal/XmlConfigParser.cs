@@ -681,7 +681,11 @@ namespace LSEG.Ema.Access
                     .Parse("ChannelType", () => tmpConfig.ConnectInfo.ConnectOptions.ConnectionType,
                         CreatePrefixedValueParser("ChannelType", ClientChannelConfig.StringToConnectionType), 
                         "Invalid ConnectionType string format. Correct format is \"ChannelType::<RSSL_SOCKET or RSSL_ENCRYPTED>\".")
-                    .Parse("ConnectionPingTimeout", () => tmpConfig.ConnectInfo.ConnectOptions.PingTimeout, pingTimeout => pingTimeout >= 1000 ? pingTimeout / 1000 : 60)
+                    .Parse("ConnectionPingTimeout",
+                           () => tmpConfig.ConnectInfo.ConnectOptions.PingTimeout,
+                           pingTimeout => ((pingTimeout >= 1000)
+                                           ? pingTimeout / 1000
+                                           : ClientChannelConfig.DEFAULT_PING_TIMEOUT))
                     .Parse(() => tmpConfig.ConnectInfo.EnableSessionManagement)
                     .Parse(() => tmpConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers)
                     .Parse(() => tmpConfig.HighWaterMark)

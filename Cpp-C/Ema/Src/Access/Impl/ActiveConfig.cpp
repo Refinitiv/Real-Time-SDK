@@ -985,7 +985,7 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	compressionType(DEFAULT_COMPRESSION_TYPE),
 	compressionThreshold(DEFAULT_COMPRESSION_THRESHOLD),
 	connectionType(type),
-	connectionPingTimeout(DEFAULT_CONNECTION_PINGTIMEOUT),
+	connectionPingTimeout(DEFAULT_SERVER_PINGTIMEOUT),
 	connectionMinPingTimeout(DEFAULT_CONNECTION_MINPINGTIMEOUT),
 	directWrite(DEFAULT_DIRECT_WRITE),
 	initializationTimeout(DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT),
@@ -1011,7 +1011,7 @@ void ServerConfig::clear()
 	compressionType = DEFAULT_COMPRESSION_TYPE;
 	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
 	connectionType = RSSL_CONN_TYPE_SOCKET;
-	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
+	connectionPingTimeout = DEFAULT_SERVER_PINGTIMEOUT;
 	connectionMinPingTimeout = DEFAULT_CONNECTION_MINPINGTIMEOUT;
 	directWrite = DEFAULT_DIRECT_WRITE;
 	initializationTimeout = DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;

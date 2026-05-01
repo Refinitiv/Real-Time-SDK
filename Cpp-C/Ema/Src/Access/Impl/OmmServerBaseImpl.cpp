@@ -1399,7 +1399,7 @@ Int64 OmmServerBaseImpl::rsslReactorDispatchLoop(Int64 timeOut, UInt32 count, bo
 	}
 
 	// Get the negotiated ping timeout
-	Int64 pingTimeout = (_negotiatedPingTimeout > 0) ? _negotiatedPingTimeout : DEFAULT_CONNECTION_PINGTIMEOUT;
+	Int64 pingTimeout = (_negotiatedPingTimeout > 0) ? _negotiatedPingTimeout : DEFAULT_SERVER_PINGTIMEOUT;
 	Int64 pingTimeoutInMicroSeconds = pingTimeout * 1000 / 2;
 
 	RsslReactorDispatchOptions dispatchOpts;

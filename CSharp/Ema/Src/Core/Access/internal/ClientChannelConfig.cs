@@ -13,6 +13,9 @@ namespace LSEG.Ema.Access
 {
     internal class ClientChannelConfig
     {
+
+        public const int DEFAULT_PING_TIMEOUT = 30;
+
         // Reactor connection info for this channel.
         public ReactorConnectInfo ConnectInfo { get; set; }
 
@@ -58,6 +61,7 @@ namespace LSEG.Ema.Access
             ConnectInfo.ConnectOptions.ProtocolType = (Eta.Transports.ProtocolType)Codec.ProtocolType();
             ConnectInfo.ConnectOptions.ComponentVersion = ComponentVersion.ProductInternalVersion;
             ConnectInfo.ConnectOptions.NumInputBuffers = 100;
+            ConnectInfo.ConnectOptions.PingTimeout = DEFAULT_PING_TIMEOUT;
             ConnectInfo.ConnectOptions.GuaranteedOutputBuffers = 100;
             Name = string.Empty;
             HighWaterMark = 0;

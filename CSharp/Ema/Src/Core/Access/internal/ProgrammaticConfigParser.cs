@@ -1378,7 +1378,9 @@ namespace LSEG.Ema.Access
                                         CheckElementEntry("Channel", "ConnectionPingTimeout", DataTypes.UINT, channelEntry);
 
                                         int pingTimeout = Utilities.Convert_ulong_int(channelEntry.UIntValue());
-                                        tmpConfig.ConnectInfo.ConnectOptions.PingTimeout = pingTimeout >= 1000 ? pingTimeout / 1000 : 60;
+                                        tmpConfig.ConnectInfo.ConnectOptions.PingTimeout = (pingTimeout >= 1000
+                                            ? pingTimeout / 1000
+                                            : ClientChannelConfig.DEFAULT_PING_TIMEOUT);
                                         break;
                                     // EnableSessionManagement uint->bool
                                     case "EnableSessionManagement":

@@ -192,7 +192,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal("TestChannel_1", testChannelConfig.Name);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testChannelConfig.ConnectInfo.ConnectOptions.ConnectionType);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol);
-            Assert.Equal(60, testChannelConfig.ConnectInfo.ConnectOptions.PingTimeout);
+            Assert.Equal(30, testChannelConfig.ConnectInfo.ConnectOptions.PingTimeout);
             Assert.True(testChannelConfig.ConnectInfo.EnableSessionManagement);
             Assert.Equal(20, testChannelConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers);
             Assert.Equal(30, testChannelConfig.HighWaterMark);
@@ -417,7 +417,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testConnInfo.ConnectOptions.ConnectionType);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testConnInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol);
-            Assert.Equal(60, testConnInfo.ConnectOptions.PingTimeout);
+            Assert.Equal(30, testConnInfo.ConnectOptions.PingTimeout);
             Assert.True(testConnInfo.EnableSessionManagement);
             Assert.Equal(20, testConnInfo.ConnectOptions.GuaranteedOutputBuffers);
             Assert.Equal(40, testConnInfo.GetInitTimeout());
@@ -546,7 +546,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testConnInfo.ConnectOptions.ConnectionType);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testConnInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol);
-            Assert.Equal(60, testConnInfo.ConnectOptions.PingTimeout);
+            Assert.Equal(30, testConnInfo.ConnectOptions.PingTimeout);
             Assert.True(testConnInfo.EnableSessionManagement);
             Assert.Equal(20, testConnInfo.ConnectOptions.GuaranteedOutputBuffers);
             Assert.Equal(40, testConnInfo.GetInitTimeout());
@@ -676,7 +676,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
             Assert.Equal("TestChannel_1", testChannelConfig.Name);
             Assert.Equal(Eta.Transports.ConnectionType.SOCKET, testChannelConfig.ConnectInfo.ConnectOptions.ConnectionType);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testChannelConfig.ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol);
-            Assert.Equal(60, testChannelConfig.ConnectInfo.ConnectOptions.PingTimeout);
+            Assert.Equal(30, testChannelConfig.ConnectInfo.ConnectOptions.PingTimeout);
             Assert.True(testChannelConfig.ConnectInfo.EnableSessionManagement);
             Assert.Equal(20, testChannelConfig.ConnectInfo.ConnectOptions.GuaranteedOutputBuffers);
             Assert.Equal(30, testChannelConfig.HighWaterMark);
@@ -752,7 +752,7 @@ namespace LSEG.Ema.Access.Tests.OmmConfigTests
 
             Assert.Equal(Eta.Transports.ConnectionType.SOCKET, testConnInfo.ConnectOptions.ConnectionType);
             Assert.Equal(Eta.Transports.ConnectionType.ENCRYPTED, testConnInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol);
-            Assert.Equal(60, testConnInfo.ConnectOptions.PingTimeout);
+            Assert.Equal(30, testConnInfo.ConnectOptions.PingTimeout);
             Assert.True(testConnInfo.EnableSessionManagement);
             Assert.Equal(20, testConnInfo.ConnectOptions.GuaranteedOutputBuffers);
             Assert.Equal(40, testConnInfo.GetInitTimeout());

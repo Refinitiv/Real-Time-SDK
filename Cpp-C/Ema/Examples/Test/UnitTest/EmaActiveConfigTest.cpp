@@ -203,7 +203,7 @@ void EmaActiveConfigTest::ServerConfigTestDefaultValues(SocketServerConfig& serv
 	EXPECT_EQ(serverConfig.connectionType, RSSL_CONN_TYPE_SOCKET);
 	EXPECT_EQ(serverConfig.getType(), RSSL_CONN_TYPE_SOCKET);
 
-	EXPECT_EQ(serverConfig.connectionPingTimeout, DEFAULT_CONNECTION_PINGTIMEOUT);
+	EXPECT_EQ(serverConfig.connectionPingTimeout, DEFAULT_SERVER_PINGTIMEOUT);
 	EXPECT_EQ(serverConfig.connectionMinPingTimeout, DEFAULT_CONNECTION_MINPINGTIMEOUT);
 	EXPECT_EQ(serverConfig.directWrite, DEFAULT_DIRECT_WRITE);
 	EXPECT_EQ(serverConfig.initializationTimeout, DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT);

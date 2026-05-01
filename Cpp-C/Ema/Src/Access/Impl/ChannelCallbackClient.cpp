@@ -408,6 +408,11 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	case RSSL_CONN_TYPE_ENCRYPTED:
 	{
 		SocketChannelConfig* pTempChannelCfg = static_cast<SocketChannelConfig*>( pChannelCfg );
+
+		RsslEncryptionOpts encryptionOpts = RSSL_INIT_ENCRYPTION_OPTS;
+		if (pTempChannelCfg->encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+			encryptionOpts.encryptedProtocol = pTempChannelCfg->encryptedConnectionType;
+
 		strConnectionType = "RSSL_CONN_TYPE_ENCRYPTED";
 		cfgParameters.append("hostName ").append(pTempChannelCfg->hostName).append(CR)
 			.append("port ").append(pTempChannelCfg->serviceName).append(CR)
@@ -418,6 +423,7 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
 			.append("ProxyConnectionTimeout ").append(pTempChannelCfg->proxyConnectionTimeout).append(CR)
 			.append("SecurityProtocol ").append(pTempChannelCfg->securityProtocol).append(CR)
+			.append("EncryptedProtocolType ").append(encryptionOpts.encryptedProtocol).append(CR)
 			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR)
 			.append("CipherSuite ").append(pTempChannelCfg->cipherSuite).append(CR)
 			.append("CipherSuite_TLSV1_3 ").append(pTempChannelCfg->cipherSuite_TLSV1_3).append(CR)
