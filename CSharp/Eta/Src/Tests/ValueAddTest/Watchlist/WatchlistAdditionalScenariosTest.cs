@@ -190,7 +190,24 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             submitOptions.Clear();
             submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
 
-            Assert.True(consumer.SubmitAndDispatch((Msg)postMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+	    var submitThread = new Thread(() =>
+            {
+                Assert.True(consumer.SubmitAndDispatch((Msg)postMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+            });
+
+            var dispatchThread = new Thread(() =>
+            {
+                do
+                {
+                  providerReactor.Dispatch(-1);
+                } while (providerReactor.m_EventQueue.Count == 0);
+            });
+
+            submitThread.Start();
+            dispatchThread.Start();
+
+            submitThread.Join();
+            dispatchThread.Join();
 
             do
             {
@@ -373,7 +390,24 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             submitOptions.Clear();
             submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
 
-            Assert.True(consumer.SubmitAndDispatch((Msg)genericMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+            var submitThread = new Thread(() =>
+            {
+                Assert.True(consumer.SubmitAndDispatch((Msg)genericMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
+            });
+
+            var dispatchThread = new Thread(() =>
+            {
+                do
+                {
+                  providerReactor.Dispatch(-1);
+                } while (providerReactor.m_EventQueue.Count == 0);
+            });
+
+            submitThread.Start();
+            dispatchThread.Start();
+
+            submitThread.Join();
+            dispatchThread.Join();
 
             do
             {

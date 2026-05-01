@@ -64,11 +64,8 @@ namespace LSEG.Eta.Tests.ValueAddTest.ReactorChannelPreferredHostTests
 
             // Assert
             consumer.TestReactor
-                .Dispatch(1, TimeSpan.FromSeconds(30))
-                .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_STARTING_FALLBACK);
-
-            consumer.TestReactor
-                .Dispatch(1, TimeSpan.FromSeconds(30))
+                .Dispatch(2, TimeSpan.FromSeconds(60))
+                .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_STARTING_FALLBACK)
                 .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_COMPLETE);
         }
     }

@@ -1313,73 +1313,55 @@ namespace LSEG.Ema.Access.Tests.OmmNiProviderTests
         /// Various combinations of IOCtl codes and their new values used for testing.
         /// </summary>
         /// Each entry in this list corresponds to a separate test run.
-        public static IEnumerable<object[]> IOCtlSettings => new List<object[]>
+        public static TheoryData<IOCtlSetting[]> IOCtlSettings => new()
         {
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
-                        ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE }
-                }
+                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
+                    ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE }
             },
 
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 }
-                }
+                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 }
             },
 
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 200 },
-                    new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 200 }
-                }
+                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 200 },
+                new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 200 }
             },
 
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    new IOCtlSetting() {Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
-                }
+                new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
             },
 
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    new IOCtlSetting() {
-                        Code = IOCtlCode.MAX_NUM_BUFFERS,
-                        Setting = -10,
-                        IsValid = false,
-                        Message = "Failed to modify I/O option = MAX_NUM_BUFFERS. Reason: FAILURE.",
-                        ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
-                    },
-                    new IOCtlSetting() {Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
-                    new IOCtlSetting() {Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
-                    new IOCtlSetting() {Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
-                    new IOCtlSetting() {Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
-                    new IOCtlSetting() {Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false }
-                }
+                new() {
+                    Code = IOCtlCode.MAX_NUM_BUFFERS,
+                    Setting = -10,
+                    IsValid = false,
+                    Message = "Failed to modify I/O option = MAX_NUM_BUFFERS. Reason: FAILURE.",
+                    ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
+                },
+                new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
+                new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
+                new() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
+                new() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
+                new() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false }
             },
 
-            new object[]
+            new IOCtlSetting[]
             {
-                new IOCtlSetting[]
-                {
-                    // The compression must be enabled between provider and consumer in order
-                    // to modify the COMPRESSION_THRESHOLD code. The code below is valid as it
-                    // is greater than the default value for LZ4_COMPRESSION_THRESHOLD.
-                    new IOCtlSetting() {
-                        Code = IOCtlCode.COMPRESSION_THRESHOLD,
-                        Setting = 350,
-                        IsValid = true
-                    }
+                // The compression must be enabled between provider and consumer in order
+                // to modify the COMPRESSION_THRESHOLD code. The code below is valid as it
+                // is greater than the default value for LZ4_COMPRESSION_THRESHOLD.
+                new() {
+                    Code = IOCtlCode.COMPRESSION_THRESHOLD,
+                    Setting = 350,
+                    IsValid = true
                 }
             }
         };

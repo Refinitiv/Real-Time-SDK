@@ -808,7 +808,7 @@ namespace LSEG.Eta.Tests.Transports
 #else
                     compressionLevel == 1 &&
 #endif
-                    fragmentSize == 30 && OSVersion.Platform == PlatformID.Win32NT) // One more read
+                    fragmentSize == 30) // One more read
                 {
                     recevBuf = channel.Read(readArgs, out error);
                     Assert.True(readArgs.ReadRetVal > TransportReturnCode.SUCCESS);

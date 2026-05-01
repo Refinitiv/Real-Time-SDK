@@ -6,8 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System.Collections.Generic;
-
 using LSEG.Ema.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
 using System;
@@ -27,83 +25,65 @@ public class ModifyIOCtlTest
     public class IOCtlSetting
     {
         // the IOCtl code being invoked
-        public IOCtlCode Code;
+        public IOCtlCode Code { get; set; }
         // value that it receives
-        public int Setting;
+        public int Setting { get; set; }
         // whether an exception is expected
-        public bool IsValid = true;
+        public bool IsValid { get; set; } = true;
         // expected exception message is expected
-        public string? Message;
+        public string? Message { get; set; }
         // expected error code for the exception
-        public int? ErrorCode;
+        public int? ErrorCode { get; set; }
     }
 
     /// <summary>
     /// Various combinations of IOCtl codes and their new values used for testing.
     /// </summary>
     /// Each entry in this list corresponds to a separate test run.
-    public static IEnumerable<object[]> IOCtlSettings => new List<object[]>
+    public static TheoryData<IOCtlSetting[]> IOCtlSettings => new()
     {
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
-                    Message = "value must be (0 >= value < 2^31", ErrorCode =  OmmInvalidUsageException.ErrorCodes.FAILURE },
-                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = -100, IsValid = false,
-                    Message = "value must be (0 >= value < 2^31", ErrorCode =  OmmInvalidUsageException.ErrorCodes.FAILURE }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
+                Message = "value must be (0 >= value < 2^31", ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE },
+            new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = -100, IsValid = false,
+                Message = "value must be (0 >= value < 2^31", ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 200 },
-                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 200 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 200 },
+            new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 200 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new IOCtlSetting() {Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
-            }
+            new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new IOCtlSetting() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 10 },
-                new IOCtlSetting() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
-                new IOCtlSetting() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
-                new IOCtlSetting() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
-                new IOCtlSetting() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
-                new IOCtlSetting() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 350 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
+            new() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 350 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                // The compression must be enabled between provider and consumer in order
-                // to modify the COMPRESSION_THRESHOLD code. The code below is invalid as it
-                // is less than the default value for LZ4_COMPRESSION_THRESHOLD.
-                new IOCtlSetting() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false,
-                    Message = "Failed to modify I/O option = COMPRESSION_THRESHOLD. Reason: FAILURE. Error text: Channel.IOCtl failed, error: value must be equal to or greater than",
-                    ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
-                }
+            // The compression must be enabled between provider and consumer in order
+            // to modify the COMPRESSION_THRESHOLD code. The code below is invalid as it
+            // is less than the default value for LZ4_COMPRESSION_THRESHOLD.
+            new() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10, IsValid = false,
+                Message = "Failed to modify I/O option = COMPRESSION_THRESHOLD. Reason: FAILURE. Error text: Channel.IOCtl failed, error: value must be equal to or greater than",
+                ErrorCode = OmmInvalidUsageException.ErrorCodes.FAILURE
             }
         }
     };

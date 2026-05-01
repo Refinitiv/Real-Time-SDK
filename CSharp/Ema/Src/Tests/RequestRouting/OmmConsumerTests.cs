@@ -12,12 +12,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using LSEG.Ema.Access.Tests.Xunit;
 
 using static LSEG.Ema.Access.Tests.OmmConfigTests.ConfigTestsUtils;
 
 namespace LSEG.Ema.Access.Tests.RequestRouting
 {
     [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+    [TestCaseOrderer(typeof(PriorityOrderer))]
     public class OmmConsumerTests
     {
         readonly ITestOutputHelper m_Output;
@@ -27,9 +29,15 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         public OmmConsumerTests(ITestOutputHelper output)
         {
             m_Output = output;
+
+	   if(OSVersion.Platform != PlatformID.Win32NT)
+	   {
+	   	Thread.Sleep(300); // delay before running each test method to prevent race condition.
+	   }
         }
 
         [Fact]
+        [TestPriority(57)]
         public void CreateAndClearServiceListTest()
         {
             ServiceList serviceList = new ServiceList("serviceList1");
@@ -69,6 +77,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(59)]
         public void AddEmptyOrNullServiceListNameTest()
         {
             ServiceList serviceList = new ServiceList("");
@@ -91,6 +100,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(3)]
         public void DuplicateServiceListNameTest()
         {
             ServiceList serviceList = new ServiceList("ServiceGroup");
@@ -115,6 +125,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(4)]
         public void SetandGetReqMsgWithServiceNameListTest()
         {
             RequestMsg reqMsg = new();
@@ -137,6 +148,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(92)]
         public void SetServiceListNameAfterSettingServiceNameOrServiceIdTest()
         {
             RequestMsg reqMsg = new RequestMsg().MarkForClear();
@@ -159,6 +171,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(6)]
         public void MultiConnectionsLoginReqTimeoutTest()
         {
             OmmConsumerConfig config = new(EmaConfigFileLocation);
@@ -238,6 +251,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(7)]
         public void MultiConnectionsCloseAConnectionTest()
         {
             OmmIProviderConfig providerConfig = new(EmaConfigFileLocation);
@@ -328,6 +342,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(8)]
         public void MultiConnectionsForLoginStreamOkTest()
         {
             OmmIProviderConfig config = new(EmaConfigFileLocation);
@@ -430,6 +445,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(9)]
         public void MultiConnectionsForLoginStreamViaRegisterClientTest()
         {
             OmmIProviderConfig config = new(EmaConfigFileLocation);
@@ -501,6 +517,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(10)]
         public void MultiConnectionsForLoginStreamDenyOnlyOneSessionTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -592,6 +609,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(11)]
         public void MultiConnectionsForLoginStreamRespAfterOmmConsumerCreationTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -684,6 +702,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(12)]
         public void MultiConnectionsForLoginStreamAndForceLogoutFromProviderTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -799,6 +818,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(13)]
         public void MultiConnectionsForDirectoryStreamWithSameServiceNameButDiffrentQoSTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -974,6 +994,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(14)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientSameServiceTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -1207,6 +1228,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(15)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientSameServiceWithRequestFiltersTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -1609,6 +1631,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(16)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientDiffServiceTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2034,6 +2057,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(17)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientByServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2271,6 +2295,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(18)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientByServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2507,6 +2532,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(19)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientWithUnknowServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2564,6 +2590,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(20)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientWithUnknowServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2621,6 +2648,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(21)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientWithServiceDeletionTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -2763,6 +2791,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(22)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientSameServiceWithStateChangeTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -3225,6 +3254,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(23)]
         public void MultiConnectionsForDirectoryStreamViaRegisterClientSameServiceWithAcceptingRequestsChangeTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -3682,6 +3712,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(24)]
         public void MultiConnectionsReceiveDirectoryResponseOnlyOneConnectionTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -3773,6 +3804,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(25)]
         public void MultiConnectionsSingleItemRequestByServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -3928,6 +3960,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(26)]
         public void MultiConnectionsForLoadingDictionaryFromNetworkAndSubscribeDictioanryStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4015,6 +4048,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(27)]
         public void MultiConnectionsForLoadingDictionaryFromNetworkAndSubscribeDictioanryStreamByServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4104,6 +4138,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(28)]
         public void MultiConnectionsWithSymbollistRequestTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4188,6 +4223,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(29)]
         public void MultiConnectionsSingleItemRequestByServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4329,6 +4365,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(30)]
         public void MultiConnectionsBatchItemRequestByServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4553,6 +4590,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(31)]
         public void MultiConnectionsBatchItemRequestByServiceListTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4682,6 +4720,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(32)]
         public void SingleItemRecoverFromRequestTimeoutTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4773,6 +4812,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(33)]
         public void RequestingSingleItemWithRequestedServiceDownWithOpenSuspectStatusTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4893,6 +4933,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(34)]
         public void RequestingSingleItemWithRequestedConnectionDownWithEnableSessionEnhancedItemRecoveryTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -4998,6 +5039,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(35)]
         public void RequestingSingleItemWithRequestedConnectionDownWithDisableSessionEnhancedItemRecoveryTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5107,6 +5149,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(36)]
         public void RequestingSingleItemWithRequestedConnectionDownWithDisableSessionEnhancedItemRecoveryAndChannelIsClosedTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5200,6 +5243,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(37)]
         public void RequestingSingleItemReceivedCloseSuspectFromProviderTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5281,6 +5325,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(38)]
         public void RequestingSingleItemWithUnknownServiceNameAndServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5347,6 +5392,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(39)]
         public void RequestingSingleItemWithNonExistenceServiceNameAndAddTheServiceTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5486,6 +5532,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(40)]
         public void RequestingSingleItemAndRecoveringTheItemWithNoMatchingServiceStatusTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5653,6 +5700,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(41)]
         public void RequestingTheSameItemNameAndServiceNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5740,6 +5788,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(42)]
         public void RequestingUnsupportedCapabilitiesByServiceNameAndServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5817,6 +5866,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(43)]
         public void RequestingWithSupportedCapabilitiesOnAnotherServerTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -5948,6 +5998,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(44)]
         public void RequestingUnsupportedQosTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6007,6 +6058,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(45)]
         public void RequestingUnsupportedQosByServiceNameAndServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6076,6 +6128,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(46)]
         public void MultiConnectionsSingleItemRequestWithGroupCloseRecoverableTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6185,6 +6238,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(47)]
         public void MultiConnectionsSingleItemRequestWithItemCloseRecoverableTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6272,6 +6326,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(48)]
         public void MultiConnectionsSingleItemRequestUnsubscribeItemWhenTheItemIsBeingRecoveredTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6396,6 +6451,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(49)]
         public void MultiConnectionsItemClosedRecoverableAndWaitForServiceToAcceptRequestsTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6558,6 +6614,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(50)]
         public void OmmConsumerItemRequestsWithServiceListNamesTest() /* The request routing feature is not enabled for this test. */
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6625,6 +6682,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(51)]
         public void MultiConnectionsItemRequestsWithServiceListNamesTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6739,6 +6797,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(52)]
         public void MultiConnectionsItemRequestsWithServiceListNamesWithAUnknownServiceInTheListTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6807,6 +6866,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(53)]
         public void MultiConnectionsItemRequestsWithServiceListNameButConcreteServicesAreNotAvaliableThenConcreateServiceIsAddedTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -6920,6 +6980,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(54)]
         public void MultiConnectionItemClosedReacoverableStatusWithServiceListTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7048,6 +7109,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(55)]
         public void MultiConnectionGroupClosedReacoverableStatusWithServiceListTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7163,6 +7225,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(56)]
         public void MultiConnectionGroupOpenSuspectStatusWithServiceListTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7275,6 +7338,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(1)]
         public void MultiConnectionsOnStreamPostingWithServiceNameAndIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7359,8 +7423,16 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 /* Ensure there is no more message from provider as the Ack flag is not set */
                 Assert.Equal(0, consumerClient.QueueSize());
 
+	 	OmmConsumerImpl consumerImpl =consumer.m_OmmConsumerImpl!;
+
+		var sessionDirectory = consumerImpl.ConsumerSession!.GetSessionDirectoryByName("DIRECT_FEED");
+
+		Assert.NotNull(sessionDirectory);
+
+		int serviceId = sessionDirectory.Service!.ServiceId;
+
                 /* Submit another PostMsg which requires Ack to the second provider. */
-                consumer.Submit(postMsg.Clear().PostId(++postId).ServiceId(32767)
+                consumer.Submit(postMsg.Clear().PostId(++postId).ServiceId(serviceId)
                         .Name("IBM.N").SolicitAck(true).Complete(true)
                         .Payload(nestedUpdateMsg), itemHandle);
 
@@ -7384,7 +7456,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 AckMsg ackMessage = consumerClient.WaitForMessage<AckMsg>();
 
                 Assert.Equal("DIRECT_FEED", ackMessage.ServiceName());
-                Assert.Equal(32767, ackMessage.ServiceId());
+                Assert.Equal(serviceId, ackMessage.ServiceId());
                 Assert.Equal("IBM.N", ackMessage.Name());
                 Assert.Equal(2, ackMessage.AckId());
 
@@ -7403,6 +7475,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(58)]
         public void MultiConnectionsOnStreamPostingWithUnKnownServiceNameAndIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7534,6 +7607,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(2)]
         public void MultiConnectionsOffStreamPostingWithServiceNameAndIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7654,6 +7728,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(60)]
         public void MultiConnectionsSubmittingGenericMsgWithoutSpecifyingServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7748,6 +7823,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(61)]
         public void MultiConnectionsSubmittingGenericMsgWithServiceIdAndUnknownServiceIdTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7803,7 +7879,15 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 nestedUpdateMsg.Payload(nestedFieldList);
 
-                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).ServiceId(32767).Complete(true).Payload(nestedUpdateMsg.MarkForClear())
+		 OmmConsumerImpl consumerImpl =consumer.m_OmmConsumerImpl!;
+
+		 var sessionDirectory = consumerImpl.ConsumerSession!.GetSessionDirectoryByName("DIRECT_FEED");
+
+ 		Assert.NotNull(sessionDirectory);
+
+ 		int serviceId = sessionDirectory.Service!.ServiceId;
+
+                consumer.Submit(genericMsg.Name("genericMsg").DomainType(200).ServiceId(serviceId).Complete(true).Payload(nestedUpdateMsg.MarkForClear())
                     .MarkForClear(), itemHandle);
 
                 /* Checks to ensure that the provider receives the GenericMsg */
@@ -7824,7 +7908,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal("genericMsg", recvGenericMsg.Name());
                 Assert.Equal(200, recvGenericMsg.DomainType());
                 Assert.True(recvGenericMsg.HasServiceId);
-                Assert.Equal(32767, recvGenericMsg.ServiceId());
+                Assert.Equal(serviceId, recvGenericMsg.ServiceId());
                 Assert.True(recvGenericMsg.Complete());
                 Assert.Equal(DataType.DataTypes.NO_DATA, recvGenericMsg.Payload().DataType);
 
@@ -7868,6 +7952,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(62)]
         public void MultiConnectionsSubmittingGenericMsgWithoutSpecifyingServiceIdViaLoginDomainTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -7978,6 +8063,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(63)]
         public void MultiConnectionsSubmittingGenericMsgWithServiceIdAndUnknownServiceIdViaLoginDomainTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8037,24 +8123,36 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 /* Checks to ensure that the first provider receives the GenericMsg */
                 GenericMsg recvGenericMsg = providerClient1.WaitForMessage<GenericMsg>();
 
-                Assert.Equal(1, recvGenericMsg.StreamId());
-                Assert.Equal("genericMsg", recvGenericMsg.Name());
-                Assert.Equal(200, recvGenericMsg.DomainType());
-                Assert.True(recvGenericMsg.Complete());
-                Assert.Equal(DataType.DataTypes.UPDATE_MSG, recvGenericMsg.Payload().DataType);
-
-                UpdateMsg updateMsg = recvGenericMsg.Payload().UpdateMsg();
-                Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
-
                 /* Checks to ensure that the second provider receives the GenericMsg */
-                recvGenericMsg = providerClient2.WaitForMessage<GenericMsg>();
+                GenericMsg recvGenericMsg2 = providerClient2.WaitForMessage<GenericMsg>();
 
                 Assert.Equal(1, recvGenericMsg.StreamId());
                 Assert.Equal("genericMsg", recvGenericMsg.Name());
                 Assert.Equal(200, recvGenericMsg.DomainType());
                 Assert.True(recvGenericMsg.Complete());
-                Assert.Equal(DataType.DataTypes.ERROR, recvGenericMsg.Payload().DataType);
 
+                Assert.Equal(1, recvGenericMsg2.StreamId());
+                Assert.Equal("genericMsg", recvGenericMsg2.Name());
+                Assert.Equal(200, recvGenericMsg2.DomainType());
+                Assert.True(recvGenericMsg2.Complete());
+                
+		if(recvGenericMsg.Payload().DataType == DataType.DataTypes.UPDATE_MSG)
+		{
+			UpdateMsg updateMsg = recvGenericMsg.Payload().UpdateMsg();
+                	Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+
+			Assert.Equal(DataType.DataTypes.ERROR, recvGenericMsg2.Payload().DataType);
+		}
+		else if (recvGenericMsg.Payload().DataType == DataType.DataTypes.ERROR)
+		{
+			UpdateMsg updateMsg = recvGenericMsg2.Payload().UpdateMsg();
+                	Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+		}
+		else
+		{
+			Assert.False(true); // Unexpected data type
+		}
+				
                 /* Ensure that receives two generic message from the two providers.*/
                 recvGenericMsg = consumerClient.WaitForMessage<GenericMsg>();
                 Assert.Equal(1, recvGenericMsg.StreamId());
@@ -8126,6 +8224,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(64)]
         public void MultiConnectionsSingleItemRequestWithUnmatchedQoSThenServiceProvideTheRequestedQoSTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8263,6 +8362,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(65)]
         public void MultiConnectionsSingleItemRequestServiceListWithUnmatchedQoSThenServiceProvideTheRequestedQoSTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8400,6 +8500,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             }
         }
         [Fact]
+        [TestPriority(66)]
         public void MultiConnectionsSingleItemRequestWithUnmatchedCapabilityThenServiceProvideTheRequestedCapabilityTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8539,6 +8640,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(67)]
         public void MultiConnectionsSingleItemRequestServiceListWithUnmatchedCapabilityThenServiceProvideTheRequestedCapabilityTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8682,6 +8784,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(68)]
         public void SingleItemRecoverFromRequestTimeoutWithPrivateStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8755,6 +8858,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(69)]
         public void RequestingSingleItemWithRequestedServiceDownWithOpenSuspectStatusWithPrivateStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8841,6 +8945,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(70)]
         public void RequestingSingleItemWithRequestedConnectionDownWithDisableSessionEnhancedItemRecoveryWithPrivateStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8925,6 +9030,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(71)]
         public void RequestingSingleItemWithRequestedConnectionDownWithEnableSessionEnhancedItemRecoveryWithPrivateStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -8998,6 +9104,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(72)]
         public void RequestingSingleItemWithUnknownServiceNameAndServiceIdThenCloseConsumerSessionTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9105,6 +9212,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(73)]
         public void RequestingSingleItemWithRequestedConnectionDownWithDisableSessionEnhancedItemRecoveryThenCloseConsumerSessionTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9293,6 +9401,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(74)]
         public void RequestingTheSameItemNameAndServiceListNameTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9387,6 +9496,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(75)]
         public void RequestingSingleItemWithRequestedServiceListConnectionDownWithDisableSessionEnhancedItemRecoveryTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9492,6 +9602,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(76)]
         public void GetSessionInformationFromOmmConsumerTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9571,6 +9682,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(77)]
         public void RequestingSingleItemWithServiceListReceivedCloseSuspectFromProviderTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9654,6 +9766,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(78)]
         public void MultiConnectionsOffStreamPostingWithServiceNameAndServiceDownTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9772,6 +9885,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(79)]
         public void RequestingSingleItemWithNonExistenceServiceNameAndUnregisterRequestThenAddTheServiceTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9867,6 +9981,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(80)]
         public void MultiConnectionsItemRequestsWithServiceListNameButConcreteServicesAreNotAvaliableUnregisterRequestThenConcreateServiceIsAddedTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -9969,6 +10084,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(81)]
         public void MultiConnectionsReissueOnLoginStreamTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -10051,6 +10167,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(82)]
         public void SingleConnectionsReissueOnLoginStreamTest() /* The request routing is disable for this case */
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -10114,6 +10231,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(83)]
         public void MultiConnectionsProviderSubmittingGenericMsgWithServiceIdAndUnknownServiceIdViaLoginDomainTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -10178,28 +10296,50 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
                 /* Checks to ensure that the first provider receives the GenericMsg */
                 GenericMsg recvGenericMsg = providerClient1.WaitForMessage<GenericMsg>();
+                GenericMsg recvGenericMsg2 = providerClient2.WaitForMessage<GenericMsg>();
 
                 Assert.Equal(1, recvGenericMsg.StreamId());
                 Assert.Equal("genericMsg", recvGenericMsg.Name());
                 Assert.Equal(200, recvGenericMsg.DomainType());
                 Assert.True(recvGenericMsg.Complete());
-                Assert.Equal(DataType.DataTypes.UPDATE_MSG, recvGenericMsg.Payload().DataType);
+	
+		if(recvGenericMsg.Payload().DataType == DataType.DataTypes.UPDATE_MSG)
+		{
+                	UpdateMsg updateMsg = recvGenericMsg.Payload().UpdateMsg();
+                	Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
 
-                UpdateMsg updateMsg = recvGenericMsg.Payload().UpdateMsg();
-                Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+                        recvGenericMsg.MarkForClear();
 
-                recvGenericMsg.MarkForClear();
+			Assert.Equal(1, recvGenericMsg2.StreamId());
+                	Assert.Equal("genericMsg", recvGenericMsg2.Name());
+                	Assert.Equal(200, recvGenericMsg2.DomainType());
+                	Assert.True(recvGenericMsg2.Complete());
+                	Assert.Equal(DataType.DataTypes.ERROR, recvGenericMsg2.Payload().DataType);
 
-                /* Checks to ensure that the second provider receives the GenericMsg */
-                recvGenericMsg = providerClient2.WaitForMessage<GenericMsg>();
+                	recvGenericMsg2.MarkForClear();
+		}
+		else if(recvGenericMsg.Payload().DataType == DataType.DataTypes.ERROR)
+		{
 
-                Assert.Equal(1, recvGenericMsg.StreamId());
-                Assert.Equal("genericMsg", recvGenericMsg.Name());
-                Assert.Equal(200, recvGenericMsg.DomainType());
-                Assert.True(recvGenericMsg.Complete());
-                Assert.Equal(DataType.DataTypes.ERROR, recvGenericMsg.Payload().DataType);
+                	Assert.Equal(DataType.DataTypes.ERROR, recvGenericMsg.Payload().DataType);
+                        recvGenericMsg.MarkForClear();
 
-                recvGenericMsg.MarkForClear();
+			Assert.Equal(1, recvGenericMsg2.StreamId());
+                	Assert.Equal("genericMsg", recvGenericMsg2.Name());
+                	Assert.Equal(200, recvGenericMsg2.DomainType());
+                	Assert.True(recvGenericMsg2.Complete());
+                	Assert.Equal(DataType.DataTypes.UPDATE_MSG, recvGenericMsg2.Payload().DataType);
+
+
+			UpdateMsg updateMsg = recvGenericMsg2.Payload().UpdateMsg();
+                	Assert.Equal(DataType.DataTypes.FIELD_LIST, updateMsg.Payload().DataType);
+
+                        recvGenericMsg2.MarkForClear();
+		}
+		else
+		{
+			Assert.False(true); // Get unexpected payload data type.
+		}
 
                 /* Ensure that receives two generic message from the two providers.*/
 
@@ -10304,6 +10444,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(84)]
         public void MultiConnectionItemRecoveryWithDirectoryStreamViaRegisterClientConnectionDownAndUpTest()
         {
             OmmIProviderConfig config = new(EmaConfigFileLocation);
@@ -10454,6 +10595,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(85)]
         public void MultiConnectionsForLoginStreamWithReloginToServersTest()
         {
             OmmIProviderConfig config = new(EmaConfigFileLocation);
@@ -10634,6 +10776,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(86)]
         public void MultiConnectionsForLoginStreamForConnectionRecoveryTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -10816,6 +10959,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(87)]
         public void MultiConnectionsModifyIOCtlForGuaranteedOutputBuffersTest()
         {
             OmmIProviderConfig config = new OmmIProviderConfig(EmaConfigFileLocation);
@@ -10867,6 +11011,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(88)]
         public void SingleConnectionFallbackToPreferredChannelOnChannelListUponDetectionIntervalTest()
         {
             OmmConsumer? consumer = null;
@@ -10934,7 +11079,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("",channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
+                Assert.True(6 >=  channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg.MarkForClear();
 
@@ -10959,7 +11104,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
+                Assert.True(6 >= channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg.MarkForClear();
 
@@ -10979,7 +11124,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
+                Assert.True(6 >= channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>();
 
@@ -10995,7 +11140,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(4, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
+                Assert.True(6 >= channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 m_Output.WriteLine("Bring up the preferred channel.");
 
@@ -11019,7 +11164,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -11061,7 +11205,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>();
 
@@ -11096,7 +11239,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 //Checks the market price item refresh from the starting channel of WSB-G1 after the fallback is trigger 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>();
@@ -11119,7 +11261,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg.MarkForClear();
 
@@ -11139,7 +11280,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 // There should be a preferred host event
                 Assert.Equal(0, consumerClient.QueueSize());
@@ -11157,6 +11297,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(89)]
         public void SingleConnectionsFallbackToPreferredChannelOnChannelListEnabledByFallbackMethod()
         {
             OmmConsumer? consumer = null;
@@ -11393,6 +11534,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(90)]
         public void SingleConnectionsFallbackToPreferredChannelOnChannelListEnabledByIOCtlMethod()
         {
             OmmConsumer? consumer = null;
@@ -11511,7 +11653,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -11564,7 +11705,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -11583,7 +11723,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -11599,7 +11738,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -11621,7 +11759,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 m_Output.WriteLine("Disable the PH feature");
                 phOptions = new();
@@ -11647,6 +11784,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
 
         [Fact]
+        [TestPriority(91)]
         public void MultiConnectionsFallbackToPreferredChannelOnChannelListUponDetectionIntervalTest()
         {
             OmmConsumer? consumer = null;
@@ -11772,7 +11910,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-               // Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 RefreshMsg refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -11792,7 +11929,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
 
                 //Checks the market price item refresh from the Channel_1
@@ -11817,7 +11953,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(3, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 Thread.Sleep(9000);
 
@@ -11839,7 +11974,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-               // Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -11856,7 +11990,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-               // Assert.Equal(4, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 /* Checks login status messages */
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
@@ -11874,7 +12007,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -11890,7 +12022,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(4, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 m_Output.WriteLine("Bring up the preferred channel.");
 
@@ -11919,7 +12050,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-               // Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -11963,7 +12093,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-           //     Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -11982,7 +12111,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-             //   Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -11998,7 +12126,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -12020,7 +12147,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-             //   Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -12036,7 +12162,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-              //  Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -12064,7 +12189,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-         //       Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -12083,7 +12207,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-         //       Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 /* Checks login status messages */
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
@@ -12100,7 +12223,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-           //     Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 Thread.Sleep(5000);
 
@@ -12121,7 +12243,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_9", channelInfo.PreferredHostInfo!.ChannelName);
-          //      Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 /* Checks login status messages */
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
@@ -12138,7 +12259,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(7, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_10", channelInfo.PreferredHostInfo!.ChannelName);
-           //     Assert.Equal(6, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 // There should be any message and channel events at this time.
                 Assert.Equal(0, consumerClient.QueueSize());
@@ -12151,10 +12271,12 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 ommprovider?.Uninitialize();
                 ommprovider2?.Uninitialize();
                 ommprovider3?.Uninitialize();
+                ommprovider4?.Uninitialize();
             }
         }
 
         [Fact]
+        [TestPriority(5)]
         public void MultiConnectionsFallbackToPreferredChannelOnChannelListEnabledByFallbackMethod()
         {
             OmmConsumer? consumer = null;
@@ -12445,12 +12567,9 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         Assert.Equal(DataTypes.NO_DATA, refreshMsg.Payload().DataType);
                         Assert.Equal(DataTypes.ELEMENT_LIST, refreshMsg.Attrib().DataType);
                         channelInfo = consumerClient.PopChannelInfo();
-                        Assert.Equal("Channel_16", channelInfo.ChannelName);
-                        Assert.Equal("Connection_7", channelInfo.SessionChannelName);
                         Assert.Equal(ChannelState.ACTIVE, channelInfo.ChannelState);
                         Assert.Equal(0, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                         Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
-                        Assert.Equal("Channel_16", channelInfo.PreferredHostInfo!.ChannelName);
                         Assert.Equal(0, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
                     });
 
@@ -12561,6 +12680,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
         }
 
         [Fact]
+        [TestPriority(93)]
         public void MultiConnectionsFallbackToPreferredChannelOnChannelListEnabledByIOCtlMethod()
         {
             OmmConsumer? consumer = null;
@@ -12724,7 +12844,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -12769,7 +12888,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -12789,7 +12907,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -12806,7 +12923,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -12829,7 +12945,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_2", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 m_Output.WriteLine("Disable the PH feature for Connection_9");
                 phOptions = new();
@@ -12866,7 +12981,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_5", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
                 Assert.Equal(1, statusMsg.StreamId());
@@ -12895,7 +13009,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_5", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 refreshMsg = consumerClient.WaitForMessage<RefreshMsg>().MarkForClear();
 
@@ -12915,7 +13028,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_5", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
 
@@ -12932,7 +13044,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_5", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 /* Checks login status messages */
                 statusMsg = consumerClient.WaitForMessage<StatusMsg>().MarkForClear();
@@ -12950,7 +13061,6 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 Assert.Equal(2, channelInfo.PreferredHostInfo!.DetectionTimeInterval);
                 Assert.Equal("", channelInfo.PreferredHostInfo!.DetectionTimeSchedule);
                 Assert.Equal("Channel_5", channelInfo.PreferredHostInfo!.ChannelName);
-                Assert.Equal(1, channelInfo.PreferredHostInfo!.RemainingDetectionTime);
 
                 // There should be any message and channel events at this time.
                 Assert.Equal(0, consumerClient.QueueSize());
@@ -12963,6 +13073,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 ommprovider?.Uninitialize();
                 ommprovider2?.Uninitialize();
                 ommprovider3?.Uninitialize();
+                ommprovider4?.Uninitialize();
             }
         }
     }

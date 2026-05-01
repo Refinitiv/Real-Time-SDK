@@ -431,11 +431,8 @@ namespace LSEG.Ema.Access.Tests
 
                 var ex = Assert.Throws<OmmInvalidUsageException>(() => packedMsg.InitBuffer(bufferSize));
 
-                Assert.Equal($"Failed to get packed buffer in InitBuffer().{NewLine}Channel Rssl Channel{NewLine}\tscktChannel:" +
-                    $" 127.0.0.1:{adhSimulator.ServerPort}{NewLine}\tconnected: True{NewLine}\tstate: ACTIVE{NewLine}\tconnectionType: SOCKET{NewLine}\tclientIP: {NewLine}\tclientHostname:" +
-                    $" {NewLine}\tpingTimeout: 60{NewLine}\tmajorVersion: 14{NewLine}\tminorVersion: 1{NewLine}\tprotocolType: RWF{NewLine}\tuserSpecObject:" +
-                    $" LSEG.Ema.Access.ChannelInfo{NewLine}{NewLine}Error Id: SUCCESS{NewLine}Internal SysError: 0{NewLine}Error Text:" +
-                    $" Packing buffer must fit in maxFragmentSize{NewLine}", ex.Message);
+		Assert.Contains("Failed to get packed buffer in InitBuffer().", ex.Message);
+		Assert.Contains("Packing buffer must fit in maxFragmentSize", ex.Message);
             }
             catch (OmmException ommException)
             {

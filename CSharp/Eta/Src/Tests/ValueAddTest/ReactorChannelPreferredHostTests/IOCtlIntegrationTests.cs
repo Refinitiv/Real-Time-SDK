@@ -98,7 +98,22 @@ namespace LSEG.Eta.Tests.ValueAddTest.ReactorChannelPreferredHostTests
                 consumer.ReactorChannel.IOCtl(ReactorChannelIOCtlCode.PREFERRED_HOST_OPTIONS, newPHOpts, out err));
 
             // Assert
-            Thread.Sleep(TimeSpan.FromMinutes(1) + TimeSpan.FromMilliseconds(100));
+            // "* * ? * *" fires at the next absolute minute boundary (:00 seconds) after Reset() is
+            // called inside IOCtl.  A fixed 60-second sleep races against wall clock: if IOCtl is
+            // applied near the end of a minute the cron fires almost immediately, but provider3.Accept
+            // would only be called ~60 s later — long after the reconnect attempt has timed out.
+            //
+            // Instead, compute the next :00 boundary from the actual IOCtl call time so the sleep
+            // always ends ~200 ms after the cron fires, regardless of the wall clock position.
+            var ioCtlTime = DateTime.Now;
+            var nextCronFire = new DateTime(
+                 ioCtlTime.Year, ioCtlTime.Month, ioCtlTime.Day,
+                 ioCtlTime.Hour, ioCtlTime.Minute, 0).AddMinutes(1);
+
+            var sleepDuration = nextCronFire - DateTime.Now + TimeSpan.FromMilliseconds(100);
+            Thread.Sleep(sleepDuration);
+
+            //Thread.Sleep(TimeSpan.FromMinutes(1) + TimeSpan.FromMilliseconds(300));
             provider3.Accept(opts);
             AssertInitialDataExchange(consumer, provider3, isSwitchToPreferredHost: true);
         }

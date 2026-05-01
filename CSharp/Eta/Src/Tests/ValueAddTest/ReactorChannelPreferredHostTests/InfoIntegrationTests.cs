@@ -152,7 +152,6 @@ namespace LSEG.Eta.Tests.ValueAddTest.ReactorChannelPreferredHostTests
                 consumer.ReactorChannel.FallbackPreferredHost(out err));
             AssertSuccess((out ReactorErrorInfo err) =>
                 consumer.ReactorChannel.IOCtl(ReactorChannelIOCtlCode.PREFERRED_HOST_OPTIONS, newPHOpts, out err));
-            consumer.TestReactor.Dispatch(-1);
 
             // Act
             var infoBefore = new ReactorChannelInfo();
@@ -161,10 +160,8 @@ namespace LSEG.Eta.Tests.ValueAddTest.ReactorChannelPreferredHostTests
 
             // wait for fallback completion & new PH options to be applied
             consumer.TestReactor
-                .Dispatch(-1)
-                .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_STARTING_FALLBACK);
-            consumer.TestReactor
-                .Dispatch(1)
+                .Dispatch(-1, TimeSpan.FromSeconds(10))
+                .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_STARTING_FALLBACK)
                 .AssertReactorChannelEvent(ReactorChannelEventType.PREFERRED_HOST_COMPLETE);
 
             Thread.Sleep(TimeSpan.FromSeconds(1));

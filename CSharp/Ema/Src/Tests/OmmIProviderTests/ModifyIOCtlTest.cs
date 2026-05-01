@@ -7,7 +7,6 @@
  */
 
 using System.Threading;
-using System.Collections.Generic;
 
 using LSEG.Eta.ValueAdd.Reactor;
 using LSEG.Eta.Rdm;
@@ -15,6 +14,7 @@ using System;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests;
 
+//[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
 public class ModifyIOCtlTest
 {
     ITestOutputHelper m_Output;
@@ -27,82 +27,64 @@ public class ModifyIOCtlTest
     public class IOCtlSetting
     {
         // the IOCtl code being invoked
-        public IOCtlCode Code;
+        public IOCtlCode Code { get; set; }
         // value that it receives
-        public int Setting;
+        public int Setting { get; set; }
         // whether an exception is expected
-        public bool IsValid = true;
+        public bool IsValid { get; set; } = true;
         // expected exception message is expected
-        public string? Message;
+        public string? Message { get; set; }
         // expected error code for the exception
-        public int? ErrorCode;
+        public int? ErrorCode { get; set; }
     }
 
     /// <summary>
     /// Various combinations of IOCtl codes and their new values used for testing.
     /// </summary>
     /// Each entry in this list corresponds to a separate test run.
-    public static IEnumerable<object[]> IOCtlSettings => new List<object[]>
+    public static TheoryData<IOCtlSetting[]> IOCtlSettings => new()
     {
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
-                    Message = "value must be (0 >= value < 2^31", ErrorCode = -1  }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = -10, IsValid = false,
+                Message = "value must be (0 >= value < 2^31", ErrorCode = -1 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 50 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 50 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 },
-                new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 100 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 100 },
+            new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 100 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
-            }
+            new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 10 },
-                new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
-                new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
-                new() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
-                new() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
-                new() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10 }
-            }
+            new() { Code = IOCtlCode.MAX_NUM_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.NUM_GUARANTEED_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.HIGH_WATER_MARK, Setting = 10 },
+            new() { Code = IOCtlCode.SYSTEM_READ_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.SYSTEM_WRITE_BUFFERS, Setting = 10 },
+            new() { Code = IOCtlCode.COMPRESSION_THRESHOLD, Setting = 10 }
         },
 
-        new object[]
+        new IOCtlSetting[]
         {
-            new IOCtlSetting[]
-            {
-                // The compression must be enabled between provider and consumer in order
-                // to modify the COMPRESSION_THRESHOLD code. The code below is valid as it
-                // is greater than the default value for LZ4_COMPRESSION_THRESHOLD.
-                new() {
-                    Code = IOCtlCode.COMPRESSION_THRESHOLD,
-                    Setting = 350,
-                    IsValid = true
-                }
+            // The compression must be enabled between provider and consumer in order
+            // to modify the COMPRESSION_THRESHOLD code. The code below is valid as it
+            // is greater than the default value for LZ4_COMPRESSION_THRESHOLD.
+            new() {
+                Code = IOCtlCode.COMPRESSION_THRESHOLD,
+                Setting = 350,
+                IsValid = true
             }
         }
     };

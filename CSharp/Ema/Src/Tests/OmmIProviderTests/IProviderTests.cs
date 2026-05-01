@@ -16,9 +16,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.Tests.Common.Utils;
 
 namespace LSEG.Ema.Access.Tests.OmmIProviderTests
 {
+    [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
     public class IProviderTests
     {
         ITestOutputHelper m_Output;
@@ -1792,6 +1794,10 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
         [InlineData(true, false)]
         public void ProviderSendItemReissueWithServiceNameChangeMarketItemTest(bool userDispatch, bool acceptServiceNameChange)
         {
+            const int port = 19010;
+
+	    CommonUtilities.WaitForPortAvailable(port, TimeSpan.FromSeconds(30));
+
             OmmIProviderConfig config = new OmmIProviderConfig();
             OmmException? exception = null;
             OmmProvider? provider = null;
@@ -1801,7 +1807,7 @@ namespace LSEG.Ema.Access.Tests.OmmIProviderTests
             ReactorConnectOptions connectOptions = new();
             ReactorConnectInfo connectInfo = new();
             connectInfo.ConnectOptions.UnifiedNetworkInfo.Address = "localhost";
-            connectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = "19010";
+            connectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = port.ToString();
 
             connectOptions.ConnectionList.Add(connectInfo);
             connectInfo.ConnectOptions.MajorVersion = Codec.MajorVersion();
