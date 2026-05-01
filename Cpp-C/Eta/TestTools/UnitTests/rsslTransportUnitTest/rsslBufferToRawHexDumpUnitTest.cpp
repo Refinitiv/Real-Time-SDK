@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -208,7 +208,7 @@ TEST_F(RsslBufferToRawHexDumpTests, InputSpansMultipleLines)
     EXPECT_EQ(ret, RSSL_RET_SUCCESS);
     EXPECT_EQ(output.length, 33U);
     std::string out(outData, output.length);
-    // Count newlines — expect 3 (one per full line)
+    // Count newlines ï¿½ expect 3 (one per full line)
     size_t newlineCount = 0;
     for (char c : out)
         if (c == '\n') ++newlineCount;
@@ -323,7 +323,7 @@ TEST_F(RsslBufferToRawHexDumpTests, OutputBufferExactSizeSucceeds)
 
     EXPECT_EQ(ret, RSSL_RET_SUCCESS);
     EXPECT_EQ(output.length, 22U);
-    // Count newlines — expect 2
+    // Count newlines ï¿½ expect 2
     size_t newlineCount = 0;
     std::string out(output.data, output.length);
     for (char c : out)

@@ -2,9 +2,10 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
+
 /************************************************************************
  *	rsslInitChannel Unit Tests
  *
@@ -77,8 +78,8 @@ static void time_sleep_ms(int ms)
 struct BlockingConnectArg
 {
     RsslConnectOptions  connectOpts;        /* filled before thread start   */
-    RsslChannel*        pChannel;           /* result – set by thread       */
-    RsslError           err;               /* error – set by thread        */
+    RsslChannel*        pChannel;           /* result ï¿½ set by thread       */
+    RsslError           err;               /* error ï¿½ set by thread        */
 
     BlockingConnectArg() : pChannel(nullptr)
     {
@@ -89,9 +90,9 @@ struct BlockingConnectArg
 
 struct BlockingAcceptArg
 {
-    RsslServer*         pServer;            /* input  – set before thread start */
-    RsslChannel*        pChannel;           /* result – set by thread           */
-    RsslError           err;               /* error  – set by thread           */
+    RsslServer*         pServer;            /* input  ï¿½ set before thread start */
+    RsslChannel*        pChannel;           /* result ï¿½ set by thread           */
+    RsslError           err;               /* error  ï¿½ set by thread           */
 
     BlockingAcceptArg() : pServer(nullptr), pChannel(nullptr)
     {
@@ -189,7 +190,7 @@ static bool setupActiveChannelPair(
             snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "rssl.rwf");
     }
 
-    /* Populate connect options – wsProtocolList and openSSLCAStore need to
+    /* Populate connect options ï¿½ wsProtocolList and openSSLCAStore need to
      * stay alive for the duration of rsslConnect(), so we use the
      * clientConfig buffers directly.                                        */
     RsslConnectOptions connectOpts;
@@ -399,7 +400,7 @@ TEST_F(RsslInitChannelTests, NotInitializedReturnsError)
 }
 
 /* =========================================================================
- * Successful initialization – non-blocking TCP socket
+ * Successful initialization ï¿½ non-blocking TCP socket
  * ========================================================================= */
 
 /* Test: Non-blocking TCP socket channel handshake driven by repeated calls
@@ -634,7 +635,7 @@ TEST_F(RsslInitChannelTests, NonBlockingEncryptedTCPReachesActiveState)
 {
     if (!checkCertificateFiles() || !checkClientCertificateFiles())
     {
-        GTEST_SKIP() << "Certificate files not found – skipping encrypted test";
+        GTEST_SKIP() << "Certificate files not found ï¿½ skipping encrypted test";
     }
 
     bool ok = setupActiveChannelPair(
@@ -659,7 +660,7 @@ TEST_F(RsslInitChannelTests, NonBlockingEncryptedWebSocketRWFReachesActiveState)
 {
     if (!checkCertificateFiles() || !checkClientCertificateFiles())
     {
-        GTEST_SKIP() << "Certificate files not found – skipping encrypted WebSocket test";
+        GTEST_SKIP() << "Certificate files not found ï¿½ skipping encrypted WebSocket test";
     }
 
     bool ok = setupActiveChannelPair(
@@ -683,7 +684,7 @@ TEST_F(RsslInitChannelTests, NonBlockingEncryptedWebSocketJSONReachesActiveState
 {
     if (!checkCertificateFiles() || !checkClientCertificateFiles())
     {
-        GTEST_SKIP() << "Certificate files not found – skipping encrypted WebSocket JSON test";
+        GTEST_SKIP() << "Certificate files not found ï¿½ skipping encrypted WebSocket JSON test";
     }
 
     bool ok = setupActiveChannelPair(
@@ -792,7 +793,7 @@ TEST_F(RsslInitChannelTests, SequentialTCPChannelInitCycles)
 }
 
 /* =========================================================================
- * Concurrent initialization – two independent channel pairs
+ * Concurrent initialization ï¿½ two independent channel pairs
  * ========================================================================= */
 
 /* Thread argument for concurrent init test */
@@ -1226,7 +1227,7 @@ static int buildValidRipcHeader(unsigned char* buf, int bufLen, unsigned int rip
      * For v14, hdrSize = V10_MIN_CONN_HDR + hostnameLen + addrLen + 2
      *                  = 17 + 0 + 0 + 1 (protocolType byte) + 2
      * Total message length = hdrSize + componentVersionLen + 1
-     *                      = 20 + 2 + 1 = wait — let's follow the exact
+     *                      = 20 + 2 + 1 = wait ï¿½ let's follow the exact
      * formula from ipcProcessHdr:
      *   hdrSize + compVerLen + 1 == totalMsgLength
      * We set hdrSize=20, compVerLen=2 so totalMsgLength=23 which is what
@@ -1273,7 +1274,7 @@ static int buildValidRipcHeader(unsigned char* buf, int bufLen, unsigned int rip
 }
 
 /* =========================================================================
- * Test 1 – All-zeros garbage payload
+ * Test 1 ï¿½ All-zeros garbage payload
  *
  * The client writes 32 zero bytes.  ipcProcessHdr sees version_number=0
  * which is not a known RIPC version, so it returns RIPC_CONN_ERROR causing
@@ -1301,7 +1302,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, AllZerosBytesRejectedByServer)
 }
 
 /* =========================================================================
- * Test 2 – Truncated header (fewer than 7 bytes)
+ * Test 2 ï¿½ Truncated header (fewer than 7 bytes)
  *
  * ipcProcessHdr requires at least 7 bytes (cc >= 7 check). Sending only
  * 4 bytes causes RIPC_CONN_IN_PROGRESS on the first poll, but once the
@@ -1313,12 +1314,12 @@ TEST_F(RsslInitChannelInvalidMsgTests, TruncatedHeaderRejectedByServer)
     ASSERT_TRUE(bindServer(port)) << "Failed to bind server on " << port;
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
-    /* Send only 4 bytes – not enough for a valid RIPC header */
+    /* Send only 4 bytes ï¿½ not enough for a valid RIPC header */
     unsigned char shortMsg[4] = { 0x00, 0x04, 0x00, 0x00 };
     ASSERT_TRUE(rawSendAll(rawClient, shortMsg, sizeof(shortMsg)))
         << "Failed to send truncated header";
 
-    /* Close the raw socket immediately – the server will see EOF */
+    /* Close the raw socket immediately ï¿½ the server will see EOF */
     rawSocketClose(rawClient);
     rawClient = kInvalidRawSocket;
 
@@ -1333,7 +1334,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, TruncatedHeaderRejectedByServer)
 }
 
 /* =========================================================================
- * Test 3 – Unknown RIPC version number
+ * Test 3 ï¿½ Unknown RIPC version number
  *
  * A well-sized message (>= 7 bytes) but with an unknown version field
  * (0xDEADBEEF) triggers the default case in ipcProcessHdr returning
@@ -1376,7 +1377,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, UnknownVersionRejectedByServer)
 }
 
 /* =========================================================================
- * Test 4 – Valid RIPC version but mismatched hdrSize field
+ * Test 4 ï¿½ Valid RIPC version but mismatched hdrSize field
  *
  * Start with a correctly-versioned v14 header, then corrupt the hdrSize
  * byte so that (hdrSize + compVerLen + 1) != totalMsgLength.  The server
@@ -1409,7 +1410,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MismatchedHeaderSizeRejectedByServer)
 }
 
 /* =========================================================================
- * Test 5 – Valid RIPC version but mismatched protocolType
+ * Test 5 ï¿½ Valid RIPC version but mismatched protocolType
  *
  * Start with a valid v14 header, then set protocolType to 0xFF, which
  * differs from the server's RWF protocol type (0).  The server must set
@@ -1442,7 +1443,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MismatchedProtocolTypeRejectedByServer)
 }
 
 /* =========================================================================
- * Test 6 – Immediate EOF (zero bytes sent, then socket closed)
+ * Test 6 ï¿½ Immediate EOF (zero bytes sent, then socket closed)
  *
  * The client connects and immediately closes the TCP connection without
  * sending any data.  The server's ipcReadHdr() receives cc = 0 or a read
@@ -1453,7 +1454,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ImmediateEofRejectedByServer)
     ASSERT_TRUE(bindServer(port)) << "Failed to bind server on " << port;
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
-    /* Close without sending any data – the server sees EOF on first read */
+    /* Close without sending any data ï¿½ the server sees EOF on first read */
     rawSocketClose(rawClient);
     rawClient = kInvalidRawSocket;
 
@@ -1468,7 +1469,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ImmediateEofRejectedByServer)
 }
 
 /* =========================================================================
- * Test 7 – All-0xFF garbage payload
+ * Test 7 ï¿½ All-0xFF garbage payload
  *
  * Sending 32 bytes of 0xFF.  The length field [0..1] = 0xFFFF makes the
  * server think the message is 65535 bytes long, far exceeding the input
@@ -1518,7 +1519,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, AllOxFFBytesRejectedByServer)
 }
 
 /* =========================================================================
- * Test 8 – Oversized length field
+ * Test 8 ï¿½ Oversized length field
  *
  * Build a message whose 2-byte length field claims 0x7FFF (32767) bytes
  * with a known RIPC version at [3..6], but only 17 actual bytes are
@@ -1537,7 +1538,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, OversizedLengthFieldRejectedByServer)
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
     /* Craft a v12 message with compBitmapSize=0x20 (32) but only 23
-     * bytes in the buffer – the parser will find header-size mismatch. */
+     * bytes in the buffer ï¿½ the parser will find header-size mismatch. */
     unsigned char msg[23];
     memset(msg, 0, sizeof(msg));
 
@@ -1554,7 +1555,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, OversizedLengthFieldRejectedByServer)
 
     msg[7]  = 0x00;  /* flags                            */
     msg[8]  = 20;    /* hdrSize                          */
-    msg[9]  = 0x20;   /* compBitmapSize = 32 – inconsistent with actual bytes */
+    msg[9]  = 0x20;   /* compBitmapSize = 32 ï¿½ inconsistent with actual bytes */
     msg[10] = 60;    /* pingTimeout                      */
     msg[11] = 0x00;  /* rsslFlags                        */
     msg[12] = 0x00;  /* protocolType = RWF (0)           */
@@ -1590,7 +1591,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, OversizedLengthFieldRejectedByServer)
 }
 
 /* =========================================================================
- * Test 9 – RIPC v10 header that is below V10_MIN_CONN_HDR (17 bytes)
+ * Test 9 ï¿½ RIPC v10 header that is below V10_MIN_CONN_HDR (17 bytes)
  *
  * ipcProcessHdr checks (totalMsgLength < V10_MIN_CONN_HDR) for CONN_VERSION_10.
  * We send a message that claims version 10 but is only 10 bytes, triggering
@@ -1601,12 +1602,12 @@ TEST_F(RsslInitChannelInvalidMsgTests, V10TooShortHeaderRejectedByServer)
     ASSERT_TRUE(bindServer(port)) << "Failed to bind server on " << port;
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
-    /* Send only 4 bytes – not enough for a valid RIPC header */
+    /* Send only 4 bytes ï¿½ not enough for a valid RIPC header */
     unsigned char shortMsg[4] = { 0x00, 0x04, 0x00, 0x00 };
     ASSERT_TRUE(rawSendAll(rawClient, shortMsg, sizeof(shortMsg)))
         << "Failed to send truncated header";
 
-    /* Close the raw socket immediately – the server will see EOF */
+    /* Close the raw socket immediately ï¿½ the server will see EOF */
     rawSocketClose(rawClient);
     rawClient = kInvalidRawSocket;
 
@@ -1621,7 +1622,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V10TooShortHeaderRejectedByServer)
 }
 
 /* =========================================================================
- * Test 10 – RIPC v12 with oversized compBitmapSize
+ * Test 10 ï¿½ RIPC v12 with oversized compBitmapSize
  *
  * In ipcProcessHdr, when the RIPC_KEY_EXCHANGE flag (0x01) is present in
  * the flags byte [7], the parser expects a DH key block immediately after
@@ -1656,7 +1657,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V12OversizedCompBitmapRejectedByServer)
 }
 
 /* =========================================================================
- * Test 11 – v10 with all-ones length field (0xFFFF), socket closed early
+ * Test 11 ï¿½ v10 with all-ones length field (0xFFFF), socket closed early
  *
  * The length field claims 65535 bytes with CONN_VERSION_10 but only 17
  * bytes are delivered and the socket is then closed.  After the EOF the
@@ -1706,7 +1707,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V10AllOnesLengthFieldRejectedByServer)
 }
 
 /* =========================================================================
- * Test 12 – RIPC v12 with corrupted hdrSize (0xFF)
+ * Test 12 ï¿½ RIPC v12 with corrupted hdrSize (0xFF)
  *
  * CONN_VERSION_14 (0x0E) shares the v14 branch.  hdrSize=0xFF makes
  * (0xFF + compVerLen(2) + 1) = 276 != totalMsgLength(23).
@@ -1736,7 +1737,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V14CorruptedHdrSizeRejectedByServer)
 }
 
 /* =========================================================================
- * Test 13 – Byte-by-byte slow drip with invalid hdrSize
+ * Test 13 ï¿½ Byte-by-byte slow drip with invalid hdrSize
  *
  * The client sends a 17-byte RIPC v14 header one byte at a time.  hdrSize
  * is set to 0, making (0 + compVerLen(2) + 1) = 1 != totalMsgLength(17).
@@ -1779,7 +1780,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ByteByByteDripRejectedByServer)
 }
 
 /* -------------------------------------------------------------------------
- * Test 14 – Zero pingTimeout in a well-formed v14 header
+ * Test 14 ï¿½ Zero pingTimeout in a well-formed v14 header
  *
  * pingTimeout is read at hdrStart[10] + compBitmapSize.  With both at zero
  * the read occurs at hdrStart[10], which is still within the fixed header.
@@ -1811,7 +1812,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ZeroPingTimeoutAcceptedByServer)
 }
 
 /* =========================================================================
- * Test 15 – hostnameLen overflow past totalMsgLength
+ * Test 15 ï¿½ hostnameLen overflow past totalMsgLength
  *
  * hostnameLen=255 causes the computed hdrSize to far exceed totalMsgLength,
  * triggering the header-size validation error in ipcProcessHdr before any
@@ -1843,7 +1844,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HostnameLenOverflowRejectedByServer)
 }
 
 /* =========================================================================
- * Test 16 – addrLen = 0xFF forces memcpy target past buffer end
+ * Test 16 ï¿½ addrLen = 0xFF forces memcpy target past buffer end
  *
  * With hostnameLen=0 and compBitmapSize=0, addrLen lives at byte [16].
  * Setting addrLen=0xFF (255) would cause a 255-byte memcpy of the IP-
@@ -1875,7 +1876,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, AddrLenOverflowRejectedByServer)
 }
 
 /* =========================================================================
- * Test 17 – componentVersionLen exceeds remaining buffer bytes
+ * Test 17 ï¿½ componentVersionLen exceeds remaining buffer bytes
  *
  * componentVersionLen is read at hdrStart[17 + compBitmapSize +
  * hostnameLen + addrLen].  With all three zero that is byte [17].
@@ -1907,7 +1908,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ComponentVersionLenOverflowRejectedByServ
 }
 
 /* =========================================================================
- * Test 18 – hdrSize underflow (value 1)
+ * Test 18 ï¿½ hdrSize underflow (value 1)
  *
  * hdrSize=1 makes (1 + compVerLen(2) + 1) = 4 != totalMsgLength(23).
  * This is the opposite extreme from Test 12's hdrSize=0xFF overflow.
@@ -1937,7 +1938,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HdrSizeUnderflowRejectedByServer)
 }
 
 /* =========================================================================
- * Test 19 – Maximum compBitmapSize (0xFF) pushes all variable-field reads
+ * Test 19 ï¿½ Maximum compBitmapSize (0xFF) pushes all variable-field reads
  *            far beyond the 23 received bytes
  *
  * ipcProcessHdr reads hostnameLen at hdrStart[15 + compBitmapSize].
@@ -1950,7 +1951,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MaxCompBitmapSizeOobRejectedByServer)
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
     /* Craft a v12 message with compBitmapSize=0x20 (32) but only 23
-     * bytes in the buffer – the parser will find header-size mismatch. */
+     * bytes in the buffer ï¿½ the parser will find header-size mismatch. */
     unsigned char msg[23];
     memset(msg, 0, sizeof(msg));
 
@@ -2002,7 +2003,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MaxCompBitmapSizeOobRejectedByServer)
 }
 
 /* =========================================================================
- * Test 20 – hdrSize and componentVersionLen both at 0xFE (near-wrap)
+ * Test 20 ï¿½ hdrSize and componentVersionLen both at 0xFE (near-wrap)
  *
  * hdrSize=0xFE(254) + compVerLen=0xFE(254) + 1 = 509.  Against
  * totalMsgLength=23 this is an enormous mismatch.  The check must not
@@ -2033,7 +2034,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HdrSizeAndCompVerLenBothMaxRejectedByServ
 }
 
 /* =========================================================================
- * Test 21 – compBitmapSize shifts componentVersionLen read past buffer end
+ * Test 21 ï¿½ compBitmapSize shifts componentVersionLen read past buffer end
  *
  * With compBitmapSize=4, hostnameLen is read at hdrStart[19], addrLen at
  * hdrStart[20], and componentVersionLen at hdrStart[21].  Setting
@@ -2076,7 +2077,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, CompBitmapShiftsCompVerLenOobRejectedBySe
 }
 
 /* =========================================================================
- * Test 22 – Non-zero opCode byte
+ * Test 22 ï¿½ Non-zero opCode byte
  *
  * ipcProcessHdr checks that opCode (byte [2]) is 0x00 (IPC_CONNECT_REQ).
  * Setting it to 0x03 (IPC_DATA) triggers the "Invalid connection request"
@@ -2106,7 +2107,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, NonZeroOpCodeRejectedByServer)
 }
 
 /* =========================================================================
- * Test 24 – totalMsgLength field = 0 (below the cc >= 7 minimum)
+ * Test 24 ï¿½ totalMsgLength field = 0 (below the cc >= 7 minimum)
  *
  * A two-byte length field of 0x0000 means totalMsgLength = 0.  After the
  * server receives enough bytes for the outer length field it enters
@@ -2145,7 +2146,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ZeroTotalMsgLengthRejectedByServer)
 }
 
 /* =========================================================================
- * Test 25 – Alternating 0x00 / 0xFF byte pattern (mixed garbage)
+ * Test 25 ï¿½ Alternating 0x00 / 0xFF byte pattern (mixed garbage)
  *
  * A 32-byte payload whose bytes alternate 0x00 and 0xFF produces a
  * length field of 0x00FF (255) and a version field of 0xFF00FF00, neither
@@ -2174,7 +2175,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, AlternatingPatternRejectedByServer)
 }
 
 /* =========================================================================
- * Test 30 – Valid v14 header followed by a large excess payload
+ * Test 30 ï¿½ Valid v14 header followed by a large excess payload
  *
  * The first 23 bytes form a syntactically correct RIPC v14 connect-request
  * (as built by buildValidRipcv14Header).  We then append 4096 additional
@@ -2217,7 +2218,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ValidHdrWithLargeExcessPayloadRejectedByS
 }
 
 /* =========================================================================
- * Test 31 – Maximum wire length field (0xFFFF) with a valid v14 header body
+ * Test 31 ï¿½ Maximum wire length field (0xFFFF) with a valid v14 header body
  *
  * The two-byte wire length field at bytes [0..1] is set to 0xFFFF (65535),
  * claiming a 65535-byte message.  The remaining bytes form a valid v14
@@ -2263,12 +2264,12 @@ TEST_F(RsslInitChannelInvalidMsgTests, MaxWireLengthFieldWithValidv14BodyRejecte
 }
 
 /* =========================================================================
- * Test 32 – Wire length field matches exactly V10_MIN_CONN_HDR (17) but
+ * Test 32 ï¿½ Wire length field matches exactly V10_MIN_CONN_HDR (17) but
  *            body contains an intentionally oversized excess to fill the
  *            server's input buffer close to its capacity
  *
  * V10_MIN_CONN_HDR = 17.  We craft a v14 header whose [0..1] length field
- * declares only 17 bytes, but we actually send 32 KB – 1 byte (32767 B),
+ * declares only 17 bytes, but we actually send 32 KB ï¿½ 1 byte (32767 B),
  * which is the largest single TCP send that a u16 length field could ever
  * represent without wrapping.  The server reads all data into its input
  * buffer (bounded by maxLength), then computes:
