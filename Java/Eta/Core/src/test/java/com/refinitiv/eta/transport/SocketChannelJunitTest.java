@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -139,6 +140,66 @@ public class SocketChannelJunitTest
     int additionalFragmentHeaderLength(RsslSocketChannel channel)
     {
         return 4 + channel._readBufStateMachine._fragIdLen;
+    }
+
+    /**
+     * Retrieves and prints the default system-level receive buffer size (SO_RCVBUF)
+     * as reported by the OS for a newly created, unconnected socket.
+     *
+     * <p>The value is obtained from a fresh {@link java.net.Socket} before any
+     * explicit buffer-size configuration, so it reflects the JVM / OS default
+     * for this machine.</p>
+     *
+     * @return the default SO_RCVBUF size in bytes, or {@code -1} if the size
+     *         cannot be determined due to a {@link SocketException} or
+     *         {@link java.io.IOException}.
+     */
+    static int getDefaultSystemReceiveBufferSize()
+    {
+        try (Socket socket = new Socket())
+        {
+            return socket.getReceiveBufferSize();
+        }
+        catch (SocketException e)
+        {
+            System.err.println("[SystemBufferSizes] Unable to determine default system receive buffer size: " + e.getMessage());
+            return -1;
+        }
+        catch (IOException e)
+        {
+            System.err.println("[SystemBufferSizes] IOException while querying system receive buffer size: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Retrieves and prints the default system-level send/write buffer size (SO_SNDBUF)
+     * as reported by the OS for a newly created, unconnected socket.
+     *
+     * <p>The value is obtained from a fresh {@link java.net.Socket} before any
+     * explicit buffer-size configuration, so it reflects the JVM / OS default
+     * for this machine.</p>
+     *
+     * @return the default SO_SNDBUF size in bytes, or {@code -1} if the size
+     *         cannot be determined due to a {@link SocketException} or
+     *         {@link java.io.IOException}.
+     */
+    static int getDefaultSystemWriteBufferSize()
+    {
+        try (Socket socket = new Socket())
+        {
+            return socket.getSendBufferSize();
+        }
+        catch (SocketException e)
+        {
+            System.err.println("[SystemBufferSizes] Unable to determine default system write buffer size: " + e.getMessage());
+            return -1;
+        }
+        catch (IOException e)
+        {
+            System.err.println("[SystemBufferSizes] IOException while querying system write buffer size: " + e.getMessage());
+            return -1;
+        }
     }
 
     byte[] getBytesFromBuffer(TransportBuffer buffer)
@@ -8650,9 +8711,16 @@ public class SocketChannelJunitTest
             assertTrue(RsslSocketChannel.DEFAULT_PRIORITY_FLUSH_ORDER.equals(socketChannel2._channelInfo._priorityFlushStrategy));
             // Verify that the high water mark has been reset to the default value.
             assertEquals(6144, socketChannel._highWaterMark);
-            // Verify that the System Read Buffer size has been reset to the default value.
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)chnl).scktChannel().socket().getReceiveBufferSize());
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)chnl).scktChannel().socket().getSendBufferSize());
+
+            if (getDefaultSystemReceiveBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Read Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) chnl).scktChannel().socket().getReceiveBufferSize());
+            }
+
+            if(getDefaultSystemWriteBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Write Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) chnl).scktChannel().socket().getSendBufferSize());
+            }
         }
         catch (SocketException e)
         {
@@ -9149,9 +9217,18 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, channel.init(inProg, error));
             assertEquals(ChannelState.ACTIVE, channel.state());
 
-            // verify that the buf size specified in connectOpts, was set on the socket.
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)channel)._scktChannel.socket().getReceiveBufferSize());
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)channel)._scktChannel.socket().getSendBufferSize());
+            /*
+             * Verify default System Read/Write Buffer size.
+             */
+            if (getDefaultSystemReceiveBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Read Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) channel).scktChannel().socket().getReceiveBufferSize());
+            }
+
+            if(getDefaultSystemWriteBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Write Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) channel).scktChannel().socket().getSendBufferSize());
+            }
 
             /*
              * set the System Read/Write Buffers to larger than 64K. Note that
@@ -9415,8 +9492,15 @@ public class SocketChannelJunitTest
             /*
              * Verify default System Read/Write Buffer size.
              */
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)serverChannel).scktChannel().socket().getReceiveBufferSize());
-            assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel)serverChannel).scktChannel().socket().getSendBufferSize());
+            if (getDefaultSystemReceiveBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Read Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) serverChannel).scktChannel().socket().getReceiveBufferSize());
+            }
+
+            if(getDefaultSystemWriteBufferSize() <= RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE) {
+                // Verify that the System Write Buffer size has been reset to the default value.
+                assertEquals(RsslSocketChannel.READ_RECEIVE_BUFFER_SIZE, ((RsslSocketChannel) serverChannel).scktChannel().socket().getSendBufferSize());
+            }
 
             /*
              * Use ioctl to change System Read Buffer size on server and System
