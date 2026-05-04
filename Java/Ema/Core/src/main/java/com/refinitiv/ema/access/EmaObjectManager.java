@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.valueadd.common.LimitedVaPool;
 
 class EmaObjectManager
@@ -325,7 +326,8 @@ class EmaObjectManager
 		_initSessionObjectsPoolLimit = _sessionObjectsPoolLimit;
 		_initEtaObjectsPoolsLimit = _etaObjectsPoolsLimit;
 
-		for (int index = 0; index < _dataTypePoolLimit; ++index)
+		int initialSize = _dataTypePoolLimit >= 0 ? _dataTypePoolLimit : DATA_POOL_INITIAL_SIZE;
+		for (int index = 0; index < initialSize; ++index)
 		{
 			_ommIntPool.add(new OmmIntImpl());
 			_ommUIntPool.add(new OmmUIntImpl());
@@ -362,7 +364,8 @@ class EmaObjectManager
 		_ommEnumPool.setLimit(_dataTypePoolLimit);
 		_ommArrayPool.setLimit(_dataTypePoolLimit);
 
-		for (int index = 0; index < _complexTypePoolLimit; ++index)
+		initialSize = _complexTypePoolLimit >= 0 ? _complexTypePoolLimit : DATA_POOL_INITIAL_SIZE;
+		for (int index = 0; index < initialSize; ++index)
 		{
 			_fieldListPool.add(new FieldListImpl(this));
 			_elementListPool.add(new ElementListImpl(this));
@@ -390,7 +393,7 @@ class EmaObjectManager
 		_ansiPagePool.setLimit(_complexTypePoolLimit);
 		_opaquePool.setLimit(_complexTypePoolLimit);
 
-		for (int index = 0; index < _complexTypePoolLimit * ENTRY_MULTIPLIER; ++index)
+		for (int index = 0; index < initialSize * ENTRY_MULTIPLIER; ++index)
 		{
 			load = new NoDataImpl();
 			_noDataPool.updatePool(load);
@@ -434,7 +437,8 @@ class EmaObjectManager
 		_postMsgPool.setLimit(_msgTypePoolLimit);
 		_genericMsgPool.setLimit(_msgTypePoolLimit);
 
-		for (int i = 0; i < _msgTypePoolLimit; i++)
+		initialSize = _msgTypePoolLimit >= 0 ? _msgTypePoolLimit : DATA_POOL_INITIAL_SIZE;
+		for (int i = 0; i < initialSize; i++)
 		{
 			_reqMsgPool.add(new ReqMsgImpl(this));
 			_refreshMsgPool.add(new RefreshMsgImpl(this));
@@ -453,7 +457,8 @@ class EmaObjectManager
 		_tunnelItemPool.setLimit(_sessionObjectsPoolLimit);
 		_timeoutEventPool.setLimit(_sessionObjectsPoolLimit);
 
-		for (int index = 0; index < _sessionObjectsPoolLimit; ++index)
+		initialSize = _sessionObjectsPoolLimit >= 0 ? _sessionObjectsPoolLimit : DATA_POOL_INITIAL_SIZE;
+		for (int index = 0; index < initialSize; ++index)
 		{
 			_singleItemPool.add(new SingleItem<T>());
 			_batchItemPool.add(new BatchItem<T>());
@@ -465,9 +470,25 @@ class EmaObjectManager
 			_timeoutEventPool.add(new TimeoutEvent(0, null));
 		}
 
-		for (int index = 0; index < _complexTypePoolLimit; ++index)
+		_noDataPool.setLimit(_complexTypePoolLimit);
+
+		initialSize = _complexTypePoolLimit >= 0 ? _complexTypePoolLimit : DATA_POOL_INITIAL_SIZE;
+		for (int index = 0; index < initialSize; ++index)
 		{
 			_noDataPool.add(new NoDataImpl());
+		}
+
+		initialSize = _etaObjectsPoolsLimit >= 0 ? _etaObjectsPoolsLimit : DATA_POOL_INITIAL_SIZE;
+		for (int i = 0; i < initialSize; i++)
+		{
+			_rsslElementListPool.add(CodecFactory.createElementList());
+			_rsslVectorPool.add(CodecFactory.createVector());
+			_rsslFieldListPool.add(CodecFactory.createFieldList());
+			_rsslFilterListPool.add(CodecFactory.createFilterList());
+			_rsslMapPool.add(CodecFactory.createMap());
+			_rsslSeriesPool.add(CodecFactory.createSeries());
+			_rsslArrayPool.add(CodecFactory.createArray());
+			_etaDecodeIteratorPool.add(CodecFactory.createDecodeIterator());
 		}
 
 		initByteBufferList();

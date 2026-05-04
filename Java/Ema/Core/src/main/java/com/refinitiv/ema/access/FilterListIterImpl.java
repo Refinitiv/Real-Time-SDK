@@ -37,8 +37,8 @@ class FilterListIterImpl implements Iterator<FilterEntry>
 		}
 		if (_rsslFilterList != null)
 		{
-			if (_filterListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_filterListImpl._objManager._rsslFilterListPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_filterListImpl._objManager._etaObjectsPoolsLimit > 0 && (_filterListImpl._objManager._rsslFilterListPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+					|| _filterListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_filterListImpl._objManager._rsslFilterListPool.add(_rsslFilterList);
 			}
@@ -46,8 +46,8 @@ class FilterListIterImpl implements Iterator<FilterEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_filterListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_filterListImpl._objManager._etaDecodeIteratorPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_filterListImpl._objManager._etaObjectsPoolsLimit > 0 && (_filterListImpl._objManager._etaDecodeIteratorPool.size() < _filterListImpl._objManager._etaObjectsPoolsLimit))
+					|| _filterListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_filterListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}

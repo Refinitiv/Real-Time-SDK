@@ -37,8 +37,8 @@ class VectorIterImpl implements Iterator<VectorEntry>
 		}
 		if (_rsslVector != null)
 		{
-			if (_vectorImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_vectorImpl._objManager._rsslVectorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit))
+			if ((_vectorImpl._objManager._etaObjectsPoolsLimit > 0 && (_vectorImpl._objManager._rsslVectorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit))
+					|| _vectorImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_vectorImpl._objManager._rsslVectorPool.add(_rsslVector);
 			}
@@ -46,8 +46,8 @@ class VectorIterImpl implements Iterator<VectorEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_vectorImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_vectorImpl._objManager._etaDecodeIteratorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit))
+			if ((_vectorImpl._objManager._etaObjectsPoolsLimit > 0 && (_vectorImpl._objManager._etaDecodeIteratorPool.size() < _vectorImpl._objManager._etaObjectsPoolsLimit) )
+					|| _vectorImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_vectorImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}

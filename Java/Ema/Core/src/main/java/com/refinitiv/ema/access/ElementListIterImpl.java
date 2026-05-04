@@ -36,8 +36,8 @@ class ElementListIterImpl implements Iterator<ElementEntry>
 		}
 		if (_rsslElementList != null)
 		{
-			if (_elementListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_elementListImpl._objManager._rsslElementListPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_elementListImpl._objManager._etaObjectsPoolsLimit > 0 && (_elementListImpl._objManager._rsslElementListPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+					|| _elementListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_elementListImpl._objManager._rsslElementListPool.add(_rsslElementList);
 			}
@@ -45,8 +45,8 @@ class ElementListIterImpl implements Iterator<ElementEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_elementListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_elementListImpl._objManager._etaDecodeIteratorPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_elementListImpl._objManager._etaObjectsPoolsLimit > 0 && (_elementListImpl._objManager._etaDecodeIteratorPool.size() < _elementListImpl._objManager._etaObjectsPoolsLimit))
+					|| _elementListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_elementListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}

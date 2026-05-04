@@ -36,8 +36,8 @@ class SeriesIterImpl implements Iterator<SeriesEntry>
 		}
 		if (_rsslSeries != null)
 		{
-			if (_seriesImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_seriesImpl._objManager._rsslSeriesPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit))
+			if (_seriesImpl._objManager._etaObjectsPoolsLimit > 0 && (_seriesImpl._objManager._rsslSeriesPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit)
+					|| _seriesImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_seriesImpl._objManager._rsslSeriesPool.add(_rsslSeries);
 			}
@@ -45,8 +45,8 @@ class SeriesIterImpl implements Iterator<SeriesEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_seriesImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_seriesImpl._objManager._etaDecodeIteratorPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit))
+			if ((_seriesImpl._objManager._etaObjectsPoolsLimit > 0 && (_seriesImpl._objManager._etaDecodeIteratorPool.size() < _seriesImpl._objManager._etaObjectsPoolsLimit))
+					|| _seriesImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_seriesImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}

@@ -35,8 +35,8 @@ class FieldListIterImpl implements Iterator<FieldEntry>
 		}
 		if (_rsslFieldList != null)
 		{
-			if (_fieldListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_fieldListImpl._objManager._rsslFieldListPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_fieldListImpl._objManager._etaObjectsPoolsLimit > 0 && (_fieldListImpl._objManager._rsslFieldListPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+					|| _fieldListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_fieldListImpl._objManager._rsslFieldListPool.add(_rsslFieldList);
 			}
@@ -44,8 +44,8 @@ class FieldListIterImpl implements Iterator<FieldEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_fieldListImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_fieldListImpl._objManager._etaDecodeIteratorPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+			if ((_fieldListImpl._objManager._etaObjectsPoolsLimit > 0 && (_fieldListImpl._objManager._etaDecodeIteratorPool.size() < _fieldListImpl._objManager._etaObjectsPoolsLimit))
+					|| _fieldListImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_fieldListImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}

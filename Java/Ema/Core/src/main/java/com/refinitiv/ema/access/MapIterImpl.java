@@ -37,7 +37,8 @@ class MapIterImpl implements Iterator<MapEntry>
 		}
 		if (_rsslMap != null)
 		{
-			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0 && (_mapImpl._objManager._rsslMapPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			if ((_mapImpl._objManager._etaObjectsPoolsLimit > 0 && (_mapImpl._objManager._rsslMapPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+					|| _mapImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_mapImpl._objManager._rsslMapPool.add(_rsslMap);
 			}
@@ -45,8 +46,8 @@ class MapIterImpl implements Iterator<MapEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			if ((_mapImpl._objManager._etaObjectsPoolsLimit > 0 && (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+					|| _mapImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_mapImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}
@@ -54,8 +55,8 @@ class MapIterImpl implements Iterator<MapEntry>
 		}
 		if (_keyDecodeIter != null)
 		{
-			if (_mapImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+			if ((_mapImpl._objManager._etaObjectsPoolsLimit > 0 && (_mapImpl._objManager._etaDecodeIteratorPool.size() < _mapImpl._objManager._etaObjectsPoolsLimit))
+					|| _mapImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_mapImpl._objManager._etaDecodeIteratorPool.add(_keyDecodeIter);
 			}

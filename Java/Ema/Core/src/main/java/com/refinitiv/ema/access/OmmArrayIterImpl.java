@@ -36,8 +36,8 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 		}
 		if (_rsslArray != null)
 		{
-			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			if ((_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0 && (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+					|| _ommArrayImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
 			}
@@ -45,8 +45,8 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 		}
 		if (_rsslDecodeIter != null)
 		{
-			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			if ((_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0 && (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+					|| _ommArrayImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}
@@ -116,13 +116,13 @@ class OmmArrayIterImpl implements Iterator<OmmArrayEntry>
 		else
 		{
 			_ommArrayEntry.returnToPool();
-			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			if ((_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0 && (_ommArrayImpl._objManager._rsslArrayPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+					|| _ommArrayImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_ommArrayImpl._objManager._rsslArrayPool.add(_rsslArray);
 			}
-			if (_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0
-					&& (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+			if ((_ommArrayImpl._objManager._etaObjectsPoolsLimit > 0 && (_ommArrayImpl._objManager._etaDecodeIteratorPool.size() < _ommArrayImpl._objManager._etaObjectsPoolsLimit))
+					|| _ommArrayImpl._objManager._etaObjectsPoolsLimit < 0)
 			{
 				_ommArrayImpl._objManager._etaDecodeIteratorPool.add(_rsslDecodeIter);
 			}
