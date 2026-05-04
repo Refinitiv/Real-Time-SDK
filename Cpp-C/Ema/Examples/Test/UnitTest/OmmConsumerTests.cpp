@@ -648,7 +648,7 @@ TEST_F(OmmConsumerTest, RequestRoutingLoginChannelDown)
 
 		EXPECT_EQ(channelInfo.size(), 2);
 
-		EXPECT_GE(consClient.getMessageQueueSize(), 1);
+		EXPECT_GE(consClient.getMessageQueueSize(), 1u);
 
 		OmmState::StreamState streamState = OmmState::StreamState::ClosedEnum;
 		OmmState::DataState dataState = OmmState::DataState::NoChangeEnum;
