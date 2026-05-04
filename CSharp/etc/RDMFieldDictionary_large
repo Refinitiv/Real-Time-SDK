@@ -4,14 +4,14 @@
 ! LSEG. LSEG may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.71_RealTimeDistributionSystem_26.11		02/02/2026
-!	* Modified 02/02/2026 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.71.
+!   Version	 4.20.72_RealTimeDistributionSystem_26.31		04/17/2026
+!	* Modified 04/17/2026 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.72.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.71_RealTimeDistributionSystem
+!   Version: 4.20.72_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.71
-!tag Build     3
-!tag Date      18-Dec-2025
+!tag Version   4.20.72
+!tag Build     1
+!tag Date      11-Mar-2026
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -24998,9 +24998,9 @@ TRDSES_ID  "TRADE SESSION ID"    8694  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Extended session ID field for the last reported trade.
 !
-PRE_24T064 "PRED 24 TXT 064"     8695  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+ESG_TYPE   "ESG TYPE"            8695  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Defines the ESG classification applicable to the instrument.
 !
 FEED_NAME  "FEED NAME"           8696  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -25462,7 +25462,13 @@ PRE_1BN021 "PRED 1 BIN 021"      8896  NULL        INTEGER             3  UINT64
 PRE_1BN022 "PRED 1 BIN 022"      8897  NULL        INTEGER             3  UINT64           8
 PRE_1BN023 "PRED 1 BIN 023"      8898  NULL        INTEGER             3  UINT64           8
 PRE_1BN024 "PRED 1 BIN 024"      8899  NULL        INTEGER             3  UINT64           8
-PRE_2BN001 "PRED 2 BIN 001"      8900  NULL        BINARY              3  UINT64           2
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+CVA_DDSDSO "CVA DDS DSO ID"      8900  NULL        BINARY              3  UINT64           2
+!
+! The FID for CVA DDS DSO ID
+!
 PRE_2BN002 "PRED 2 BIN 002"      8901  NULL        BINARY              3  UINT64           2
 PRE_2BN003 "PRED 2 BIN 003"      8902  NULL        BINARY              3  UINT64           2
 PRE_2BN004 "PRED 2 BIN 004"      8903  NULL        BINARY              3  UINT64           2
@@ -27101,14 +27107,43 @@ LST_NOT_DT "NOTIF DELIV LS DT"   9410  NULL        DATE               11  DATE  
 !
 ! The last date that users will get notified that they have been assigned a delivery.
 !
-PRE_DT300  "PRED DATE 300"       9411  NULL        DATE               11  DATE             4
-PRE_DT301  "PRED DATE 301"       9412  NULL        DATE               11  DATE             4
-PRE_DT302  "PRED DATE 302"       9413  NULL        DATE               11  DATE             4
-PRE_DT303  "PRED DATE 303"       9414  NULL        DATE               11  DATE             4
-PRE_DT304  "PRED DATE 304"       9415  NULL        DATE               11  DATE             4
-PRE_DT305  "PRED DATE 305"       9416  NULL        DATE               11  DATE             4
-PRE_DT306  "PRED DATE 306"       9417  NULL        DATE               11  DATE             4
-PRE_DT307  "PRED DATE 307"       9418  NULL        DATE               11  DATE             4
+TRDREC_DT  "TRD RECV DATE"       9411  NULL        DATE               11  DATE             4
+!
+! The date when trade was received.
+!
+TRDREC2_DT "TRD RECV DATE2"      9412  NULL        DATE               11  DATE             4
+!
+! A secondary field for the date when trade was received.
+!
+ORDREC_DT  "ORDER RECV DATE"     9413  NULL        DATE               11  DATE             4
+!
+! The date when order was received. The date associated with ORDREC_NS.
+!
+ORDCAL_DT  "ORDER CAL DATE"      9414  NULL        DATE               11  DATE             4
+!
+! Calculation date of the best bid and best ask price by the data provider. The date 
+! associated with ORDCAL_NS.
+!
+INDREC_DT  "INDAUC RECV DATE"    9415  NULL        DATE               11  DATE             4
+!
+! The date when indicative auction price was received. The date associated with 
+! INDREC_NS.
+!
+INDCAL_DT  "INDAUC CAL DATE"     9416  NULL        DATE               11  DATE             4
+!
+! The date when indicative auction price was calculated by the data provider. The date 
+! associated with INDCAL_NS.
+!
+INDREC2_DT "INDAUC RECV DATE2"   9417  NULL        DATE               11  DATE             4
+!
+! A secondary field for the date when indicative auction price was received. The date 
+! associated with INDREC2_NS.
+!
+INDCAL2_DT "INDAUC CAL2 DATE"    9418  NULL        DATE               11  DATE             4
+!
+! A secondary field for the date when indicative auction price was calculated by the 
+! data provider. The date associated with INDCAL2_NS.
+!
 PRE_DT308  "PRED DATE 308"       9419  NULL        DATE               11  DATE             4
 PRE_DT309  "PRED DATE 309"       9420  NULL        DATE               11  DATE             4
 PRE_DT310  "PRED DATE 310"       9421  NULL        DATE               11  DATE             4
@@ -30831,7 +30866,7 @@ CLS_ZYLD   "CLOSE ZERO YIELD"   10746  NULL        PRICE              17  REAL64
 !
 CUTOFF_PRC "CUTOFF PRC"         10747  NULL        PRICE              17  REAL64           9
 !
-! Cutoff price - the minimum acceptable price.
+! Cutoff price - the minimum price accepted.
 !
 DEVOLV_AMT "DEVOLVEMENT AMT"    10748  NULL        PRICE              17  REAL64           9
 !
@@ -32636,17 +32671,54 @@ SSR_TG_VOL "SSR TRIGG VOL"      11208  NULL        PRICE              17  REAL64
 !
 ! Volume of the Short Sale Restriction (SSR) triggering price.
 !
-PRERL2218  "PRED REAL 2218"     11209  NULL        PRICE              17  REAL64           9
-PRERL2219  "PRED REAL 2219"     11210  NULL        PRICE              17  REAL64           9
-PRERL2220  "PRED REAL 2220"     11211  NULL        PRICE              17  REAL64           9
-PRERL2221  "PRED REAL 2221"     11212  NULL        PRICE              17  REAL64           9
-PRERL2222  "PRED REAL 2222"     11213  NULL        PRICE              17  REAL64           9
-PRERL2223  "PRED REAL 2223"     11214  NULL        PRICE              17  REAL64           9
-PRERL2224  "PRED REAL 2224"     11215  NULL        PRICE              17  REAL64           9
-PRERL2225  "PRED REAL 2225"     11216  NULL        PRICE              17  REAL64           9
-PRERL2226  "PRED REAL 2226"     11217  NULL        PRICE              17  REAL64           9
-PRERL2227  "PRED REAL 2227"     11218  NULL        PRICE              17  REAL64           9
-PRERL2228  "PRED REAL 2228"     11219  NULL        PRICE              17  REAL64           9
+MIN_ORD_VL "MIN ORDER VALUE"    11209  NULL        PRICE              17  REAL64           9
+!
+! Minimum Order Value
+!
+SES1_OPINT "SESS1 OPEN INT"     11210  NULL        PRICE              17  REAL64           9
+!
+! Session one open interest
+!
+SES2_OPINT "SESS2 OPEN INT"     11211  NULL        PRICE              17  REAL64           9
+!
+! Session two open interest
+!
+SES1_OPNTC "SESS1 OPEN INT NTC" 11212  NULL        PRICE              17  REAL64           9
+!
+! Net change value for first session open interest
+!
+SES2_OPNTC "SESS2 OPEN INT NTC" 11213  NULL        PRICE              17  REAL64           9
+!
+! Net change value for second session open interest
+!
+ALLOC_QTY  "ALLOCATION QTY"     11214  NULL        PRICE              17  REAL64           9
+!
+! Allocation quantity - represents reported number of managed accounts to which trade 
+! quantity is allocated. 
+!
+IRG_ALLOCQ "IRG ALLOC QTY"      11215  NULL        PRICE              17  REAL64           9
+!
+! Non-Regular trade allocation quantity - represents reported number of managed 
+! accounts to which trade quantity is allocated. 
+!
+INS_ALLOCQ "INS ALLOC QTY"      11216  NULL        PRICE              17  REAL64           9
+!
+! Cancelled and/or corrected trade allocation quantity - represents reported number of 
+! managed accounts to which trade quantity is allocated.
+!
+CAN_ALLOCQ "CAN ALLOC QTY"      11217  NULL        PRICE              17  REAL64           9
+!
+! Cancelled trade allocation quantity - represents reported number of managed accounts 
+! to which trade quantity is allocated.
+!
+CUTOFF_YLD "CUTOFF YIELD"       11218  NULL        PRICE              17  REAL64           9
+!
+! Cutoff yield - the highest yield accepted.
+!
+EFP_NETCHG "EFP NET CHANGE"     11219  NULL        PRICE              17  REAL64           9
+!
+! Exchange for physical Net Change.
+!
 PRERL2229  "PRED REAL 2229"     11220  NULL        PRICE              17  REAL64           9
 PRERL2230  "PRED REAL 2230"     11221  NULL        PRICE              17  REAL64           9
 PRERL2231  "PRED REAL 2231"     11222  NULL        PRICE              17  REAL64           9
@@ -33332,9 +33404,18 @@ PER_TRD_N  "PERMIT TRD NATIVE"  11707  NULL        ALPHANUMERIC        8  RMTES_
 ! Native values showing whether instruments are allowed to be traded on an alternative 
 ! venue when there is an outage on the existing venue.
 !
-PRE_8TX027 "PRED 8 TXT 027"     11708  NULL        ALPHANUMERIC        8  RMTES_STRING     8
-PRE_8TX028 "PRED 8 TXT 028"     11709  NULL        ALPHANUMERIC        8  RMTES_STRING     8
-PRE_8TX029 "PRED 8 TXT 029"     11710  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+ODD_A_MMID "ODD ASK MKT MKR ID" 11708  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Ask odd lot trade market maker ID
+!
+ODD_B_MMID "ODD BID MKT MKR ID" 11709  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Bid odd lot trade market maker ID
+!
+BOLO_IND   "BOLO INDICATOR"     11710  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Best Odd Lot Bid Indicator
+!
 PRE_8TX030 "PRED 8 TXT 030"     11711  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX031 "PRED 8 TXT 031"     11712  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX032 "PRED 8 TXT 032"     11713  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -36219,7 +36300,14 @@ LEVG_IND   "LEVERAGE IND"       13130  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 PRE_1ET430 "PRED 1 ET 430"      13131  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET431 "PRED 1 ET 431"      13132  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET432 "PRED 1 ET 432"      13133  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+SECMK_ELGB "SECON MKT ELGB FLG" 13133  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! An eligibility flag to indicate whether the particular issue is eligible for trading 
+! on Primary Market
+!
 PRE_1ET433 "PRED 1 ET 433"      13134  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET434 "PRED 1 ET 434"      13135  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET435 "PRED 1 ET 435"      13136  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -37421,8 +37509,14 @@ SSR_TG_EXD "SSR TRIGG EXCHID"   13645  NULL        ENUMERATED    5 ( 3 )  ENUM  
 ! Identifier of the exchange where the Short Sale Restriction (SSR) triggered for a 
 ! security.
 !
-PRE_2ET325 "PRED 2 ET 325"      13646  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET326 "PRED 2 ET 326"      13647  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+ODD_A_EXID "ODD ASK EXCH ID"    13646  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Identifier of the exchange where the Ask odd lot trade originated.
+!
+ODD_B_EXID "ODD BID EXCH ID"    13647  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Identifier of the exchange where the Bid odd lot trade originated.
+!
 PRE_2ET327 "PRED 2 ET 327"      13648  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET328 "PRED 2 ET 328"      13649  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET329 "PRED 2 ET 329"      13650  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -39680,13 +39774,35 @@ RFC_EXP_NS "RFC EXPIRY TIME"    14711  NULL        INTEGER            15  TIME  
 !
 ! The time Request for Cross (RFC) will expire.
 !
-PRE_282_NS "PRED TIME NS 282"   14712  NULL        INTEGER            15  TIME             8
-PRE_283_NS "PRED TIME NS 283"   14713  NULL        INTEGER            15  TIME             8
-PRE_284_NS "PRED TIME NS 284"   14714  NULL        INTEGER            15  TIME             8
-PRE_285_NS "PRED TIME NS 285"   14715  NULL        INTEGER            15  TIME             8
-PRE_286_NS "PRED TIME NS 286"   14716  NULL        INTEGER            15  TIME             8
-PRE_287_NS "PRED TIME NS 287"   14717  NULL        INTEGER            15  TIME             8
-PRE_288_NS "PRED TIME NS 288"   14718  NULL        INTEGER            15  TIME             8
+MKRQTE_NS  "MKT MKR QT TIM NS"  14712  NULL        INTEGER            15  TIME             8
+!
+! Time of market maker quote in nanoseconds.
+!
+MKRQTED_NS "MKT MKR QT EXP NS"  14713  NULL        INTEGER            15  TIME             8
+!
+! Time until market maker quote expires in nanoseconds.
+!
+ORDCAL_NS  "ORDER CAL TIME NS"  14714  NULL        INTEGER            15  TIME             8
+!
+! Calculation time of the best bid and best ask price by the data provider.
+!
+INDREC_NS  "INDAUC RECV TIM NS" 14715  NULL        INTEGER            15  TIME             8
+!
+! The time when indicative auction price was received.
+!
+INDCAL_NS  "INDAUC CAL TIM NS"  14716  NULL        INTEGER            15  TIME             8
+!
+! The time when indicative auction price was calculated by the data provider.
+!
+INDREC2_NS "INDAUC REC2 TIM NS" 14717  NULL        INTEGER            15  TIME             8
+!
+! A secondary field for the time when indicative auction price was received.
+!
+INDCAL2_NS "INDAUC CAL2 TIM NS" 14718  NULL        INTEGER            15  TIME             8
+!
+! A secondary field for the time when indicative auction price was calculated by the 
+! data provider.
+!
 PRE_289_NS "PRED TIME NS 289"   14719  NULL        INTEGER            15  TIME             8
 PRE_290_NS "PRED TIME NS 290"   14720  NULL        INTEGER            15  TIME             8
 PRE_291_NS "PRED TIME NS 291"   14721  NULL        INTEGER            15  TIME             8
