@@ -14106,7 +14106,7 @@ TEST_F(OmmConsumerTest, LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndA
 		delete pProvider3;
 
 		// In this time, the consumer should reconnect and re-establish the former primary active as a standby
-		testSleep(5000);
+		testSleep(1000);
 
 		/* Receives the WSB generic message to be the new active server */
 		ASSERT_EQ(provClient4.getMessageQueueSize(), 1);
@@ -14282,7 +14282,7 @@ TEST_F(OmmConsumerTest, ServiceBasedPreferredHostFallBackWithInCurrentWSBGroupAn
 		delete pProvider4;
 
 		// Waits to switch over to WSB-G0
-		testSleep(3000);
+		testSleep(2000);
 
 		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
 		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);

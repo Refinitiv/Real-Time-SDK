@@ -2226,7 +2226,6 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
 	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
 	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 300);
@@ -2621,7 +2620,6 @@ void preferredHost_ChannelList_FallbackFunctionCall(PreferredHostTestParameters 
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
 	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
 	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 300);
@@ -2830,7 +2828,6 @@ void preferredHost_ChannelList_FallbackTimer(PreferredHostTestParameters paramet
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
 	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
 	while (!(pEvent = wtfGetEvent()))
 		 {
 		wtfDispatch(WTF_TC_CONSUMER, 300);
@@ -15215,7 +15212,6 @@ void preferredHost_ChannelList_IOCTL(PreferredHostTestParameters parameters)
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
 	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
 	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 300);
@@ -18367,7 +18363,6 @@ void preferredHost_ChannelList_InvalidServerFallbackFunctionCall(PreferredHostTe
 	ASSERT_TRUE(pEvent->channelEvent.port == 14013);
 
 	/* Consumer receives channel down reconnecting event when trying to connect to the preferred host again. */
-	wtfDispatch(WTF_TC_CONSUMER, 1000);
 	while (!(pEvent = wtfGetEvent()))
 	{
 		wtfDispatch(WTF_TC_CONSUMER, 300);
