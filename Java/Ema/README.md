@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2019-2025 LSEG. All rights reserved.
+Copyright (C) 2019-2026 LSEG. All rights reserved.
   
 # EMA Java Documentation
 
@@ -40,7 +40,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 - High Water Mark setting on socket channel
 		
 - Parameters, reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceEnable, MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
-	
+
 ## Consumer Features:
 - Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.   
 
@@ -72,9 +72,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.9.2.0.jar         ema3.9.2.L1
+    ema-3.10.0.1.jar         ema3.10.0.L2
 
-    NOTE: ema-3.9.2.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
+    NOTE: ema-3.10.0.1-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
 
 # EMA Java Issues and Workarounds
  
@@ -97,17 +97,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.9.2
-    Load Number: 1
-    Load ID: ema3.9.2.L1.java
-        Supersedes: ema3.9.1.L1.java
+    Release Number: 3.10.0
+    Load Number: 2
+    Load ID: ema3.10.0.L2.java
+        Supersedes: ema3.9.2.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.70_RealTimeDistributionSystem_25.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
 
 # Security
 

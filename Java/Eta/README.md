@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
-Copyright (C) 2019-2025 LSEG. All rights reserved.
+Copyright (C) 2019-2026 LSEG. All rights reserved.
 
 # ETA Java Documentation
 
@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.9.2.0.jar               eta3.9.2.L1       The ETA - Java Edition library.  Includes
+    eta-3.10.0.1.jar               eta3.10.0.L2       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.9.2.0.jar       eta3.9.2.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.10.0.1.jar       eta3.10.0.L2       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.9.2.0.jar  eta3.9.2.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.10.0.1.jar  eta3.10.0.L2       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.9.2.0.jar     eta3.9.2.L1       The RWF/JSON Converter library.
+    etajConverter-3.10.0.1.jar     eta3.10.0.L2       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.12         The ETA Java DACS library.
 
-    ansipage-3.9.2.0.jar          eta3.9.2.L1       The ANSI decoders and encoders.
+    ansipage-3.10.0.1.jar          eta3.10.0.L2       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.9.2.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.10.0.L2       The JNI libraries for Reliable Multicast
                                                     Transport, Shared Memory Transport and 
                                                     ValueAdd cache.  
 
@@ -148,7 +148,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
                                                     platform. Shared object files must be present
                                                     in the LD_LIBRARY_PATH for the Linux platform.
 
-    Apache                        4.5.14            The Apache libraries in the ApacheClient
+    Apache                                          The Apache libraries in the ApacheClient
                                                     directory. These are used for proxy
                                                     authentication.
 
@@ -181,17 +181,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.9.2
+    Release Number: 3.10.0
     Load Number: 1
-    Load ID: etaj3.9.2.L1.all
-        Supersedes: etaj3.9.1.L1.all
+    Load ID: etaj3.10.0.L2.all
+        Supersedes: etaj3.9.2.L1.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.70_RealTimeDistributionSystem_25.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
 
 # Security
 

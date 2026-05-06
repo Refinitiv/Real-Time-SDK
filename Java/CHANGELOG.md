@@ -9,31 +9,73 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.3.2.L1 aka EMA/ETA 3.9.2.L1 aka 3.9.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.4.0.L2 aka EMA/ETA 3.10.0.L2 aka 3.10.0.1
 ----------------------------------------------------------------------------------------
 
-This release of RTSDK Java supports the NIProvider Multi-Connect Fannout feature in EMA which permits user to configure a NIProvider session which prompts API to fanout any submits of messages to all specificied connections. In addition, this release also has critical customer issue fixes.
+This is a maintenance release for RTSDK Java with support for JDK 1.25 (Temurin OpenJDK) and Ubuntu 24.04. Support for JNI libraries using Visual Studio 2015 were dropped. This release includes several customer issue fixes and minor features and fixes. 
 
 Customer Issues Resolved
 ------------------------
-- [Case Number: 04097628] - [RTSDK-130] ValueAdd RDM Helpers should not require setting of message class
-- [Case Number: 14841566] - [RTSDK-9994, RTSDK-9867] NiProvider Multi-Connection Session Feature implementation in EMA Java 
-- [Case Number: 14872123] - [RTSDK-9896] Added examples to showcase posting SYMBOL_LIST domain using ETA Java
-- [Case Number: 15131572] - [RTSDK-10097] Submit observed during multiple server restarts fixed by adding to inactive queue 
-- [Case Number: 15174148] - [RTSDK-10119] Incomplete recovery post OnDispatchError EMA Java 
-- [Case Number: 15292274] - [RTSDK-10200] Fix to default EMA config to permit XmlTrace of Read/Write when tracing is enabled for consumer example 501
-- [Case Number: 15292653] - [RTSDK-10201] java.lang.NoClassDefFoundError: org/quartz/CronExpression when running ex500_PreferredHost_FileCfg.Consumer shipped with RTSDK-2.3.1.L1.java.rrg package
-- [Case Number: 15308229] - [RTSDK-10225] Fix to error upon fallbackPreferredHost() method call with feature disabled
-- [Case Number: 15438502] - [RTSDK-10318] Fix Readme.txt files associated with PreferredHost EMA Examples
-- [Case Number: 15482140] - [RTSDK-10350] Missed refreshes when requesting view with a large number of items requests upon recovery  
-- [GitHub #327] - [RTSDK-10388] - Update to lz4-java from 1.8.0 to 1.10.1
+- [GitHub #322] - [RTSDK-10368] - Introduces configurable limits on object pools sizes 
+- [GitHub #325] - [RTSDK-10382] - Real.value returns SUCCESS code while failing to encode certain values
+- [GitHub #326] - [RTSDK-10387] - ETA/ETA ValueAdd Java examples doesn't call releaseBuffer on errors
+- [GitHub #328] - [RTSDK-10469] - MaxDispatchCountUserThread does not work
+- [GitHub #339] - [RTSDK-10414] -  Update to Java dependencies: jackson-core, jackson-annotations, jackson-databind, commons-configuration2, commons-lang3, commons-text-1, json, lz4, httpclient5, httpcore5, quartz (2.5.2)
+- [Case Number: 15826127] - [RTSDK-10620] - RTViewerDesktop fat jar uses incorrect Main-Class in createRTViewerFatJar manifest
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.4.0.L2 (May 6, 2026)
+--------------------------------------------
+
+EMA Java 3.10.0.L2 Issues Resolved
+---------------------------------
+- [RTSDK-637] - EMAJ strings should have the proper encodings set
+- [RTSDK-5127] - Removed the requirement of a ChannelType element in programmatic configuration to create channel configuration
+- [RTSDK-9396] - Added EMA IProv220 PrivateStream Example and added handling to ensure Private Streams are handled separately in all cases
+- [RTSDK-10554] - EmaConfig.xml: Dictionary associated with Consumer_6 used by Cons180 WebSocket is changed to Dictionary_2 (local dictionary)
+- [RTSDK-10321] - Enhanced ETAJ TransportPerf example to support server side encryption
+- [RTSDK-10332] - Added config parameter to catch unhandled exceptions in the dispatching thread
+- [RTSDK-10539] - Update to Cons310 to "detect" partial update and apply to Rmtes buffer
+- [RTSDK-10368] - Introduces configurable limits on object pools sizes [GitHub #322]
+- [RTSDK-10469] - MaxDispatchCountUserThread does not work [GitHub #328] 
+
+ETA Java 3.10.0.L2 Issues Resolved
+---------------------------------
+- [RTSDK-319] - ETAJ prints incorrect group ID in the XML trace message
+- [RTSDK-10387] - ETA/ETA ValueAdd Java examples doesn't call releaseBuffer on errors [GitHub #326]
+- [RTSDK-10620] - RTViewerDesktop fat jar uses incorrect Main-Class in createRTViewerFatJar manifest
+
+Both ETA Java and EMA Java 3.10.0.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-9546] - Qualification on Ubuntu: 24.04/GCC-13.2
+- [RTSDK-10382] - Real.value returns SUCCESS code while failing to encode certain values [GitHub #325]
+- [RTSDK-10414] - Update to Java dependencies: jackson-core, jackson-annotations, jackson-databind, commons-configuration2, commons-lang3, commons-text-1, json, lz4, httpclient5, httpcore5, quartz (2.5.2) [GitHub #339] 
+- [RTSDK-10431] - Qualification with Temurin OpenJDK 1.25
+- [RTSDK-10468] - Fix for Preferred Host feature: Consumer failed to fallback to preferred host within WSB group
+- [RTSDK-10473] - Fix for intermittent unit test failures of the OmmConsumerTests and MultiConnectionsTests classes: addresses race condition in the worker thread when the preferred host channel is null
+- [RTSDK-10480] - Fix for incorrect item recovery when switching between WSB groups in ETA ValueAdd Reactor
+- [RTSDK-10506] - NullPointerException while reconnecting with WSB group servers not supporting WarmStandby
+- [RTSDK-10507] - NullPointerException and Failed Recovery in Service Based WarmStandby scenario when server sends Source Update with mismatching service information
+- [RTSDK-10551] - Fix in Converter library error code numbering
+- [RTSDK-10556] - Warm Standby Login Based with Preferred Host: PreferredHostStartFallback & PreferredHostSwitchoverComplete event is missing with detection time Interval when API is on non-preferred-host
+- [RTSDK-10575] - Improved ETAJ Converter library handling in cases of failed conversions
+- [RTSDK-10582] - BasicPrimitiveConverter not using thread-safe variables
+- [RTSDK-10621] - Increased default EnumTypeDef fragment sizes in Examples and ActiveConfig which affects encoding dictionary version 4.20.71_RealTimeDistributionSystem_26.21 or later
+- [RTSDK-10696] - Support dropped for VS2015 (JNI libraries)
+
+---------------------------------------------
+RTSDK Java Release 2.4.0.L1: SKIPPED for Java
+---------------------------------------------
+
 --------------------------------------------
 RTSDK Java Release 2.3.2.L1 (Dec 16, 2025)
 --------------------------------------------
+
+This release of RTSDK Java supports the NIProvider Multi-Connect Fannout feature in EMA which permits user to configure a NIProvider session which prompts API to fanout any submits of messages to all specificied connections. In addition, this release also has critical customer issue fixes.
 
 EMA Java 3.9.2.L1 Issues Resolved
 ---------------------------------

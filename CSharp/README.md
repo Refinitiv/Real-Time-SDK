@@ -33,7 +33,7 @@ External modules used by this version of RTSDK CSharp:
 # Software Requirements
 - .NET 8 using Visual Studio 2022
 - .NET 10 using Visual Studio 2026 (18.0 or higher)
-- xUnit for unit testing
+- xUnit.v3 for unit testing
 
 NOTE: the default .NET version used for build may be altered in this file: CSharp/Directory.Build.props
 
@@ -45,6 +45,7 @@ On the following platforms .NET SDK 8.X and 10.X were used in test
     Windows 11 64-bit
     Red Hat Enterprise Server 8.X Release 64-bit
     Red Hat Enterprise Server 9.X Release 64-bit
+    Ubuntu 24.04 64-bit
     Galaxy Kylin 10 64-bit
     Amazon Linux 2023 64-bit
 
@@ -178,11 +179,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
     <dependency>
             <ItemGroup>
-                <PackageReference Include="LSEG.Eta.Core" Version="3.5.1.0"/>
-                <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.1.0"/>
-                <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.1.0"/>
-                <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.1.0"/>
-                <PackageReference Include="LSEG.Ema.Core" Version="3.5.1.0"/>
+                <PackageReference Include="LSEG.Eta.Core" Version="3.5.1.1"/>
+                <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.1.1"/>
+                <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.1.1"/>
+                <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.1.1"/>
+                <PackageReference Include="LSEG.Ema.Core" Version="3.5.1.1"/>
             </ItemGroup/>
     </dependency>
 

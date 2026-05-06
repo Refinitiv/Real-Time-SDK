@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2025 LSEG. All rights reserved.
+Copyright (C) 2019-2026 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -78,7 +78,6 @@ Platforms:
 
 Compilers (only on OSs supported by Microsoft for JNI libraries):
 
-    Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
     Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
     Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
     Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
@@ -91,7 +90,7 @@ Platforms:
 
     Red Hat Enterprise Server 8.X Release 64-bit
     Red Hat Enterprise Server 9.X Release 64-bit
-    Ubuntu 20.04 64-bit Qualification
+    Ubuntu 24.04 64-bit Qualification
     Galaxy Kylin 10, 64-bit
     Amazon Linux 2023, 64-bit
 
@@ -105,6 +104,7 @@ This release has been tested with the following:
     Oracle OpenJDK 11
     Oracle OpenJDK 17
     Oracle OpenJDK 21
+    Temurin OpenJDK 25
     Amazon Corretto 11
 
 #### Proxy Authentication Support
@@ -158,7 +158,7 @@ This section shows the required setup needed before you can build any of the Jav
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Real-Time SDK packages may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-java/download). In addition, these distributions depend on a Binary Pack archive found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Java directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
+Real-Time SDK packages may also be [downloaded from LSEG Developer Portal](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-java/download). In addition, these distributions depend on a Binary Pack archive found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Java directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. If you are building examples using this self contained archive and gradle, please be aware that the gradle install must include all required plugins. If downloading gradle plugins is not an option, you may use javac to build example code.
 
 Real-Time SDK packages are also available on [MyAccount](https://myaccount.lseg.com/content/mytr/en/downloadcenter.html). In addition, these distributions depend on a Binary Pack archive found in the above downloads section. This will not be automatically pulled by the build, and must be downloaded and extracted into the ../RTSDK-BinaryPack directory(Same level as the Java directory in this package). The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product.
 
@@ -168,6 +168,8 @@ Real-Time SDK packages are also available on [MyAccount](https://myaccount.lseg.
 **Using Gradle**:
 
 Gradle is used to build RTSDK and may be downloaded from https://gradle.org. For a minimum version of gradle required by gradle wrapper, please check [build.gradle](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/build.gradle#L186).
+
+Note: JDK 25 requires gradle version 9.1.0 or later
 
 Refer to the RTSDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 
@@ -224,40 +226,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
     <dependency>
         <groupId>com.refinitiv.ema</groupId>
         <artifactId>ema</artifactId>
-        <version>3.9.2.0</version>
+        <version>3.10.0.1</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta</groupId>
         <artifactId>eta</artifactId>
-        <version>3.9.2.0</version>
+        <version>3.10.0.1</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.valueadd</groupId>
         <artifactId>etaValueAdd</artifactId>
-        <version>3.9.2.0</version>
+        <version>3.10.0.1</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.valueadd.cache</groupId>
         <artifactId>etaValueAddCache</artifactId>
-        <version>3.9.2.0</version>
+        <version>3.10.0.1</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.ansi</groupId>
         <artifactId>ansipage</artifactId>
-        <version>3.9.2.0</version>
+        <version>3.10.0.1</version>
     </dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-    compile group: 'com.refinitiv.ema', name: 'ema', version: '3.9.2.0'
-    compile group: 'com.refinitiv.eta', name: 'eta', version: '3.9.2.0'
-    compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.9.2.0'
-    compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.9.2.0'
-    compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.9.2.0'
+    compile group: 'com.refinitiv.ema', name: 'ema', version: '3.10.0.1'
+    compile group: 'com.refinitiv.eta', name: 'eta', version: '3.10.0.1'
+    compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.10.0.1'
+    compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.10.0.1'
+    compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.10.0.1'
 
 # Developing 
 

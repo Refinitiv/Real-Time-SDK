@@ -7,26 +7,80 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.3.2.L1 aka EMA/ETA 3.9.2.L1 aka 3.9.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.4.0.L2 aka EMA/ETA 3.10.0.L2 aka 3.10.0.1
 ----------------------------------------------------------------------------------------
 
-This release consists of critical fixes for customer issues, optimizations to message cloning, ability to override cipher for TLS 1.3, and additional fixes for the Preferred Host feature. 
+This release of RTSDK supports the NIProvider Multi-Connect Fannout feature (Session Handline) in EMA which permits user to configure a NIProvider session which prompts API to fanout any submits of messages to all specificied connections. In addition, this release also has customer issue fixes and several minor enhancements. In this release, qualification of Ubuntu 24.04 is completed and support for Visual Studio 2015 is dropped.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #304]- [RTSDK-9596] - EMA: IncludeDateInLoggerOutput is loaded by the EMA when setting it programmatically 
-- [Case Number: 14872123] - [RTSDK-10092] - Example added to demonstrate posting SYMBOL_LIST domain using ETA 
-- [Case Number: 15413435] - [RTSDK-10296] - Remove unused HandleException config in EMA example Cons421 and Cons511
-- [Case Number: 15438502] - [RTSDK-10318] - Fix Readme.txt files associated with PreferredHost EMA Examples
-- [Case Number: 15485165] - [RTSDK-10357] - rsslRMTESToUTF8 does not return BUFFER_TOO_SMALL in some scenarios
+- [GitHub #322] - [RTSDK-10365] - Introduces configurable limits on object pools sizes 
+- [GitHub #325] - [RTSDK-10386] - rsslNumericStringToReal returns SUCCESS code while failing to encode certain values
+- [GitHub #333, #334, #335] - [RTSDK-10616] - Warnings fixed
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.4.0.L2 (May 6, 2026)
+--------------------------------------------
+
+EMA C++ 3.10.0.L2 Issues Resolved
+--------------------------------
+- [RTSDK-530] - The EnumType::getDisplay() does not return the null terminated string value.
+- [RTSDK-5127] - Removed the requirement of a ChannelType element in programmatic configuration to create channel configuration
+- [RTSDK-9061] - Fix for missing commas in DefaultXML.h that produced incorrect array
+- [RTSDK-9396] - Added EMA IProv220 PrivateStream Example and added handling to ensure Private Streams are handled separately in all cases
+- [RTSDK-9536] - Fix for error handling for entries in Series, Map, FieldList, FilterList, ElementList, Vector, Array toString methods
+- [RTSDK-9993] - EMAC++ NIProvider Multi-Connect Fannout feature: See "Session handling" in EMA Developers Guide
+- [RTSDK-10038] - EMA message implementation changes to replace attrib and payload using placeholders
+- [RTSDK-10130] - Optimization in DataDictionaryImpl::setRsslDataDictionary
+- [RTSDK-10246] - EMA Fix for NIProviders when messages with unknown stream IDs are received
+- [RTSDK-10324] - EMA modifyIOCtl can not set RSSL_PRIORITY_FLUSH_ORDER
+- [RTSDK-10365] - Introduces configurable limits on object pools sizes [GitHub #322]
+- [RTSDK-10410] - Fix for VS2017 & VS 2019 warnings in NiProviderTests
+- [RTSDK-10539] - Update to Cons310 to "detect" partial update and apply to Rmtes buffer
+- [RTSDK-10554] - EmaConfig.xml: Dictionary associated with Consumer_6 used by Cons180 WebSocket is changed to Dictionary_2 (local dictionary)
+
+ETA C 3.10.0.L2 Issues Resolved
+--------------------------------
+- [RTSDK-109] - ETAC Reactor: Fix rsslDeepCopyConnectOpts to properly cleanup on failure
+- [RTSDK-8413] - Fix Semgrep findings: "function `sprintf` does not impose any size limitation to what it writes to"
+- [RTSDK-10045] - Check Ticks field while decoding LoginRTT message
+- [RTSDK-10210] - Fix for memory leak with Perf tool upon exit
+- [RTSDK-10411] - Clarification added to VAConsumer example usage text
+- [RTSDK-10465] - Adds additional checking for NULL pointer for all public methods of ETAC transport library
+- [RTSDK-10519] - Adds additional validations to handle invalid WebSocket request and response.
+- [RTSDK-10624] - Adds additional validations to handle invalid RIPC handshake
+
+Both ETA C and EMA C++ 3.10.0.L2 Issues Resolved
+-----------------------------------------------
+- [RTSDK-9546] - Qualification on Ubuntu 24.04 using GCC-13.2
+- [RTSDK-10208] - Fix for WatchListLoginStream memory leak and null pointer member access
+- [RTSDK-10241] - With host down and reconnecting, API is not attempting to connect to the preferred host first
+- [RTSDK-10380] - Fixed dereferencing null pointers behavior
+- [RTSDK-10386] - rsslNumericStringToReal returns SUCCESS code while failing to encode certain values [GitHub #325] 
+- [RTSDK-10433] - Changes to 3rd party dependencies for OptimizedDebug builds to use Optimized libraries
+- [RTSDK-10441] - Enhanced RIPC negotiation
+- [RTSDK-10475] - WarmStandby Service-Based with Preferred Host: PREFERRED_HOST_START_FALLBACK event is missing when fallback is triggered (only when fallBackWithInWSBGroup=True)
+- [RTSDK-10499] - WarmStandby Login-Based with Preferred Host: PREFERRED_HOST_NO_FALLBACK event is missing with detection time Interval when API is on preferred-host (only when fallBackWithInWSBGroup=True)
+- [RTSDK-10567] - Enhanced fragmentation handling
+- [RTSDK-10600] - Update C/C++ dependencies: curl
+- [RTSDK-10616] - Warnings fixed [GitHub #333, #334, #335] 
+- [RTSDK-10621] - Increased default EnumTypeDef fragment sizes in Examples and ActiveConfig which affects encoding dictionary version 4.20.71_RealTimeDistributionSystem_26.21 or later
+- [RTSDK-10674] - Coverity issues fixes
+- [RTSDK-10696] - Support dropped for VS2015
+
+--------------------------------------------
+RTSDK C++/C Release 2.4.0.L1: SKIPPED for C/C++  
+--------------------------------------------
+
+--------------------------------------------
 RTSDK C++/C Release 2.3.2.L1 (Dec 16, 2025)
 --------------------------------------------
+
+This release consists of critical fixes for customer issues, optimizations to message cloning, ability to override cipher for TLS 1.3, and additional fixes for the Preferred Host feature. 
 
 EMA C++ 3.9.2.L1 Issues Resolved
 --------------------------------

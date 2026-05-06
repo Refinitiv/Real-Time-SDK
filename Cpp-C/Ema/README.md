@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2025 LSEG. All rights reserved.
+Copyright (C) 2018-2026 LSEG. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.9.2.L1
+    libema.lib                ema3.10.0.L2
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.9.2.L1
-    libema.dll                ema3.9.2.L1
+    libema.lib                ema3.10.0.L2
+    libema.dll                ema3.10.0.L2
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.9.2.L1
+    libema.a                    ema3.10.0.L2
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.9.2.L1          libema.so.25          ema3.9.2.L1
+    libema.so.3.10.0.L2          libema.so.26          ema3.10.0.L2
     
   
 # EMA C++ Issues and Workarounds
@@ -155,19 +155,19 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.9.2
-    Load Number: 1
-    Windows Load ID: ema3.9.2.L1.win
-        Supersedes: ema3.9.1.L1.win
-    Linux Load ID: ema3.9.2.L1.linux
-        Supersedes: ema3.9.1.L1.linux
+    Release Number: 3.10.0
+    Load Number: 2
+    Windows Load ID: ema3.10.0.L2.win
+        Supersedes: ema3.9.2.L1.win
+    Linux Load ID: ema3.10.0.L2.linux
+        Supersedes: ema3.9.2.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.70_RealTimeDistributionSystem_25.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
 
 # Security
 

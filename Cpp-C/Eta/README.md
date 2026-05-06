@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake when building from GitHub. The BinaryPack is also available for download as a separate RRG archive.
 
-Copyright (C) 2019-2025 LSEG. All rights reserved.
+Copyright (C) 2019-2026 LSEG. All rights reserved.
 
 # ETA C-Edition Documentation
 
@@ -25,7 +25,6 @@ Copyright (C) 2019-2025 LSEG. All rights reserved.
 - DacsLibraryFunctions
 
 In addtion, HTML documentation is available in Cpp-C/Eta/Docs. For addtional documentation, please refer to top level README.MD files.
-
 
 # ETA Features and Functionality
 
@@ -140,11 +139,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.9.2.L1
-    librsslVA.lib             eta3.9.2.L1
-    librsslVACache.lib        eta3.9.2.L1
-    libansi.lib               eta3.9.2.L1
-    libdacs.lib               eta3.9.2.L1
+    librssl.lib*              eta3.10.0.L2
+    librsslVA.lib             eta3.10.0.L2
+    librsslVACache.lib        eta3.10.0.L2
+    libansi.lib               eta3.10.0.L2
+    libdacs.lib               eta3.10.0.L2
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +151,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.9.2.L1
-    librssl.lib               eta3.9.2.L1
-    librssl.pdb               eta3.9.2.L1
-    librsslVA.dll             eta3.9.2.L1
-    librsslVA.lib             eta3.9.2.L1
-    librsslVA.pdb             eta3.9.2.L1
-    librsslVACache.dll        eta3.9.2.L1
-    librsslVACache.lib        eta3.9.2.L1
-    librsslVACache.pdb        eta3.9.2.L1
-    librsslJsonConverter.dll  eta3.9.2.L1
-    librsslJsonConverter.lib  eta3.9.2.L1
-    librsslJsonConverter.pdb  eta3.9.2.L1
+    librssl.dll               eta3.10.0.L2
+    librssl.lib               eta3.10.0.L2
+    librssl.pdb               eta3.10.0.L2
+    librsslVA.dll             eta3.10.0.L2
+    librsslVA.lib             eta3.10.0.L2
+    librsslVA.pdb             eta3.10.0.L2
+    librsslVACache.dll        eta3.10.0.L2
+    librsslVACache.lib        eta3.10.0.L2
+    librsslVACache.pdb        eta3.10.0.L2
+    librsslJsonConverter.dll  eta3.10.0.L2
+    librsslJsonConverter.lib  eta3.10.0.L2
+    librsslJsonConverter.pdb  eta3.10.0.L2
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +180,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.9.2.L1
-    librsslVA.a                        eta3.9.2.L1
-    librsslVACache.a                   eta3.9.2.L1
-    libansi.lib                        eta3.9.2.L1
-    libdacs.lib                        eta3.9.2.L1
+    librssl.a                          eta3.10.0.L2
+    librsslVA.a                        eta3.10.0.L2
+    librsslVACache.a                   eta3.10.0.L2
+    libansi.lib                        eta3.10.0.L2
+    libdacs.lib                        eta3.10.0.L2
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.9.2.0                 librssl.so.30                   eta3.9.2.L1
-    librsslVA.so.3.9.2.0               librsslVA.so.28                 eta3.9.2.L1
-    librsslJsonConverter.so.3.9.2.0    librsslJsonConverter.so.2       eta3.9.2.L1
+    librssl.so.3.10.0.1                 librssl.so.30                   eta3.10.0.L2
+    librsslVA.so.3.10.0.1               librsslVA.so.28                 eta3.10.0.L2
+    librsslJsonConverter.so.3.10.0.1    librsslJsonConverter.so.2       eta3.10.0.L2
 
-    librsslVACache.so.3.9.2.0          librsslVACache.so.4             eta3.9.2.L1
-    librsslRelMcast.so.3.9.2.0         librsslRelMcast.so.3            eta3.9.2.L1
+    librsslVACache.so.3.10.0.1          librsslVACache.so.4             eta3.10.0.L2
+    librsslRelMcast.so.3.10.0.1         librsslRelMcast.so.3            eta3.10.0.L2
 
 
 # ETA C-Edition Issues and Workarounds
@@ -220,19 +219,19 @@ The Transport API provides a helpful script that will create soft links for the 
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
-    Release Number: 3.9.2
-    Load Number: 1
-    Windows Load ID: eta3.9.2.L1.win
-        Supersedes: eta3.9.1.L1.win.rrg
-    Linux Load ID: eta3.9.2.L1.linux
-        Supersedes: eta3.9.1.L1.linux.rrg
+    Release Number: 3.10.0
+    Load Number: 2
+    Windows Load ID: eta3.10.0.L2.win
+        Supersedes: eta3.9.2.L1.win.rrg
+    Linux Load ID: eta3.10.0.L2.linux
+        Supersedes: eta3.9.2.Lh.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.70_RealTimeDistributionSystem_25.91 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
 
 # Security
 

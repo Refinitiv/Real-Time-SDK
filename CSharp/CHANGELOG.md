@@ -10,14 +10,28 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.4.0.L1 aka EMA/ETA 3.5.1.L1 aka 3.5.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.4.0.L2 aka EMA/ETA 3.5.1.L2 aka 3.5.1.1
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with support added for .NET 10 and removal of support for .NET 6. In addtion, this release introduces configurable limits to object pool sizes in EMA for granular control over memory allocation. 
+This is a maintenance release with qualification done on Ubuntu 24.04 and fixes for issues.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+RTSDK CSharp Release 2.4.0.L2 (May 6, 2026)
+---------------------------------------------
+
+ETA CSharp 3.5.1.L2 Issues Resolved
+-----------------------------------
+- [RTSDK-10649] - Added handling in Reactor for unexpected RTT message
+
+Both ETA and EMA CSharp 3.5.1.L2 Issues Resolved
+------------------------------------------------
+- [RTSDK-9546] - Qualification on Ubuntu 24.04 using GCC-13.2
+- [RTSDK-10549] - Update to Xunit.v3
+- [RTSDK-10622] - Increased default EnumTypeDef fragment sizes in Examples and ActiveConfig which affects encoding dictionary version 4.20.71_RealTimeDistributionSystem_26.21 or later
 
 ---------------------------------------------
 RTSDK CSharp Release 2.4.0.L1 (Mar 13, 2026)

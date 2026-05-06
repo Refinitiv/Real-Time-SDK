@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source LSEG low-level Transport and OMM encoder/decoder API. It is used by the LSEG Real-Time Distribution Systems and LSEG Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2025 LSEG. All rights reserved.
+Copyright (C) 2019-2026 LSEG. All rights reserved.
 
 # New In This Release
 
@@ -23,8 +23,8 @@ External modules used by this version of RTSDK C/C++:
      openSSL               3.1.X  ** 
      ccron                 2.0.0
      cJSON                 1.7.19
-     curl                  8.16.0
-     googletest            1.8.1 (for older than Linux7) and 1.12.1 
+     curl                  8.17.0 (for older than Linux8) and 8.19.0 
+     googletest            1.12.1 
      l8w8jwt               2.5.0
      libxml2               2.13.9
      lz4                   1.9.4 (for older than Linux7) and 1.10.0
@@ -72,7 +72,7 @@ Linux system libraries used by RTSDK C/C++:
 
 - Red Hat Enterprise Server 8.X, 64-bit
 - Red Hat Enterprise Server 9.X, 64-bit
-- Ubuntu 20.04, 64-bit
+- Ubuntu 24.04, 64-bit
 - Galaxy Kylin 10, 64-bit (TCP qualification only; multicast transport not tested)
 - Amazon Linux 2023, 64-bit
 
@@ -98,12 +98,11 @@ Platforms:
 
 Compilers (only on OSs supported by Microsoft): 
 
-     Microsoft Visual Studio 14.0 (2015) 64-bit
      Microsoft Visual Studio 14.1 (2017) 64-bit 
      Microsoft Visual Studio 14.2 (2019) 64-bit 
      Microsoft Visual Studio 14.3 (2022) 64-bit 
 
-Notes: 
+NOTE: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
 - CMake supports VS 2013 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) to build these deprecated Visual Studio versions at your own risk as changes to BinaryPacks will not be available for deprecated compilers. 
 - For V2 authentication with RTO, RTSDK introduced the l8w8jwt library.  When building with Visual Studio 2019 or above, this library only works with Windows 10 SDK for October 2018 Update, version 1809 or later.
@@ -115,15 +114,15 @@ Platforms & Compilers:
      GCC compiler suite version 7.3.0 or higher for Galaxy Kylin 10, 64-bit, qualification with RH8 library build
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
-     GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
      GCC compiler suite version 11.4.1 or higher for Red Hat Enterprise Server 9.X, 64-bit, Native build
      GCC compiler suite version 11.4.1 or higher for Amazon Linux 2023, 64-bit, qualification with RH9 library build
+     GCC compiler suite version 13.2.0 or higher for Ubuntu 24.04, 64-bit, qualification with RH9 library build
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9 and Red Hat 8 are available in release packages available on LSEG Developer Portal. 
-
-NOTE: We do not support container builds with RTSDK C/C++ where RTSDK C/C++ is being built natively using a container. This is because depending on container install, specifically the librarires or toolsets available in that container vs. underlying OS, the build may vary. There are too many combinations for us to state with confidence that build will succeed or is valid with any combination of container and underlying OS. This is because the RTSDK C/C++ build depends on certain system libraries. The open question for any given combination: what is being installing in container vs. using underlying OS libs? Therefore, our stance is that we do not recommend building RTSDK C/C++ editions in a container. We have made changes in CMake to pick up characteristics of container instead of underly OS with RTSDK-9060; however, that does not guarantee a valid build depending on combination of container versus the underlying operating system. An alternate option is to choose the appropriate pre-build libraries from our official archives/packages.
+NOTE: 
+- User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 9 and Red Hat 8 are available in release packages available on LSEG Developer Portal. 
+- We do not support container builds with RTSDK C/C++ where RTSDK C/C++ is being built natively using a container. This is because depending on container install, specifically the librarires or toolsets available in that container vs. underlying OS, the build may vary. There are too many combinations for us to state with confidence that build will succeed or is valid with any combination of container and underlying OS. This is because the RTSDK C/C++ build depends on certain system libraries. The open question for any given combination: what is being installing in container vs. using underlying OS libs? Therefore, our stance is that we do not recommend building RTSDK C/C++ editions in a container. We have made changes in CMake to pick up characteristics of container instead of underly OS with RTSDK-9060; however, that does not guarantee a valid build depending on combination of container versus the underlying operating system. An alternate option is to choose the appropriate pre-build libraries from our official archives/packages.
 
 #### Tested Versions
 
@@ -139,11 +138,10 @@ This release has been tested with the following on supported platform/OS combina
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
      Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
      Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
-     Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          UBU20_64_GCC940
-     Ubuntu 22.04 64-bit                          GCC 11.4.0      RHEL9_64_GCC1141         UBU22_64_GCC1140
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
      Amazon Linux 2023 64-bit                     GCC 11.4.1      RHEL9_64_GCC1141         AMA2023_64_GCC1141
      Red Hat Enterprise Linux Server 9.2 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
+     Ubuntu 24.04 64-bit                          GCC 13.2.0      RHEL9_64_GCC1320         UBU24_64_GCC1320
 
      n/a = This is not a tested combination
 
@@ -241,9 +239,9 @@ At the same directory level as the resulting RTSDK directory, issue the followin
           # "Visual Studio 17 2022" -A x64
           # "Visual Studio 16 2019" -A x64 
           # "Visual Studio 15 2017 Win64"
-          # "Visual Studio 14 2015 Win64" 
      # Note: A list of visual studio versions can be obtained by typing "cmake -help". 
      # Note: CMake supports VS 2013 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
+     # Note: CMake supports VS 2015 build although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.4.0.L2 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the libraries and sample application executables are sent to an RTSDK directory under sourceDir.
 
@@ -258,10 +256,15 @@ CMake has build support for 32 bit platforms. This 32-bit support is available o
 
 Linux: Add "-DBUILD\_32\_BIT\_ETA=ON" to the cmake build
 
-Windows: Do not add "Win64" or "-A x64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015" 
+Windows: Do not add "Win64" or "-A x64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015"  
 
-NOTE: Starting with SDK version 1.3.1, DACS libraries are available for 32-bits in the BinaryPack.
-NOTE: DACS libraries provided in BinaryPack for VS2019 is copied from VS 2017 as these build is not currently available.
+NOTE: 
+- Starting with SDK version 1.3.1, DACS libraries are available for 32-bits in the BinaryPack.
+- DACS libraries provided in BinaryPack for VS2019 is copied from VS 2017 as these build is not currently available.
+
+**unsupported linux platforms:**
+
+GitHub code build on an older platform such as Linux 7 is limited to ETAC. To build only ETAC, use -DBUILD_EMA_LIBRARY=OFF.
 
 # Obtaining the LSEG Field Dictionaries
 
