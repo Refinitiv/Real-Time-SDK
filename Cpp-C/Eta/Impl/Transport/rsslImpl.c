@@ -6,6 +6,7 @@
  *|-----------------------------------------------------------------------------
  */
 
+#include "rtr/rsslMsgDecoders.h"
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslSocketTransport.h"
 #include "rtr/intDataTypes.h"
@@ -13,7 +14,6 @@
 #include "rtr/rsslSeqMcastTransport.h"
 #include "rtr/rsslQueue.h"
 
-#include "rtr/rsslMessagePackage.h"
 #include "decodeRoutines.h"
 #include "xmlDump.h"
 
@@ -23,7 +23,6 @@
 #include "rtr/bindthread.h"
 #endif
 #include "rtr/rwfNetwork.h"
-#include "curl/curl.h"
 #include "rtr/ripcssljit.h"
 
 /* for encryption/decryption helpers */
@@ -517,41 +516,66 @@ typedef enum {
 
 RsslRet _rsslTraceCheckFile(rsslChannelImpl *rsslChnlImpl, RsslError *error)
 {
+	/* File is already open. Check if it needs to be rotated. If it does, close the old file */
 	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 	{
 		RsslInt64 filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 		if ((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
 		{
-			unsigned long long hour = 0, min = 0, sec = 0, msec = 0;
-			char timeVal[TIME_STAMP_SIZE];
-			int numChars = 0;
-
-			/* Close this file */
+			/* Needs to be rotated. Close current file */
 			fclose(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 			rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = NULL;
-
-			/* and open a new one */
-			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES)
-			{
-				/* The new file name will be the original file name with secs, msecs, and ".xml" extension appeneded to the end*/
-				xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
-
-				numChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
-
-				memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
-				memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize, timeVal, numChars);
-				rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars] = '\0';
-
-				rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
-
-				if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
-				{
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
-					return RSSL_RET_FAILURE;
-				}
-			}
 		}
 	}
+
+	/* Open a new trace file if needed */
+	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL
+		&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES))
+	{
+		unsigned long long hour = 0, min = 0, sec = 0, msec = 0;
+		char timeVal[TIME_STAMP_SIZE];
+
+		/* The new file name will be the original file name with msecs and ".xml" extension
+		 * appeneded to the end */
+		xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
+
+		int timeValChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
+
+		if (timeValChars < 0)
+		{
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					 "<%s:%d> _rsslTraceCheckFile() Error: Unable to create a timestamp. "
+					 "snprintf() failed\n",
+					 __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RsslUInt numChars = (RsslUInt)timeValChars;
+
+		memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName,
+			   rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName,
+			   rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
+
+		memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName
+				   + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize,
+			   timeVal, numChars);
+
+		rsslChnlImpl->traceOptionsInfo
+			.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars]
+			= '\0';
+
+		rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr
+			= fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
+
+		if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
+		{
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					 "<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n",
+					 __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+	}
+
 	return RSSL_RET_SUCCESS;
 }
 
@@ -561,7 +585,6 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, 
 	RsslMsg msg = RSSL_INIT_MSG;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	char message[128];
-	RsslInt64 filePos = 0;
 	rsslBufferImpl *pRsslBufferImpl = (rsslBufferImpl *)buffer;
 
 	if (buffer == NULL)
@@ -1737,9 +1760,6 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 			traceOptions = (RsslTraceOptions*)value;
 			if(traceOptions != NULL)
 			{
-				unsigned long long hour = 0 , min = 0, sec = 0, msec = 0;
-				char timeVal[TIME_STAMP_SIZE];
-				int numChars = 0;
 				int needNewFile = 0;
 				
 				/* tracing is only intended for RWF or JSON data */
@@ -1805,23 +1825,6 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 					{
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
-						return RSSL_RET_FAILURE;
-					}
-
-					memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
-
-					/* add timestamp to the file's name */
-					xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
-					numChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
-					memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize, timeVal, numChars);
-					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars * sizeof(char)] = '\0';
-
-					rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
-
-					if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
-					{
-						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
 						return RSSL_RET_FAILURE;
 					}
 				}

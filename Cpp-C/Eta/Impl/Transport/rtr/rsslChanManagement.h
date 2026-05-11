@@ -77,7 +77,7 @@ extern unsigned char memoryDebug;
 */
 typedef struct {
 	RsslTraceOptions traceOptions; /* The trace Options as passed in by the users */
-	int traceMsgOrigFileNameSize;  /* The number of characters in traceMsgFileName supplied by the users */
+	RsslUInt32 traceMsgOrigFileNameSize;  /* The number of characters in traceMsgFileName supplied by the users */
 	char* newTraceMsgFileName;	   /* This is a modified file name is based on the original file name supplied by the user.
 								   * This string also includes a time stamp appended to it if a new trace file needs to be created
 								   * if traceMsgMaxFileSize is reached. The ".xml" extension is appended to the end of the string*/
