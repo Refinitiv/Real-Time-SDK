@@ -1238,9 +1238,9 @@ static int buildValidRipcHeader(unsigned char* buf, int bufLen, unsigned int rip
 
     memset(buf, 0, 24);
 
-    /* Total length = 17 (big-endian u16) */
+    /* Total length = 20 */
     buf[0] = 0x00;
-    buf[1] = 23;
+    buf[1] = 20;
 
     /* opCode = 0 */
     buf[2] = 0x00;
@@ -1252,7 +1252,7 @@ static int buildValidRipcHeader(unsigned char* buf, int bufLen, unsigned int rip
     buf[6] = static_cast<unsigned char>(ripcVersion & 0xFF);
 
     buf[7]  = 0x00;  /* flags                            */
-    buf[8]  = 20;    /* hdrSize                          */
+    buf[8]  = 17;    /* hdrSize                          */
     buf[9]  = 0x00;  /* compBitmapSize = 0               */
     buf[10] = 60;    /* pingTimeout                      */
     buf[11] = 0x00;  /* rsslFlags                        */
@@ -1264,13 +1264,13 @@ static int buildValidRipcHeader(unsigned char* buf, int bufLen, unsigned int rip
     buf[17] = 2;     /* componentVersionLength (total)   */
     buf[18] = 0;     /* componentStringLen = 0           */
 
-    /* Pad to totalMsgLength = 23 bytes (indices 0..22)                     */
-    /* hdrSize=20 covers [0..19]; componentVersionLen=2 covers [17..18];
-     * The formula is: buf[hdrSize - 1] is the last hdr byte (index 19)
-     * and the next two bytes (indices 20,21) are the component version
-     * block.  totalMsgLength = hdrSize + compVerLen + 1 ? 20+2+1 = 23.   */
+    /* Pad to totalMsgLength = 20 bytes (indices 0..19)                     */
+    /* hdrSize=17 covers [0..16]; componentVersionLen=2 covers [17..18];
+     * The formula is: buf[hdrSize - 1] is the last hdr byte (index 16)
+     * and the next two bytes (indices 17,18) are the component version
+     * block.  totalMsgLength = hdrSize + compVerLen + 1 ? 17+2+1 = 20.   */
 
-    return 23;
+    return 20;
 }
 
 /* =========================================================================
@@ -1405,7 +1405,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MismatchedHeaderSizeRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected mismatched hdrSize but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 65538") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 65535") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1652,7 +1652,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, V12OversizedCompBitmapRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected oversized compBitmapSize but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 12 header size 20") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 12 header size 17") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1903,7 +1903,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ComponentVersionLenOverflowRejectedByServ
     EXPECT_TRUE(rejected)
         << "Server should have rejected componentVersionLen overflow but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 276") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 273") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -1933,7 +1933,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HdrSizeUnderflowRejectedByServer)
     EXPECT_TRUE(rejected)
         << "Server should have rejected hdrSize underflow but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 4") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 1") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -2029,7 +2029,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, HdrSizeAndCompVerLenBothMaxRejectedByServ
     EXPECT_TRUE(rejected)
         << "Server should have rejected both-max hdrSize+compVerLen but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 65789") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 65534") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -2057,7 +2057,9 @@ TEST_F(RsslInitChannelInvalidMsgTests, CompBitmapShiftsCompVerLenOobRejectedBySe
 
     /* compBitmapSize=4: hostnameLen@[19]=0, addrLen@[20]=0,
      * componentVersionLen@[21]=0xFF -> compVerLen=255.
-     * hdrSize(20)+255+1=276 != 23 fires the size check first.             */
+     * hdrSize(17)+255+1=276 != 20 fires the size check first. */
+
+    msg[8] = 21;
     msg[9]  = 0x04;  /* compBitmapSize = 4                                   */
     msg[19] = 0x00;  /* hostnameLen = 0 (shifted by compBitmapSize)          */
     msg[20] = 0x00;  /* addrLen = 0                                           */
@@ -2072,7 +2074,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, CompBitmapShiftsCompVerLenOobRejectedBySe
     EXPECT_TRUE(rejected)
         << "Server should have rejected compBitmapSize-shifted compVerLen OOB but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 276") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 277") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -2194,7 +2196,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ValidHdrWithLargeExcessPayloadRejectedByS
     ASSERT_TRUE(connectRawAndAccept(port)) << "Raw connect / accept failed";
 
     /* Build the 23-byte valid v14 header */
-    static const int HDR_LEN     = 23;
+    static const int HDR_LEN     = 20;
     static const int EXCESS_LEN  = 4096;
     static const int TOTAL_LEN   = HDR_LEN + EXCESS_LEN;
 
@@ -2213,7 +2215,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ValidHdrWithLargeExcessPayloadRejectedByS
     EXPECT_TRUE(rejected)
         << "Server should have rejected valid header + large excess payload but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 23") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 20") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -2241,7 +2243,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MaxWireLengthFieldWithValidv14BodyRejecte
 
     unsigned char msg[24];
     int hdrLen = buildValidRipcHeader(msg, sizeof(msg));
-    ASSERT_EQ(hdrLen, 23);
+    ASSERT_EQ(hdrLen, 20);
 
     /* Override the two-byte wire length field to the maximum u16 value */
     msg[0] = 0xFF;
@@ -2259,7 +2261,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, MaxWireLengthFieldWithValidv14BodyRejecte
     EXPECT_TRUE(rejected)
         << "Server should have rejected max wire-length field but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 23") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 20") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
@@ -2297,7 +2299,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, LargeExcessBeyondWireLengthFillsInputBuff
 
     /* Place a valid v14 header in the first 23 bytes */
     int hdrLen = buildValidRipcHeader(msg, SEND_LEN);
-    ASSERT_EQ(hdrLen, 23);
+    ASSERT_EQ(hdrLen, 20);
 
     /* Declare only 17 bytes in the wire length field (= V10_MIN_CONN_HDR),
      * so the server's totalMsgLength reflects actual bytes read, not this
@@ -2306,7 +2308,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, LargeExcessBeyondWireLengthFillsInputBuff
     msg[1] = 17;    /* wire-declared length = 17 */
 
     /* Pad the remaining bytes with 0xCD */
-    memset(msg + 23, 0xCD, SEND_LEN - 23);
+    memset(msg + 20, 0xCD, SEND_LEN - 20);
 
     bool sent = rawSendAll(rawClient, msg, SEND_LEN);
     delete[] msg;
@@ -2322,7 +2324,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, LargeExcessBeyondWireLengthFillsInputBuff
     EXPECT_TRUE(rejected)
         << "Server should have rejected large excess beyond wire length but state is "
         << pServerChnl->state;
-    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 23") != NULL);
+    EXPECT_TRUE(strstr(rsslError.text, "Error: 1007 Invalid Conn Ver 14 header size 20") != NULL);
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 

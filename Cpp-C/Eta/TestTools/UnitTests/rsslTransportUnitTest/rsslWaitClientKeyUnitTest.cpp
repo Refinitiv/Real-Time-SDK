@@ -258,12 +258,12 @@ static bool ckDriveServerToTerminal(RsslChannel* pSrvChnl, RsslError *pError,
 static int buildRipcV14ConnectReq(unsigned char* buf, int bufLen,
                                   bool requestKeyExchange = true)
 {
-    const int TOTAL = 23;
+    const int TOTAL = 20;
     if (bufLen < TOTAL) return 0;
     memset(buf, 0, TOTAL);
 
     buf[0]  = 0x00;
-    buf[1]  = static_cast<unsigned char>(TOTAL);  /* length = 23             */
+    buf[1]  = static_cast<unsigned char>(TOTAL);  /* length = 20             */
     buf[2]  = 0x00;                               /* opCode = 0              */
 
     /* CONN_VERSION_14 = 0x0000000E big-endian */
@@ -273,7 +273,7 @@ static int buildRipcV14ConnectReq(unsigned char* buf, int bufLen,
     buf[6]  = static_cast<unsigned char>(CONN_VERSION_14);
 
     buf[7]  = requestKeyExchange ? static_cast<unsigned char>(RIPC_KEY_EXCHANGE) : 0x00;
-    buf[8]  = 20;    /* hdrSize                         */
+    buf[8]  = 17;    /* hdrSize                         */
     buf[9]  = 0x00;  /* compBitmapSize = 0              */
     buf[10] = 60;    /* pingTimeout                     */
     buf[11] = 0x00;  /* rsslFlags                       */

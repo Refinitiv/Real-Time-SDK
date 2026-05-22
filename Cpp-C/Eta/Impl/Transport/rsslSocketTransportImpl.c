@@ -4155,7 +4155,27 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				{
 					/* figure out component version lengths up front */
 					hostnameLen = hdrStart[15 + compbitmapsize];
+					if ((16 + compbitmapsize + hostnameLen) > hdrSize)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1007 Invalid Conn Ver %d header size %d\n",
+							__FILE__, __LINE__, dumpConnVersion(version_number), hdrSize);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					addrLen = hdrStart[16 + compbitmapsize + hostnameLen];
+					if ((17 + compbitmapsize + hostnameLen + addrLen) != hdrSize)
+					{
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Error: 1007 Invalid Conn Ver %d header size %d\n",
+							__FILE__, __LINE__, dumpConnVersion(version_number), hdrSize);
+
+						return(RIPC_CONN_ERROR);
+					}
+
 					componentVersionLen = hdrStart[17 + compbitmapsize + hostnameLen + addrLen];
 					compVerLen = componentVersionLen;
 				}
