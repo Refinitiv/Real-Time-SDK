@@ -522,56 +522,52 @@ RsslRet _rsslTraceCheckFile(rsslChannelImpl *rsslChnlImpl, RsslError *error)
 		RsslInt64 filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 		if ((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
 		{
-			/* Needs to be rotated. Close current file */
+			/* Max configured file size reached. Close current file */
 			fclose(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 			rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = NULL;
+
+			/* Proceed to rotate to the new file only when such option is enabled */
+			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES)
+				rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_TRUE;
+			else
+			{
+				rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_FALSE;
+				return RSSL_RET_SUCCESS;
+			}
 		}
 	}
 
 	/* Open a new trace file if needed */
 	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL
-		&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES))
+		&& (rsslChnlImpl->traceOptionsInfo.needNewFile == RSSL_TRUE))
 	{
 		unsigned long long hour = 0, min = 0, sec = 0, msec = 0;
-		char timeVal[TIME_STAMP_SIZE];
 
 		/* The new file name will be the original file name with msecs and ".xml" extension
 		 * appeneded to the end */
 		xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
 
-		int timeValChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
+		char* newFileNameBuf = rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName;
+		const RsslUInt32 newFileNameSize = rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize;
+		const char* msgOrigNameBuf = rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName;
+		const RsslUInt32 msgOrigNameSize = rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize;
 
-		if (timeValChars < 0)
+		const int numChars = snprintf(newFileNameBuf, newFileNameSize, "%*s%03llu.xml", msgOrigNameSize, msgOrigNameBuf, msec);
+		if (numChars < 0)
 		{
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					 "<%s:%d> _rsslTraceCheckFile() Error: Unable to create a timestamp. "
-					 "snprintf() failed\n",
-					 __FILE__, __LINE__);
+				"<%s:%d> _rsslTraceCheckFile() Error: Unable to create new trace file name. "
+				"snprintf() failed\n",
+				__FILE__, __LINE__);
 			return RSSL_RET_FAILURE;
 		}
 
-		RsslUInt numChars = (RsslUInt)timeValChars;
-
-		memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName,
-			   rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName,
-			   rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
-
-		memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName
-				   + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize,
-			   timeVal, numChars);
-
-		rsslChnlImpl->traceOptionsInfo
-			.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars]
-			= '\0';
-
-		rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr
-			= fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
+		rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
 
 		if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
 		{
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					 "<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n",
-					 __FILE__, __LINE__);
+				"<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
 			return RSSL_RET_FAILURE;
 		}
 	}
@@ -1660,6 +1656,7 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 	{
 		free(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName);
 		rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = NULL;
+		rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = 0;
 	}
 
 	rsslClearTraceOptionsInfo(&(rsslChnlImpl->traceOptionsInfo));
@@ -1718,13 +1715,13 @@ static void closeTraceMsgFile(RsslTraceOptionsInfo *traceOptionsInfo)
 		free(traceOptionsInfo->newTraceMsgFileName);
 	}
 	traceOptionsInfo->newTraceMsgFileName = NULL;
+	traceOptionsInfo->newTraceMsgFileNameSize = 0;
 	traceOptionsInfo->traceMsgOrigFileNameSize = 0;
 }
 
 RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
-	RsslTraceOptions *traceOptions=0;
 
 	if(error == NULL)
 	{
@@ -1757,10 +1754,11 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 	{
 		case RSSL_TRACE:
 			/* Open the file to log XML trace data in */
-			traceOptions = (RsslTraceOptions*)value;
-			if(traceOptions != NULL)
+			if (value != NULL)
 			{
-				int needNewFile = 0;
+				RsslTraceOptions* traceOptions = (RsslTraceOptions*)value;
+
+				RsslBool needNewFile = RSSL_FALSE;
 				
 				/* tracing is only intended for RWF or JSON data */
 				if ( (rsslChnlImpl->Channel.protocolType != RSSL_RWF_PROTOCOL_TYPE) && (rsslChnlImpl->Channel.protocolType != RSSL_JSON_PROTOCOL_TYPE) )
@@ -1777,6 +1775,7 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 				if (!(traceOptions->traceFlags & RSSL_TRACE_TO_FILE_ENABLE))
 				{
 					closeTraceMsgFile(&rsslChnlImpl->traceOptionsInfo);
+					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_FALSE;
 					return RSSL_RET_SUCCESS;
 				}
 
@@ -1797,10 +1796,10 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 					|| (0 != strncmp(traceOptions->traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, strlen(traceOptions->traceMsgFileName))))
 				{
 					/* the user wants to change the output file for the XML trace. */
-					needNewFile = 1;
+					needNewFile = RSSL_TRUE;
 				}
 
-				if (needNewFile)
+				if (needNewFile == RSSL_TRUE)
 				{
 					rtrUInt32 allocated;
 
@@ -1820,13 +1819,18 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 
 					/* malloc space for the modified file name, which includes the original name and TIME_STAMP_SIZE additional chars to hold time stamps (when needed)
 					 * and the ".xml" extension*/
-					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = (char*)malloc(rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + TIME_STAMP_SIZE * sizeof(char));
+					const RsslUInt32 newTraceMsgFileNameSize
+						= rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + TIME_STAMP_SIZE * sizeof(char) + sizeof(char);
+					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = (char*)malloc(newTraceMsgFileNameSize);
 					if (!rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName)
 					{
+						rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = 0;
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
 						return RSSL_RET_FAILURE;
 					}
+					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = newTraceMsgFileNameSize;
+					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_TRUE;
 				}
 			}
 			return RSSL_RET_SUCCESS;

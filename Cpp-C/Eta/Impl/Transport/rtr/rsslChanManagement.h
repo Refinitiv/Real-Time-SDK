@@ -81,7 +81,9 @@ typedef struct {
 	char* newTraceMsgFileName;	   /* This is a modified file name is based on the original file name supplied by the user.
 								   * This string also includes a time stamp appended to it if a new trace file needs to be created
 								   * if traceMsgMaxFileSize is reached. The ".xml" extension is appended to the end of the string*/
+	RsslUInt32 newTraceMsgFileNameSize; /* Size of the allocated newTraceMsgFileName buffer */
 	FILE* traceMsgFilePtr;		   /* Pointer to the user specified file */
+	RsslBool needNewFile;		   /* Tracks whether trace file rotation is on the way */
 } RsslTraceOptionsInfo;
 
 /** @brief Monitoring information of allocates/deallocates instances and a close call.
@@ -220,8 +222,10 @@ RTR_C_INLINE void rsslClearTraceOptionsInfo(RsslTraceOptionsInfo *traceOptionsIn
 {
 	rsslClearTraceOptions(&(traceOptionsInfo->traceOptions));
 	traceOptionsInfo->newTraceMsgFileName = NULL;
+	traceOptionsInfo->newTraceMsgFileNameSize = 0;
 	traceOptionsInfo->traceMsgOrigFileNameSize = 0;
 	traceOptionsInfo->traceMsgFilePtr = NULL;
+	traceOptionsInfo->needNewFile = RSSL_FALSE;
 }
 
 RTR_C_INLINE RsslUInt32 UInt32_key_hash(void *element)
