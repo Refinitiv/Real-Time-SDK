@@ -678,7 +678,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 				rsslBufImpl->buffer.data -= rsslBufImpl->memoryAllocationOffset;
 				rsslBufImpl->memoryAllocationOffset = 0;
 			}
-			_rsslFree(rsslBufImpl->buffer.data);
+			_rsslFree(rsslBufImpl->pOwnBufferHolder);
 			rsslBufImpl->buffer.length = 0;
 			_rsslFree(rsslBufImpl->compressedBuffer.data);
 			rsslBufImpl->compressedBuffer.length = 0;
@@ -818,9 +818,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 		   data into the ripcBuffer */
 		rsslBufImpl->bufferInfo = ipcBuf;
 
-		rsslBufImpl->buffer.data = (char*)_rsslMalloc(size + 9);
+		rsslBufImpl->pOwnBufferHolder = (char*)_rsslMalloc(size + 9);
 
-		if (rsslBufImpl->buffer.data == NULL)
+		if (rsslBufImpl->pOwnBufferHolder == NULL)
 		{
 			_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -830,6 +830,8 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 
 			return NULL;
 		}
+
+		rsslBufImpl->buffer.data = rsslBufImpl->pOwnBufferHolder;
 
 		rsslBufImpl->buffer.data[0] = '[';
 		rsslBufImpl->memoryAllocationOffset = 1;

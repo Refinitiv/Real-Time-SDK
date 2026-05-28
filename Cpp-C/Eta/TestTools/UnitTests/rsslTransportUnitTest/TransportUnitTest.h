@@ -19,6 +19,10 @@
 
 rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer);
 
+void resetDeadlockTimer();
+
+void time_sleep(int ms);
+
 /* Provides configuration options for creating server in Transport Unit-test */
 typedef struct {
 	RsslBool			blocking;

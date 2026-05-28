@@ -2006,7 +2006,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 	}
 
 	if (rsslBufImpl->bufferInfo == 0)
-        {
+    {
                 _rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
                 snprintf(error->text, MAX_RSSL_ERROR_TEXT,
                         "<%s:%d> Error: 1007 ipcIntWrtSess() failed due the buffer has been released.\n",
@@ -2015,7 +2015,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
                 IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
                 return RSSL_RET_FAILURE;
-        }
+     }
 
 	msgb = (rtr_msgb_t*)rsslBufImpl->bufferInfo;
 	rsslSocketChannel->bytesOutLastMsg = 0;
@@ -10031,7 +10031,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			{
 				_rsslCleanAssemblyBuffer(rsslAssemblyBuf);
 				/* now create the data portion */
-				rsslAssemblyBuf->buffer.data = (char*)_rsslMalloc(ripcFragSize + 7);
+				rsslAssemblyBuf->buffer.data = (char*)_rsslMalloc(((size_t)ripcFragSize) + 7);
 				if (rsslAssemblyBuf->buffer.data)
 					rsslAssemblyBuf->buffer.length = ripcFragSize;
 			}
@@ -10174,7 +10174,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				}
 
 				_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslRead() Error: 0014 Attempting to reassemble a message with frag ID %d without seeing first fragment.\n",
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0014 rsslRead() Attempting to reassemble a message with frag ID %d without seeing first fragment.\n",
 						__FILE__, __LINE__, ripcFragId);
 				*readRet = RSSL_RET_FAILURE;
 				return NULL;
@@ -10611,7 +10611,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			rsslBufImpl->writeCursor = 0;
 			rsslBufImpl->fragId = 0;
 			rsslBufImpl->owner = 0;
-			_rsslFree(rsslBufImpl->buffer.data);
+			_rsslFree(rsslBufImpl->pOwnBufferHolder);
 			rsslBufImpl->buffer.length = 0;
 		}
 
@@ -10750,9 +10750,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 		   data into the ripcBuffer */
 		rsslBufImpl->bufferInfo = ipcBuf;
 
-		rsslBufImpl->buffer.data = (char*)_rsslMalloc(size + 7);
+		rsslBufImpl->pOwnBufferHolder = (char*)_rsslMalloc(size + 7);
 
-		if (rsslBufImpl->buffer.data == NULL)
+		if (rsslBufImpl->pOwnBufferHolder == NULL)
 		{
 			_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -10762,6 +10762,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 
 			return NULL;
 		}
+
+		rsslBufImpl->buffer.data = rsslBufImpl->pOwnBufferHolder;
+
 		/* set me as owner */
 		rsslBufImpl->owner = 1;
 		rsslBufImpl->memoryAllocationOffset = 0;

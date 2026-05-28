@@ -9825,6 +9825,7 @@ protected:
 		socklen_t			toaddrLen;
 #endif // WIN32
 
+		selectTime.tv_sec = 10; selectTime.tv_usec = 0;
 
 		fd_set readfds;
 		fd_set writefds;

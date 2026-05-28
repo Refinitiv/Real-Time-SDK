@@ -87,6 +87,8 @@ static rtr_atomic_val	initMutexFucs = 0;
 static RsslTransportChannelFuncs  channelTransFuncs[RSSL_MAX_TRANSPORTS];
 static RsslTransportServerFuncs   serverTransFuncs[RSSL_MAX_TRANSPORTS];
 
+RsslRet rsslReleaseBufferImpl(RsslBuffer *buffer, RsslBool isCalledByUser, RsslError *error);
+
 /* used by each transport to set its functions into the array */
 RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFuncs *funcs )
 {
@@ -244,6 +246,8 @@ rsslChannelImpl *_rsslNewChannel()
 		}
 	}
 
+	RTR_ATOMIC_SET(chnl->isBeingClosed, 0);
+
 	mutexFuncs.staticMutexUnlock();
 
 	return chnl;
@@ -287,7 +291,7 @@ RTR_C_ALWAYS_INLINE void _rsslReleaseActiveBuffers(rsslChannelImpl *chnl)
 	while ((pLink = rsslQueueRemoveLastLink(&(chnl->activeBufferList))))
 	{
 		rsslBufImpl = RSSL_QUEUE_LINK_TO_OBJECT(rsslBufferImpl, link1, pLink);
-		rsslReleaseBuffer(&(rsslBufImpl->buffer), &error);
+		rsslReleaseBufferImpl(&(rsslBufImpl->buffer), RSSL_FALSE, &error);
 	}
 
 	return;
@@ -1512,6 +1516,7 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 RsslRet rsslReconnectClient(RsslChannel *chnl,  RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
 
 	if (error == NULL)
 	{
@@ -1538,7 +1543,28 @@ RsslRet rsslReconnectClient(RsslChannel *chnl,  RsslError *error)
 	/* Map RsslChannel to rsslChannelImpl */
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelReconnect))(rsslChnlImpl, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReconnectClient() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelReconnect))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 /* Rssl channel initialization */
@@ -1577,6 +1603,22 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	/* if we have connected component versioning, bridge it through on channel here */
 	if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
 	{
@@ -1584,6 +1626,9 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	}
 
 	ret = ((*(rsslChnlImpl->channelFuncs->initChannel))(rsslChnlImpl, inProg, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 
 	if (ret < RSSL_RET_SUCCESS)
 	{
@@ -1608,6 +1653,7 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslRet retVal = RSSL_RET_SUCCESS;
+	RsslUInt16 maxWaitCount = 0;
 
 	if (error == NULL)
 	{
@@ -1627,6 +1673,26 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 	if (rsslChnlImpl->Channel.state == RSSL_CH_STATE_INACTIVE)
 		return RSSL_RET_SUCCESS;
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+		RTR_ATOMIC_SET(rsslChnlImpl->isBeingClosed, 1);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+
+		while (rsslChnlImpl->activeThreadCount > 0 && maxWaitCount < 10)
+		{
+#ifdef WIN32
+			Sleep(500);
+#else
+			struct timespec ts;
+			ts.tv_sec = 0;
+			ts.tv_nsec = 500000000;
+			sleep(1);
+#endif
+			++maxWaitCount;
+		}
+	}
 
 	if (((rsslChnlImpl->Channel.state == RSSL_CH_STATE_ACTIVE) || (rsslChnlImpl->Channel.state == RSSL_CH_STATE_INITIALIZING)))
 	{
@@ -1722,6 +1788,8 @@ static void closeTraceMsgFile(RsslTraceOptionsInfo *traceOptionsInfo)
 RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslTraceOptions *traceOptions=0;
+	RsslRet rsslRet;
 
 	if(error == NULL)
 	{
@@ -1749,6 +1817,22 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 	}
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
 	
 	switch (code)
 	{
@@ -1765,6 +1849,10 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 				{
 					_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Code RSSL_TRACE was specified, but the channel's protocolType is not RSSL_RWF_PROTOCOL_TYPE or RSSL_JSON_PROTOCOL_TYPE.\n", __FILE__, __LINE__);
+					
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -1776,11 +1864,18 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 				{
 					closeTraceMsgFile(&rsslChnlImpl->traceOptionsInfo);
 					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_FALSE;
+
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					return RSSL_RET_SUCCESS;
 				}
 
 				if (traceOptions->traceMsgFileName == NULL)
 				{
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
 					{
 						/* user is attempting to enable file tracing for the first time without specifying a file name*/
@@ -1812,6 +1907,10 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 					{
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+							RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 						return RSSL_RET_FAILURE;
 					}
 					memcpy(rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, traceOptions->traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
@@ -1827,16 +1926,29 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 						rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = 0;
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+							RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 						return RSSL_RET_FAILURE;
 					}
 					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = newTraceMsgFileNameSize;
 					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_TRUE;
 				}
 			}
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			return RSSL_RET_SUCCESS;
 		break;
 		default:
-			return ((*(rsslChnlImpl->channelFuncs->channelIoctl))(rsslChnlImpl, code, value, error));
+			rsslRet = ((*(rsslChnlImpl->channelFuncs->channelIoctl))(rsslChnlImpl, code, value, error));
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+			return rsslRet;
 	}
 }	
 
@@ -1904,7 +2016,27 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	/* if its already locked, return read in progress */
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			*readRet = RSSL_RET_FAILURE;
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReadEx() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	retBuf = (*(rsslChnlImpl->channelFuncs->channelRead))(rsslChnlImpl, readOutArgs, readRet, error);
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
@@ -2064,6 +2196,8 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 	rsslBufferImpl *rsslBufImpl=0;
 	RsslInt32 priority;
 	RsslRet ret;
+	RsslUInt32 allocatedBufferSize =0;
+	RsslBool hasLength =0;
 
 	if (error == NULL)
 	{
@@ -2082,6 +2216,12 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslWrite", "buffer", error)))
 		return RSSL_RET_FAILURE;
+
+	hasLength = buffer->length > 0;
+
+	/* The packed buffer->data can be null when the length is zero to indicate end of packing message */
+	if (hasLength && rtrUnlikely(RSSL_NULL_PTR(buffer->data, "rsslWrite", "buffer->data", error)))
+		return RSSL_RET_FAILURE;
 	
 	if (rtrUnlikely(RSSL_NULL_PTR(writeOutArgs, "rsslWrite", "writeOutArgs", error)))
 		return RSSL_RET_FAILURE;
@@ -2096,13 +2236,17 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		return RSSL_RET_FAILURE;
 	}
 
+	rsslChnlImpl = (rsslChannelImpl*)chnl;
+
 	writeOutArgs->writeOutFlags = RSSL_WRITE_OUT_NO_FLAGS;
 	/* valid cases are a buffer with length was passed in, or it is a packed buffer and
 	   a 0 length buffer is passed in - this signifys that nothing is written into the last portion of the buffer */
-	if (rtrLikely((buffer->length > 0) || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
+	if (rtrLikely(hasLength || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
 	{
-		rsslChnlImpl = (rsslChannelImpl*)chnl;
 		rsslBufImpl = (rsslBufferImpl*)buffer;
+
+		/* Get the buffer allocated size without the packing offset if any */
+		allocatedBufferSize = rsslBufImpl->totalLength - rsslBufImpl->packingOffset;
 		
 		/* make sure the integrity checks out */
 		if (rtrUnlikely(rsslBufImpl->integrity != 69))
@@ -2113,11 +2257,36 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 			return RSSL_RET_BUFFER_TOO_SMALL;
 		}
 
+		/* make sure the user data length must not be larger than allocated buffer length */
+		if (rtrUnlikely(buffer->length > allocatedBufferSize))
+		{
+			/* the data has overwritten memory */
+			_rsslSetError(error, chnl, RSSL_RET_BUFFER_TOO_SMALL, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0008 Data has overflowed the allocated buffer length(%lu).\n", __FILE__, __LINE__, allocatedBufferSize);
+			return RSSL_RET_BUFFER_TOO_SMALL;
+		}
+
 		if (rtrUnlikely(rsslBufImpl->RsslChannel != rsslChnlImpl))
 		{
 			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx()  Error: 0018 Channel is not owner of buffer.\n", __FILE__, __LINE__);
 			return RSSL_RET_FAILURE;
+		}
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		{
+			RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+			if (rsslChnlImpl->isBeingClosed)
+			{
+				RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+				return RSSL_RET_FAILURE;
+			}
+
+			RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 		}
 
 		/* get priority checked for valid range */
@@ -2145,6 +2314,10 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 				_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, traceWrite, error);
 			}
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl,  writeInArgs, writeOutArgs, error);
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
 			{
 				_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_FALSE);
@@ -2155,6 +2328,10 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		else
 		{
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl, writeInArgs, writeOutArgs, error);
+			
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			return ret;
 		}
 	}
@@ -2198,7 +2375,26 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslFlush() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	ret =  ((*(rsslChnlImpl->channelFuncs->channelFlush))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 	
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 		_rsslTraceClosed(rsslChnlImpl, &ret);
@@ -2210,6 +2406,7 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
 
 	if (error == NULL)
 	{
@@ -2236,6 +2433,22 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPing() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
 		/* are we tracing pings? */
@@ -2256,12 +2469,18 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 		}
 	}
 
-	return ((*(rsslChnlImpl->channelFuncs->channelPing))(rsslChnlImpl, error));
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelPing))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
 
 	if (error == NULL)
 	{
@@ -2290,7 +2509,28 @@ RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, info, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelInfo() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, info, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslError *error)
@@ -2326,14 +2566,39 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (chnl->connectionType == RSSL_CONN_TYPE_SOCKET || chnl->connectionType == RSSL_CONN_TYPE_ENCRYPTED || chnl->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
-		return rsslSocketGetChannelStats(rsslChnlImpl, stats, error);
+		RsslRet rsslRet = rsslSocketGetChannelStats(rsslChnlImpl, stats, error);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+		return rsslRet;
 	}
 	if (chnl->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST)
 	{
 		memset((void*)&info, 0, sizeof(RsslChannelInfo));
 		ret = ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, &info, error));
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		if (ret == RSSL_RET_SUCCESS)
 		{
 			stats->multicastStats = info.multicastStats;
@@ -2348,6 +2613,10 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStatss() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		return RSSL_RET_FAILURE;
 	}
 }
@@ -2389,6 +2658,7 @@ RsslRet rsslGetServerInfo( RsslServer *srvr, RsslServerInfo *info, RsslError *er
 RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslInt32 retValue;
 
 	if (error == NULL)
 	{
@@ -2415,7 +2685,28 @@ RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelBufferUsage))(rsslChnlImpl, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferUsage() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	retValue = ((*(rsslChnlImpl->channelFuncs->channelBufferUsage))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return retValue;
 }
 
 RSSL_API RsslInt32 rsslServerBufferUsage(RsslServer *srvr, RsslError *error)
@@ -2491,6 +2782,7 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 {
 	rsslBufferImpl *rsslBufImpl = 0;
 	rsslChannelImpl *rsslChnlImpl = 0;
+	RsslBuffer* rsslBuffer = 0;
 
 	if (error == NULL)
 	{
@@ -2547,6 +2839,22 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 		return NULL;
 	}
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPackBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (rtrUnlikely(rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT))
 	{
 		rsslDumpOutFuncImpl((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId, chnl);
@@ -2558,6 +2866,10 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 		RsslRet ret = RSSL_RET_SUCCESS;
 		_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, tracePack, error);
 		retBuffer = (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		if (retBuffer == NULL) ret = error->rsslErrorId;
 		_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_FALSE);
 		_rsslTraceClosed(rsslChnlImpl, &ret);
@@ -2565,7 +2877,12 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 	}
 		
 	/* return from rsslPackBuffer function pointer */
-	return (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+	rsslBuffer = (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+	
+	return rsslBuffer;
 }	
 
 RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool packedBuffer, RsslError *error)
@@ -2609,11 +2926,32 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	rsslBufImpl = (*(rsslChnlImpl->channelFuncs->channelGetBuffer))(rsslChnlImpl, size, packedBuffer, error);
 
 	/* error is already set from within function call above */
 	if (rtrUnlikely(!rsslBufImpl))
+	{
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		return NULL;
+	}
 	
 	/* common work done for all transport types */
 	rsslBufImpl->RsslChannel = rsslChnlImpl;
@@ -2626,13 +2964,17 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 	rsslInitQueueLink(&(rsslBufImpl->link1));
 	rsslQueueAddLinkToBack(&(rsslChnlImpl->activeBufferList), &(rsslBufImpl->link1));
 	if (rtrUnlikely(memoryDebug)) printf("adding to activeBufferList\n");
+
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
-	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	{
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+		(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
 
 	return (&(rsslBufImpl->buffer));
 }
 
-RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
+RsslRet rsslReleaseBufferImpl(RsslBuffer *buffer, RsslBool isCalledByUser, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	rsslBufferImpl* rsslBufImpl=0;
@@ -2669,14 +3011,21 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	/* remove buffer from list */
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	  (void) RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+	if (rsslChnlImpl->isBeingClosed && isCalledByUser)
+	{
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReleaseBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
 	if (rsslQueueLinkInAList(&(rsslBufImpl->link1)) == RSSL_TRUE)
 	{
 		rsslQueueRemoveLink(&(rsslChnlImpl->activeBufferList), &(rsslBufImpl->link1));
 		if (rtrUnlikely(memoryDebug))
 			printf("removing from activeBufferList\n");
 	}
-	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
-	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 
 	/* first check if I allocated the data portion of the buffer */
 	if (rsslBufImpl->owner == 1)
@@ -2689,13 +3038,18 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 		}
 
 		/* I allocated it - now free it */
-		_rsslFree(buffer->data);
+		_rsslFree(rsslBufImpl->pOwnBufferHolder);
+		rsslBufImpl->pOwnBufferHolder = NULL; 
 
 		if (rsslBufImpl->compressedBuffer.data)
 		{
 			_rsslFree(rsslBufImpl->compressedBuffer.data);
+			rsslBufImpl->compressedBuffer.data = NULL;
 		}
 	}
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 
 	(*(rsslChnlImpl->channelFuncs->channelReleaseBuffer))(rsslChnlImpl, rsslBufImpl, error);
 
@@ -2711,6 +3065,11 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 
 	return RSSL_RET_SUCCESS;
+}
+
+RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
+{
+	return rsslReleaseBufferImpl(buffer, RSSL_TRUE, error);
 }
 
 RSSL_API RsslUInt32 rsslCalculateEncryptedSize(const RsslBuffer *bufferToEncrypt)

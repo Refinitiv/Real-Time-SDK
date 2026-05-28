@@ -53,25 +53,6 @@
 #endif
 
 /* -------------------------------------------------------------------------
- * Helpers shared across test cases
- * ------------------------------------------------------------------------- */
-
-static void time_sleep_ms(int ms)
-{
-#ifdef WIN32
-    Sleep(ms);
-#else
-    if (ms > 0)
-    {
-        struct timespec ts;
-        ts.tv_sec  = ms / 1000;
-        ts.tv_nsec = (ms % 1000) * 1000000;
-        nanosleep(&ts, NULL);
-    }
-#endif
-}
-
-/* -------------------------------------------------------------------------
  * Thread arguments and thread functions for blocking connect / accept
  * ------------------------------------------------------------------------- */
 
@@ -120,7 +101,7 @@ static RSSL_THREAD_DECLARE(blockingAcceptThread, pArg)
     {
         arg->pChannel = rsslAccept(arg->pServer, &acceptOpts, &arg->err);
         if (!arg->pChannel)
-            time_sleep_ms(10);
+            time_sleep(10);
     }
     return 0;
 }
@@ -258,7 +239,7 @@ static bool setupActiveChannelPair(
         {
             *ppServerChnl = rsslAccept(*ppServer, &acceptOpts, &err);
             if (!*ppServerChnl)
-                time_sleep_ms(10);
+                time_sleep(10);
         }
         if (!*ppServerChnl)
             return false;
@@ -284,7 +265,7 @@ static bool setupActiveChannelPair(
                 rsslClearInProgInfo(&inProg);
                 rsslInitChannel(*ppClientChnl, &inProg, &err);
             }
-            time_sleep_ms(5);
+            time_sleep(5);
         }
     }
 
@@ -353,7 +334,7 @@ protected:
                     std::cout << err.text << std::endl;
                 }
             }
-            time_sleep_ms(sleepMs);
+            time_sleep(sleepMs);
         }
         return (cSrv->state == RSSL_CH_STATE_ACTIVE &&
                 cCli->state == RSSL_CH_STATE_ACTIVE);
@@ -443,7 +424,7 @@ TEST_F(RsslInitChannelTests, NonBlockingTCPChannelReachesActiveState)
     {
         pServerChnl = rsslAccept(pServer, &acceptOpts, &err);
         if (!pServerChnl)
-            time_sleep_ms(10);
+            time_sleep(10);
     }
     ASSERT_NE(nullptr, pServerChnl) << "rsslAccept failed";
 
@@ -488,7 +469,7 @@ TEST_F(RsslInitChannelTests, NonBlockingInitProgressFlagsObserved)
     for (int i = 0; i < 200 && !pServerChnl; ++i)
     {
         pServerChnl = rsslAccept(pServer, &acceptOpts, &err);
-        if (!pServerChnl) time_sleep_ms(10);
+        if (!pServerChnl) time_sleep(10);
     }
     ASSERT_NE(nullptr, pServerChnl);
 
@@ -525,7 +506,7 @@ TEST_F(RsslInitChannelTests, NonBlockingInitProgressFlagsObserved)
                 EXPECT_NE(RSSL_INVALID_SOCKET, inProg.oldSocket);
             }
         }
-        time_sleep_ms(5);
+        time_sleep(5);
     }
 
     EXPECT_EQ(RSSL_CH_STATE_ACTIVE, pServerChnl->state);
@@ -774,7 +755,7 @@ TEST_F(RsslInitChannelTests, SequentialTCPChannelInitCycles)
         for (int i = 0; i < 200 && !srvChnl; ++i)
         {
             srvChnl = rsslAccept(srv, &acceptOpts, &err);
-            if (!srvChnl) time_sleep_ms(10);
+            if (!srvChnl) time_sleep(10);
         }
         ASSERT_NE(nullptr, srvChnl) << "Cycle " << cycle << ": accept failed";
 
@@ -788,7 +769,7 @@ TEST_F(RsslInitChannelTests, SequentialTCPChannelInitCycles)
         rsslCloseChannel(srvChnl, &err);
         rsslCloseServer(srv,      &err);
 
-        time_sleep_ms(20);
+        time_sleep(20);
     }
 }
 
@@ -838,7 +819,7 @@ static RSSL_THREAD_DECLARE(concurrentInitThread, pArg)
     for (int i = 0; i < 200 && !srvChnl; ++i)
     {
         srvChnl = rsslAccept(srv, &acceptOpts, &err);
-        if (!srvChnl) time_sleep_ms(10);
+        if (!srvChnl) time_sleep(10);
     }
 
     bool reached = false;
@@ -852,7 +833,7 @@ static RSSL_THREAD_DECLARE(concurrentInitThread, pArg)
             if (sd && cd) { reached = true; break; }
             if (!sd) { rsslClearInProgInfo(&inProg); rsslInitChannel(srvChnl, &inProg, &err); }
             if (!cd) { rsslClearInProgInfo(&inProg); rsslInitChannel(cli,     &inProg, &err); }
-            time_sleep_ms(5);
+            time_sleep(5);
         }
     }
 
@@ -921,7 +902,7 @@ TEST_F(RsslInitChannelTests, NonBlockingInitReturnCodesAreNonNegative)
     for (int i = 0; i < 200 && !pServerChnl; ++i)
     {
         pServerChnl = rsslAccept(pServer, &acceptOpts, &err);
-        if (!pServerChnl) time_sleep_ms(10);
+        if (!pServerChnl) time_sleep(10);
     }
     ASSERT_NE(nullptr, pServerChnl);
 
@@ -948,7 +929,7 @@ TEST_F(RsslInitChannelTests, NonBlockingInitReturnCodesAreNonNegative)
                 << "Client rsslInitChannel returned negative: " << ret
                 << " err: " << err.text;
         }
-        time_sleep_ms(5);
+        time_sleep(5);
     }
 
     EXPECT_EQ(RSSL_CH_STATE_ACTIVE, pServerChnl->state);
@@ -1121,7 +1102,7 @@ static bool driveServerUntilFinished(RsslChannel* pServerChnl, RsslError *pError
         if (ret == RSSL_RET_FAILURE || ret == RSSL_RET_CHAN_INIT_REFUSED)
             return true;
 
-        time_sleep_ms(sleepMs);
+        time_sleep(sleepMs);
     }
 
     /* Final state check */
@@ -1193,7 +1174,7 @@ protected:
         {
             pServerChnl = rsslAccept(pServer, &acceptOpts, &err);
             if (!pServerChnl)
-                time_sleep_ms(10);
+                time_sleep(10);
         }
         return pServerChnl != nullptr;
     }
@@ -1767,7 +1748,7 @@ TEST_F(RsslInitChannelInvalidMsgTests, ByteByByteDripRejectedByServer)
     {
         ASSERT_TRUE(rawSendAll(rawClient, msg + i, 1))
             << "Failed to send byte " << i;
-        time_sleep_ms(2);
+        time_sleep(2);
     }
 
     RsslError rsslError;

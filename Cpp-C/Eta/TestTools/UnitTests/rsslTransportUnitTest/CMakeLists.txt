@@ -2,6 +2,8 @@ set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
 	rsslTransportUnitTest.cpp
 	rsslTransportNullParamTest.cpp
+	rsslSocketWriteUnitTest.cpp
+	rsslSocketReadUnitTest.cpp
 	rsslBufferToRawHexDumpUnitTest.cpp
 	rsslInitChannelUnitTest.cpp
 	rsslWaitAckUnitTest.cpp

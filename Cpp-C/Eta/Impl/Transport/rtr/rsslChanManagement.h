@@ -16,6 +16,7 @@
 #include "rtr/ripch.h"
 #include "rtr/rsslThread.h"
 #include "rtr/rtrdefs.h"
+#include "rtr/rtratomic.h"
 
 #include <limits.h>
 
@@ -139,6 +140,8 @@ typedef struct {
 	RsslUInt64		shared_key;				/* shared key for encryption/decryption.  If 0 this is not present */
 	RsslBool			ownConnOptCompVer;	/* if true, we created memory for connn opts component version.  false otherwise */
 	RsslComponentInfo	connOptsCompVer;	/* the component version string passed in by the user through the connectOpts */
+	rtr_atomic_val	activeThreadCount;		/* This is used to count number of active threads calling write and read methods for this Channel. */
+	rtr_atomic_val  isBeingClosed;			/* This is used to indicate that this Channel is being closed by users */
 } rsslChannelImpl;	
 
 typedef struct {
@@ -198,6 +201,7 @@ typedef struct {
 	RsslUInt8		fragmentationFlag; /* indicate whether the buffer is used for fragmentation*/
 	RsslBuffer  compressedBuffer; /* This buffer is used to compress the entire message before spliting into multiple fragmented messages. */
 	int			memoryAllocationOffset;  /* This is memory offset from the orignal memory allocation. */
+	char		*pOwnBufferHolder; /* Holds a pointer to the fragmentation buffer allocated and owned by the Channel. */
 } rsslBufferImpl;
 
 /**
@@ -359,6 +363,7 @@ RTR_C_ALWAYS_INLINE void _rsslCleanBuffer(rsslBufferImpl *buffer)
 	buffer->compressedBuffer.data = 0;
 	buffer->compressedBuffer.length = 0;
 	buffer->memoryAllocationOffset = 0;
+	buffer->pOwnBufferHolder = NULL;
 }
 
 /* does memory allocation and initialization of buffer */
@@ -486,6 +491,8 @@ RTR_C_ALWAYS_INLINE void _rsslCleanChan(rsslChannelImpl *chnl)
 	rsslClearComponentInfo(&chnl->connOptsCompVer);
 
 	rsslClearTraceOptionsInfo(&chnl->traceOptionsInfo);
+
+	RTR_ATOMIC_SET(chnl->activeThreadCount, 0);
 }
 
 /* SERVER HELPERS */

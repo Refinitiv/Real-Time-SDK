@@ -5768,7 +5768,9 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov(RsslConnectionTypes
 	ASSERT_TRUE(waitForConnection(pServer[index], 100));
 	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer[index], &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
-	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+	while (pConsMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 	pConsCh = pConsMon->mutMsg.pReactorChannel;
 	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
