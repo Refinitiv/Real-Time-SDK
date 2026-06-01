@@ -1872,6 +1872,8 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( pSrcMsg->updateMsg.flags & RSSL_UPMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->updateMsg.extendedHeader;
+
+			copiedSize = sizeof(RsslUpdateMsg);
 			break; 
 
 		case RSSL_MC_GENERIC: 
@@ -1886,7 +1888,9 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( pSrcMsg->genericMsg.flags & RSSL_GNMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->genericMsg.extendedHeader;
-			break; 
+
+			copiedSize = sizeof(RsslGenericMsg);
+			break;
 
 		case RSSL_MC_REFRESH:			
             pStateTextBuffer        = &pSrcMsg->refreshMsg.state.text; 
@@ -1904,7 +1908,9 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( pSrcMsg->refreshMsg.flags & RSSL_RFMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->refreshMsg.extendedHeader;
-			break; 
+
+			copiedSize = sizeof(RsslRefreshMsg);
+			break;
 
 		case RSSL_MC_POST:			
 			if( pSrcMsg->postMsg.flags & RSSL_PSMF_HAS_PERM_DATA ) 
@@ -1915,16 +1921,20 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( pSrcMsg->postMsg.flags & RSSL_PSMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->postMsg.extendedHeader;
-			break; 
 
-		case RSSL_MC_REQUEST: 
+			copiedSize = sizeof(RsslPostMsg);
+			break;
+
+		case RSSL_MC_REQUEST:
             pKey = &pSrcMsg->msgBase.msgKey;
 
             if( pSrcMsg->requestMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->requestMsg.extendedHeader;
+
+			copiedSize = sizeof(RsslRequestMsg);
 			break;
 
-		case RSSL_MC_STATUS: 
+		case RSSL_MC_STATUS:
             if( pSrcMsg->statusMsg.flags & RSSL_STMF_HAS_STATE )
                 pStateTextBuffer        = &pSrcMsg->statusMsg.state.text;
 
@@ -1942,11 +1952,15 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( pSrcMsg->statusMsg.flags & RSSL_STMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->statusMsg.extendedHeader;
-            break;
+
+			copiedSize = sizeof(RsslStatusMsg);
+			break;
 
 		case RSSL_MC_CLOSE: 
             if( pSrcMsg->closeMsg.flags & RSSL_CLMF_HAS_EXTENDED_HEADER )
                 pExtendedHeaderBuffer     = &pSrcMsg->closeMsg.extendedHeader;
+
+			copiedSize = sizeof(RsslCloseMsg);
 			break; 
 
 		case RSSL_MC_ACK: 
@@ -1958,7 +1972,9 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if( ( pSrcMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) )
                 pKey = &pSrcMsg->msgBase.msgKey;
-			break; 
+
+			copiedSize = sizeof(RsslAckMsg);
+			break;
 
         default:
             _RSSL_ASSERT(0, Unexpected msgClass);
@@ -2062,7 +2078,6 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 	    mallocBuffer = (char *)mallocBuffer + __RSZUI64;
 	}
 
-    copiedSize = __RSZRSSLMSG;
     MemCopyByInt( mallocBuffer, pSrcMsg, copiedSize );
 	
     mallocBufferPos = ( char *)mallocBuffer + __RSZRSSLMSG;
