@@ -3536,8 +3536,16 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommCommonImpl.getActiveLoggerConfig().minLoggerSeverity )
 			{
-				EmaString temp( "Received a tunnel stream message event containing an unsupported message type of " );
-				temp += DataType( msgDataType[ pTunnelStreamMsgEvent->pRsslMsg->msgBase.msgClass ] ).toString();
+				EmaString temp("Received a tunnel stream message event containing an unsupported "
+							   "message type of ");
+
+				DataType::DataTypeEnum msgClass
+					= rsslMsgClassToDataType(pTunnelStreamMsgEvent->pRsslMsg->msgBase.msgClass);
+				if (msgClass == DataType::ErrorEnum)
+					temp.append("Unknown RSSL DataType value ")
+						.append(pTunnelStreamMsgEvent->pRsslMsg->msgBase.msgClass);
+				else
+					temp += DataType(msgClass).toString();
 
 				temp.append( CR )
 					.append( "Instance Name " ).append( _ommCommonImpl.getInstanceName() ).append( CR )

@@ -313,13 +313,13 @@ bool SeriesDecoder::getNextData()
 						&_decodeIter, &_rsslSeriesEntry.encData, _pRsslDictionary, _localSetDefDb );
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslSeriesEntry.encData );
+		Decoder::setErrorData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslSeriesEntry.encData );
 		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslSeriesEntry.encData ); 
+		Decoder::setErrorData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslSeriesEntry.encData ); 
 		return false;
 	default :
-		Decoder::setRsslData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslSeriesEntry.encData );
+		Decoder::setErrorData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslSeriesEntry.encData );
 		return false;
 	}
 }

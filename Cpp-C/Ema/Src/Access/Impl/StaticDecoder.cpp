@@ -51,6 +51,8 @@
 #include "OmmQosDecoder.h"
 #include "OmmStateDecoder.h"
 
+#include "OmmErrorDecoder.h"
+
 #include "Utilities.h"
 
 #include "rtr/rsslMsgDecoders.h"
@@ -59,24 +61,28 @@
 
 using namespace refinitiv::ema::access;
 
-DataType::DataTypeEnum messageTypeFromRssl(UInt8 msgClass)
-{
-	if (msgClass < 10)
-		return msgDataType[msgClass];
-	else
-		return (DataType::DataTypeEnum)(-1); // UnknownDT from Utilities.cpp
-}
-
 void StaticDecoder::setRsslData( Data* pData, RsslMsg* pRsslMsg, UInt8 majVer, UInt8 minVer, const RsslDataDictionary* dictionary )
 {
-	DataType::DataTypeEnum dType = messageTypeFromRssl( pRsslMsg->msgBase.msgClass );
+	DataType::DataTypeEnum dType = rsslMsgClassToDataType(pRsslMsg->msgBase.msgClass);
 
-	morph( pData, dType );
-
-	//pData->getDecoder().setRsslData(majVer, minVer, &pRsslMsg->msgBase.encMsgBuffer, dictionary, NULL);
-
-	if ( !pData->getDecoder().setRsslData( majVer, minVer, pRsslMsg, dictionary ) )
-		StaticDecoder::setRsslData( pData, pData->getDecoder().getErrorCode(),  majVer, minVer, &pRsslMsg->msgBase.encMsgBuffer );
+	if (dType == DataType::ErrorEnum)
+	{
+		StaticDecoder::setRsslData(pData, OmmError::UnsupportedDataTypeEnum, majVer, minVer,
+								   &pRsslMsg->msgBase.encMsgBuffer);
+	}
+	else
+	{
+		if (!morph(pData, dType))
+		{
+			StaticDecoder::setRsslData(pData, OmmError::UnsupportedDataTypeEnum, majVer, minVer,
+									   &pRsslMsg->msgBase.encMsgBuffer);
+		}
+		else if (!pData->getDecoder().setRsslData(majVer, minVer, pRsslMsg, dictionary))
+		{
+			StaticDecoder::setRsslData(pData, pData->getDecoder().getErrorCode(), majVer, minVer,
+									   &pRsslMsg->msgBase.encMsgBuffer);
+		}
+	}
 }
 
 void StaticDecoder::setRsslData( Data* pData, RsslBuffer* pRsslBuffer, RsslDataType rsslType, UInt8 majVer, UInt8 minVer, const RsslDataDictionary* dictionary )
@@ -85,9 +91,6 @@ void StaticDecoder::setRsslData( Data* pData, RsslBuffer* pRsslBuffer, RsslDataT
 
 	if ( rsslType == RSSL_DT_MSG )
 	{
-		RsslMsg rsslMsg;
-		rsslClearMsg( &rsslMsg );
-
 		RsslDecodeIterator decodeIter;
 		rsslClearDecodeIterator( &decodeIter );
 		
@@ -105,15 +108,27 @@ void StaticDecoder::setRsslData( Data* pData, RsslBuffer* pRsslBuffer, RsslDataT
 			return;
 		}
 
-		dType = messageTypeFromRssl( rsslExtractMsgClass( &decodeIter ) );
+		dType = rsslMsgClassToDataType( rsslExtractMsgClass( &decodeIter ) );
+		if (dType == DataType::ErrorEnum)
+		{
+			StaticDecoder::setRsslData(pData, OmmError::UnsupportedDataTypeEnum, majVer, minVer,
+									   pRsslBuffer);
+			return;
+		}
 	}
 	else
-		dType = (DataType::DataTypeEnum)rsslType;
+		dType = static_cast<DataType::DataTypeEnum>(rsslType);
 
-	morph( pData, dType );
-
-	if ( !pData->getDecoder().setRsslData( majVer, minVer, pRsslBuffer, dictionary, 0 ) )
-		StaticDecoder::setRsslData( pData, pData->getDecoder().getErrorCode(),  majVer, minVer, pRsslBuffer );
+	if (!morph(pData, dType))
+	{
+		StaticDecoder::setRsslData(pData, OmmError::UnsupportedDataTypeEnum, majVer, minVer,
+								   pRsslBuffer);
+	}
+	else if (!pData->getDecoder().setRsslData(majVer, minVer, pRsslBuffer, dictionary, 0))
+	{
+		StaticDecoder::setRsslData(pData, pData->getDecoder().getErrorCode(), majVer, minVer,
+								   pRsslBuffer);
+	}
 }
 
 void StaticDecoder::setData( Data* pData, const RsslDataDictionary* dictionary )
@@ -132,8 +147,9 @@ void StaticDecoder::setRsslData( OmmState* pData, RsslState* pRsslState )
 	static_cast<OmmStateDecoder&>( pData->getDecoder() ).setRsslData( pRsslState );
 }
 
-void StaticDecoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, UInt8 majVer, UInt8 minVer, RsslBuffer* pRsslBuffer )
+void StaticDecoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, UInt8 , UInt8 , RsslBuffer* pRsslBuffer )
 {
+	// Set error data
 	if ( pData->getDataType() != DataType::ErrorEnum )
 	{
 		pData->~Data();
@@ -141,20 +157,22 @@ void StaticDecoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, UIn
 		create( pData, DataType::ErrorEnum );
 	}
 
-	pData->getDecoder().setRsslData( majVer, minVer, pRsslBuffer, (const RsslDataDictionary*)errorCode, 0 );
+	OmmErrorDecoder& decoder = static_cast<OmmErrorDecoder&>(pData->getDecoder());
+	decoder.setRsslData(pRsslBuffer, errorCode);
 }
 
-void StaticDecoder::morph( Data* data, DataType::DataTypeEnum dType )
+bool StaticDecoder::morph( Data* data, DataType::DataTypeEnum dType )
 {
 	if ( data->getDataType() != dType )
 	{
 		data->~Data();
 
-		StaticDecoder::create( data, dType );
+		return StaticDecoder::create( data, dType );
 	}
+	return true;
 }
 
-void StaticDecoder::create( Data* data, DataType::DataTypeEnum dType )
+bool StaticDecoder::create( Data* data, DataType::DataTypeEnum dType )
 {
 	switch ( dType )
 	{
@@ -263,5 +281,9 @@ void StaticDecoder::create( Data* data, DataType::DataTypeEnum dType )
 	case DataType::ErrorEnum :
 		new (data) OmmError();
 		break;
+	default:
+		new (data) OmmError();
+		return false;
 	}
+	return true;
 }

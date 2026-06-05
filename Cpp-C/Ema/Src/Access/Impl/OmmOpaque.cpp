@@ -58,8 +58,15 @@ const EmaString& OmmOpaque::toString() const
 
 const EmaString& OmmOpaque::toString( UInt64 indent ) const
 {
-	addIndent( _toString.clear(), indent ).append( "Opaque\n\n" ).append( getAsHex() );
-	addIndent( _toString.append( "\n" ), indent ).append( "OpaqueEnd\n" );
+	addIndent(_toString.clear(), indent).append("Opaque\n\n");
+	if (_pDecoder->getCode() == Data::BlankEnum)
+	{
+		static const EmaString blankData("(blank data)");
+		_toString.append(blankData);
+	}
+	else
+		_toString.append(getAsHex());
+	addIndent(_toString.append("\n"), indent).append("OpaqueEnd\n");
 	return _toString;
 }
 

@@ -48,7 +48,7 @@ public :
 	/** @enum DataTypeEnum
 		An enumeration representing data type.
 	*/
-	enum DataTypeEnum
+	enum DataTypeEnum : unsigned int
 	{
 		IntEnum = 3,			/*!< A signed integer. Can currently represent a value of up to 63 bits
 									along with a one bit sign (positive or negative).*/
@@ -237,9 +237,9 @@ private :
 
 	DataTypeEnum			_dataType;
 
-	DataType();
-	DataType( const DataType& );
-	DataType& operator=( const DataType& );
+	DataType() = delete;
+	DataType( const DataType& ) = delete;
+	DataType& operator=( const DataType& ) = delete;
 };
 
 }

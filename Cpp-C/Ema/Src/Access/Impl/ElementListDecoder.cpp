@@ -264,16 +264,16 @@ bool ElementListDecoder::getNextData()
 		return true;
 	case RSSL_RET_SUCCESS :
 		_pLoad = Decoder::setRsslData( _pLoadPool, _rsslElementEntry.dataType,
-								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
+								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 );
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	default :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }
@@ -310,13 +310,13 @@ bool ElementListDecoder::getNextData( const EmaString& name )
 								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	default :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }
@@ -359,13 +359,13 @@ bool ElementListDecoder::getNextData( const EmaVector< EmaString >& stringList )
 		_pLoad = Decoder::setRsslData( _pLoadPool, _rsslElementEntry.dataType, &_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	default :
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setErrorData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }

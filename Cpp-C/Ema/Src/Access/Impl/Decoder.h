@@ -70,9 +70,10 @@ protected :
 	// UInt8 -> major rwf version
 	// UInt8 -> minor rwf version
 	// Rsslbuffer -> buffer containing actual wire format data
-	Data* setRsslData( Data* , OmmError::ErrorCode , RsslDecodeIterator* , RsslBuffer* ) const;
+	Data* setErrorData( Data* , OmmError::ErrorCode , RsslDecodeIterator* , RsslBuffer* ) const;
 
-	void create( Data* , DataType::DataTypeEnum ) const;
+	// returns: false if the data type is not supported, true otherwise
+	bool create( Data* , DataType::DataTypeEnum ) const;
 
 	void createLoadPool( Data**& );
 

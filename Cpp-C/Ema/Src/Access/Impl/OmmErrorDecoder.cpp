@@ -42,6 +42,15 @@ bool OmmErrorDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* pRsslBuffer, cons
 	return true;
 }
 
+bool OmmErrorDecoder::setRsslData(RsslBuffer* pRsslBuffer, OmmError::ErrorCode error)
+{
+	_pRsslBuffer = pRsslBuffer;
+
+	_errorCode = error;
+
+	return true;
+}
+
 bool OmmErrorDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
 	_errorCode = OmmError::UnknownErrorEnum;

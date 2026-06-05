@@ -644,22 +644,3 @@ void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo )
 	pRsslErrorInfo->rsslError.sysError = 0;
 	pRsslErrorInfo->rsslError.text[0] = 0x00;
 }
-
-#define UnknownDT (DataType::DataTypeEnum)(-1)
-
-const DataType::DataTypeEnum msgDataType[] = {
-	UnknownDT,
-	DataType::ReqMsgEnum,
-	DataType::RefreshMsgEnum,
-	DataType::StatusMsgEnum,
-	DataType::UpdateMsgEnum,
-	DataType::ReqMsgEnum,
-	DataType::AckMsgEnum,
-	DataType::GenericMsgEnum,
-	DataType::PostMsgEnum,
-	UnknownDT,
-	UnknownDT,
-	UnknownDT,
-	UnknownDT,
-	UnknownDT,
-	UnknownDT };

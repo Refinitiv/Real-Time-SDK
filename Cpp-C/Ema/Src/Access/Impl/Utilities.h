@@ -21,19 +21,48 @@
 #endif
 
 #include "DataType.h"
+
+#include "rtr/rsslMsg.h"
 #include "rtr/rsslState.h"
 #include "rtr/rsslErrorInfo.h"
 
-namespace refinitiv {
-	namespace ema {
-		namespace access {
-			class EmaString;
-			class EmaBuffer;
-		}
+namespace refinitiv
+{
+namespace ema
+{
+namespace access
+{
+class EmaString;
+class EmaBuffer;
+
+// todo: make it constexpr once C++14 is the minimum supported standard
+static DataType::DataTypeEnum rsslMsgClassToDataType(const RsslUInt8 rsslMsgClass)
+{
+	switch (rsslMsgClass)
+	{
+	case RSSL_MC_REQUEST:
+		return DataType::ReqMsgEnum;
+	case RSSL_MC_REFRESH:
+		return DataType::RefreshMsgEnum;
+	case RSSL_MC_STATUS:
+		return DataType::StatusMsgEnum;
+	case RSSL_MC_UPDATE:
+		return DataType::UpdateMsgEnum;
+	case RSSL_MC_CLOSE:
+		return DataType::ReqMsgEnum;
+	case RSSL_MC_ACK:
+		return DataType::AckMsgEnum;
+	case RSSL_MC_GENERIC:
+		return DataType::GenericMsgEnum;
+	case RSSL_MC_POST:
+		return DataType::PostMsgEnum;
+	default:
+		return DataType::ErrorEnum;
 	}
 }
-
-extern const refinitiv::ema::access::DataType::DataTypeEnum msgDataType[];
+} // namespace access
+} // namespace ema
+} // namespace refinitiv
 
 bool getCurrentDir( refinitiv::ema::access::EmaString& );
 

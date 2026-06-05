@@ -331,13 +331,13 @@ bool MapDecoder::getNextData()
 		}
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslMapEntry.encData );
+		Decoder::setErrorData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslMapEntry.encData );
 		return true;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslMapEntry.encData ); 
+		Decoder::setErrorData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslMapEntry.encData ); 
 		return false;
 	default :
-		Decoder::setRsslData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslMapEntry.encData );
+		Decoder::setErrorData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslMapEntry.encData );
 		return false;
 	}
 }

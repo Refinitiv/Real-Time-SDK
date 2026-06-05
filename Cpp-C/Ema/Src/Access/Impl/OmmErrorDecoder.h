@@ -33,6 +33,8 @@ public :
 
 	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
+	bool setRsslData(RsslBuffer*, OmmError::ErrorCode);
+
 	OmmError::ErrorCode getErrorCode() const;
 
 	const EmaBuffer& getAsHex();

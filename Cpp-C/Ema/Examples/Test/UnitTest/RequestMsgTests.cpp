@@ -1425,23 +1425,16 @@ TEST(RequestMsgTests, testRequestMsgClone_MoveAssign)
 	EXPECT_TRUE(encoder.check_afterClone(cloneReqMsg)) << "ReqMsg Clone Success";
 }
 
-TEST(RequestMsgTests, testBrokenRequestMsgDecode)
+void decodeBrokenRequestMsg(char msgDump[], size_t msgDump_len)
 {
-	char msgDump[] =
-		"\x00\x07\x02\x00\x01\x00\x00\x80\x01\x0a\x02\x0a"
-		"\x09\xe3\x0a\x0a\x0a\x0a\x0a\x00\x46\x00\x00\x02"
-		"\x47\x00\x00\x00\x01\x00\x80\x01\x00\x00\x00"
-		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; // padding
-	unsigned int msgDump_len = 35;
-
 	RsslDecodeIterator dIter;
-	RsslMsg msg;
+	RsslMsg			   msg;
 
-	RsslBuffer rsslBuf = { static_cast<rtrUInt32>(msgDump_len), msgDump };
+	RsslBuffer rsslBuf = {static_cast<rtrUInt32>(msgDump_len), msgDump};
 
 	// this is buffer used to store information from decoded message
-	char memoryBufChar[4 * 1024] = { 0 };
-	RsslBuffer memoryBuf = { sizeof(memoryBufChar), memoryBufChar };
+	char	   memoryBufChar[4 * 1024] = {0};
+	RsslBuffer memoryBuf = {sizeof(memoryBufChar), memoryBufChar};
 
 	rsslClearDecodeIterator(&dIter);
 	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
@@ -1451,9 +1444,65 @@ TEST(RequestMsgTests, testBrokenRequestMsgDecode)
 
 	EXPECT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&dIter, &msg));
 
-	RefreshMsg respMsg;
+	if (msg.msgBase.msgClass == RSSL_MC_REFRESH)
+	{
+		RefreshMsg respMsg;
 
-	StaticDecoder::setRsslData(&respMsg, &msg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, nullptr);
+		StaticDecoder::setRsslData(&respMsg, &msg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION,
+								   nullptr);
 
-	EXPECT_TRUE(respMsg.toString().length() > 0);
+		EXPECT_TRUE(respMsg.toString().length() > 0);
+	}
+	else if (msg.msgBase.msgClass == RSSL_MC_REQUEST)
+	{
+		ReqMsg respMsg;
+
+		StaticDecoder::setRsslData(&respMsg, &msg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION,
+								   nullptr);
+
+		EXPECT_TRUE(respMsg.toString().length() > 0);
+	}
+	else
+	{
+		NoDataImpl respMsg;
+
+		StaticDecoder::setRsslData(&respMsg, &msg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION,
+								   nullptr);
+
+		EXPECT_TRUE(respMsg.toString().length() > 0);
+	}
+}
+
+TEST(RequestMsgTests, testBrokenRequestMsgDecode)
+{
+	char msgDump[] =
+		"\x00\x07\x02\x00\x01\x00\x00\x80\x01\x0a\x02\x0a"
+		"\x09\xe3\x0a\x0a\x0a\x0a\x0a\x00\x46\x00\x00\x02"
+		"\x47\x00\x00\x00\x01\x00\x80\x01\x00\x00\x00"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; // padding
+	unsigned int msgDump_len = 35;
+
+	decodeBrokenRequestMsg(msgDump, msgDump_len);
+}
+
+TEST(RequestMsgTests, testBrokenRequestMsgDataDecode)
+{
+	{
+		unsigned char msgDump[] = {0x00, 0x02, 0x01, 0x00, 0xe8, 0x03, 0x00, 0x00, 0x00, 0x05,
+								   0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x86, 0x55, 0x00};
+		decodeBrokenRequestMsg((char*)msgDump, sizeof(msgDump));
+	}
+	{
+		unsigned char msgDump[]
+			= {0x00, 0x00, 0x01, 0x8d, 0x52, 0x19, 0x80, 0x00, 0x07, 0x07, 0x00, 0x80,
+			   0x01, 0x00, 0x02, 0x02, 0x02, 0x02, 0x01, 0xf8, 0x02, 0x00, 0x00, 0xea,
+			   0x02, 0x02, 0x00, 0x00, 0xea, 0x02, 0x01, 0xf8, 0x02, 0xff, 0xea};
+		decodeBrokenRequestMsg((char*)msgDump, sizeof(msgDump));
+	}
+	{
+		unsigned char msgDump[] = {0x00, 0x00, 0x01, 0x1d, 0x52, 0x19, 0x08, 0x00, 0x07, 0x07, 0x00,
+								   0x80, 0x01, 0x00, 0x02, 0x02, 0x02, 0x02, 0x00, 0x02, 0x02, 0x00,
+								   0x00, 0xea, 0x02, 0x02, 0x00, 0x00, 0xcd, 0xff, 0xea, 0x00, 0x00};
+		decodeBrokenRequestMsg((char*)msgDump, sizeof(msgDump));
+	}
 }

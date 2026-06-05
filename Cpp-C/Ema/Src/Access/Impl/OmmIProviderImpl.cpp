@@ -1420,10 +1420,10 @@ bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, Rss
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit ");
-		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+		temp.append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).
 			append(" with service name of ").append(serviceName).
 			append(" that was not included in the SourceDirectory. Dropping this ").
-			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+			append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).append(".");
 		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
@@ -1431,10 +1431,10 @@ bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, Rss
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit ");
-		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+		temp.append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).
 			append(" with service name of ").append(serviceName).
 			append(" whose matching service id of ").append(*pServiceId).append(" is out of range. Dropping this ").
-			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+			append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).append(".");
 		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
@@ -1453,10 +1453,10 @@ bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rssl
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit ");
-		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+		temp.append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).
 			append(" with service Id of ").append(serviceId).
 			append(" that was not included in the SourceDirectory. Dropping this ").
-			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+			append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).append(".");
 		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}
@@ -1464,9 +1464,9 @@ bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rssl
 	{
 		_userLock.unlock();
 		EmaString temp("Attempt to submit ");
-		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+		temp.append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).
 			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
-			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+			append(DataType(rsslMsgClassToDataType(rsslMsgBase.msgClass)).toString()).append(".");
 		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
 		return false;
 	}

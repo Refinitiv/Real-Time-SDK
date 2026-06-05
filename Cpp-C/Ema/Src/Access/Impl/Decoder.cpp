@@ -46,96 +46,155 @@
 #include "UpdateMsg.h"
 #include "ReqMsg.h"
 
+#include "OmmErrorDecoder.h"
+
 #include "Utilities.h"
 
 #include "rtr/rsslMsgDecoders.h"
 
 #include <new>
 
-#define EMA_DECODER_TYPE_SIZE 271 
-
 using namespace refinitiv::ema::access;
 
-bool Decoder::setRsslData( Data* pData,
-						RsslDataType rsslType,
-						RsslDecodeIterator* pDecodeIter, RsslBuffer* pRsslBuffer,
-						const RsslDataDictionary* pRsslDictionary, void* localDb ) const
+constexpr UInt32 EMA_DECODER_TYPE_SIZE = static_cast<UInt32>(DataType::LargestValue) + 1;
+
+bool Decoder::setRsslData(Data* pData, RsslDataType rsslType, RsslDecodeIterator* pDecodeIter,
+	RsslBuffer* pRsslBuffer, const RsslDataDictionary* pRsslDictionary, void* localDb) const
 {
 	DataType::DataTypeEnum dType;
 
-	if ( rsslType == RSSL_DT_MSG )
+	if (rsslType == RSSL_DT_MSG)
 	{
-		RsslMsg rsslMsg;
-		rsslClearMsg( &rsslMsg );
-
 		RsslDecodeIterator decodeIter;
-		rsslClearDecodeIterator( &decodeIter );
-		
-		RsslRet retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion );
-	
-		retCode = rsslSetDecodeIteratorBuffer( &decodeIter, pRsslBuffer );
+		rsslClearDecodeIterator(&decodeIter);
 
-		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
+		RsslRet retCode = rsslSetDecodeIteratorRWFVersion(
+			&decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion);
+		if (retCode != RSSL_RET_SUCCESS)
+		{
+			setErrorData(pData, OmmError::IteratorSetFailureEnum, pDecodeIter, pRsslBuffer);
+			return false;
+		}
+
+		retCode = rsslSetDecodeIteratorBuffer(&decodeIter, pRsslBuffer);
+		if (retCode != RSSL_RET_SUCCESS)
+		{
+			setErrorData(pData, OmmError::IteratorSetFailureEnum, pDecodeIter, pRsslBuffer);
+			return false;
+		}
+
+		RsslUInt8 rsslMsgClass = rsslExtractMsgClass(&decodeIter);
+		dType = rsslMsgClassToDataType(rsslMsgClass);
+		if (dType == DataType::ErrorEnum)
+		{
+			setErrorData(pData, OmmError::UnsupportedDataTypeEnum, pDecodeIter, pRsslBuffer);
+			return false;
+		}
 	}
 	else
-		dType = (DataType::DataTypeEnum)rsslType;
+	{
+		dType = static_cast<DataType::DataTypeEnum>(rsslType);
+	}
 
-	if ( pData->getDataType() != dType )
+	if (pData->getDataType() != dType)
 	{
 		pData->~Data();
 
-		create( pData, dType );
+		if (!create(pData, dType))
+		{
+			setErrorData(pData, OmmError::UnsupportedDataTypeEnum, pDecodeIter, pRsslBuffer);
+			return false;
+		}
 	}
 
-	if ( (dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum) || (dType == DataType::AnsiPageEnum))
+	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum)
+		|| (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum)
+		|| (dType == DataType::AnsiPageEnum))
 	{
-		if ( !pData->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
-			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+		if (!pData->getDecoder().setRsslData(pDecodeIter, pRsslBuffer))
+		{
+			setErrorData(pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer);
+			return false;
+		}
 	}
 	else
 	{
-		if ( !pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb ) )
-			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+		if (!pData->getDecoder().setRsslData(pDecodeIter->_majorVersion, pDecodeIter->_minorVersion,
+				pRsslBuffer, pRsslDictionary, localDb))
+		{
+			setErrorData(pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer);
+			return false;
+		}
 	}
 
 	return true;
 }
 
-Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeIterator* pDecodeIter,
-	RsslBuffer* pRsslBuffer, const RsslDataDictionary* pRsslDictionary, void* localDb ) const
+Data* Decoder::setRsslData(Data** pLoadPool, RsslDataType rsslType, RsslDecodeIterator* pDecodeIter,
+	RsslBuffer* pRsslBuffer, const RsslDataDictionary* pRsslDictionary, void* localDb) const
 {
 	DataType::DataTypeEnum dType;
 
-	if ( rsslType == RSSL_DT_MSG )
+	if (rsslType == RSSL_DT_MSG)
 	{
-		RsslMsg rsslMsg;
-		rsslClearMsg( &rsslMsg );
-
 		RsslDecodeIterator decodeIter;
-		rsslClearDecodeIterator( &decodeIter );
-		
-		RsslRet retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion );
-	
-		retCode = rsslSetDecodeIteratorBuffer( &decodeIter, pRsslBuffer );
+		rsslClearDecodeIterator(&decodeIter);
 
-		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
+		RsslRet retCode = rsslSetDecodeIteratorRWFVersion(
+			&decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion);
+		if (retCode != RSSL_RET_SUCCESS)
+		{
+			setErrorData(pLoadPool[DataType::ErrorEnum], OmmError::IteratorSetFailureEnum,
+				pDecodeIter, pRsslBuffer);
+			return pLoadPool[DataType::ErrorEnum];
+		}
+
+		retCode = rsslSetDecodeIteratorBuffer(&decodeIter, pRsslBuffer);
+		if (retCode != RSSL_RET_SUCCESS)
+		{
+			return setErrorData(pLoadPool[DataType::ErrorEnum], OmmError::IteratorSetFailureEnum,
+				pDecodeIter, pRsslBuffer);
+		}
+
+		RsslUInt8 rsslMsgClass = rsslExtractMsgClass(&decodeIter);
+		dType = rsslMsgClassToDataType(rsslMsgClass);
+		if (dType == DataType::ErrorEnum)
+		{
+			return setErrorData(pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum,
+				pDecodeIter, pRsslBuffer);
+		}
 	}
 	else
-		dType = (DataType::DataTypeEnum)rsslType;
-
-	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum) || (dType == DataType::AnsiPageEnum))
 	{
-		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
+		dType = static_cast<DataType::DataTypeEnum>(rsslType);
+	}
+
+	if (dType >= EMA_DECODER_TYPE_SIZE || pLoadPool[dType] == nullptr)
+	{
+		return setErrorData(pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum,
+			pDecodeIter, pRsslBuffer);
+	}
+
+	Data* pooledData = pLoadPool[dType];
+
+	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum)
+		|| (dType == DataType::XmlEnum) || (dType == DataType::JsonEnum)
+		|| (dType == DataType::AnsiPageEnum))
+	{
+		if (!pooledData->getDecoder().setRsslData(pDecodeIter, pRsslBuffer))
 		{
-			setRsslData( pLoadPool[DataType::ErrorEnum], pLoadPool[dType]->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+			setErrorData(pLoadPool[DataType::ErrorEnum], pooledData->getDecoder().getErrorCode(),
+				pDecodeIter, pRsslBuffer);
 			dType = DataType::ErrorEnum;
 		}
 	}
 	else
 	{
-		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb ) )
+		if (!pooledData->getDecoder().setRsslData(pDecodeIter->_majorVersion,
+				pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb))
 		{
-			setRsslData( pLoadPool[DataType::ErrorEnum], pLoadPool[dType]->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+			setErrorData(pLoadPool[DataType::ErrorEnum], pooledData->getDecoder().getErrorCode(),
+				pDecodeIter, pRsslBuffer);
 			dType = DataType::ErrorEnum;
 		}
 	}
@@ -143,21 +202,23 @@ Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeI
 	return pLoadPool[dType];
 }
 
-Data* Decoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, RsslDecodeIterator* pDecodeIter, RsslBuffer* pRsslBuffer ) const
+Data* Decoder::setErrorData(Data* pData, OmmError::ErrorCode errorCode, RsslDecodeIterator*, RsslBuffer* pRsslBuffer) const
 {
-	if ( pData->getDataType() != DataType::ErrorEnum )
+	if (pData->getDataType() != DataType::ErrorEnum)
 	{
 		pData->~Data();
 
-		create( pData, DataType::ErrorEnum );
+		create(pData, DataType::ErrorEnum);
 	}
 
-	pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, (const RsslDataDictionary*)errorCode, 0 );
+	OmmErrorDecoder& decoder = static_cast<OmmErrorDecoder&>(pData->getDecoder());
+	decoder.setRsslData(pRsslBuffer, errorCode);
 
 	return pData;
 }
 
-void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
+// returns false if the specified dType is not supported, pData is set to be OmmError in that case
+bool Decoder::create(Data* pData, DataType::DataTypeEnum dType) const
 {
 	switch ( dType )
 	{
@@ -266,7 +327,11 @@ void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
 	case DataType::ErrorEnum :
 		new (pData) OmmError();
 		break;
+	default:
+		new (pData) OmmError();
+		return false;
 	}
+	return true;
 }
 
 void Decoder::createLoadPool( Data**& pLoadPool )
@@ -275,7 +340,7 @@ void Decoder::createLoadPool( Data**& pLoadPool )
 
 	for (UInt32 index = 0; index < EMA_DECODER_TYPE_SIZE; index++)
 	{
-		pLoadPool[index] = 0;
+		pLoadPool[index] = nullptr;
 	}
 
 	pLoadPool[DataType::ReqMsgEnum] = new ReqMsg;
@@ -319,9 +384,9 @@ void Decoder::destroyLoadPool( Data**& pLoadPool )
 {
 	if ( !pLoadPool ) return;
 
-	for (UInt16 idx = 0; idx < EMA_DECODER_TYPE_SIZE; ++idx)
+	for (UInt32 idx = 0; idx < EMA_DECODER_TYPE_SIZE; ++idx)
 	{
-		if (pLoadPool[idx] != 0)
+		if (pLoadPool[idx] != nullptr)
 		{
 			delete pLoadPool[idx];
 		}
@@ -329,5 +394,5 @@ void Decoder::destroyLoadPool( Data**& pLoadPool )
 
 	delete [] pLoadPool;
 
-	pLoadPool = 0;
+	pLoadPool = nullptr;
 }

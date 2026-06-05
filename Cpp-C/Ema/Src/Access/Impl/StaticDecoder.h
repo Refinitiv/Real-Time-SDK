@@ -64,9 +64,9 @@ public :
 	static void setData( Data* pData, const RsslDataDictionary* );
 
 	// helper utilities
-	static void morph( Data* , DataType::DataTypeEnum );
+	static bool morph( Data* , DataType::DataTypeEnum );
 
-	static void create( Data* , DataType::DataTypeEnum );
+	static bool create( Data* , DataType::DataTypeEnum );
 };
 
 }
