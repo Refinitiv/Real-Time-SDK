@@ -14985,9 +14985,9 @@ TEST_P(OmmConsumerCreateTestFixture, ConsumerRoundRobinProvidersBreakConnection)
 
 			/* Up the deleted provider: re-create the j-th Provider with components */
 			std::string providerProgTestName = "ProviderProgrammaticTest_" + std::to_string(j + 1);
-			ProviderTestComponents* providerTestComponent = new ProviderTestComponents();
+			auto providerTestComponent = std::make_shared<ProviderTestComponents>();
 			providerTestComponent->createProvider(configIProvMap, providerProgTestName.c_str());
-			providers[j] = make_shared<ProviderTestComponents>(providerTestComponent);
+			providers[j] = providerTestComponent;
 		}
 	}
 	catch (const OmmException& exception)
@@ -15048,7 +15048,7 @@ TEST_P(OmmConsumerCreateIndexTestFixture, ConsumerRoundRobinProvidersNotSendLogi
 	IProviderProgrammaticTestConfig iprovProgConfig;
 
 	std::string providerProgTestName;
-	ProviderTestComponents* providerTestComponent;
+	std::shared_ptr<ProviderTestComponents> providerTestComponent;
 
 	vector< shared_ptr<ProviderTestComponents> > providers;
 
@@ -15089,22 +15089,22 @@ TEST_P(OmmConsumerCreateIndexTestFixture, ConsumerRoundRobinProvidersNotSendLogi
 		{
 			/* Create the set of test Providers */
 			providerProgTestName = "ProviderProgrammaticTest_1";
-			providerTestComponent = new ProviderTestComponents();
+			providerTestComponent = std::make_shared<ProviderTestComponents>();
 			providerTestComponent->provTestOptions.sendLoginRefresh = sendLoginRefreshPattern[i][0];
 			providerTestComponent->createProvider(configIProvMap, providerProgTestName.c_str());
-			providers.emplace_back(providerTestComponent);
+			providers.emplace_back(std::move(providerTestComponent));
 
 			providerProgTestName = "ProviderProgrammaticTest_2";
-			providerTestComponent = new ProviderTestComponents();
+			providerTestComponent = std::make_shared<ProviderTestComponents>();
 			providerTestComponent->provTestOptions.sendLoginRefresh = sendLoginRefreshPattern[i][1];
 			providerTestComponent->createProvider(configIProvMap, providerProgTestName.c_str());
-			providers.emplace_back(providerTestComponent);
+			providers.emplace_back(std::move(providerTestComponent));
 
 			providerProgTestName = "ProviderProgrammaticTest_3";
-			providerTestComponent = new ProviderTestComponents();
+			providerTestComponent = std::make_shared<ProviderTestComponents>();
 			providerTestComponent->provTestOptions.sendLoginRefresh = sendLoginRefreshPattern[i][2];
 			providerTestComponent->createProvider(configIProvMap, providerProgTestName.c_str());
-			providers.emplace_back(providerTestComponent);
+			providers.emplace_back(std::move(providerTestComponent));
 
 			/* Create OmmConsumer test instance */
 			//consProgConfig.loginRequestTimeOut = 3000; // 3 seconds - timeout for login request
@@ -15183,10 +15183,10 @@ TEST_P(OmmConsumerCreateIndexTestFixture, ConsumerRoundRobinProvidersNotSendLogi
 			//std::cout << "OmmProvider_" << (s + 1) << ": has been deleted." << std::endl;
 			/* Up the deleted provider: re-create the s-th Provider with components */
 			providerProgTestName = "ProviderProgrammaticTest_" + std::to_string(s + 1);
-			providerTestComponent = new ProviderTestComponents();
+			providerTestComponent = std::make_shared<ProviderTestComponents>();
 			providerTestComponent->provTestOptions.sendLoginRefresh = true;
 			providerTestComponent->createProvider(configIProvMap, providerProgTestName.c_str());
-			providers[s] = make_shared<ProviderTestComponents>(providerTestComponent);
+			providers[s] = providerTestComponent;
 			//std::cout << "OmmProvider_" << (s + 1) << ": is re-created. It is configured as active." << std::endl;
 
 			testSleep(100);

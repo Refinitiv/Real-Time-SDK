@@ -1064,7 +1064,7 @@ void encodeFieldListWithMapInside( RsslBuffer& rsslBuf, EmaString& inText )
 
 	rsslSetEncodeIteratorRWFVersion( &iter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
 	rsslSetEncodeIteratorBuffer( &iter, &rsslBuf );
-	rsslFL.flags = RSSL_FLF_HAS_STANDARD_DATA | RSSL_FLF_HAS_STANDARD_DATA | RSSL_FLF_HAS_FIELD_LIST_INFO;
+	rsslFL.flags = RSSL_FLF_HAS_STANDARD_DATA | RSSL_FLF_HAS_FIELD_LIST_INFO;
 	rsslFL.dictionaryId = 1;
 	rsslFL.fieldListNum = 65;
 
@@ -1174,12 +1174,10 @@ TEST(DataUnitTest, testPerfElementList)
 				rsslClearElementList( &rsslEL );
 				rsslClearEncodeIterator( &iter );
 
-				RsslBuffer rsslBuf;
-				rsslBuf.length = 1000;
-				rsslBuf.data = ( char* )malloc( sizeof( char ) * 1000 );
+				EsslBuffer<1000> rsslBuf;
 
 				rsslSetEncodeIteratorRWFVersion( &iter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
-				rsslSetEncodeIteratorBuffer( &iter, &rsslBuf );
+				rsslSetEncodeIteratorBuffer( &iter, rsslBuf );
 				rsslEL.flags = RSSL_ELF_HAS_STANDARD_DATA | RSSL_ELF_HAS_ELEMENT_LIST_INFO;
 				rsslEL.elementListNum = 5;
 
@@ -1253,7 +1251,7 @@ TEST(DataUnitTest, testPerfElementList)
 				ascii.length = 6;
 				rsslEncodeElementEntry( &iter, &rsslEEntry, ( void* )&ascii );
 
-				rsslBuf.length = rsslGetEncodedBufferLength( &iter );
+				rsslBuf->length = rsslGetEncodedBufferLength( &iter );
 
 				rsslEncodeElementListComplete( &iter, RSSL_TRUE );
 			}
