@@ -59,8 +59,10 @@ if( (NOT cjson_USE_INSTALLED) AND
 	# the BINARY_DIR is not seperate for this type of external project
 	set(_EPA_INSTALL_DIR "INSTALL_DIR ${cjson_install}")
 
+	# DCMAKE_POLICY_VERSION_MINIMUM=3.5 is a temporary fix until cjson releases an update
 	set(_config_options	"-DENABLE_CUSTOM_COMPILER_FLAGS:BOOL=OFF"
 				"-DENABLE_CJSON_TEST:BOOL=OFF"
+				"-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 				)
 	
 	# CJSON cmake build ignores this flag on UNIX type builds
