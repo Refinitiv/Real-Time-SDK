@@ -64,6 +64,12 @@ public:
 	  }
 	}
   }
+
+  ~EventFds()
+  {
+	  delete[] _eventFds;
+  }
+
 private:
   bool verifyContents(std::vector<int> expected) {
 	if ( _eventFdsCount != expected.size() ) {

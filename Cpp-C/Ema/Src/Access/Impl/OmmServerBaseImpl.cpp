@@ -148,7 +148,9 @@ OmmServerBaseImpl::~OmmServerBaseImpl()
 		delete _pErrorClientHandler;
 
 	if (_pLoggerClient != nullptr)
+	{
 		OmmLoggerClient::destroy(_pLoggerClient);
+	}
 }
 
 // note: can throw ICE exception if pool limit has already been set by another config
