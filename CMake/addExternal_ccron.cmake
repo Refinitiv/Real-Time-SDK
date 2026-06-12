@@ -20,6 +20,11 @@ file(WRITE ${_file_name}
 cmake_minimum_required(VERSION 3.0)
 project(ccronexpr)
 
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
+
 # Library
 add_library(ccronexpr STATIC ccronexpr.c)
 target_include_directories(ccronexpr PUBLIC .)
@@ -245,13 +250,14 @@ if( (NOT ccronexpr_USE_INSTALLED) AND
 	set(CCRONEXPR_INCLUDE_DIR "${ccronexpr_install}/include/ccronexpr")
 
 	if (WIN32)
-		set(CCRONEXPR_LIB_DIR "${ccronexpr_install}/lib")
+		set(CCRONEXPR_LIB_DIR "${ccronexpr_install}/lib/")
 	else()
-		set(CCRONEXPR_LIB_DIR "${ccronexpr_install}/lib${RCDEV_HOST_SYSTEM_BITS}")
+		set(CCRONEXPR_LIB_DIR "${ccronexpr_install}/${CMAKE_INSTALL_LIBDIR}/")
 	endif()
 
 	#Copy the header files to install/include
 	file(MAKE_DIRECTORY ${CCRONEXPR_INCLUDE_DIR})
+	file(MAKE_DIRECTORY ${CCRONEXPR_LIB_DIR})
 
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${ccronexpr_source}/ccronexpr.h ${CCRONEXPR_INCLUDE_DIR}
 																				RESULT_VARIABLE _ret_val

@@ -7,6 +7,11 @@
 
 include(rcdevExternalUtils)
 
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
+
 set(curl_version_rh8 "8.17.0" CACHE STRING "")
 set(curl_version_rh9 "8.19.0" CACHE STRING "")
 
@@ -116,6 +121,7 @@ if((NOT curl_USE_INSTALLED) AND
 		set(_config_options "${_config_options}"
 						"-DCURL_USE_SCHANNEL:BOOL=ON")
 #						"-DCMAKE_USE_WINSSL:BOOL=ON")
+		set(_libdir "lib")
 	else()
 		set(_config_options "${_config_options}" 
 							"-DCURL_USE_OPENSSL:BOOL=ON")
@@ -146,10 +152,7 @@ if((NOT curl_USE_INSTALLED) AND
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
 
-		set(_libdir "lib")
-		if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-			set(_libdir "lib64")
-		endif()
+		set(_libdir ${CMAKE_INSTALL_LIBDIR})
 
 		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
 									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"

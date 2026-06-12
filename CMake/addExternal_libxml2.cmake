@@ -7,6 +7,11 @@
 
 include(rcdevExternalUtils)
 
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
+
 macro(check_libxml2_installed _is_installed)
 
 	unset(_inst)
@@ -84,13 +89,12 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# the BINARY_DIR is not seperate for this type of external project
 	set(_EPA_INSTALL_DIR "INSTALL_DIR ${libxml2_install}")
 
-	# TODO: this should be changed to be defined by a global definition, but
-	# for now a non-cmake default value which is a standard location will work
-	unset(_bits)
-	if (UNIX AND RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-		set(_bits "64")
+	if (UNIX)
+		set(_libdir ${CMAKE_INSTALL_LIBDIR})
+	else()
+		set(_libdir "lib")
 	endif()
-	set(libxml_libdir "${libxml2_install}/lib${_bits}")
+	set(libxml_libdir "${libxml2_install}/${_libdir}")
 
 	# LIBXML2 cmake build ignores this flag on UNIX type builds
 	# check for any defined flags
@@ -110,7 +114,6 @@ if((NOT libxml2_USE_INSTALLED) AND
 		set(libxml2_CONFIG_OPTIONS "${_config_options}" "-DLIBXML2_WITH_ZLIB=OFF")
 	endif()
 
-	set(_libdir "lib")
 	unset(_cfg_type)
 	if (WIN32)
 		list(APPEND _config_options "-DLIBXML2_WITH_ICONV=OFF"
@@ -123,10 +126,6 @@ if((NOT libxml2_USE_INSTALLED) AND
 		else()
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
-		endif()
-
-		if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-			set(_libdir "lib64")
 		endif()
 
 		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
@@ -219,7 +218,7 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# and define the target
 	set(LIBXML2_INCLUDE_DIR "${libxml2_install}/include/libxml2" CACHE PATH "")
 
-	unset(_bits)
+	unset(_libdir)
 	unset(_shared_arg)
 	unset(_cflags)
 	unset(_log_args)

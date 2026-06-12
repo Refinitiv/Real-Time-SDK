@@ -8,6 +8,11 @@
 include(rcdevExternalUtils)
 include(FetchContent)
 
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
+
 if(NOT l8w8jwt_url)
 	set(l8w8jwt_url "https://codeberg.org/GlitchedPolygons/l8w8jwt.git" CACHE STRING "l8w8jwt url")
 endif()
@@ -45,9 +50,10 @@ else()
 	list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 endif()
 
-set(_libdir "lib")
-if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-	set(_libdir "lib64")
+if (UNIX)
+	set(_libdir ${CMAKE_INSTALL_LIBDIR})
+else()
+	set(_libdir "lib")
 endif()
 
 # If the option for using the system installed 
@@ -259,6 +265,7 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 										)
 			
 			file(MAKE_DIRECTORY ${l8w8jwt_source}/l8w8jwt.arch)
+			file(MAKE_DIRECTORY ${l8w8jwt_install}/${_libdir})
 			
 			execute_process(COMMAND ${CMAKE_AR} -x ${l8w8jwt_build}/libl8w8jwt.a
 							WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt.arch

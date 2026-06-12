@@ -7,6 +7,11 @@
 
 include(rcdevExternalUtils)
 
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
+
 if(NOT zlib_url)
 	set(zlib_url "https://www.zlib.net/fossils/zlib-1.3.2.tar.gz")
 endif()
@@ -72,9 +77,10 @@ if( (NOT zlib_USE_INSTALLED) AND
 		set(zlib_CONFIG_OPTIONS "${_config_options}")
 	endif()
 
-	set(_libdir "lib")
+	
 	unset(_cfg_type)
 	if (WIN32)
+		set(_libdir "lib")
 		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d"
 									"-DCMAKE_C_FLAGS:STRING=/DEBUG:NONE")
 	else()
@@ -87,9 +93,7 @@ if( (NOT zlib_USE_INSTALLED) AND
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
 
-		if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-			set(_libdir "lib64")
-		endif()
+		set(_libdir "${CMAKE_INSTALL_LIBDIR}")
 
 		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
 									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}")
