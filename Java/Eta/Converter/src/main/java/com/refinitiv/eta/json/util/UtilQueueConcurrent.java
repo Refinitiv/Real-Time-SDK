@@ -38,4 +38,15 @@ public class UtilQueueConcurrent<T> extends UtilQueue<T> {
             lock.unlock();
         }
     }
+
+    @Override
+    public void growPool(int numOfObjects)
+    {
+        lock.lock();
+        try {
+            super.growPool(numOfObjects);
+        } finally {
+            lock.unlock();
+        }
+    }
 }
