@@ -758,7 +758,9 @@ OmmBaseImpl::~OmmBaseImpl()
 	}
 
 	if (_pLoggerClient != nullptr)
+	{
 		OmmLoggerClient::destroy(_pLoggerClient);
+	}
 }
 
 UInt8 OmmBaseImpl::getOAuthArrayIndex(EmaString& channelName)
@@ -3550,8 +3552,11 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	if ( !calledFromInit ) _userLock.unlock();
 
 #ifdef USING_POLL
-	if ( _eventFds )
+	if (_eventFds != nullptr)
+	{
 		delete[] _eventFds;
+		_eventFds = nullptr;
+	}
 #endif
 }
 

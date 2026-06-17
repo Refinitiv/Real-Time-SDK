@@ -6,17 +6,35 @@
 #]=============================================================================]
 
 include(rcdevExternalUtils)
+include(FetchContent)
+
+# Include this to get a standardized lib directory
+if(UNIX)
+	include(GNUInstallDirs)
+endif()
 
 if(NOT l8w8jwt_url)
 	set(l8w8jwt_url "https://codeberg.org/GlitchedPolygons/l8w8jwt.git" CACHE STRING "l8w8jwt url")
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.5.0" CACHE STRING "l8w8jwt tag")
+	set(l8w8jwt_tag "2.6.0" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.5.0" CACHE STRING "l8w8jwt version")
+	set(l8w8jwt_version "2.6.0" CACHE STRING "l8w8jwt version")
+endif()
+
+if(NOT mbedtls_url)
+	set(mbedtls_url "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-4.1.0/mbedtls-4.1.0.tar.bz2" CACHE STRING "mbedtls url")
+endif()
+
+if(NOT mbedtls_hash)
+	set(mbedtls_hash "SHA256=377a09cf8eb81b5fb2707045e5522d5489d3309fed5006c9874e60558fc81d10" CACHE STRING "mbedtls hash")
+endif()
+
+if(NOT mbedtls_version)
+	set(mbedtls_version "4.1.0" CACHE STRING "mbedtls version")
 endif()
 
 unset(_cfg_type)
@@ -32,9 +50,10 @@ else()
 	list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 endif()
 
-set(_libdir "lib")
-if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
-	set(_libdir "lib64")
+if (UNIX)
+	set(_libdir ${CMAKE_INSTALL_LIBDIR})
+else()
+	set(_libdir "lib")
 endif()
 
 # If the option for using the system installed 
@@ -46,7 +65,7 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 	find_package(Git)
 	
 	find_package(Python3 REQUIRED)
-
+	
 	# Initialize the directory variables for the external project
 	# default:
 	#        external/
@@ -110,10 +129,24 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 										ERROR_VARIABLE _cmd_out
 										)
 			endif()
-									
-		endif()
+				
+			# Clean out the mbedtls clone, and replace it with the above downloaded one.
+			# Set SOURCE_SUBDIR to a non-existent directory so the source tree is not automatically added to the rest of the build
+			file(REMOVE_RECURSE ${l8w8jwt_source}/l8w8jwt/lib/mbedtls)
+			
+			FetchContent_Declare( mbedtls_source
+									URL ${mbedtls_url}
+									URL_HASH  ${mbedtls_hash}
+									SOURCE_DIR ${l8w8jwt_source}/l8w8jwt/lib/mbedtls
+									SOURCE_SUBDIR InvalidDirectory
+								)
+								
+			FetchContent_MakeAvailable( mbedtls_source								
+									)
 									
 		file(MAKE_DIRECTORY ${l8w8jwt_build})
+				
+		endif()
 		
 		# check for any defined flags
 		# The shared library is the default build
@@ -127,6 +160,7 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 							"-DL8W8JWT_ENABLE_EXAMPLES:BOOL=OFF"
 							"-DL8W8JWT_PACKAGE:BOOL=OFF"
 							"-DL8W8JWT_ENABLE_EDDSA:BOOL=OFF"
+							"-DGEN_FILES=OFF"
 							)
 		endif()
 
@@ -231,6 +265,7 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 										)
 			
 			file(MAKE_DIRECTORY ${l8w8jwt_source}/l8w8jwt.arch)
+			file(MAKE_DIRECTORY ${l8w8jwt_install}/${_libdir})
 			
 			execute_process(COMMAND ${CMAKE_AR} -x ${l8w8jwt_build}/libl8w8jwt.a
 							WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt.arch
