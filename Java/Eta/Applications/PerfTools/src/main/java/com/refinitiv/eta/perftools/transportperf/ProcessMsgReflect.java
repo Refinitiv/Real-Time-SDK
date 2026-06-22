@@ -52,6 +52,8 @@ public class ProcessMsgReflect implements ProcessMsg
 		
 		outBuffer.data().put(msgBuffer.data());
 		
+		_writeArgs.clear();
+		_writeArgs.flags(TransportThreadConfig.writeFlags());
 		ret = chnl.write(outBuffer, _writeArgs, error);
 
 		/* call flush and write again */

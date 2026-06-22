@@ -48,7 +48,9 @@ namespace LSEG.Eta.PerfTools.TransportPerf
 
 			outBuffer.Data.Put(msgBuffer.Data);
 
-			ret = chnl.Write(outBuffer, m_WriteArgs, out error);
+            m_WriteArgs.Clear();
+            m_WriteArgs.Flags = TransportThreadConfig.WriteFlags;
+            ret = chnl.Write(outBuffer, m_WriteArgs, out error);
 
 			/* call flush and write again */
 			while (ret == TransportReturnCode.WRITE_CALL_AGAIN)

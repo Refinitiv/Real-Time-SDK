@@ -190,6 +190,8 @@ public class TransportSession
             /* Send the completed buffer(or if there is no packing being done, send as normal) */
             _packedBufferCount = 0;
 
+            _writeArgs.clear();
+            _writeArgs.flags(TransportThreadConfig.writeFlags());
             ret = chnl.write(_writingBuffer, _writeArgs, error);
             
             /* call flush and write again */
