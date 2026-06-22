@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2018-2019,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2018-2019,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -976,10 +976,18 @@ RSSL_API void xmlDumpTimestamp(FILE *file)
 		min = 0, 
 		sec = 0, 
 		msec = 0;
+	long year = 0,
+		month = 0,
+		day = 0;
 
 #if defined(WIN32)
 	struct _timeb	_time;
+	struct tm *timeinfo;
 	_ftime(&_time);
+	timeinfo = localtime(&_time.time);
+	year = timeinfo->tm_year + 1900;
+	month = timeinfo->tm_mon + 1;
+	day = timeinfo->tm_mday;
 	sec = (long)(_time.time - 60 * (_time.timezone - _time.dstflag * 60));
 	min = sec / 60 % 60;
 	hour = sec / 3600 % 24;
@@ -991,6 +999,9 @@ RSSL_API void xmlDumpTimestamp(FILE *file)
 	time_t currTime;
 	currTime = time(NULL);
 	stamptime = *localtime_r(&currTime, &stamptime);
+	year = stamptime.tm_year + 1900;
+	month = stamptime.tm_mon + 1;
+	day = stamptime.tm_mday;
 	sec = stamptime.tm_sec;
 	min = stamptime.tm_min;
 	hour = stamptime.tm_hour;
@@ -1001,7 +1012,10 @@ RSSL_API void xmlDumpTimestamp(FILE *file)
 	msec = tv.tv_usec / 1000;
 #endif
 
-	fprintf(file, "<!-- Time: %ld:%02ld:%02ld:%03ld -->\n",
+	fprintf(file, "<!-- Date/Time: %04ld-%02ld-%02ld %ld:%02ld:%02ld:%03ld -->\n",
+		year,
+		month,
+		day,
 		hour,
 		min,
 		sec,
