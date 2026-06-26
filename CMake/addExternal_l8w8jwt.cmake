@@ -25,6 +25,9 @@ if(NOT l8w8jwt_version)
 	set(l8w8jwt_version "2.6.0" CACHE STRING "l8w8jwt version")
 endif()
 
+#Starting with version 2.6.0, l8w8jwt moved to mbedtls 4.0+.  That mbedtls version has additional build configuration that that is not build specific. 
+#So we will grab the release tarball(which has all of the build config applied to it) from Mbedtls' github release and replace the submodule checkout.
+
 if(NOT mbedtls_url)
 	set(mbedtls_url "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-4.1.0/mbedtls-4.1.0.tar.bz2" CACHE STRING "mbedtls url")
 endif()
@@ -96,7 +99,7 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 			# Clone the GitHub
 			file(MAKE_DIRECTORY ${l8w8jwt_source})
 
-			execute_process(COMMAND ${GIT_EXECUTABLE} clone --recursive  ${l8w8jwt_url}
+			execute_process(COMMAND ${GIT_EXECUTABLE} clone --recursive  ${l8w8jwt_url} --branch ${l8w8jwt_tag} --single-branch
 										RESULT_VARIABLE _ret_val
 										WORKING_DIRECTORY ${l8w8jwt_source}
 										ERROR_VARIABLE _cmd_out
@@ -109,25 +112,6 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 						"     dir:${_src}\n"
 						"     ret:${_ret_val}\n"
 						"     out:${_cmd_out}")
-			endif()
-
-			if(GIT_VERSION_STRING VERSION_LESS 2.14.0)
-				execute_process(COMMAND ${GIT_EXECUTABLE} checkout ${l8w8jwt_tag}
-										RESULT_VARIABLE _ret_val
-										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
-										ERROR_VARIABLE _cmd_out
-										)
-				execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --recursive
-										RESULT_VARIABLE _ret_val
-										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
-										ERROR_VARIABLE _cmd_out
-										)
-			else()
-				execute_process(COMMAND ${GIT_EXECUTABLE} checkout --recurse-submodules ${l8w8jwt_tag}
-										RESULT_VARIABLE _ret_val
-										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
-										ERROR_VARIABLE _cmd_out
-										)
 			endif()
 				
 			# Clean out the mbedtls clone, and replace it with the above downloaded one.
