@@ -1547,9 +1547,6 @@ RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rs
 
 void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 {
-	if (_refreshReceived == false)
-		return;
-
 	RsslReactorChannel* pReactorChannel = pEvent->pReactorChannel;
 	Channel* pChannel = (Channel*)pEvent->pReactorChannel->userSpecPtr;
 
