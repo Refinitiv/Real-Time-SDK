@@ -68,7 +68,7 @@ public class ReactorWatchlistJUnitNew
 {
    DataDictionary dictionary;
    
-   private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+   private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
 
     @Rule
     public TestName testName = new TestName();
