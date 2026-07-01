@@ -2247,6 +2247,13 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 
 		/* Get the buffer allocated size without the packing offset if any */
 		allocatedBufferSize = rsslBufImpl->totalLength - rsslBufImpl->packingOffset;
+
+		/* Minus the total length by one to account for the ']' character at the end of buffer for the non-fragmented buffer.*/
+		if (rsslChnlImpl->Channel.protocolType == RSSL_JSON_PROTOCOL_TYPE && rsslBufImpl->fragmentationFlag == BUFFER_IMPL_NONE)
+		{
+			if (allocatedBufferSize > 0)
+				allocatedBufferSize -= 1;
+		}
 		
 		/* make sure the integrity checks out */
 		if (rtrUnlikely(rsslBufImpl->integrity != 69))
@@ -2920,7 +2927,7 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 	if (rtrUnlikely(size <= 0))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0010 Invaid buffer size specified.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0010 Invalid buffer size specified.\n", __FILE__, __LINE__);
 		return NULL;
 	}
 

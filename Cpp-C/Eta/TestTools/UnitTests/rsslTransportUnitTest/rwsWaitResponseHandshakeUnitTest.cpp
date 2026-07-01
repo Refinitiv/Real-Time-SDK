@@ -23,6 +23,7 @@
 
 #include "gtest/gtest.h"
 #include "rtr/rsslTransport.h"
+#include "TransportUnitTest.h"
 
 #ifndef INSTANTIATE_TEST_SUITE_P
 #define INSTANTIATE_TEST_SUITE_P INSTANTIATE_TEST_CASE_P
@@ -126,6 +127,8 @@ protected:
             pRsslSocketChannel = NULL;
         }
         rsslUninitialize();
+
+        resetDeadlockTimer();
     }
 
     /* Helper function to create an input buffer using rtr_smplcAllocMsg */

@@ -420,6 +420,8 @@ protected:
         if (pServerChnl)  { rsslCloseChannel(pServerChnl,  &err); pServerChnl  = nullptr; }
         if (pServer)      { rsslCloseServer(pServer,        &err); pServer      = nullptr; }
         rsslUninitialize();
+
+        resetDeadlockTimer();
     }
 
     /* Bind the RSSL server on the given port.  Returns true on success.   */
@@ -860,6 +862,8 @@ protected:
         if (pServerChnl) { rsslCloseChannel(pServerChnl, &err); pServerChnl = nullptr; }
         if (pServer)      { rsslCloseServer(pServer,      &err); pServer     = nullptr; }
         rsslUninitialize();
+
+        resetDeadlockTimer();
     }
 
     /* Bind the server and connect the raw fake client, then rsslAccept()

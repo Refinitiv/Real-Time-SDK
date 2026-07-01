@@ -1153,7 +1153,7 @@ RsslInt32 rwsIntTotalUsedOutputBuffers(RsslSocketChannel *rsslSocketChannel, Rss
 /* Reallocates the memory object. */
 /**/
 /* The reallocation is done: */
-/* allocating a new memory block of size at least newLength bytes, */
+/* allocating a new memory block of size at least buffer's length plus additional length, */
 /* copying memory area with size equal the lesser of the new and the old sizes, */
 /* and freeing the old block. */
 /**/
@@ -1161,28 +1161,66 @@ RsslInt32 rwsIntTotalUsedOutputBuffers(RsslSocketChannel *rsslSocketChannel, Rss
 /* When the new required memory size newLength is greater than the maximum allowed size maxLength, */
 /* the old memory block is not freed and null pointer is returned. */
 /* When a null pointer is returned, the error parameter will populate detailed error information. */
-rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t newLength, size_t maxLength, RsslError *error)
+rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t additionalLength, size_t maxLength, RsslError *error)
 {
 	/* bufferObj is the pointer to the memory area to be reallocated */
 	/* bufferObj->maxLength is currently allocated memory size */
-	/* newLength is the new required memory size */
+	/* bufferObj->length is currently used buffer length */
+	/* additionalLength is the addtional length needed from the buffer */
 	/* maxLength is the threshould maximum available memory size */
 
-	rtr_msgb_t* tempBufferObj;
+	size_t newLength = bufferObj->length + additionalLength;
+
+	/* Checking for overflow from addition to get a new buffer length */
+	if (newLength < additionalLength)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Unsupported overall length for fragmented message",
+			__FILE__, __LINE__);
+		return(0);
+	}
+
 	/* When earlier allocated memory is enough then we return only */
 	if (bufferObj->maxLength < newLength)
 	{
+		rtr_msgb_t* tempBufferObj;
+
 		/* When maximum limit is not set */
 		if (maxLength == 0)
 		{
-			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
+			size_t allocatedSize;
+
+			/* Check multiplication overflow */
+			if (bufferObj->maxLength > RWS_MAX_UINT64 / 2)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Buffer size overflow in fragmented buffer resize",
+					__FUNCTION__, __LINE__);
+				return 0;
+			}
+
+			allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
 			tempBufferObj = ipcAllocGblMsg(allocatedSize);
 		}
 		/* Checks the limit on the maximum memory size */
 		else if (newLength <= maxLength)
 		{
+			size_t allocatedSize;
+
+			/* Check multiplication overflow */
+			if (bufferObj->maxLength > RWS_MAX_UINT64 / 2)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Buffer size overflow in fragmented buffer resize",
+					__FUNCTION__, __LINE__);
+				return 0;
+			}
+
 			/* Try to increase memory twice */
-			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
+			allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
 			
 			/* And checks the limit on the maximum memory size */
 			if (maxLength < allocatedSize)
@@ -1223,8 +1261,19 @@ rtr_msgb_t *doubleSizeAndRealloc(rtr_msgb_t* bufferObj, size_t readLength, size_
 {
 	rtr_msgb_t* tempBufferObj;
 	if (maxLength == 0)
+	{
+		/* Guard against bufferObj->maxLength * 2 overflowing */
+		if (bufferObj->maxLength > RWS_MAX_UINT64 / 2)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Buffer size overflow in buffer resize",
+				__FUNCTION__, __LINE__);
+			return 0;
+		}
 		tempBufferObj = ipcAllocGblMsg(bufferObj->maxLength * 2);
-	else if (bufferObj->maxLength * 2 <= maxLength)
+	}
+	else if (bufferObj->maxLength <= maxLength / 2) /* overflow-safe: avoids maxLength*2 */
 		tempBufferObj = ipcAllocGblMsg(bufferObj->maxLength * 2);
 	else if (bufferObj->maxLength < maxLength)
 		tempBufferObj = ipcAllocGblMsg(maxLength);
@@ -3635,7 +3684,14 @@ static RsslBool _decodeWSFrame(rwsFrameHdr_t *frame, char * buffer, size_t bufLe
 		if (frame->payload == 0 && frame->payloadLen && bufLen >= (frame->hdrLen + 1))
 			frame->payload = frame->pCtlHdr + frame->hdrLen;
 
-		frame->partial = (bufLen < (frame->hdrLen + frame->payloadLen));
+		{
+			/* Guard against hdrLen + payloadLen wrapping */
+			RsslUInt64 totalFrameLen = (RsslUInt64)frame->hdrLen + frame->payloadLen;
+			if (totalFrameLen < (RsslUInt64)frame->hdrLen)
+				frame->partial = RSSL_TRUE;
+			else
+				frame->partial = (bufLen < totalFrameLen);
+		}
 	}
 	else
 	{
@@ -3776,7 +3832,7 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 			// if opcode is CONT (0), this isn't the first fragment
 			if (frame->opcode == RWS_OPC_CONT)
 			{
-				if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length + frame->payloadLen, wsSess->maxPayload, error)) == 0)
+				if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, frame->payloadLen, wsSess->maxPayload, error)) == 0)
 				{
 					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf((error->text), MAX_RSSL_ERROR_TEXT,
@@ -3793,6 +3849,15 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 
 				rsslSocketChannel->inputBufCursor += (RsslUInt32)frame->payloadLen;
 			}
+			else if (frame->opcode == RWS_OPC_PING || frame->opcode == RWS_OPC_PONG)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Invalid fragmented WebSocket OpCode: (%d)",
+					__FUNCTION__, __LINE__, frame->opcode);
+				*readret = RSSL_RET_FAILURE;
+				return;
+			}
 			else
 			{	// This is the first fragment
 				if (!wsSess->reassemblyUnfinished)
@@ -3805,7 +3870,7 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 					}
 				}
 
-				if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length + frame->payloadLen, wsSess->maxPayload, error)) == 0)
+				if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, frame->payloadLen, wsSess->maxPayload, error)) == 0)
 				{
 					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 					snprintf((error->text),
@@ -3834,15 +3899,25 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 		{	/* Fin bit is set */
 			if (frame->opcode == RWS_OPC_CONT) /* This is the last fragmented message */
 			{
-				if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, wsSess->reassemblyBuffer->length + frame->payloadLen + 4, wsSess->maxPayload, error)) == 0)
-				{
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-					snprintf((error->text), MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Failed to resize for reassemblyBuffer while processing the last WS_CONT frame",
-						__FUNCTION__, __LINE__);
-					*readret = RSSL_RET_FAILURE;
-					return;
-				}
+			/* Guard against frame->payloadLen + 4 wrapping to 0 before checkSizeAndRealloc */
+			if (frame->payloadLen > RWS_MAX_UINT64 - 4)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> WebSocket frame payload length overflow in the last WS_CONT frame",
+					__FUNCTION__, __LINE__);
+				*readret = RSSL_RET_FAILURE;
+				return;
+			}
+			if ((wsSess->reassemblyBuffer = checkSizeAndRealloc(wsSess->reassemblyBuffer, frame->payloadLen + 4, wsSess->maxPayload, error)) == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Failed to resize for reassemblyBuffer while processing the last WS_CONT frame",
+					__FUNCTION__, __LINE__);
+				*readret = RSSL_RET_FAILURE;
+				return;
+			}
 
 				if (frame->compressed)
 				{
@@ -3852,7 +3927,34 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 					/* Checks whether the decompressed buffer has enough space */
 					if (wsSess->reassemblyBuffer->length > wsSess->fragmentedDecompressedBuffer->maxLength)
 					{
-						if ((wsSess->fragmentedDecompressedBuffer = checkSizeAndRealloc(wsSess->fragmentedDecompressedBuffer, wsSess->fragmentedDecompressedBuffer->maxLength * 2, wsSess->maxPayload, error)) == 0)
+						size_t maxLen = wsSess->fragmentedDecompressedBuffer->maxLength;
+						size_t bufLen = wsSess->fragmentedDecompressedBuffer->length;
+
+						/* Check multiplication overflow */
+						if (maxLen > RWS_MAX_UINT64 / 2)
+						{
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+							snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+								"<%s:%d> Buffer size overflow in fragmented decompressed buffer resize",
+								__FUNCTION__, __LINE__);
+							*readret = RSSL_RET_FAILURE;
+							return;
+						}
+
+						size_t doubledLen = maxLen * 2;
+
+						/* Check subtraction underflow (bufLen should never exceed doubledLen, but guard it) */
+						if (bufLen > doubledLen)
+						{
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+							snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+								"<%s:%d> Buffer size overflow in fragmented decompressed buffer resize",
+								__FUNCTION__, __LINE__);
+							*readret = RSSL_RET_FAILURE;
+							return;
+						}
+
+						if ((wsSess->fragmentedDecompressedBuffer = checkSizeAndRealloc(wsSess->fragmentedDecompressedBuffer, doubledLen - bufLen, wsSess->maxPayload, error)) == 0)
 						{
 							_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 							snprintf((error->text), MAX_RSSL_ERROR_TEXT,
@@ -3969,21 +4071,25 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 					compBuf.next_out = wsSess->reassemblyBuffer->buffer + wsSess->reassemblyBuffer->length;
 					compBuf.avail_out = (unsigned long)(wsSess->reassemblyBuffer->maxLength - wsSess->reassemblyBuffer->length);
 
-					// If at the end of the full message, add the compressEnd
-					// Save the four bytes currently there; we are overwriting them, so we'll need to restore them
-					// after decompressing.
-					if (frame->finSet)
+				// If at the end of the full message, add the compressEnd
+				// Save the four bytes currently there; we are overwriting them, so we'll need to restore them
+				// after decompressing.
+				if (frame->finSet)
+				{
+					/* Guard against inputBufCursor + payloadLen + 4 wrapping */
+					RsslUInt64 endOffset = (RsslUInt64)rsslSocketChannel->inputBufCursor + frame->payloadLen;
+					if (endOffset < frame->payloadLen ||
+					    endOffset > RWS_MAX_UINT64 - 4 ||
+					    (endOffset + 4) > rsslSocketChannel->inputBuffer->maxLength)
 					{
-						if ((rsslSocketChannel->inputBufCursor + frame->payloadLen + 4) > rsslSocketChannel->inputBuffer->maxLength)
-						{
-							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-							snprintf((error->text), MAX_RSSL_ERROR_TEXT,
-								"<%s:%d> Decompress failed for WS frame. The input buffer is not large enough.", __FUNCTION__, __LINE__);
-							*readret = RSSL_RET_FAILURE;
-							return;
-						}
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Decompress failed for WS frame. The input buffer is not large enough.", __FUNCTION__, __LINE__);
+						*readret = RSSL_RET_FAILURE;
+						return;
+					}
 
-						memcpy(overRun, rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor + frame->payloadLen, 4);
+					memcpy(overRun, rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor + frame->payloadLen, 4);
 						memcpy(rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor + frame->payloadLen, compressEnd, 4);
 						compBuf.avail_in += 4;
 					}
@@ -4354,7 +4460,18 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 	else
 	{
 		RsslInt32		uncompRead = 0;
-		RsslUInt64		wsFrameLen = frame->payloadLen + frame->hdrLen;
+		RsslUInt64		wsFrameLen;
+		/* Guard: payloadLen + hdrLen must not overflow */
+		if (frame->payloadLen > RWS_MAX_UINT64 - (RsslUInt64)frame->hdrLen)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1007 WebSocket frame length overflow detected",
+				__FILE__, __LINE__);
+			*readret = RSSL_RET_FAILURE;
+			return 0;
+		}
+		wsFrameLen = frame->payloadLen + (RsslUInt64)frame->hdrLen;
 
 _DEBUG_TRACE_WS_READ("(after read): cc %d inBC %d inBL %d\n", 
 						cc, rsslSocketChannel->inputBufCursor, rsslSocketChannel->inputBuffer->length)

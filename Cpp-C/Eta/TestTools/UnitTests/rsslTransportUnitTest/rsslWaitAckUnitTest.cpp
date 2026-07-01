@@ -443,6 +443,8 @@ protected:
             pClientChnl = nullptr;
         }
         rsslUninitialize();
+
+        resetDeadlockTimer();
     }
 
     /* Start the fake-server thread and wait until the listener is ready.   */

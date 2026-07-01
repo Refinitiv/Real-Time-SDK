@@ -102,6 +102,8 @@
 
 #define RWS_MAX_CONTROL_FRAME_SIZE		_WS_MAX_CONTROL_FRAME
 
+#define RWS_MAX_UINT64					RTR_ULL(0xFFFFFFFFFFFFFFFF)
+
 //close frame status codes 
 typedef enum {
 	/* UNDEFINED */

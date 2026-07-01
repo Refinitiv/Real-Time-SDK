@@ -637,7 +637,7 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryUpdate;
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
 
-	wtfDispatch(WTF_TC_CONSUMER, 100);
+	wtfDispatch(WTF_TC_CONSUMER, 200);
 	ASSERT_TRUE(!wtfGetEvent());
 
 
@@ -661,7 +661,7 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
 
 	/* Provider receives request. */
-	wtfDispatch(WTF_TC_PROVIDER, 100);
+	wtfDispatch(WTF_TC_PROVIDER, 200);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pRequestMsg = (RsslRequestMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pRequestMsg->msgBase.msgClass == RSSL_MC_REQUEST);
@@ -699,7 +699,7 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
 
 	/* Consumer receives refresh. */
-	wtfDispatch(WTF_TC_CONSUMER, 100);
+	wtfDispatch(WTF_TC_CONSUMER, 200);
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pRefreshMsg = (RsslRefreshMsg*)wtfGetRsslMsg(pEvent));
 	ASSERT_TRUE(pRefreshMsg->msgBase.msgClass == RSSL_MC_REFRESH);
@@ -714,7 +714,7 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 	consumerRefreshes = 0;
 	while(consumerRefreshes < symbolCount)
 	{
-		wtfDispatch(WTF_TC_PROVIDER, 100);
+		wtfDispatch(WTF_TC_PROVIDER, 200);
 
 		/* Make sure we get at least one. */
 		ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -760,10 +760,10 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 			++providerRequests;
 		} while (pEvent = wtfGetEvent());
 
-		wtfDispatch(WTF_TC_PROVIDER, 100);
+		wtfDispatch(WTF_TC_PROVIDER, 200);
 		ASSERT_TRUE(!wtfGetEvent());
 
-		wtfDispatch(WTF_TC_CONSUMER, 100);
+		wtfDispatch(WTF_TC_CONSUMER, 200);
 
 
 		/* Make sure we get at least one. */
@@ -783,16 +783,16 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 			++consumerRefreshes;
 		} while((pEvent = wtfGetEvent()));
 
-		wtfDispatch(WTF_TC_CONSUMER, 100);
+		wtfDispatch(WTF_TC_CONSUMER, 200);
 		ASSERT_TRUE(!wtfGetEvent());
 	}
 
 	ASSERT_TRUE(providerRequests == symbolCount);
 	ASSERT_TRUE(consumerRefreshes == symbolCount);
 
-	wtfDispatch(WTF_TC_PROVIDER, 100);
+	wtfDispatch(WTF_TC_PROVIDER, 200);
 	ASSERT_TRUE(!wtfGetEvent());
-	wtfDispatch(WTF_TC_CONSUMER, 100);
+	wtfDispatch(WTF_TC_CONSUMER, 200);
 	ASSERT_TRUE(!wtfGetEvent());
 
 	wtfFinishTest();
