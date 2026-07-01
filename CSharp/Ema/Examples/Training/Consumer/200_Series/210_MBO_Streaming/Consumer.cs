@@ -77,12 +77,20 @@ class AppClient : IOmmConsumerClient
                                         break;
                         }
 
-			if (DataTypes.FIELD_LIST == mapEntry.LoadType)
+            // Summary data should be in the same data format as the Entries.
+            if (DataTypes.FIELD_LIST == mapEntry.LoadType)
 			{
-				Console.WriteLine("Entry data:");
-				Decode(mapEntry.FieldList());
-				Console.WriteLine();
-			}
+                if (mapEntry.Action == MapAction.DELETE)
+                {
+                    Console.WriteLine("Entry data: <empty field list for DELETE>");
+                }
+                else
+                {
+                    Console.WriteLine("Entry data:");
+                    Decode(mapEntry.FieldList());
+                }
+                Console.WriteLine();
+            }
 		}
 	}
 	

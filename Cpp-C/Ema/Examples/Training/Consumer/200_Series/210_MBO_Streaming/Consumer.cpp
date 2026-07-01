@@ -68,10 +68,18 @@ void AppClient::decode( const Map& map )
 				break;
 		}
 
+		// Summary data should be in the same data format as the Entries.
 		if ( me.getLoadType() == DataType::FieldListEnum )
 		{
-			cout << "Entry data:" << endl;
-			decode( me.getFieldList() );
+			if (me.getAction() == MapEntry::MapAction::DeleteEnum)
+			{
+				cout << "Entry data: <empty field list for DELETE>" << endl;
+			}
+			else
+			{
+				cout << "Entry data:" << endl;
+				decode(me.getFieldList());
+			}
 		}
 	}
 }

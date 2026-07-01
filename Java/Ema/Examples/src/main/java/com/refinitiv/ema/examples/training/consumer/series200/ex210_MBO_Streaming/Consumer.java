@@ -69,40 +69,49 @@ class AppClient implements OmmConsumerClient
 	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
 	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 
-	void decode(Map map)
-	{
-		if (DataTypes.FIELD_LIST == map.summaryData().dataType())
-		{
-			System.out.println("Map Summary data:");
-			decode(map.summaryData().fieldList());
-			System.out.println();
-		}
+    void decode(Map map)
+    {
+        if (DataTypes.FIELD_LIST == map.summaryData().dataType())
+        {
+            System.out.println("Map Summary data:");
+            decode(map.summaryData().fieldList());
+            System.out.println();
+        }
 
-		for (MapEntry mapEntry : map)
-		{
-                        switch (mapEntry.key().dataType())
-                        {
-                                case DataTypes.BUFFER :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().buffer().toString() + "\n");
-                                        break;
-                                case DataTypes.ASCII :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().ascii().toString() + "\n");
-                                        break;
-                                case DataTypes.RMTES :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().rmtes().toString() + "\n");
-                                        break;
-                                default:
-                                        break;
-                        }
+        for (MapEntry mapEntry : map)
+        {
+            switch (mapEntry.key().dataType())
+            {
+                case DataTypes.BUFFER:
+                    System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().buffer().toString() + "\n");
+                    break;
+                case DataTypes.ASCII:
+                    System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().ascii().toString() + "\n");
+                    break;
+                case DataTypes.RMTES:
+                    System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().rmtes().toString() + "\n");
+                    break;
+                default:
+                    break;
+            }
 
-			if (DataTypes.FIELD_LIST == mapEntry.loadType())
-			{
-				System.out.println("Entry data:");
-				decode(mapEntry.fieldList());
-				System.out.println();
-			}
-		}
-	}
+            // Summary data should be in the same data format as the Entries.
+            if (DataTypes.FIELD_LIST == mapEntry.loadType())
+            {
+                if (mapEntry.action() == MapEntry.MapAction.DELETE)
+                {
+                    System.out.println("Entry data: <empty field list for DELETE>");
+                }
+                else
+                {
+                    System.out.println("Entry data:");
+                    decode(mapEntry.fieldList());
+                }
+                System.out.println();
+            }
+        }
+    }
+
 	
 	void decode(FieldList fieldList)
 	{
