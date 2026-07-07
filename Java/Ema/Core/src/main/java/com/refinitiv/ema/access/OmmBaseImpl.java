@@ -2214,7 +2214,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		int ret = ReactorReturnCodes.SUCCESS;
 		long startTime = System.nanoTime();
 		long endTime = 0;
-		
+        boolean infiniteWait = false;
+        if (timeOut == DispatchTimeout.INFINITE_WAIT)
+        {
+            infiniteWait = true;
+        }
+
 		timeOut = timeOut*1000;
 		long userTimeout = TimeoutEvent.userTimeOutExist(_timeoutEventQueue);
 		boolean userTimeoutExist = false;
@@ -2230,6 +2235,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				timeOut = (userTimeout > MIN_TIME_FOR_SELECT ? userTimeout : MIN_TIME_FOR_SELECT);
 			}
 		}
+
+		// User timeout takes precedence over INFINITE_WAIT dispatch timeout.
+		if (userTimeoutExist)
+			infiniteWait = false;
 
 		try
 		{
@@ -2255,10 +2264,19 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			while (ommImplState() != OmmImplState.NOT_INITIALIZED)
 			{
 				startTime = endTime;
-				
-				int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT); 
-				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
-				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
+
+                int selectCount;
+                if (infiniteWait)
+                {
+                    selectCount = _selector.select();
+                }
+                else
+                {
+                    int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT);
+                    selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
+                }
+
+                if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
 					if(_selector.selectedKeys().contains(_pipeSelectKey))
 					{

@@ -103,7 +103,7 @@ public interface OmmConsumer
 	public static class DispatchTimeout
 	{
 		
-		/** dispatch blocks till a message arrives. */
+		/** dispatch blocks until a message arrives. */
 		public static final int INFINITE_WAIT = 0;
 		
 		/** dispatch exits immediately even if there is no message. */

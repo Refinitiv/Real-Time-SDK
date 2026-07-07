@@ -1329,6 +1329,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		int loopCount = 0;
 		long startTime = System.nanoTime();
 		long endTime = 0;
+        boolean infiniteWait = false;
+        if (timeOut == OmmConsumer.DispatchTimeout.INFINITE_WAIT)
+        {
+            infiniteWait = true;
+        }
 
 		boolean noWait = timeOut == OmmProvider.DispatchTimeout.NO_WAIT;
 		timeOut = timeOut * 1000;
@@ -1347,7 +1352,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			}
 		}
 
-		try
+        // User timeout takes precedence over INFINITE_WAIT dispatch timeout.
+        if (userTimeoutExist)
+            infiniteWait = false;
+
+        try
 		{
 				endTime = System.nanoTime();
 	
@@ -1367,8 +1376,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			while (_state != OmmImplState.NOT_INITIALIZED)
 			{
 				startTime = endTime;
-			
-				int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT);
+
 				int selectCount = 0;
 				if (noWait)
 				{
@@ -1376,7 +1384,15 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				}
 				else
 				{
-					selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
+                    if (infiniteWait)
+                    {
+                        selectCount = _selector.select();
+                    }
+                    else
+                    {
+                        int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT);
+                        selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
+                    }
 				}
 
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
