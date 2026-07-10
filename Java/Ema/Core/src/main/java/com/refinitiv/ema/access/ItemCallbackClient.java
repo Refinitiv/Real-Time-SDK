@@ -4821,46 +4821,67 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	}
 	
 	boolean rsslSubmit(com.refinitiv.eta.codec.CloseMsg rsslCloseMsg)
-	{	
+	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.clear();
-	
+
 		rsslCloseMsg.streamId(_streamId);
-	
+
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _clientSession.channel();
 		int ret;
-			
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
+
+        if (rsslChannel == null)
+        {
+            StringBuilder temp = _baseImpl.strBuilder();
+
+            if (_baseImpl.loggerClient().isErrorEnabled())
+            {
+                temp.append("Internal error: ReactorChannel.submit() failed in IProviderSingleItem.submit(CloseMsg)").append(OmmLoggerClient.CR)
+                        .append("\tReactorChannel is not available");
+
+                _baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+                temp.setLength(0);
+            }
+
+            temp.append("Failed to close item request. Reason: ReactorChannel is not available");
+
+            _baseImpl.handleInvalidUsage(temp.toString(), ReactorReturnCodes.FAILURE);
+
+            return false;
+        }
+
+        if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
 			StringBuilder temp = _baseImpl.strBuilder();
-			
+
 			if (_baseImpl.loggerClient().isErrorEnabled())
 	    	{
 				com.refinitiv.eta.transport.Error error = rsslErrorInfo.error();
-				
+
 	        	temp.append("Internal error: ReactorChannel.submit() failed in IProviderSingleItem.submit(CloseMsg)")
-	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0))
 	    			.append(OmmLoggerClient.CR)
 	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
 	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
 	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
-	        	
+
 	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
+
 	        	temp.setLength(0);
 	    	}
-			
+
 			temp.append("Failed to close item request. Reason: ")
 				.append(ReactorReturnCodes.toString(ret))
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
-				
+
 
 			_baseImpl.handleInvalidUsage(temp.toString(), ret);
-	
+
 			return false;
 	    }
 	
