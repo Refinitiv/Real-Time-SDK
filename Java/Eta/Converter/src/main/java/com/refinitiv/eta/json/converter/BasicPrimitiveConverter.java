@@ -962,20 +962,25 @@ class BasicPrimitiveConverter {
             int i = 0;
             int position = inBuffer.position();
             while (i < dataLength) {
-                if ((data.get(i + position) & 0xFF) > 0x1F && (data.get(i + position) & 0xFF) != 0x7F) {
-                    switch (data.get(i + position)) {
+                int b = data.get(i + position) & 0xFF;
+                if (b > 0x1F && b < 0x80 && b != 0x7F) {
+                    // Printable ASCII characters (0x20-0x7E)
+                    switch (b) {
                         case '\\':
                             outBuffer.data[outBuffer.position++] = '\\';
-                            if (i == dataLength) {
+                            if (i == dataLength - 1) {
                                 outBuffer.data[outBuffer.position++] = '\\';
-                            } else if (data.get(i + position + 1) == '"') {
-                                outBuffer.data[outBuffer.position++] = '"';
-                                i++;
-                            } else if (data.get(i + position + 1) == '\\') {
-                                outBuffer.data[outBuffer.position++] = '\\';
-                                i++;
                             } else {
-                                outBuffer.data[outBuffer.position++] = '\\';
+                                int nextByte = data.get(i + position + 1) & 0xFF;
+                                if (nextByte == '"') {
+                                    outBuffer.data[outBuffer.position++] = '"';
+                                    i++;
+                                } else if (nextByte == '\\') {
+                                    outBuffer.data[outBuffer.position++] = '\\';
+                                    i++;
+                                } else {
+                                    outBuffer.data[outBuffer.position++] = '\\';
+                                }
                             }
                             break;
                         case  '"':
@@ -983,13 +988,41 @@ class BasicPrimitiveConverter {
                             outBuffer.data[outBuffer.position++] = '"';
                             break;
                         default:
-                            outBuffer.data[outBuffer.position++] = data.get(i + position);
+                            outBuffer.data[outBuffer.position++] = (byte) b;
                             break;
                     }
-                } else if ((data.get(i + position) & 0x80) != 0) {
-                    outBuffer.data[outBuffer.position++] = data.get(i + position);
+                } else if (b >= 0x80) {
+                    // Non-ASCII byte - validate UTF-8 sequence or escape
+                    // Check if this is the start of a valid UTF-8 multi-byte sequence
+                    int bytesNeeded = 0;
+                    if ((b & 0xE0) == 0xC0) bytesNeeded = 2;      // 110xxxxx - 2-byte sequence
+                    else if ((b & 0xF0) == 0xE0) bytesNeeded = 3; // 1110xxxx - 3-byte sequence
+                    else if ((b & 0xF8) == 0xF0) bytesNeeded = 4; // 11110xxx - 4-byte sequence
+
+                    boolean valid = bytesNeeded > 0 && (i + bytesNeeded <= dataLength);
+                    if (valid) {
+                        // Verify continuation bytes (must be 10xxxxxx)
+                        for (int j = 1; j < bytesNeeded && valid; j++) {
+                            int contByte = data.get(i + position + j) & 0xFF;
+                            if ((contByte & 0xC0) != 0x80) {
+                                valid = false;
+                            }
+                        }
+                    }
+
+                    if (valid) {
+                        // Copy the valid UTF-8 sequence
+                        for (int j = 0; j < bytesNeeded; j++) {
+                            outBuffer.data[outBuffer.position++] = data.get(i + position + j);
+                        }
+                        i += bytesNeeded - 1; // -1 because i++ at end of loop
+                    } else {
+                        // Invalid UTF-8 - escape as hex
+                        BufferHelper.writeCharAsHex((byte) b, outBuffer);
+                    }
                 } else {
-                    switch (data.get(i + position)) {
+                    // Control characters (0x00-0x1F and 0x7F)
+                    switch (b) {
                         case '\b':
                             outBuffer.data[outBuffer.position++] = '\\';
                             outBuffer.data[outBuffer.position++] = 'b';
@@ -1011,7 +1044,7 @@ class BasicPrimitiveConverter {
                             outBuffer.data[outBuffer.position++] = 't';
                             break;
                         default:
-                            BufferHelper.writeCharAsHex(data.get(i + position), outBuffer);
+                            BufferHelper.writeCharAsHex((byte) b, outBuffer);
                     }
                 }
                 i++;
@@ -1213,8 +1246,13 @@ class BasicPrimitiveConverter {
     }
 
     static void writeByteChar(byte ch, JsonBuffer buffer) {
+        int b = ch & 0xFF;
 
-        if (! (((ch & 0xFF) & 0x80) == 1) ) {
+        // Check if this is a high-bit byte (UTF-8 multi-byte sequence byte). This one's valid.
+        if ((b & 0x80) != 0) {
+            buffer.data[buffer.position++] = ch;
+        } else {
+            // ASCII byte - handle special characters
             switch (ch) {
                 case '\"':
                     buffer.data[buffer.position++] = '\\';
@@ -1225,7 +1263,7 @@ class BasicPrimitiveConverter {
                     buffer.data[buffer.position++] = '\\';
                     break;
                 default:
-                    if ((ch & 0xFF) < ' ' || (ch & 0xFF) == 0x7F) {
+                    if (b < ' ' || b == 0x7F) {
                         BufferHelper.writeCharAsHex(ch, buffer);
                     } else {
                         buffer.data[buffer.position++] = ch;

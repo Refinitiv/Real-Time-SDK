@@ -60,6 +60,11 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
     static final String CLOSE_STR = "Close";
     static final String ACK_STR = "Ack";
 
+    private static final byte[] HEX_CHARS = {
+            '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+
     static
     {
         STRING_TO_RWF_MSG_CLASS.put(REQUEST_STR, MsgClasses.REQUEST);
@@ -749,8 +754,10 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
                     .orElseGet(JsonConverterState::new);
             jsonConverterState.clear();
             currentState.set(jsonConverterState);
-            jsonConverterState.setCurrentRoot(mapper.get().readTree(data));
-            jsonConverterState.getCurrentBufferData().data(ByteBuffer.wrap(data));
+            // Sanitize UTF-8 before parsing to handle invalid sequences from server
+            byte[] sanitizedData = sanitizeUtf8ForJson(data, 0, data.length);
+            jsonConverterState.setCurrentRoot(mapper.get().readTree(sanitizedData));
+            jsonConverterState.getCurrentBufferData().data(ByteBuffer.wrap(sanitizedData));
         } catch (IOException e) {
             currentState.get().setFailedMessage(data);
             return error.setError(JsonConverterErrorCodes.JSON_ERROR_PARSE_ERROR, e.getMessage());
@@ -766,21 +773,144 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
             jsonConverterState.clear();
             currentState.set(jsonConverterState);
             ByteBuffer data = buffer.data();
-            ByteBufferInputStream stream = inputStream.get();
-            stream.setByteBuffer(data, buffer.dataStartPosition(), data.limit());
+
+            // Use backing array directly if it exists to avoid having to copy
+            byte[] sanitizedData;
+            if (data.hasArray()) {
+                sanitizedData = sanitizeUtf8ForJson(data.array(), 
+                        data.arrayOffset() + buffer.dataStartPosition(), 
+                        buffer.length());
+            } else {
+                // No backing array, we have to copy it
+                byte[] rawData = new byte[buffer.length()];
+                int savedPosition = data.position();
+                data.position(buffer.dataStartPosition());
+                data.get(rawData, 0, buffer.length());
+                data.position(savedPosition);
+                sanitizedData = sanitizeUtf8ForJson(rawData, 0, rawData.length);
+            }
+
             ObjectMapper objectMapper = mapper.get();
             objectMapper.enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature());
-            jsonConverterState.setCurrentRoot(objectMapper.readTree(stream));
-            jsonConverterState.getCurrentBufferData().data(data);
+            jsonConverterState.setCurrentRoot(objectMapper.readTree(sanitizedData));
+            jsonConverterState.getCurrentBufferData().data(ByteBuffer.wrap(sanitizedData));
         } catch (IOException e) {
-            byte[] data = new byte[buffer.length()];
+            byte[] failedData = new byte[buffer.length()];
             ByteBuffer inData = buffer.data();
-            for (int i = 0; i < buffer.length(); i++)
-                data[i] = inData.get(i + buffer.dataStartPosition());
-            currentState.get().setFailedMessage(data);
+            int savedPosition = inData.position();
+            inData.position(buffer.dataStartPosition());
+            inData.get(failedData, 0, buffer.length());
+            inData.position(savedPosition);
+            currentState.get().setFailedMessage(failedData);
             return error.setError(JsonConverterErrorCodes.JSON_ERROR_PARSE_ERROR, e.getMessage());
         }
         return SUCCESS;
+    }
+
+    /**
+     * Sanitizes a byte array to ensure valid UTF-8 for JSON parsing.
+     * Invalid UTF-8 sequences are escaped as Unicode escape sequences (backslash-uXXXX).
+     * This handles cases where servers send malformed UTF-8 in JSON strings
+     * (e.g., truncated multipart dictionary data).
+     */
+    private byte[] sanitizeUtf8ForJson(byte[] data, int offset, int length) {
+        // Quick scan to see if sanitization is needed
+        boolean needsSanitization = false;
+        int end = offset + length;
+        for (int i = offset; i < end && !needsSanitization; i++) {
+            int b = data[i] & 0xFF;
+            if (b >= 0x80) {
+                // Check if this is a valid UTF-8 sequence start
+                int seqLen = 0;
+                if ((b & 0xE0) == 0xC0) seqLen = 2;
+                else if ((b & 0xF0) == 0xE0) seqLen = 3;
+                else if ((b & 0xF8) == 0xF0) seqLen = 4;
+                else {
+                    // Invalid start byte (10xxxxxx or 11111xxx)
+                    needsSanitization = true;
+                    break;
+                }
+
+                // Check if we have enough bytes and they're valid continuation bytes
+                if (i + seqLen > end) {
+                    needsSanitization = true;
+                    break;
+                }
+                for (int j = 1; j < seqLen; j++) {
+                    int contByte = data[i + j] & 0xFF;
+                    if ((contByte & 0xC0) != 0x80) {
+                        needsSanitization = true;
+                        break;
+                    }
+                }
+                if (!needsSanitization) {
+                    i += seqLen - 1; // Skip the continuation bytes
+                }
+            }
+        }
+
+        if (!needsSanitization) {
+            // No changes needed - but we need to return a properly sized array
+            // if offset != 0 or length != data.length
+            if (offset == 0 && length == data.length) {
+                return data;
+            }
+            byte[] result = new byte[length];
+            System.arraycopy(data, offset, result, 0, length);
+            return result;
+        }
+
+        // Need to sanitize - build new array with escaped invalid sequences
+        // Worst case: each byte becomes backslash-uXXXX (6 bytes)
+        byte[] result = new byte[length * 6];
+        int outPos = 0;
+
+        for (int i = offset; i < end; i++) {
+            int b = data[i] & 0xFF;
+
+            if (b < 0x80) {
+                // ASCII byte - copy as-is
+                result[outPos++] = data[i];
+            } else {
+                // Check for valid UTF-8 sequence
+                int seqLen = 0;
+                if ((b & 0xE0) == 0xC0) seqLen = 2;
+                else if ((b & 0xF0) == 0xE0) seqLen = 3;
+                else if ((b & 0xF8) == 0xF0) seqLen = 4;
+
+                boolean validSeq = seqLen > 0 && (i + seqLen <= end);
+                if (validSeq) {
+                    for (int j = 1; j < seqLen; j++) {
+                        int contByte = data[i + j] & 0xFF;
+                        if ((contByte & 0xC0) != 0x80) {
+                            validSeq = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (validSeq) {
+                    // Valid UTF-8 sequence - copy all bytes
+                    for (int j = 0; j < seqLen; j++) {
+                        result[outPos++] = data[i + j];
+                    }
+                    i += seqLen - 1;
+                } else {
+                    // Invalid byte - escape as backslash-uXXXX
+                    result[outPos++] = '\\';
+                    result[outPos++] = 'u';
+                    result[outPos++] = '0';
+                    result[outPos++] = '0';
+                    result[outPos++] = HEX_CHARS[(b >> 4) & 0x0F];
+                    result[outPos++] = HEX_CHARS[b & 0x0F];
+                }
+            }
+        }
+
+        // Trim to actual size
+        byte[] trimmed = new byte[outPos];
+        System.arraycopy(result, 0, trimmed, 0, outPos);
+        return trimmed;
     }
 
     @Override
