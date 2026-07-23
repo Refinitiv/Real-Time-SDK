@@ -22,6 +22,8 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceFlags;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
 
+import static com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode.SERVICE_BASED;
+
 /* The watchlist service cache. */
 class WlServiceCache
 {    
@@ -706,7 +708,7 @@ class WlServiceCache
 		 * send out the generic message to the provider indicating that this is either the new active
 		 * (if an active does not exist for the service) or new standby 
 		 */
-		if(initDirectory && sendWsbMsg && wsbGroup.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
+		if(initDirectory && sendWsbMsg && wsbGroup.warmStandbyMode() == SERVICE_BASED)
 		{
 			if(entryAction == MapEntryActions.ADD)
 			{
@@ -757,6 +759,25 @@ class WlServiceCache
 					}
 	
 					wsbService.activeChannel = reactorChannel;
+
+					// Send warm standby change event
+					ReactorWarmStandbyChangeEvent wsbChangeEvent =
+							reactorChannel.warmStandByHandlerImpl.wsbChangeEvent(newService.rdmService().serviceId());
+					wsbChangeEvent.clear();
+					wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+					wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+					wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+					wsbChangeEvent.serviceId(newService.rdmService().serviceId());
+					wsbChangeEvent.serviceName(newService.rdmService().info().serviceName().toString());
+					reactor.sendWsbChangeEventCallback("WlServiceCache.wsbUpdateCachedService", reactorChannel,
+							wsbChangeEvent, errorInfo);
+
+					if (reactor.debugWarmStandbyLevel())
+					{
+						reactor.debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, reactor.hashCode(),
+								reactorChannel.hashCode(),
+								"Service-based WSB mode : WlServiceCache.wsbUpdateCachedService()");
+					}
 				} else
 				{
 					if(wsbService.activeChannel != reactorChannel)
@@ -810,7 +831,8 @@ class WlServiceCache
 	private void wsbServiceStateChange(WlInteger serviceId, int newServiceState, int entryAction, ReactorErrorInfo errorInfo)
 	{
 		ReactorWarmStandbyGroupImpl wsbGroup = _watchlist.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
-		if(wsbGroup.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
+		Reactor reactor = _watchlist.reactor();
+		if(wsbGroup.warmStandbyMode() == SERVICE_BASED)
 		{
 			ReactorWSBService wsbService = wsbGroup._perServiceById.get(serviceId);
 			
@@ -838,14 +860,14 @@ class WlServiceCache
 					 * Write directly to the channel without involving the watchlist or wsb message
 					 * queues
 					 */
-					if (_watchlist.reactor().submitChannel(reactorChannel, reactorChannel._directoryConsumerStatus,
-							_watchlist.reactor().reactorSubmitOptions, errorInfo) < ReactorReturnCodes.SUCCESS)
+					if (reactor.submitChannel(reactorChannel, reactorChannel._directoryConsumerStatus,
+							reactor.reactorSubmitOptions, errorInfo) < ReactorReturnCodes.SUCCESS)
 					{
 						if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client
 																												// channel
 						{
 							reactorChannel.state(State.DOWN_RECONNECTING);
-							_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+							reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, reactorChannel,
 									errorInfo);
 							return;
@@ -853,7 +875,7 @@ class WlServiceCache
 						{
 							reactorChannel.state(State.DOWN);
 							
-							_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+							reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN, reactorChannel, errorInfo);
 							return;
 						}
@@ -900,22 +922,22 @@ class WlServiceCache
 							 * Write directly to the channel without involving the watchlist or wsb message
 							 * queues
 							 */
-							if (_watchlist.reactor().submitChannel(processReactorChannel, reactorChannel._directoryConsumerStatus,
-									_watchlist.reactor().reactorSubmitOptions, errorInfo) < ReactorReturnCodes.SUCCESS)
+							if (reactor.submitChannel(processReactorChannel, reactorChannel._directoryConsumerStatus,
+									reactor.reactorSubmitOptions, errorInfo) < ReactorReturnCodes.SUCCESS)
 							{
 								if (processReactorChannel.server() == null
 										&& !processReactorChannel.recoveryAttemptLimitReached()) // client
 																									// channel
 								{
 									processReactorChannel.state(State.DOWN_RECONNECTING);
-									_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+									reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 											ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
 											processReactorChannel, errorInfo);
 									return;
 								} else // server channel or no more retries
 								{
 									processReactorChannel.state(State.DOWN);
-									_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+									reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 											ReactorChannelEventTypes.CHANNEL_DOWN, processReactorChannel,
 											errorInfo);
 									return;
@@ -923,6 +945,27 @@ class WlServiceCache
 							}
 
 							wsbService.activeChannel = processReactorChannel;
+
+							// Send warm standby change event
+							ReactorWarmStandbyChangeEvent wsbChangeEvent = processReactorChannel.warmStandByHandlerImpl
+											.wsbChangeEvent(processChannelService.rdmService().serviceId());
+							wsbChangeEvent.clear();
+							wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+							wsbChangeEvent.prevChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+							wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(processReactorChannel.channel()));
+							wsbChangeEvent.reactorChannel(processReactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+							wsbChangeEvent.serviceId(processChannelService.rdmService().serviceId());
+							wsbChangeEvent.serviceName(processChannelService.rdmService().info().serviceName().toString());
+							reactor.sendWsbChangeEventCallback("WlServiceCache.wsbServiceStateChange",
+									reactorChannel, wsbChangeEvent, errorInfo);
+
+							if (reactor.debugWarmStandbyLevel())
+							{
+								reactor.debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT,
+										reactor.hashCode(), reactorChannel.hashCode(),
+										"Service-based WSB mode : WlServiceCache.wsbServiceStateChange() : There were an active channel for a service");
+							}
+
 							return;
 						}
 					}
@@ -951,20 +994,20 @@ class WlServiceCache
 					 * Write directly to the channel without involving the watchlist or wsb message
 					 * queues
 					 */
-					if (_watchlist.reactor().submitChannel(reactorChannel, reactorChannel._directoryConsumerStatus, _watchlist.reactor().reactorSubmitOptions,
+					if (reactor.submitChannel(reactorChannel, reactorChannel._directoryConsumerStatus, reactor.reactorSubmitOptions,
 							errorInfo) < ReactorReturnCodes.SUCCESS)
 					{
 						if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client
 																												// channel
 						{
 							reactorChannel.state(State.DOWN_RECONNECTING);
-							_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+							reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, reactorChannel, errorInfo);
 							return;
 						} else // server channel or no more retries
 						{
 							reactorChannel.state(State.DOWN);
-							_watchlist.reactor().sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
+							reactor.sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
 									ReactorChannelEventTypes.CHANNEL_DOWN, reactorChannel, errorInfo);
 							return;
 						}
@@ -972,6 +1015,27 @@ class WlServiceCache
 
 					wsbService.activeChannel = reactorChannel;
 
+					// Send warm standby change event
+					ReactorWarmStandbyChangeEvent wsbChangeEvent =
+							reactorChannel.warmStandByHandlerImpl.wsbChangeEvent(serviceId.value());
+					wsbChangeEvent.clear();
+					wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+					wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+					wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+					wsbChangeEvent.serviceId(serviceId.value());
+					if (wsbService.serviceName != null)
+					{
+						wsbChangeEvent.serviceName(wsbService.serviceName.toString());
+					}
+					reactor.sendWsbChangeEventCallback("WlServiceCache.wsbServiceStateChange",
+							reactorChannel, wsbChangeEvent, errorInfo);
+
+					if (reactor.debugWarmStandbyLevel())
+					{
+						reactor.debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT,
+								reactor.hashCode(), reactorChannel.hashCode(),
+								"Service-based WSB mode : WlServiceCache.wsbServiceStateChange() : There were no active channel for a service");
+					}
 				}
 			}
 		}
@@ -981,12 +1045,12 @@ class WlServiceCache
 			if(newServiceState == 1 && _watchlist.reactorChannel().isActiveServer)
 			{
 				
-				ReactorWarmStandbyEvent reactorWarmStandbyEvent = _watchlist.reactor().reactorWarmStandbyEventPool
+				ReactorWarmStandbyEvent reactorWarmStandbyEvent = reactor.reactorWarmStandbyEventPool
 						.getEvent(errorInfo);
 				reactorWarmStandbyEvent.eventType = ReactorWarmStandbyEventTypes.ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP;
 				reactorWarmStandbyEvent.reactorChannel = _watchlist.reactorChannel();
 				
-				_watchlist.reactor().sendWarmStandbyEvent(_watchlist.reactorChannel(), reactorWarmStandbyEvent, errorInfo);
+				reactor.sendWarmStandbyEvent(_watchlist.reactorChannel(), reactorWarmStandbyEvent, errorInfo);
 			}
 		}
 		

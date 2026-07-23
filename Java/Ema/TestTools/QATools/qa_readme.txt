@@ -613,6 +613,23 @@ Series400Consumer451-PConfig-001
 	Alters consumer to configure proxy settings in programmatic config: -progph (ProxyHost), -progpp (ProxyPort).
 	Also configure channel type connection in programmatic config: -progChannelType (encrypted or socket).
 
+Module:  Series400Consumer470
+-----------------------------
+Series400Consumer470-PConfig-001
+    Alters consumer to configure proxy settings in programmatic config:
+       -host1       <host>   Host for Channel_1 / Active server    (default: localhost)
+       -port1       <port>   Port for Channel_1 / Active server    (default: 14002)
+       -host2       <host>   Host for Channel_2 / Standby server   (default: localhost)
+       -port2       <port>   Port for Channel_2 / Standby server   (default: 14003)
+       -service     <name>   Service name to subscribe to          (default: DIRECT_FEED)
+       -service2     <name>   Service name to subscribe to          (default: DIRECT_FEED)
+       -item        <name>   Item name to subscribe to             (default: SPOT)
+       -channelType <n>      Channel type: 0=SOCKET 2=HTTP 3=ENCRYPTED (default: 0)
+       -runtime     <sec>    Run duration in seconds               (default: 60)
+       -mode     <int>    	 Warm Stand by Mode(1 - login based, 2 -service based)  (default: 1)
+       -info     <int>    	 Change event info  (default: true)
+       -?                 Print this help message and exit
+
 Module:  Series400Consumer490
 -----------------------------
 Series400Consumer490-Dict-001

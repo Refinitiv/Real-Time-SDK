@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -489,16 +489,23 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig addServiceList(ServiceList serviceList);
 
 	/**
-	 * Specifies the UpdateTypeFilter to be used in Lgin REquest message
+	 * Specifies the UpdateTypeFilter to be used in Login Request message
 	 * @param value the UpdateTypeFilter value to be set
 	 * @return current OmmConsumerConfig instance
 	 */
 	public OmmConsumerConfig updateTypeFilter(long value);
 
 	/**
-	 * Specifies the NegativeUpdateTypeFilter to be used in Lgin REquest message
+	 * Specifies the NegativeUpdateTypeFilter to be used in Login Request message
 	 * @param value the NegativeUpdateTypeFilter value to be set
 	 * @return current OmmConsumerConfig instance
 	 */
 	public OmmConsumerConfig negativeUpdateTypeFilter(long value);
+
+	/**
+	 * Specifies whether to enable WSB change event information in Login Status message.
+	 * @param enabled true to enable WSB change event information, false to disable it. By default, it is disabled.
+	 * @return current OmmConsumerConfig instance
+	 */
+	public OmmConsumerConfig wsbChangeEventInfo(boolean enabled);
 }

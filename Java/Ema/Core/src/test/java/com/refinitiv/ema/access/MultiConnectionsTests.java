@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2025-2026 LSEG. All rights reserved.
+ *|           Copyright (C) 2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,6 +11,8 @@ package com.refinitiv.ema.access;
 import com.refinitiv.ema.JUnitConfigVariables;
 import com.refinitiv.ema.RetryRule;
 import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.access.WarmStandbyServiceBasedChannelInformation.WarmStandbyPerChannelServiceInfo;
+import com.refinitiv.ema.access.WarmStandbyServiceBasedChannelInformation.WarmStandbyService;
 import com.refinitiv.ema.access.unittest.requestrouting.ConsumerTestClient;
 import com.refinitiv.ema.access.unittest.requestrouting.ConsumerTestOptions;
 import com.refinitiv.ema.access.unittest.requestrouting.ProviderTestClient;
@@ -41,6 +43,8 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
+import static com.refinitiv.ema.access.ChannelInformation.*;
+import static com.refinitiv.ema.access.WarmStandbyChannelInformation.*;
 import static org.junit.Assert.*;
 
 public class MultiConnectionsTests {
@@ -87,7 +91,7 @@ public class MultiConnectionsTests {
             ChannelInformation channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_1", channelInfo.channelName());
             assertEquals("Connection_1", channelInfo.sessionChannelName());
-            assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+            assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 
             message = consumerClient.popMessage();
 
@@ -100,7 +104,7 @@ public class MultiConnectionsTests {
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_4", channelInfo.channelName());
             assertEquals("Connection_2", channelInfo.sessionChannelName());
-            assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+            assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 
             message = consumerClient.popMessage();
 
@@ -113,7 +117,7 @@ public class MultiConnectionsTests {
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_2", channelInfo.channelName());
             assertEquals("Connection_1", channelInfo.sessionChannelName());
-            assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+            assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 
             message = consumerClient.popMessage();
 
@@ -126,7 +130,7 @@ public class MultiConnectionsTests {
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_5", channelInfo.channelName());
             assertEquals("Connection_2", channelInfo.sessionChannelName());
-            assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+            assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 
             assertEquals("login failed (timed out after waiting 5000 milliseconds) for Connection_1, Connection_2", exception.getLocalizedMessage());
         }
@@ -188,13 +192,13 @@ public class MultiConnectionsTests {
                     {
                         assertEquals("Channel_1", channelInfo.channelName());
                         assertEquals("Connection_1", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                        assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                     }
                     else if (statusMsg.state().toString().equals("Open / Suspect / None / 'session channel down reconnecting'"))
                     {
                         assertTrue("Channel_5".equals(channelInfo.channelName()) || "Channel_4".equals(channelInfo.channelName()));
                         assertEquals("Connection_2", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+                        assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
                     }
                     else
                     {
@@ -299,7 +303,7 @@ public class MultiConnectionsTests {
                     assertTrue(expectedFirstChannelName.equals(channelInfo.channelName()) || expectedSecondChannelName.equals(channelInfo.channelName()));
                     assertTrue(expectedFirstConnectionName.equals(channelInfo.sessionChannelName())
                             || expectedSecondConnectionName.equals(channelInfo.sessionChannelName()));
-                    assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                    assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                 }
                 else if (message instanceof RefreshMsg)
                 {
@@ -308,7 +312,7 @@ public class MultiConnectionsTests {
                     channelInfo = consumerClient.popChannelInfo();
                     assertEquals(expectedFirstChannelName, channelInfo.channelName());
                     assertEquals(expectedFirstChannelName, channelInfo.sessionChannelName());
-                    assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                    assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
                     assertEquals(1, refreshMsg.streamId());
                     assertEquals(DomainTypes.LOGIN, refreshMsg.domainType());
@@ -546,6 +550,47 @@ public class MultiConnectionsTests {
             }
 
             Thread.sleep(3000);
+
+            // Check session information
+            SessionInformation sessionInformation = EmaFactory.createSessionInformation();
+            consumer.sessionInformation(sessionInformation);
+            System.out.println(sessionInformation);
+            assertEquals(1, sessionInformation.channelList().size());
+            ChannelInformation ci = sessionInformation.channelList().get(0);
+            assertNotNull(ci);
+            assertEquals("Channel_1", ci.channelName());
+            assertEquals("Connection_1", ci.sessionChannelName());
+            assertEquals("localhost", ci.hostname());
+            assertEquals(19001, ci.port());
+            assertEquals(ChannelState.ACTIVE, ci.channelState());
+            assertEquals(0, ci.connectionType());
+            assertEquals(0, ci.protocolType());
+
+            assertEquals(1, sessionInformation.warmStandbyChannelList().size());
+            assertTrue(sessionInformation.warmStandbyChannelList().get(0) instanceof WarmStandbyLoginBasedChannelInformation);
+            WarmStandbyLoginBasedChannelInformation wsci =
+                    (WarmStandbyLoginBasedChannelInformation) sessionInformation.warmStandbyChannelList().get(0);
+            assertEquals(WarmStandbyMode.LOGIN_BASED, wsci.warmStandbyMode());
+            assertEquals("WarmStandbyChannel_1", wsci.warmStandbyGroupName());
+            assertEquals("Connection_3", wsci.sessionChannelName());
+            assertEquals(0, wsci.activeChannelIndex());
+            assertEquals(2, wsci.channelsList().size());
+            WarmStandbyChannelDetails wscd = wsci.channelsList().get(0);
+            assertEquals("Channel_3", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19003, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
+            wscd = wsci.channelsList().get(1);
+            assertEquals("Channel_6", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19006, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
 
             consumer.unregister(loginHandle);
 
@@ -6075,6 +6120,30 @@ public class MultiConnectionsTests {
 
             Thread.sleep(2000);
 
+            // Check session information
+            SessionInformation sessionInformation = EmaFactory.createSessionInformation();
+            consumer.sessionInformation(sessionInformation);
+            System.out.println(sessionInformation);
+            assertEquals(2, sessionInformation.channelList().size());
+            ChannelInformation ci = sessionInformation.channelList().get(0);
+            assertNotNull(ci);
+            assertEquals("Channel_1", ci.channelName());
+            assertEquals("Connection_1", ci.sessionChannelName());
+            assertEquals("localhost", ci.hostname());
+            assertEquals(19001, ci.port());
+            assertEquals(ChannelState.ACTIVE, ci.channelState());
+            assertEquals(0, ci.connectionType());
+            assertEquals(0, ci.protocolType());
+            ci = sessionInformation.channelList().get(1);
+            assertNotNull(ci);
+            assertEquals("Channel_4", ci.channelName());
+            assertEquals("Connection_2", ci.sessionChannelName());
+            assertEquals("localhost", ci.hostname());
+            assertEquals(19004, ci.port());
+            assertEquals(ChannelState.ACTIVE, ci.channelState());
+            assertEquals(0, ci.connectionType());
+            assertEquals(0, ci.protocolType());
+
             assertEquals(1, providerClient1.queueSize());
 
             Msg message = providerClient1.popMessage();
@@ -11026,7 +11095,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_13", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -11103,7 +11172,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_13", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -11124,7 +11193,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_13", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 		}
@@ -11286,7 +11355,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_15", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -11363,7 +11432,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_15", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -11384,7 +11453,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_15", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 		}
@@ -11545,7 +11614,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_13_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -11622,7 +11691,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_13_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -11643,7 +11712,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_13_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 		}
@@ -11805,7 +11874,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_15_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -11882,7 +11951,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_15_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState()); // This must be fixed to ChannelInformation.ChannelState.INACTIVE
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState()); // This must be fixed to ChannelInformation.ChannelState.INACTIVE
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -11903,7 +11972,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_15_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 		}
@@ -12064,7 +12133,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_17", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -12155,7 +12224,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_17", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -12176,7 +12245,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_17", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			// Disable the preferred host feature
 			phOptions.setPreferredHostEnabled(false);
@@ -12346,7 +12415,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_19", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -12437,7 +12506,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
 			assertEquals("Connection_19", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -12458,7 +12527,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_19", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			phOptions.setPreferredHostEnabled(false);
 			consumer.modifyIOCtl(IOCtlCode.FALLBACK_PREFERRED_HOST_OPTIONS, phOptions);
@@ -12591,7 +12660,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_21", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* WarmStandbyChannel_1 (preferred WSB channel) */
 			// Provider_5 provides the DIRECT_FEED service name for WSB channel(starting server)
@@ -12624,7 +12693,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_21", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks the market price item refresh */
@@ -12645,7 +12714,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_21", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 		}
@@ -12747,7 +12816,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -12759,7 +12828,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_23", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -12771,7 +12840,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -12783,7 +12852,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			
@@ -12801,7 +12870,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 			long itemHandle = consumer.registerClient(reqMsg.name(itemName).serviceListName("SVG1").qos(ReqMsg.Timeliness.REALTIME, ReqMsg.Rate.JIT_CONFLATED), 
@@ -12963,7 +13032,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(1000);
 			
@@ -12987,7 +13056,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			Thread.sleep(1000);
 			
@@ -13037,7 +13106,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			// Waits to start fallback for Connection_22 and Connection_23
 			Thread.sleep(5000);
@@ -13083,7 +13152,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -13102,7 +13171,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -13128,7 +13197,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Market price request message for active server for the WarmStandbyChannel_3_2 */
 			message = providerClient.popMessage();
@@ -13148,7 +13217,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* The starting server of WarmStandbyChannel_3_2 receives two generic messages */
 			assertEquals(2, providerClient.queueSize());
@@ -13290,7 +13359,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
 			assertEquals("Connection_22", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			consumer.unregister(itemHandle);
 			
@@ -13393,14 +13462,14 @@ public class MultiConnectionsTests {
                     {
                         assertEquals("Channel_7", channelInfo.channelName());
                         assertEquals("Connection_24", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+                        assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
                     }
                     else if (statusMsg.state().toString().equals("Open / Suspect / None / 'session channel up'"))
                     {
                         if ("Channel_1".equals(channelInfo.channelName())) ch_1_up_found = true;
                         else if ("Channel_11".equals(channelInfo.channelName())) ch11_up_found = true;
                         else assertTrue(false);
-                        assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                        assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                     }
                 }
                 else if (message instanceof RefreshMsg)
@@ -13417,14 +13486,60 @@ public class MultiConnectionsTests {
                     assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
                     assertEquals("Channel_11", channelInfo.channelName());
                     assertEquals("Connection_24", channelInfo.sessionChannelName());
-                    assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                    assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                 }
             }
 
             assertTrue(ch_1_up_found);
             assertTrue(ch11_up_found);
 
-			String serviceName = "DIRECT_FEED";
+            // Check session information
+            SessionInformation sessionInformation = EmaFactory.createSessionInformation();
+            consumer.sessionInformation(sessionInformation);
+            System.out.println(sessionInformation);
+            assertEquals(1, sessionInformation.channelList().size());
+            ChannelInformation ci = sessionInformation.channelList().get(0);
+            assertNotNull(ci);
+            assertEquals("Channel_1", ci.channelName());
+            assertEquals("Connection_1_1", ci.sessionChannelName());
+            assertEquals("localhost", ci.hostname());
+            assertEquals(19001, ci.port());
+            assertEquals(ChannelState.ACTIVE, ci.channelState());
+            assertEquals(0, ci.connectionType());
+            assertEquals(0, ci.protocolType());
+
+            assertEquals(1, sessionInformation.warmStandbyChannelList().size());
+            assertTrue(sessionInformation.warmStandbyChannelList().get(0) instanceof WarmStandbyServiceBasedChannelInformation);
+            WarmStandbyServiceBasedChannelInformation wsci =
+                    (WarmStandbyServiceBasedChannelInformation) sessionInformation.warmStandbyChannelList().get(0);
+            assertEquals(WarmStandbyMode.SERVICE_BASED, wsci.warmStandbyMode());
+            assertEquals("WarmStandbyChannel_8", wsci.warmStandbyGroupName());
+            assertEquals("Connection_24", wsci.sessionChannelName());
+            assertEquals(1, wsci.perChannelServiceList().size());
+            WarmStandbyPerChannelServiceInfo wscsi = wsci.perChannelServiceList().get(0);
+            assertNotNull(wscsi);
+            WarmStandbyChannelDetails wscd = wscsi.channel();
+            assertNotNull(wscd);
+            assertEquals("Channel_11", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19011, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
+            assertEquals(2, wscsi.serviceList().size());
+            WarmStandbyService wss = wscsi.serviceList().get(0);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED", wss.serviceName());
+            assertEquals(1, wss.serviceId());
+            assertTrue(wss.isActive());
+            wss = wscsi.serviceList().get(1);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED1", wss.serviceName());
+            assertEquals(2, wss.serviceId());
+            assertTrue(wss.isActive());
+
+            String serviceName = "DIRECT_FEED";
 			String itemName = "TRI.N";
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
@@ -13452,7 +13567,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Kills Provider1 to close Channel_1 */
 			ommprovider1.uninitialize();
@@ -13467,7 +13582,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -13484,7 +13599,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Receives the refresh message from the starting server of  WarmStandbyChannel_8*/
 			message = consumerClient.popMessage();
@@ -13503,7 +13618,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_11", channelInfo.channelName());
 			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Closes the starting server of WarmStandbyChannel_8 */
 			ommprovider4.uninitialize();
@@ -13525,7 +13640,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_11", channelInfo.channelName());
 			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Receives the unsolicited refresh message from the standby server of WarmStandbyChannel_8 */
 			message = consumerClient.popMessage();
@@ -13544,11 +13659,47 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_12", channelInfo.channelName());
 			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(1000);
-			
-			message = consumerClient.popMessage();
+
+            // Check session information
+            sessionInformation = EmaFactory.createSessionInformation();
+            consumer.sessionInformation(sessionInformation);
+            System.out.println(sessionInformation);
+            assertTrue(sessionInformation.channelList().isEmpty());
+
+            assertEquals(1, sessionInformation.warmStandbyChannelList().size());
+            assertTrue(sessionInformation.warmStandbyChannelList().get(0) instanceof WarmStandbyServiceBasedChannelInformation);
+            wsci = (WarmStandbyServiceBasedChannelInformation) sessionInformation.warmStandbyChannelList().get(0);
+            assertEquals(WarmStandbyMode.SERVICE_BASED, wsci.warmStandbyMode());
+            assertEquals("WarmStandbyChannel_8", wsci.warmStandbyGroupName());
+            assertEquals("Connection_24", wsci.sessionChannelName());
+            assertEquals(1, wsci.perChannelServiceList().size());
+            wscsi = wsci.perChannelServiceList().get(0);
+            assertNotNull(wscsi);
+            wscd = wscsi.channel();
+            assertNotNull(wscd);
+            assertEquals("Channel_12", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19012, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
+            assertEquals(2, wscsi.serviceList().size());
+            wss = wscsi.serviceList().get(0);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED", wss.serviceName());
+            assertEquals(1, wss.serviceId());
+            assertTrue(wss.isActive());
+            wss = wscsi.serviceList().get(1);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED1", wss.serviceName());
+            assertEquals(2, wss.serviceId());
+            assertTrue(wss.isActive());
+
+            message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
 			assertEquals(1, statusMsg.streamId());
 			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
@@ -13556,7 +13707,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 			
 			Thread.sleep(1000);
 			
@@ -13577,7 +13728,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_12", channelInfo.channelName());
 			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
             boolean ch12OkStatusFound = false;
             boolean ch12SuspectStatusFound = false;
@@ -13593,7 +13744,7 @@ public class MultiConnectionsTests {
                 if (channelInfo.channelName().equals("Channel_12"))
                 {
                     assertEquals("Connection_24", channelInfo.sessionChannelName());
-                    assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+                    assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
                     if ("Open / Ok / None / 'session channel down reconnecting'".equals(statusMsg.state().toString()))
                     {
                         ch12OkStatusFound = true;
@@ -13631,8 +13782,8 @@ public class MultiConnectionsTests {
                     assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
                     assertEquals("Connection_24", channelInfo.sessionChannelName());
 
-                    boolean checkChannelState = channelInfo.channelState() == ChannelInformation.ChannelState.INACTIVE ||
-                            channelInfo.channelState() == ChannelInformation.ChannelState.INITIALIZING;
+                    boolean checkChannelState = channelInfo.channelState() == ChannelState.INACTIVE ||
+                            channelInfo.channelState() == ChannelState.INITIALIZING;
 
                     assertTrue(checkChannelState);
                     assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
@@ -13663,11 +13814,11 @@ public class MultiConnectionsTests {
             channelInfo = consumerClient.popChannelInfo();
             assertEquals("Channel_7", channelInfo.channelName());
             assertEquals("Connection_24", channelInfo.sessionChannelName());
-            assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+            assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 
-            if(message instanceof RefreshMsg)
+            if (message instanceof RefreshMsg)
             {
                 /* Checks login refresh message */
                 refreshMsg = (RefreshMsg) message;
@@ -13682,7 +13833,7 @@ public class MultiConnectionsTests {
                 channelInfo = consumerClient.popChannelInfo();
                 assertEquals("Channel_7", channelInfo.channelName());
                 assertEquals("Connection_24", channelInfo.sessionChannelName());
-                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
                 message = consumerClient.popMessage();
                 statusMsg = (StatusMsg) message;
@@ -13692,7 +13843,7 @@ public class MultiConnectionsTests {
                 channelInfo = consumerClient.popChannelInfo();
                 assertEquals("Channel_7", channelInfo.channelName());
                 assertEquals("Connection_24", channelInfo.sessionChannelName());
-                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
             }
             else
             {
@@ -13703,7 +13854,7 @@ public class MultiConnectionsTests {
                 channelInfo = consumerClient.popChannelInfo();
                 assertEquals("Channel_7", channelInfo.channelName());
                 assertEquals("Connection_24", channelInfo.sessionChannelName());
-                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
                 message = consumerClient.popMessage();
                 /* Checks login refresh message */
@@ -13719,9 +13870,9 @@ public class MultiConnectionsTests {
                 channelInfo = consumerClient.popChannelInfo();
                 assertEquals("Channel_7", channelInfo.channelName());
                 assertEquals("Connection_24", channelInfo.sessionChannelName());
-                assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
             }
-			
+
 			/* Receives the refresh message from the starting server of  WarmStandbyChannel_3 */
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
@@ -13739,9 +13890,68 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_24", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
-			
-			consumer.unregister(itemHandle);
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
+
+            // Check session information
+            sessionInformation = EmaFactory.createSessionInformation();
+            consumer.sessionInformation(sessionInformation);
+            System.out.println(sessionInformation);
+            assertTrue(sessionInformation.channelList().isEmpty());
+
+            assertEquals(1, sessionInformation.warmStandbyChannelList().size());
+            assertTrue(sessionInformation.warmStandbyChannelList().get(0) instanceof WarmStandbyServiceBasedChannelInformation);
+            wsci = (WarmStandbyServiceBasedChannelInformation) sessionInformation.warmStandbyChannelList().get(0);
+            assertEquals(WarmStandbyMode.SERVICE_BASED, wsci.warmStandbyMode());
+            assertEquals("WarmStandbyChannel_4", wsci.warmStandbyGroupName());
+            assertEquals("Connection_24", wsci.sessionChannelName());
+            assertEquals(2, wsci.perChannelServiceList().size());
+            wscsi = wsci.perChannelServiceList().get(0);
+            assertNotNull(wscsi);
+            wscd = wscsi.channel();
+            assertNotNull(wscd);
+            assertEquals("Channel_7", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19007, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
+            assertEquals(2, wscsi.serviceList().size());
+            wss = wscsi.serviceList().get(0);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED", wss.serviceName());
+            assertEquals(1, wss.serviceId());
+            assertTrue(wss.isActive());
+            wss = wscsi.serviceList().get(1);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED1", wss.serviceName());
+            assertEquals(2, wss.serviceId());
+            assertTrue(wss.isActive());
+
+            wscsi = wsci.perChannelServiceList().get(1);
+            assertNotNull(wscsi);
+            wscd = wscsi.channel();
+            assertNotNull(wscd);
+            assertEquals("Channel_8", wscd.channelName());
+            assertEquals("localhost", wscd.hostname());
+            assertEquals(19008, wscd.port());
+            assertEquals(ConnectionType.SOCKET, wscd.connectionType());
+            assertEquals(ConnectionType.UNIDENTIFIED, wscd.encryptedConnectionType());
+            assertEquals(ProtocolType.RWF, wscd.protocolType());
+            assertNotNull(wscd.userSpecObject());
+            assertEquals(2, wscsi.serviceList().size());
+            wss = wscsi.serviceList().get(0);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED", wss.serviceName());
+            assertEquals(1, wss.serviceId());
+            assertFalse(wss.isActive());
+            wss = wscsi.serviceList().get(1);
+            assertNotNull(wss);
+            assertEquals("DIRECT_FEED1", wss.serviceName());
+            assertEquals(2, wss.serviceId());
+            assertFalse(wss.isActive());
+
+            consumer.unregister(itemHandle);
 		}
 		catch (Exception ex)
 		{
@@ -13844,21 +14054,21 @@ public class MultiConnectionsTests {
                         ch3Count++;
                         assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
                         assertEquals("Connection_25", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+                        assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
                     }
                     else if (channelInfo.channelName().equals("Channel_1"))
                     {
                         ch1Count++;
                         assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
                         assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                        assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                     }
                     else if (channelInfo.channelName().equals("Channel_7"))
                     {
                         ch7Count++;
                         assertEquals("Open / Suspect / None / 'session channel up'", statusMsg.state().toString());
                         assertEquals("Connection_25", channelInfo.sessionChannelName());
-                        assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                        assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                     }
                     else
                         assertFalse(true);
@@ -13877,7 +14087,7 @@ public class MultiConnectionsTests {
                     assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
                     assertEquals("Channel_7", channelInfo.channelName());
                     assertEquals("Connection_25", channelInfo.sessionChannelName());
-                    assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+                    assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
                 }
                 else
                     assertFalse(true);
@@ -13916,7 +14126,7 @@ public class MultiConnectionsTests {
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Kills Provider1 to close Channel_1 */
 			ommprovider1.uninitialize();
@@ -13931,7 +14141,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -13948,7 +14158,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Receives the refresh message from the starting server of  WarmStandbyChannel_2*/
 			message = consumerClient.popMessage();
@@ -13967,7 +14177,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Closes the starting server of WarmStandbyChannel_2 */
 			ommprovider4.uninitialize();
@@ -13989,7 +14199,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Receives the unsolicited refresh message from the standby server of WarmStandbyChannel_2 */
 			message = consumerClient.popMessage();
@@ -14008,7 +14218,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(1000);
 			
@@ -14020,7 +14230,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
 			assertEquals("Connection_1_1", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 			
 			Thread.sleep(1000);
 			
@@ -14041,7 +14251,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
             statusMsg = (StatusMsg)message;
@@ -14054,7 +14264,7 @@ public class MultiConnectionsTests {
             if ( channelInfo.channelName().equals("Channel_7"))
             {
                 assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
-                assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+                assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 
                 message = consumerClient.popMessage();
                 statusMsg = (StatusMsg)message;
@@ -14065,19 +14275,19 @@ public class MultiConnectionsTests {
                 assertEquals("Channel_8", channelInfo.channelName());
                 assertEquals("Connection_25", channelInfo.sessionChannelName());
                 assertEquals("Open / Suspect / None / 'session channel down reconnecting'", statusMsg.state().toString());
-                assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 
             }
             else if (channelInfo.channelName().equals("Channel_8"))
             {
                 assertEquals("Open / Ok / None / 'session channel down reconnecting'", statusMsg.state().toString());
-                assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+                assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
             }
             else
             {
                 fail("Unexpected channel name: " + channelInfo.channelName());
             }
-			
+
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
 			assertEquals(5, statusMsg.streamId());
@@ -14093,7 +14303,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -14103,7 +14313,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -14113,7 +14323,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			
@@ -14130,7 +14340,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -14140,7 +14350,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives the refresh message from the starting server of  WarmStandbyChannel_1 */
 			message = consumerClient.popMessage();
@@ -14159,7 +14369,7 @@ public class MultiConnectionsTests {
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
 			assertEquals("Connection_25", channelInfo.sessionChannelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			consumer.unregister(itemHandle);
 		}
@@ -14420,7 +14630,7 @@ public class MultiConnectionsTests {
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
 			System.out.println("\n >>>>>>>>>>>>>>>>>>>>>>>>> Closing Provider_3 (active for DIRECT_FEED1) \n");
 			// kill Provider_3, Consumer should fallback to Standby server
@@ -14872,7 +15082,7 @@ public class MultiConnectionsTests {
 					assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 					channelInfo = consumerClient.popChannelInfo();
 					assertEquals("Channel_3", channelInfo.channelName());
-					assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+					assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 				}
 				else
 				{
@@ -17184,3 +17394,4 @@ public class MultiConnectionsTests {
         }
     }
 }
+

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -52,6 +52,7 @@ class OmmStateImpl extends DataImpl implements OmmState
 	private final static String DACSUSERACCESSTOAPPDENIED_STRING = "DacsUserAccessToAppDenied";
 	private final static String GAPFILL_STRING = "GapFill";
 	private final static String APPAUTHORIZATIONFAILED_STRING = "AppAuthorizationFailed";
+	private final static String WSB_CHANGE_ACTIVE_COMPLETE_STRING = "WsbChangeActiveComplete";
 	private final static String PREFERRED_HOST_STARTING_FALLBACK_STRING = "PreferredHostStartingFallback";
 	private final static String PREFERRED_HOST_COMPLETE_STRING = "PreferredHostComplete";
 	private final static String PREFERRED_HOST_NO_FALLBACK_STRING = "PreferredHostNoFallback";
@@ -171,6 +172,8 @@ class OmmStateImpl extends DataImpl implements OmmState
 				return GAPFILL_STRING;
 			case StatusCode.APP_AUTHORIZATION_FAILED :
 				return APPAUTHORIZATIONFAILED_STRING;
+			case StatusCode.WSB_CHANGE_ACTIVE_COMPLETE:
+				return WSB_CHANGE_ACTIVE_COMPLETE_STRING;
 			case StatusCode.PREFERRED_HOST_START_FALLBACK:
 				return PREFERRED_HOST_STARTING_FALLBACK_STRING;
 			case StatusCode.PREFERRED_HOST_COMPLETE:

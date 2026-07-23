@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2022,2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -33,14 +33,16 @@ class ReactorDebuggerOptionsImpl implements ReactorDebuggerOptions {
 
     @Override
     public void enableLevel(int level) {
-        if (level == ReactorDebuggerLevels.LEVEL_CONNECTION || level == ReactorDebuggerLevels.LEVEL_EVENTQUEUE || level == ReactorDebuggerLevels.LEVEL_TUNNELSTREAM) {
+        if (level == ReactorDebuggerLevels.LEVEL_CONNECTION || level == ReactorDebuggerLevels.LEVEL_EVENTQUEUE
+                || level == ReactorDebuggerLevels.LEVEL_TUNNELSTREAM || level == ReactorDebuggerLevels.LEVEL_WARMSTANDBY) {
             _debuggingLevels |= level;
         }
     }
 
     @Override
     public void disableLevel(int level) {
-        if (level == ReactorDebuggerLevels.LEVEL_CONNECTION || level == ReactorDebuggerLevels.LEVEL_EVENTQUEUE || level == ReactorDebuggerLevels.LEVEL_TUNNELSTREAM) {
+        if (level == ReactorDebuggerLevels.LEVEL_CONNECTION || level == ReactorDebuggerLevels.LEVEL_EVENTQUEUE
+                || level == ReactorDebuggerLevels.LEVEL_TUNNELSTREAM || level == ReactorDebuggerLevels.LEVEL_WARMSTANDBY) {
             _debuggingLevels &= ~level;
         }
     }
@@ -58,6 +60,11 @@ class ReactorDebuggerOptionsImpl implements ReactorDebuggerOptions {
     @Override
     public boolean debugTunnelStreamLevel() {
         return (_debuggingLevels & ReactorDebuggerLevels.LEVEL_TUNNELSTREAM) != 0;
+    }
+
+    @Override
+    public boolean debugWarmStandbyLevel() {
+        return (_debuggingLevels & ReactorDebuggerLevels.LEVEL_WARMSTANDBY) != 0;
     }
 
     @Override

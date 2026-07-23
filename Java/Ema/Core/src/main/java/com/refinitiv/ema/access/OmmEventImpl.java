@@ -2,12 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.access;
 
+import java.util.Collections;
 import java.util.List;
 import com.refinitiv.ema.access.OmmProviderConfig.ProviderRole;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -22,7 +23,9 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	ReactorChannel _channel;
 	ChannelInformationImpl _channelInfo;
 	OmmBaseImpl<T> _ommBaseImpl;
-	
+	WarmStandbyChangeEventInfo _warmStandbyChangeEventInfo;
+	SessionInformation _sessionInformation;
+
 	OmmEventImpl(OmmBaseImpl<T> baseImpl)
 	{
 		_ommBaseImpl = baseImpl;
@@ -209,5 +212,56 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 				}
 			}
 		}	
+	}
+
+	@Override
+	public WarmStandbyChangeEventInfo warmStandbyChangeEventInfo()
+	{
+		return _warmStandbyChangeEventInfo;
+	}
+
+	void warmStandbyChangeEventInfo(WarmStandbyChangeEventInfo warmStandbyChangeEventInfo)
+	{
+		_warmStandbyChangeEventInfo = warmStandbyChangeEventInfo;
+	}
+
+	@Override
+	public SessionInformation sessionInformation(List<String> serviceNames)
+	{
+		if (serviceNames == null)
+		{
+			return null;
+		}
+
+		if (!(_ommBaseImpl instanceof OmmConsumerImpl))
+		{
+			return null;
+		}
+
+ 		if (_sessionInformation == null)
+		{
+			_sessionInformation = EmaFactory.createSessionInformation();
+		}
+		else
+		{
+			_sessionInformation.clear();
+		}
+
+		try
+		{
+			((OmmConsumerImpl) _ommBaseImpl).sessionInformation(_sessionInformation, serviceNames);
+		}
+		catch (OmmInvalidUsageException e)
+		{
+			return null;
+		}
+
+		return _sessionInformation;
+	}
+
+	@Override
+	public SessionInformation sessionInformation()
+	{
+		return sessionInformation(Collections.emptyList());
 	}
 }

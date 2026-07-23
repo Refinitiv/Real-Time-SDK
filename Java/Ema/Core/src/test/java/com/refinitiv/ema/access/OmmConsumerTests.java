@@ -13,14 +13,16 @@ import com.refinitiv.ema.RetryRule;
 import com.refinitiv.ema.unittest.TestUtilities;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login.ServerTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 
 import junit.framework.TestCase;
 
+import static com.refinitiv.ema.access.ChannelInformation.*;
+import static com.refinitiv.ema.access.WarmStandbyServiceBasedChannelInformation.*;
 import static org.junit.Assert.assertThrows;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -3701,6 +3703,7 @@ public class OmmConsumerTests extends TestCase
 		ConsumerTestOptions consumerOption = new ConsumerTestOptions();
 		
 		consumerOption.getChannelInformation = true;
+		consumerOption.getWsbChangeEventInfo = true;
 		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
 		
 		OmmProvider ommprovider5 = null;
@@ -3710,10 +3713,13 @@ public class OmmConsumerTests extends TestCase
 		
 		try
 		{
-			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_23"), consumerClient);
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation)
+					.wsbChangeEventInfo(true).consumerName("Consumer_23"), consumerClient);
 			
 			System.out.println("consumerClient.channelInfoSize() = "+ consumerClient.channelInfoSize());
-			
+
+			System.out.println("consumerClient.wsbChangeEventInfoSize() = "+ consumerClient.wsbChangeEventInfoSize());
+
 			System.out.println("consumerClient.queueSize() = " + consumerClient.queueSize());
 			
 			String serviceName = "DIRECT_FEED";
@@ -3766,7 +3772,48 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(1, recvReq.serviceId());
 			
 			Thread.sleep(1000);
-			
+
+			// Checks the warm standby channel information
+			WarmStandbyChannelInformation wsbChannelInfo = consumer.getWarmStandbyChannelInformation();
+			System.out.println("Warm Standby Channel Information: " + wsbChannelInfo.toString());
+			assertTrue(wsbChannelInfo instanceof WarmStandbyServiceBasedChannelInformation);
+			WarmStandbyServiceBasedChannelInformation wsbServiceChannelInfo =
+					(WarmStandbyServiceBasedChannelInformation) wsbChannelInfo;
+			assertEquals(WarmStandbyMode.SERVICE_BASED, wsbServiceChannelInfo.warmStandbyMode());
+			assertEquals("WarmStandbyChannel_3", wsbServiceChannelInfo.warmStandbyGroupName());
+			wsbServiceChannelInfo.perChannelServiceList().sort(Comparator.comparingInt(info -> info.channel().port()));
+			assertEquals(2, wsbServiceChannelInfo.perChannelServiceList().size());
+
+			WarmStandbyPerChannelServiceInfo channel = wsbServiceChannelInfo.perChannelServiceList().get(0);
+			assertEquals("Channel_3", channel.channel().channelName());
+			assertEquals("localhost", channel.channel().hostname());
+			assertEquals(19003, channel.channel().port());
+			assertEquals(ConnectionType.SOCKET, channel.channel().connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.channel().encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.channel().protocolType());
+			assertNotNull(channel.channel().userSpecObject());
+			assertEquals(1, channel.serviceList().size());
+			WarmStandbyService wsbService = channel.serviceList().get(0);
+			assertEquals(serviceId, wsbService.serviceId());
+			assertEquals(serviceId, wsbService.serviceId());
+			assertEquals("DIRECT_FEED", wsbService.serviceName());
+			assertTrue(wsbService.isActive());
+
+			channel = wsbServiceChannelInfo.perChannelServiceList().get(1);
+			assertEquals("Channel_6", channel.channel().channelName());
+			assertEquals("localhost", channel.channel().hostname());
+			assertEquals(19006, channel.channel().port());
+			assertEquals(ConnectionType.SOCKET, channel.channel().connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.channel().encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.channel().protocolType());
+			assertNotNull(channel.channel().userSpecObject());
+			assertEquals(1, channel.serviceList().size());
+			wsbService = channel.serviceList().get(0);
+			assertEquals(serviceId, wsbService.serviceId());
+			assertEquals(serviceId, wsbService.serviceId());
+			assertEquals("DIRECT_FEED", wsbService.serviceName());
+			assertFalse(wsbService.isActive());
+
 			/* Checks the item refresh messages from the starting server of Connection_13 */
 			message = consumerClient.popMessage();
 			
@@ -3781,9 +3828,34 @@ public class OmmConsumerTests extends TestCase
 			assertTrue(refreshMsg.hasMsgKey());
 			assertEquals(DataTypes.NO_DATA, refreshMsg.payload().dataType());
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
-			
+
+			/* Checks the login status message and wsb change event */
 			message = consumerClient.popMessage();
-			
+			StatusMsg statusMsg = (StatusMsg)message;
+
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertTrue(statusMsg.hasState());
+			assertEquals("Open / Ok / WsbChangeActiveComplete / 'service DIRECT_FEED switched from N/A to Channel_3'",
+					statusMsg.state().toString());
+			assertEquals(OmmState.StatusCode.WSB_CHANGE_ACTIVE_COMPLETE, statusMsg.state().statusCode());
+			assertTrue(statusMsg.hasName());
+			assertTrue(statusMsg.hasNameType());
+			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
+			ChannelInformation channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_3", channelInfo.channelName());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
+			WarmStandbyChangeEventInfo wsbChangeEventInfo = consumerClient.popWsbChangeEventInfo();
+			assertEquals(WarmStandbyMode.SERVICE_BASED, wsbChangeEventInfo.warmStandbyMode());
+			assertEquals(1, wsbChangeEventInfo.serviceId());
+			assertEquals("DIRECT_FEED", wsbChangeEventInfo.serviceName());
+			assertEquals("Channel_3", wsbChangeEventInfo.currentChannelName());
+			assertEquals("WarmStandbyChannel_3", wsbChangeEventInfo.wsbGroupName());
+			assertTrue(wsbChangeEventInfo.sessionChannelName().isEmpty());
+			assertNull(wsbChangeEventInfo.previousChannelName());
+
+			message = consumerClient.popMessage();
+
 			/* Checks the market price item refresh */
 			refreshMsg = (RefreshMsg)message;
 			
@@ -3799,9 +3871,9 @@ public class OmmConsumerTests extends TestCase
 			assertTrue(refreshMsg.hasServiceName());
 			assertEquals(serviceName, refreshMsg.serviceName());
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
-			ChannelInformation channelInfo = consumerClient.popChannelInfo();
+			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives one generic message and one request message of standby server for the first connection */
 			assertEquals(2, providerClient2.queueSize());
@@ -3850,7 +3922,7 @@ public class OmmConsumerTests extends TestCase
 			message = consumerClient.popMessage();
 			
 			/* Checks login status messages */
-			StatusMsg statusMsg = (StatusMsg)message;
+			statusMsg = (StatusMsg)message;
 			
 			assertEquals(1, statusMsg.streamId());
 			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
@@ -4049,7 +4121,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Receives two generic messages and two request messages of standby server of WarmStandbyChannel_3_1 */
 			assertEquals(4, providerClient2.queueSize());
@@ -4143,7 +4215,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
 			System.out.println("Closing the providerd from WarmStandbyChannel_3_1");
 			/* Kill Provider1 and Provider2 to switch over to the WarmStandbyChannel_4_1 */
@@ -4174,7 +4246,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
@@ -4211,7 +4283,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -4229,7 +4301,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName()); // Gets this status message when recovering with the standby channel.
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			
@@ -4250,7 +4322,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
@@ -4269,7 +4341,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 		
 			consumer.unregister(itemHandle);
 			consumer.unregister(itemHandle2);
@@ -4374,7 +4446,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			
@@ -4406,7 +4478,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 
@@ -4426,7 +4498,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_5", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			System.out.println("\nBring down S6 and S5");
@@ -4452,7 +4524,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_9", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 
@@ -4472,7 +4544,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_5", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			// Checks to ensure that the standby sever of WSB-G1 receives the item request message
@@ -4603,7 +4675,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name */
 			message = consumerClient.popMessage();
@@ -4622,7 +4694,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name */
 			message = consumerClient.popMessage();
@@ -4641,7 +4713,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			{
 			// Bring the DIRECT_FEED1(service ID 2) service from  ommprovider4.
@@ -4679,7 +4751,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			{
 			// Bring the DIRECT_FEED(service ID 1) service down from ommprovider3.
@@ -4717,7 +4789,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			{
 				// Bring the DIRECT_FEED1(service ID 2) service up from  ommprovider4.
@@ -4770,7 +4842,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -4782,7 +4854,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider3 again*/
 			message = consumerClient.popMessage();
@@ -4801,7 +4873,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider4 again*/
 			message = consumerClient.popMessage();
@@ -4820,7 +4892,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			// Bring down ommprovider4 and ommprovider3
 			System.out.println("\n\nBring down ommprovider4\n");
@@ -4842,7 +4914,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
@@ -4860,7 +4932,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			System.out.println("\n\nBring down ommprovider3\n");
 			ommprovider3.uninitialize();
@@ -4878,7 +4950,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -4890,7 +4962,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for TRI.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -4907,7 +4979,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for IBM.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -4924,7 +4996,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 
 			Thread.sleep(5000);
 			
@@ -4948,7 +5020,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -4960,7 +5032,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name */
 			message = consumerClient.popMessage();
@@ -4979,7 +5051,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name */
 			message = consumerClient.popMessage();
@@ -4998,7 +5070,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Check the fallback message from detection time internal which doesn't fallback to preferred group as 
 			 * the PHFallBackWithInWSBGroup is set to true. */
@@ -5012,7 +5084,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5024,7 +5096,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			consumer.unregister(itemHandle);
 			consumer.unregister(itemHandle2);			
@@ -5136,7 +5208,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -5155,7 +5227,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -5174,7 +5246,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			List<Integer> serviceIdList = new ArrayList<Integer>();
 			serviceIdList.add(1);
@@ -5216,7 +5288,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider4 */
 			message = consumerClient.popMessage();
@@ -5235,7 +5307,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			System.out.println("\nBring down ommprovider3 and ommprovider4");
 			ommprovider3.uninitialize();
@@ -5257,7 +5329,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5269,7 +5341,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for TRI.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -5286,7 +5358,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for IBM.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -5303,7 +5375,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_8", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			System.out.println("Reactor reconnect to WSB-G1 and WSB-G0");
 			
@@ -5320,7 +5392,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5332,7 +5404,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name */
 			message = consumerClient.popMessage();
@@ -5351,7 +5423,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name */
 			message = consumerClient.popMessage();
@@ -5370,7 +5442,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			System.out.println("Bring up ommprovider3 and ommprovider4 for WSB-G1 again");
 			ommprovider3 = EmaFactory.createOmmProvider(config.port("19007").providerName("Provider_9"), providerClient3);
@@ -5391,7 +5463,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5403,7 +5475,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			consumer.unregister(itemHandle);
 			consumer.unregister(itemHandle2);
@@ -5510,7 +5582,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider */
 			message = consumerClient.popMessage();
@@ -5530,7 +5602,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider */
 			message = consumerClient.popMessage();
@@ -5550,7 +5622,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(3000);
 			
@@ -5576,7 +5648,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5594,7 +5666,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Checks unsolicited refresh message from the standby server of WarmStandbyChannel_3 */
 			message = consumerClient.popMessage();
@@ -5614,7 +5686,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider2 again*/
 			message = consumerClient.popMessage();
@@ -5634,7 +5706,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			System.out.println("\nCall modify IOCTL to enable the PH feature to fallback to WarmStandbyChannel_4.");
 			
@@ -5658,7 +5730,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5670,7 +5742,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5682,7 +5754,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for TRI.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -5700,7 +5772,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for IBM.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -5718,7 +5790,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5730,7 +5802,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			
@@ -5746,7 +5818,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5758,7 +5830,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -5778,7 +5850,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -5798,7 +5870,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Do nothing as it is connected to the preferred WSB group */
 			message = consumerClient.popMessage();
@@ -5811,7 +5883,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			consumer.unregister(itemHandle);
 			consumer.unregister(itemHandle2);
@@ -5918,7 +5990,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider */
 			message = consumerClient.popMessage();
@@ -5938,7 +6010,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider */
 			message = consumerClient.popMessage();
@@ -5958,7 +6030,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(3000);
 			
@@ -5984,7 +6056,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -5996,7 +6068,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6008,7 +6080,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6020,7 +6092,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for TRI.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -6038,7 +6110,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			// Receives the Open/Suspect status message for IBM.N as the channel is down.
 			message = consumerClient.popMessage();
@@ -6056,7 +6128,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6068,7 +6140,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			
@@ -6084,7 +6156,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6096,7 +6168,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for TRI.N with the DIRECT_FEED service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -6116,7 +6188,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			/* Checks market price refresh message for IBM.N with the DIRECT_FEED1 service name from ommprovider3 */
 			message = consumerClient.popMessage();
@@ -6136,7 +6208,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			Thread.sleep(2000);
 			
@@ -6193,6 +6265,7 @@ public class OmmConsumerTests extends TestCase
 		
 		consumerOption.getChannelInformation = true;
 		consumerOption.getSessionChannelInfo = false;
+		consumerOption.getWsbChangeEventInfo = true;
 		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
 		
 		//WSB-G0 (Down at startup for the entire group) (WarmStandbyChannel_1)
@@ -6219,7 +6292,7 @@ public class OmmConsumerTests extends TestCase
 			ConsumerTestOptions options = new ConsumerTestOptions();
 			options.getChannelInformation = true;
 		
-			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_37"), consumerClient);
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).wsbChangeEventInfo(true).consumerName("Consumer_37"), consumerClient);
 			
 			String serviceName = "DIRECT_FEED";
 			String itemName = "TRI.N";
@@ -6237,8 +6310,62 @@ public class OmmConsumerTests extends TestCase
 			assertEquals("Open / Suspect / None / 'channel down'", statusMsg.state().toString());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
-			
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
+
+			// Checks the warm standby channel information
+			WarmStandbyChannelInformation wsbChannelInfo = consumer.getWarmStandbyChannelInformation();
+			System.out.println("Warm Standby Channel Information: " + wsbChannelInfo.toString());
+			assertTrue(wsbChannelInfo instanceof WarmStandbyLoginBasedChannelInformation);
+			WarmStandbyLoginBasedChannelInformation wsbLoginChannelInfo =
+					(WarmStandbyLoginBasedChannelInformation) wsbChannelInfo;
+			assertEquals(WarmStandbyMode.LOGIN_BASED, wsbLoginChannelInfo.warmStandbyMode());
+			assertEquals("WarmStandbyChannel_1", wsbLoginChannelInfo.warmStandbyGroupName());
+			assertEquals(0, wsbLoginChannelInfo.activeChannelIndex());
+
+			wsbLoginChannelInfo.channelsList().sort(Comparator.comparingInt(WarmStandbyChannelDetails::port));
+			assertEquals(2, wsbLoginChannelInfo.channelsList().size());
+
+			WarmStandbyChannelDetails channel = wsbLoginChannelInfo.channelsList().get(0);
+			assertEquals("Channel_3", channel.channelName());
+			assertEquals("localhost", channel.hostname());
+			assertEquals(19003, channel.port());
+			assertEquals(ConnectionType.SOCKET, channel.connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.protocolType());
+			assertNotNull(channel.userSpecObject());
+
+			channel = wsbLoginChannelInfo.channelsList().get(1);
+			assertEquals("Channel_6", channel.channelName());
+			assertEquals("localhost", channel.hostname());
+			assertEquals(19006, channel.port());
+			assertEquals(ConnectionType.SOCKET, channel.connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.protocolType());
+			assertNotNull(channel.userSpecObject());
+
+			/* Checks the login status message and wsb change event */
+			message = consumerClient.popMessage();
+			statusMsg = (StatusMsg)message;
+
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertTrue(statusMsg.hasState());
+			assertEquals("Open / Ok / WsbChangeActiveComplete / 'active channel switched from N/A to Channel_3'",
+					statusMsg.state().toString());
+			assertEquals(OmmState.StatusCode.WSB_CHANGE_ACTIVE_COMPLETE, statusMsg.state().statusCode());
+			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_3", channelInfo.channelName());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
+			WarmStandbyChangeEventInfo wsbChangeEventInfo = consumerClient.popWsbChangeEventInfo();
+			assertEquals(WarmStandbyMode.LOGIN_BASED, wsbChangeEventInfo.warmStandbyMode());
+			assertEquals(-1, wsbChangeEventInfo.serviceId());
+			assertNull(wsbChangeEventInfo.serviceName());
+			assertEquals("Channel_3", wsbChangeEventInfo.currentChannelName());
+			assertEquals("WarmStandbyChannel_1", wsbChangeEventInfo.wsbGroupName());
+			assertTrue(wsbChangeEventInfo.sessionChannelName().isEmpty());
+			assertNull(wsbChangeEventInfo.previousChannelName());
+
 			message = consumerClient.popMessage();
 			RefreshMsg refreshMsg = (RefreshMsg)message;
 						
@@ -6252,7 +6379,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 
 			//Checks the market price item refresh from the starting channel of WSB-G0 as WSB-G1 is down
@@ -6272,7 +6399,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			Thread.sleep(3000);
@@ -6288,7 +6415,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			// Call the method to fallback but the preferred group is not up yet.
@@ -6310,7 +6437,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6323,7 +6450,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			// Start the preferred WSB group WSB-G1
@@ -6346,7 +6473,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6358,7 +6485,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6370,7 +6497,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6382,7 +6509,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6398,7 +6525,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6410,9 +6537,62 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
-			
+
+			// Checks the warm standby channel information
+			wsbChannelInfo = consumer.getWarmStandbyChannelInformation();
+			System.out.println("Warm Standby Channel Information: " + wsbChannelInfo.toString());
+			assertTrue(wsbChannelInfo instanceof WarmStandbyLoginBasedChannelInformation);
+			wsbLoginChannelInfo = (WarmStandbyLoginBasedChannelInformation) wsbChannelInfo;
+			assertEquals(WarmStandbyMode.LOGIN_BASED, wsbLoginChannelInfo.warmStandbyMode());
+			assertEquals("WarmStandbyChannel_2", wsbLoginChannelInfo.warmStandbyGroupName());
+			assertEquals(0, wsbLoginChannelInfo.activeChannelIndex());
+
+			wsbLoginChannelInfo.channelsList().sort(Comparator.comparingInt(WarmStandbyChannelDetails::port));
+			assertEquals(2, wsbLoginChannelInfo.channelsList().size());
+
+			channel = wsbLoginChannelInfo.channelsList().get(0);
+			assertEquals("Channel_7", channel.channelName());
+			assertEquals("localhost", channel.hostname());
+			assertEquals(19007, channel.port());
+			assertEquals(ConnectionType.SOCKET, channel.connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.protocolType());
+			assertNotNull(channel.userSpecObject());
+
+			channel = wsbLoginChannelInfo.channelsList().get(1);
+			assertEquals("Channel_8", channel.channelName());
+			assertEquals("localhost", channel.hostname());
+			assertEquals(19008, channel.port());
+			assertEquals(ConnectionType.SOCKET, channel.connectionType());
+			assertEquals(ConnectionType.UNIDENTIFIED, channel.encryptedConnectionType());
+			assertEquals(ProtocolType.RWF, channel.protocolType());
+			assertNotNull(channel.userSpecObject());
+
+			/* Checks the login status message and wsb change event */
+			message = consumerClient.popMessage();
+			statusMsg = (StatusMsg)message;
+
+			assertEquals(1, statusMsg.streamId());
+			assertEquals(DomainTypes.LOGIN, statusMsg.domainType());
+			assertTrue(statusMsg.hasState());
+			assertEquals("Open / Ok / WsbChangeActiveComplete / 'active channel switched from N/A to Channel_7'",
+					statusMsg.state().toString());
+			assertEquals(OmmState.StatusCode.WSB_CHANGE_ACTIVE_COMPLETE, statusMsg.state().statusCode());
+			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
+			channelInfo = consumerClient.popChannelInfo();
+			assertEquals("Channel_7", channelInfo.channelName());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
+			wsbChangeEventInfo = consumerClient.popWsbChangeEventInfo();
+			assertEquals(WarmStandbyMode.LOGIN_BASED, wsbChangeEventInfo.warmStandbyMode());
+			assertEquals(-1, wsbChangeEventInfo.serviceId());
+			assertNull(wsbChangeEventInfo.serviceName());
+			assertEquals("Channel_7", wsbChangeEventInfo.currentChannelName());
+			assertEquals("WarmStandbyChannel_2", wsbChangeEventInfo.wsbGroupName());
+			assertTrue(wsbChangeEventInfo.sessionChannelName().isEmpty());
+			assertNull(wsbChangeEventInfo.previousChannelName());
+
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
 						
@@ -6426,7 +6606,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			/* Checks login status messages */
@@ -6439,7 +6619,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6460,7 +6640,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			Thread.sleep(10000);
@@ -6478,7 +6658,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_7", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
 			consumer.unregister(itemHandle);
@@ -6809,7 +6989,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals("Open / Suspect / None / 'channel down'", statusMsg.state().toString());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INITIALIZING, channelInfo.channelState());
+			assertEquals(ChannelState.INITIALIZING, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			RefreshMsg refreshMsg = (RefreshMsg)message;
@@ -6824,7 +7004,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 
 			//Checks the market price item refresh from the starting channel of WSB-G0 as WSB-G1 is down
@@ -6844,7 +7024,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			Thread.sleep(6000);
@@ -6862,7 +7042,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			
@@ -6878,7 +7058,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			
@@ -6902,7 +7082,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6915,7 +7095,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6931,7 +7111,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -6943,7 +7123,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6959,7 +7139,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6973,7 +7153,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			message = consumerClient.popMessage();
@@ -6994,7 +7174,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.FIELD_LIST, refreshMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			Thread.sleep(10000);
@@ -7012,7 +7192,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_2", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_2", channelInfo.preferredHostInfo().getChannelName());
 			
 			consumer.unregister(itemHandle);
@@ -7987,7 +8167,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			ChannelInformation channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8006,7 +8186,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8027,7 +8207,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8039,7 +8219,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			refreshMsg = (RefreshMsg)message;
@@ -8054,7 +8234,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8068,7 +8248,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8106,7 +8286,7 @@ public class OmmConsumerTests extends TestCase
                 assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
                 assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
             }
-			
+
 			System.out.println("\nBring up the WSB-G0 again");
 			ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_9"), providerClient_3);
 			ommprovider_6 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_9"), providerClient_6);
@@ -8125,7 +8305,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8139,7 +8319,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8151,7 +8331,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8163,7 +8343,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8180,7 +8360,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8194,7 +8374,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8212,7 +8392,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8231,7 +8411,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8243,7 +8423,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Able to reconnect to Channel_1 */
 			message = consumerClient.popMessage();
@@ -8259,7 +8439,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8273,7 +8453,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8291,7 +8471,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8305,7 +8485,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8328,7 +8508,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8342,7 +8522,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8354,7 +8534,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8366,7 +8546,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8383,7 +8563,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8397,7 +8577,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8419,7 +8599,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8438,7 +8618,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8450,7 +8630,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			/* Able to reconnect to Channel_1 */
 			message = consumerClient.popMessage();
@@ -8466,7 +8646,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8480,7 +8660,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8498,7 +8678,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8512,7 +8692,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8534,7 +8714,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8548,7 +8728,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8560,7 +8740,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_1", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.INACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.INACTIVE, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8572,7 +8752,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.payload().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8589,7 +8769,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.ELEMENT_LIST, refreshMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8603,7 +8783,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_3", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.ACTIVE, channelInfo.channelState());
+			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("Channel_1", channelInfo.preferredHostInfo().getChannelName());
 			assertEquals("WarmStandbyChannel_1", channelInfo.preferredHostInfo().getWsbChannelName());
 			
@@ -8624,7 +8804,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 			
 			message = consumerClient.popMessage();
 			statusMsg = (StatusMsg)message;
@@ -8636,7 +8816,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(DataTypes.NO_DATA, statusMsg.attrib().dataType());
 			channelInfo = consumerClient.popChannelInfo();
 			assertEquals("Channel_6", channelInfo.channelName());
-			assertEquals(ChannelInformation.ChannelState.CLOSED, channelInfo.channelState());
+			assertEquals(ChannelState.CLOSED, channelInfo.channelState());
 		}
 		catch(Exception exp)
 		{

@@ -1901,7 +1901,12 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.directoryMsgCallback(_baseImpl.directoryCallbackClient());
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
-		
+
+		if (configImpl.wsbChangeEventInfo())
+		{
+			consumerRole.wsbChangeEventCallback(_baseImpl.loginCallbackClient());
+		}
+
 		ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
 		
 		oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());

@@ -12,7 +12,7 @@ Distribution Server.
 ex511_RequestRouting_ProgrammaticCfg showcases an usage of the request routing
 feature to route market data item requests to multiple connections depending
 on the availability of each connection. This example gets a session channel
-information from OmmConsumerEvent.
+information and a session information from OmmConsumerEvent.
 
 This example uses the programmatic configuration to enable the request routing feature.
 

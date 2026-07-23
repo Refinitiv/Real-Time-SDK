@@ -12,7 +12,7 @@ Distribution Server.
 ex510_RequestRouting_FileCfg showcases an usage of the request routing
 feature to route market data item requests to multiple connections depending
 on the availability of each connection. This example gets a session information 
-from OmmConsumerEvent to display all session information.
+from OmmConsumerEvent and OmmConsumer to display all session information.
 
 This example uses the file configuration to enable the request routing feature.
 
@@ -36,6 +36,7 @@ ex510_RequestRouting_FileCfg implements the following high-level steps:
 + Opens a streaming item interest
   - MarketPrice Domain LSEG.L item from SVG1 service
 + Processes data received from API for 60 seconds
+  - get session information from OmmConsumer and display it
   - all received messages are processed on API thread of control
 + Exits
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -334,5 +334,60 @@ public interface OmmConsumer
 	 * @param sessionChannelInfo the ChannelInformation List
 	 */
 	public void sessionChannelInfo(List<ChannelInformation> sessionChannelInfo);
-}
 
+	/**
+	 * Returns warm standby channel information.
+	 *
+	 * <p>The returned object contains information for all services reported by the underlying
+	 * warm standby channel and is one of the concrete subclasses of
+	 * {@link WarmStandbyChannelInformation} based on the configured warm standby mode.</p>
+	 *
+	 * @return warm standby channel information
+	 * @throws OmmInvalidUsageException if the reactor is not available or there is no active channel
+	 */
+	public WarmStandbyChannelInformation getWarmStandbyChannelInformation();
+
+	/**
+	 * Returns warm standby channel information, optionally filtered by service name.
+	 *
+	 * <p>If {@code serviceNames} is empty, the returned object contains information for all
+	 * services reported by the underlying warm standby channel. Otherwise, the returned object
+	 * contains information only for the specified services.</p>
+	 *
+	 * @param serviceNames service names used to filter the returned warm standby channel information
+	 * @return warm standby channel information
+	 * @throws OmmInvalidUsageException if {@code serviceNames} is {@code null}, the reactor is not
+	 *         available, or there is no active channel
+	 */
+	public WarmStandbyChannelInformation getWarmStandbyChannelInformation(List<String> serviceNames);
+
+	/**
+	 * Populates session information for the OmmConsumer object.
+	 *
+	 * <p>The supplied {@link SessionInformation} instance is cleared and then populated with
+	 * standard channel entries and warm standby session information associated with this
+	 * OmmConsumer object.</p>
+	 *
+	 * @param sessionInformation the SessionInformation instance to populate
+	 * @throws OmmInvalidUsageException if {@code sessionInformation} is {@code null}, the consumer
+	 *         session is not available, or the reactor is not available
+	 */
+	public void sessionInformation(SessionInformation sessionInformation);
+
+	/**
+	 * Populates session information for the OmmConsumer object, optionally filtered by service name.
+	 *
+	 * <p>The supplied {@link SessionInformation} instance is cleared and then populated with
+	 * standard channel entries and warm standby session information associated with this
+	 * OmmConsumer object. If {@code serviceNames} is empty, the populated object contains
+	 * information for all available services. Otherwise, the populated object contains
+	 * information only for the specified services.</p>
+	 *
+	 * @param sessionInformation the SessionInformation instance to populate
+	 * @param serviceNames service names used to filter the populated session information
+	 * @throws OmmInvalidUsageException if {@code sessionInformation} is {@code null},
+	 *         {@code serviceNames} is {@code null}, the consumer session is not available,
+	 *         or the reactor is not available
+	 */
+	public void sessionInformation(SessionInformation sessionInformation, List<String> serviceNames);
+}

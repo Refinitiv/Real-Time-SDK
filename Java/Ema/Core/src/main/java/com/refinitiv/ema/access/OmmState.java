@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -183,6 +183,9 @@ public interface OmmState extends Data
 		
 		/** Preferred host no fallback */
 		public static final int PREFERRED_HOST_NO_FALLBACK 	= 203;
+
+		/** Warm standby change active completed */
+		public static final int WSB_CHANGE_ACTIVE_COMPLETE		= 204;
 
 		/** @deprecated Not Used */
 	    @Deprecated

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2022-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -586,7 +586,17 @@ public class wsbConsumerConfig
 	{
 		return CommandLine.hasArg("ioctlFallBackWithinWSBGroup");
 	}
-	
+
+	boolean enableWsbChangeEvents()
+	{
+		return CommandLine.booleanValue("wsbChangeEvents");
+	}
+
+	boolean enableWsbChannelInfoEvents()
+	{
+		return CommandLine.booleanValue("wsbChannelInfoEvents");
+	}
+
 	int itemCount()
 	{
 		return itemList.size();
@@ -939,6 +949,8 @@ public class wsbConsumerConfig
 		CommandLine.addOption("reconnectMinDelay", 500, "Specifies minimum delay (in milliseconds) between reconnection attempts. Default is 500");
 		CommandLine.addOption("reconnectMaxDelay", 6000, "Specifies maximum delay (in milliseconds) between reconnection attempts. Default is 6000");
 
+		CommandLine.addOption("wsbChangeEvents", "Provides Warm Standby change events.");
+		CommandLine.addOption("wsbChannelInfoEvents", "Provides Warm Standby channel info events.");
 	}
 }
 

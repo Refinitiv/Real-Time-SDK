@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -32,18 +32,11 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
-import com.refinitiv.eta.valueadd.reactor.RDMLoginMsgCallback;
-import com.refinitiv.eta.valueadd.reactor.RDMLoginMsgEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.*;
 
 
-class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCallback
+class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCallback,
+		ReactorWarmStandbyChangeEventCallback
 {
 	private static final String CLIENT_NAME 	= "LoginCallbackClient";
 	private static final int REFRESH_MSG_SIZE 	= 512;
@@ -65,7 +58,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	private final OmmBaseImpl<T>	_ommBaseImpl;
 	private LoginRefresh			_loginRefresh;
 	private String					_loginFailureMsg;
-    
+
 	LoginCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		 super(baseImpl, CLIENT_NAME);
@@ -570,14 +563,14 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 					if (_baseImpl.loggerClient().isWarnEnabled())
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
-						
+
 			        	temp.append("Received RDMLogin status message without the state").append(OmmLoggerClient.CR)
 			        		.append(loginMsg);
-			        	
+
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
 				}
-	
+
 				if(notifyStatusMsg)
 				{
 					processStatusMsg(msg, rsslReactorChannel, loginMsg);
@@ -717,7 +710,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	}
 	
 	int processStatusMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, LoginMsg loginMsg)
-	{		
+	{
 		if (rsslMsg != null)
 		{
 			if (_statusMsg == null)
@@ -759,7 +752,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		    	_statusMsg._isUpdatedAfterCopying = true;
 		    }
 		}
-		
+
 		int itemSize = _loginItemList.size();
 		for (int idx = 0; idx < itemSize; ++idx)
 		{
@@ -1343,7 +1336,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		}
 	}
 
-	private void prepareAndSendStatusMsg(ReactorChannelEvent event, State state) {
+	void prepareAndSendStatusMsg(ReactorEvent event, State state)
+	{
 		populateStatusMsg();
 
 		_rsslStatusMsg.state(state);
@@ -1361,14 +1355,21 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			notifyOnStatusMsg();
 		}
 	}
+
+	@Override
+	public int reactorWarmStandbyChangeEventCallback(ReactorWarmStandbyChangeEvent event)
+	{
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 }
 
 class LoginCallbackClientConsumer extends LoginCallbackClient<OmmConsumerClient>
 {
-	LoginCallbackClientConsumer(OmmBaseImpl<OmmConsumerClient> baseImpl) {
+	LoginCallbackClientConsumer(OmmBaseImpl<OmmConsumerClient> baseImpl)
+	{
 		super(baseImpl);
 	}
-	
+
 	@Override
 	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg)
 	{
@@ -1397,6 +1398,71 @@ class LoginCallbackClientConsumer extends LoginCallbackClient<OmmConsumerClient>
 	void notifyOnAckMsg()
 	{
 		_eventImpl._item.client().onAckMsg(_ackMsg, _eventImpl);
+	}
+
+	@Override
+	public int reactorWarmStandbyChangeEventCallback(ReactorWarmStandbyChangeEvent event)
+	{
+		if (loginItemList() == null)
+			return ReactorCallbackReturnCodes.SUCCESS;
+
+		if (event == null)
+			return ReactorCallbackReturnCodes.FAILURE;
+
+		State state = rsslState();
+		if (_statusMsg == null)
+			_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
+
+		StringBuilder stateText = _baseImpl.strBuilder();
+		switch (event.warmStandbyMode())
+		{
+			case ReactorWarmStandbyMode.LOGIN_BASED:
+				stateText.append("active channel switched from ")
+						.append(event.prevChannel() != null &&
+								event.prevChannel().userSpecObject() instanceof ChannelInfo ?
+								((ChannelInfo) event.prevChannel().userSpecObject()).name() : "N/A")
+						.append(" to ")
+						.append(event.currentChannel() != null
+								&& event.currentChannel().userSpecObject() instanceof ChannelInfo ?
+								((ChannelInfo) event.currentChannel().userSpecObject()).name() : "N/A");
+				break;
+			case ReactorWarmStandbyMode.SERVICE_BASED:
+				stateText.append("service ")
+						.append(event.serviceName() == null ? "N/A" : event.serviceName())
+						.append(" switched from ")
+						.append(event.prevChannel() != null &&
+								event.prevChannel().userSpecObject() instanceof ChannelInfo ?
+								((ChannelInfo) event.prevChannel().userSpecObject()).name() : "N/A")
+						.append(" to ")
+						.append(event.currentChannel() != null
+								&& event.currentChannel().userSpecObject() instanceof ChannelInfo ?
+								((ChannelInfo) event.currentChannel().userSpecObject()).name() : "N/A");
+				break;
+			default:
+				stateText.append("Unknown warm standby mode");
+				break;
+		}
+
+		state.streamState(StreamState.OPEN);
+		state.dataState(DataState.OK);
+		state.code(OmmState.StatusCode.WSB_CHANGE_ACTIVE_COMPLETE);
+		state.text().data(stateText.toString());
+
+		_eventImpl._channel = event.reactorChannel();
+		ChannelInformation ci = _eventImpl.channelInformation();
+		if (_eventImpl.warmStandbyChangeEventInfo() == null)
+		{
+			_eventImpl.warmStandbyChangeEventInfo(WarmStandbyChangeEventInfoImpl.create(event, ci.sessionChannelName()));
+		}
+		else
+		{
+			((WarmStandbyChangeEventInfoImpl)_eventImpl.warmStandbyChangeEventInfo())
+					.update(event, ci.sessionChannelName());
+		}
+
+		prepareAndSendStatusMsg(event, state);
+
+		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 }
 
@@ -1967,4 +2033,4 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 	}
 }
 	
-	
+

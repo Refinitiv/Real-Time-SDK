@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,6 +12,7 @@ import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.valueadd.reactor.*;
 import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialRenewalOptions.RenewalModes;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -1026,5 +1027,244 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		{
 			userLock().unlock();
 		}
+	}
+
+	@Override
+	public WarmStandbyChannelInformation getWarmStandbyChannelInformation(List<String> serviceNames)
+	{
+		super.userLock().lock();
+		try
+		{
+			if (serviceNames == null)
+			{
+				strBuilder().append("serviceNames cannot be null.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				return null;
+			}
+
+			if (_rsslReactor == null)
+			{
+				strBuilder().append("Reactor is not set.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+				return null;
+			}
+
+			if (_loginCallbackClient == null)
+			{
+				strBuilder().append("loginCallbackClient is not set.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+				return null;
+			}
+
+			ChannelInfo activeChannelInfo = _loginCallbackClient.activeChannelInfo();
+			if (activeChannelInfo == null || activeChannelInfo.rsslReactorChannel() == null)
+			{
+				strBuilder().append("No active channel for getting warm standby information.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+				return null;
+			}
+
+			final WarmStandbyChannelInformation[] wsbChannelInfoHolder = { null };
+
+			ReactorChannel reactorChannel = activeChannelInfo.rsslReactorChannel();
+			if (_rsslReactor.getWarmStandbyChannelInfo(reactorChannel,
+					event -> processEtaWsbEvent(event, wsbChannelInfoHolder),
+					serviceNames, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
+			{
+				strBuilder().append("Failed to get warm standby channel info from reactor. Error text: ")
+						.append(_rsslErrorInfo.error().text());
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+				return null;
+			}
+
+			if (wsbChannelInfoHolder[0] == null)
+			{
+				strBuilder().append("Failed to get warm standby channel info: callback reported an error.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+				return null;
+			}
+
+			return wsbChannelInfoHolder[0];
+		}
+		finally
+		{
+			super.userLock().unlock();
+		}
+	}
+
+	/**
+	 * Translates an ETA warm standby channel info event into the EMA warm standby representation.
+	 *
+	 * <p>The output holder is populated with either login-based or service-based channel information
+	 * depending on the ETA event subtype. When available, the warm standby group name is copied from
+	 * the parent channel metadata.</p>
+	 *
+	 * @param etaEvent ETA warm standby channel info event to translate
+	 * @param emaEvent single-element holder used to return the translated EMA warm standby information
+	 * @return {@link ReactorCallbackReturnCodes#SUCCESS} when translation succeeds, or
+	 *         {@link ReactorCallbackReturnCodes#FAILURE} when the event is invalid or unsupported
+	 */
+	int processEtaWsbEvent(ReactorWarmStandbyChannelInfoEvent etaEvent, WarmStandbyChannelInformation[] emaEvent)
+	{
+		if (etaEvent == null)
+		{
+			strBuilder().append("Eta warm standby channel info event is null.");
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+
+			return ReactorCallbackReturnCodes.FAILURE;
+		}
+
+		if (emaEvent == null)
+		{
+			strBuilder().append("Ema warm standby channel info event holder is null.");
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+
+			return ReactorCallbackReturnCodes.FAILURE;
+		}
+
+		if (etaEvent instanceof ReactorWarmStandbyLoginBasedChannelInfoEvent)
+		{
+			ReactorWarmStandbyLoginBasedChannelInfoEvent loginBasedChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) etaEvent;
+			emaEvent[0] = WarmStandbyLoginBasedChannelInformation.create(loginBasedChannelInfoEvent);
+		}
+		else if (etaEvent instanceof ReactorWarmStandbyServiceBasedChannelInfoEvent)
+		{
+			ReactorWarmStandbyServiceBasedChannelInfoEvent serviceBasedChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) etaEvent;
+			emaEvent[0] = WarmStandbyServiceBasedChannelInformation.create(serviceBasedChannelInfoEvent);
+		}
+		else // This should never happen as the callback is registered for both login-based and service-based warm standby modes, but handle it just in case
+		{
+			emaEvent[0] = null;
+			strBuilder().append("Unknown warm standby mode received in warm standby channel info event: ")
+					.append(etaEvent.warmStandbyMode());
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+
+			return ReactorCallbackReturnCodes.FAILURE;
+		}
+
+		if (etaEvent.reactorChannel() != null && etaEvent.reactorChannel().userSpecObj() instanceof ChannelInfo)
+		{
+			ChannelInfo channelInfo = (ChannelInfo) etaEvent.reactorChannel().userSpecObj();
+			ChannelInfo parentChannelInfo = channelInfo.getParentChannel();
+			if (parentChannelInfo != null)
+			{
+				emaEvent[0].warmStandbyGroupName(parentChannelInfo.name());
+			}
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	@Override
+	public WarmStandbyChannelInformation getWarmStandbyChannelInformation()
+	{
+		return getWarmStandbyChannelInformation(Collections.emptyList());
+	}
+
+	@Override
+	public void sessionInformation(SessionInformation sessionInformation, List<String> serviceNames)
+	{
+
+		userLock().lock();
+		try
+		{
+			if (sessionInformation == null)
+			{
+				strBuilder().append("sessionInformation cannot be null.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				return;
+			}
+
+ 			if (serviceNames == null)
+			{
+				strBuilder().append("serviceNames cannot be null.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+				return;
+			}
+
+			if (consumerSession() == null)
+			{
+				strBuilder().append("Consumer session is null.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+				return;
+			}
+
+			if (_rsslReactor == null)
+			{
+				strBuilder().append("Reactor is not set.");
+				handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+				return;
+			}
+
+			sessionInformation.clear();
+			List<ChannelInformation> channelList = sessionInformation.channelList();
+			List<WarmStandbyChannelInformation> warmStandbyChannelList = sessionInformation.warmStandbyChannelList();
+			List<BaseSessionChannelInfo<OmmConsumerClient>> sessionChannelInfoList = consumerSession().sessionChannelList();
+			if (sessionChannelInfoList != null && !sessionChannelInfoList.isEmpty())
+			{
+				ChannelInfo channelInfo;
+				ChannelInformationImpl channelInfoImpl;
+				for (BaseSessionChannelInfo<OmmConsumerClient> sessionChInfo : sessionChannelInfoList)
+				{
+					if (sessionChInfo != null)
+					{
+						ReactorChannel reactorChannel = sessionChInfo.reactorChannel();
+						if (reactorChannel != null)
+						{
+							if (reactorChannel.reactorChannelType() == ReactorChannelType.NORMAL)
+							{
+								channelInfo = (ChannelInfo)reactorChannel.userSpecObj();
+								if (channelInfo != null)
+								{
+									channelInfoImpl = new ChannelInformationImpl();
+									populateChannelInfomation(channelInfoImpl, reactorChannel, channelInfo);
+									channelList.add(channelInfoImpl);
+								}
+							}
+							else if (reactorChannel.reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+							{
+								final WarmStandbyChannelInformation[] wsbChannelInfoHolder = { null };
+								if (_rsslReactor.getWarmStandbyChannelInfo(reactorChannel,
+										event -> processEtaWsbEvent(event, wsbChannelInfoHolder),
+										serviceNames, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
+								{
+									sessionInformation.clear();
+									strBuilder().append("Failed to get warm standby channel info from reactor. Error text: ")
+											.append(_rsslErrorInfo.error().text());
+									handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+									return;
+								}
+
+								if (wsbChannelInfoHolder[0] == null)
+								{
+									sessionInformation.clear();
+									strBuilder().append("Failed to get warm standby channel info: callback reported an error.");
+									handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+									return;
+								}
+
+								if (sessionChInfo.sessionChannelConfig() != null)
+								{
+									wsbChannelInfoHolder[0].sessionChannelName(sessionChInfo.sessionChannelConfig().name);
+								}
+								warmStandbyChannelList.add(wsbChannelInfoHolder[0]);
+							}
+						}
+					}
+				}
+			}
+		}
+		finally
+		{
+			userLock().unlock();
+		}
+	}
+
+	@Override
+	public void sessionInformation(SessionInformation sessionInformation)
+	{
+		sessionInformation(sessionInformation, Collections.emptyList());
 	}
 }

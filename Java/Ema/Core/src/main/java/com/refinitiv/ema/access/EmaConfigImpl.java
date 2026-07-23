@@ -154,6 +154,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private long								_negativeUpdateTypeFilter;
 
 	private boolean 							_adminLoginMsgSet = false;
+	private boolean 							_wsbChangeEventInfoEnabled;
 
 	EmaConfigImpl()
 	{
@@ -228,6 +229,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		_negativeUpdateTypeFilter = 0;
 
 		_adminLoginMsgSet = false;
+		_wsbChangeEventInfoEnabled = false;
 	}
 
 	protected void updateTypeFilterInt(long value) {
@@ -1095,6 +1097,16 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	}
 
 	boolean adminLoginMsgSet() { return _adminLoginMsgSet; }
+
+	protected void wsbChangeEventInfoInt(boolean enabled)
+	{
+		_wsbChangeEventInfoEnabled = enabled;
+	}
+
+	boolean wsbChangeEventInfo()
+	{
+		return _wsbChangeEventInfoEnabled;
+	}
 }
 
 abstract class EmaConfigServerImpl extends EmaConfigBaseImpl

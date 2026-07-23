@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -69,5 +69,39 @@ public interface OmmConsumerEvent
 	 * @param sessionChannelInfo the ChannelInformation List
 	 */
 	public void sessionChannelInfo(List<ChannelInformation> sessionChannelInfo);
-}
 
+	/**
+	 * Returns the warm standby change event information associated with the event.
+	 *
+	 * <p>This method returns valid warmStandbyChangeEventInfo only in pair with status message
+	 * with code {@link OmmState.StatusCode#WSB_CHANGE_ACTIVE_COMPLETE} on login domain.</p>
+	 *
+	 * @return the warm standby change event information associated with the event,
+	 * or {@code null}.
+	 */
+	public WarmStandbyChangeEventInfo warmStandbyChangeEventInfo();
+
+	/**
+	 * Returns session information associated with the event.
+	 *
+	 * <p>The returned {@link SessionInformation} contains standard channel entries and warm standby
+	 * session information for all available services.</p>
+	 *
+	 * @return the session information associated with the event, or {@code null} if session
+	 * information is not available for this event
+	 */
+	public SessionInformation sessionInformation();
+
+	/**
+	 * Returns session information associated with the event, filtered by service name.
+	 *
+	 * <p>If {@code serviceNames} is empty, the returned {@link SessionInformation} contains
+	 * information for all available services. Otherwise, the returned object contains information
+	 * only for the specified services.</p>
+	 *
+	 * @param serviceNames service names used to filter the returned session information
+	 * @return the session information associated with the event, or {@code null} if
+	 * {@code serviceNames} is {@code null} or session information is not available for this event
+	 */
+	public SessionInformation sessionInformation(List<String> serviceNames);
+}

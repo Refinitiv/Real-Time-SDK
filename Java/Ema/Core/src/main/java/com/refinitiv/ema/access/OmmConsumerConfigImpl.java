@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,7 +21,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	private int 				_operationModel;
 	private DataDictionary 		dataDictionary;
 	private Map<String, ServiceListImpl> 	_serviceListMap;
-	
+
 	OmmConsumerConfigImpl()
 	{
 		super();
@@ -629,5 +629,13 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	Map<String, ServiceListImpl> serviceListMap()
 	{
 		return _serviceListMap;
+	}
+
+
+	@Override
+	public OmmConsumerConfig wsbChangeEventInfo(boolean enabled)
+	{
+		wsbChangeEventInfoInt(enabled);
+		return this;
 	}
 }

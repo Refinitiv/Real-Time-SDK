@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2022,2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -64,6 +64,12 @@ public interface ReactorDebuggerOptions {
      * @return true if the TUNNELSTREAM debugging level is enabled, false otherwise
      */
     boolean debugTunnelStreamLevel();
+
+    /**
+     * Determines whether the WARMSTANDBY debugging level is enabled
+     * @return true if the WARMSTANDBY debugging level is enabled, false otherwise
+     */
+    boolean debugWarmStandbyLevel();
 
     /**
      * Determines whether any debugging is done at all

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -34,16 +34,24 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsg.TunnelStreamAck;
 
+import java.util.*;
+
 
 /** Represents a consumer component. */
 public class Consumer extends TestReactorComponent implements ReactorAuthTokenEventCallback, ReactorServiceEndpointEventCallback, ConsumerCallback, TunnelStreamStatusEventCallback,
-        TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, ServiceNameIdConverter, ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback
+        TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, ServiceNameIdConverter, ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback,
+        ReactorWarmStandbyChangeEventCallback, ReactorWarmStandbyChannelInfoCallback
 {
+    private final Deque<ReactorWarmStandbyChangeEvent> wsbChangeEvents = new LinkedList<>();
+    private final Deque<ReactorWarmStandbyChannelInfoEvent> wsbChannelInfoEvents = new LinkedList<>();
+
 	ReactorOAuthCredential reactorOAuthCredential = ReactorFactory.createReactorOAuthCredential();
 
     AckRangeList _ackRangeList = new AckRangeList();
     AckRangeList _nakRangeList = new AckRangeList();
-    
+
+    private boolean wsbChannelInfoActive;
+
     public Consumer(TestReactor testReactor)
     {
         super(testReactor);
@@ -54,7 +62,27 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
     {
     	reactorOAuthCredential.copy(this.reactorOAuthCredential);
     }
-    
+
+    public Deque<ReactorWarmStandbyChangeEvent> reactorWarmStandbyChangeEvents()
+    {
+        return wsbChangeEvents;
+    }
+
+    public Deque<ReactorWarmStandbyChannelInfoEvent> reactorWarmStandbyChannelInfoEvents()
+    {
+        return wsbChannelInfoEvents;
+    }
+
+    public boolean wsbChannelInfoActive()
+    {
+        return wsbChannelInfoActive;
+    }
+
+    public void wsbChannelInfoActive(boolean wsbChannelInfoActive)
+    {
+        this.wsbChannelInfoActive = wsbChannelInfoActive;
+    }
+
     @Override
     public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event)
     {
@@ -73,6 +101,17 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
     @Override
     public int defaultMsgCallback(ReactorMsgEvent event)
     {
+        // Get warm standby channel info
+        Msg msg = event.msg();
+        if (wsbChannelInfoActive && msg != null && msg.msgClass() == MsgClasses.REFRESH)
+        {
+            if (_testReactor._reactor.getWarmStandbyChannelInfo(event.reactorChannel(), this,
+                    _testReactor._errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("Error getting warm standby channel info: " + _testReactor._errorInfo.error().text());
+            }
+        }
+
         return _testReactor.handleDefaultMsgEvent(event);
     }
 
@@ -506,4 +545,40 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
+
+    @Override
+    public int reactorWarmStandbyChangeEventCallback(ReactorWarmStandbyChangeEvent event)
+    {
+        System.out.println(event);
+        System.out.println();
+
+        ReactorWarmStandbyChangeEvent wsbChangeEvent = copyReactorWarmStandbyChangeEvent(event);
+        wsbChangeEvents.offerLast(wsbChangeEvent);
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    private static ReactorWarmStandbyChangeEvent copyReactorWarmStandbyChangeEvent(ReactorWarmStandbyChangeEvent event)
+    {
+        ReactorWarmStandbyChangeEvent wsbChangeEvent = new ReactorWarmStandbyChangeEvent();
+
+        wsbChangeEvent.warmStandbyMode(event.warmStandbyMode());
+        wsbChangeEvent.currentChannel(event.currentChannel());
+        wsbChangeEvent.prevChannel(event.prevChannel());
+        wsbChangeEvent.serviceId(event.serviceId());
+        wsbChangeEvent.serviceName(event.serviceName());
+
+        return wsbChangeEvent;
+    }
+
+    @Override
+    public int reactorWarmStandbyChannelInfoCallback(ReactorWarmStandbyChannelInfoEvent event)
+    {
+        System.out.println(event);
+        System.out.println();
+
+        wsbChannelInfoEvents.offerLast(event);
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
 }

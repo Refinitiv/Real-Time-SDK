@@ -2,15 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.valueadd.reactor;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -73,7 +71,9 @@ class ReactorWarmStandbyHandler
 	
 	long latestMsgSubmissionTime; // This is used to keep the latest submission time to check with the message recovery queue for the WSB feature.
 	long lastMsgRecoveryCheckTime; // This is used to keep the last time that checks for adding recovery message queue for the WSB feature.
-	
+
+	private final Map<Integer, ReactorWarmStandbyChangeEvent> wsbChangeEvents = new HashMap<>();
+
 	ReactorWarmStandbyHandler()
 	{	
 		clear();
@@ -125,6 +125,20 @@ class ReactorWarmStandbyHandler
 		isPHTimersStartedByChannelUp = false;
 		latestMsgSubmissionTime = 0;
 		lastMsgRecoveryCheckTime = 0;
+
+		wsbChangeEvents.clear();
+	}
+
+	// Return the WSB change event for login based warm standby mode.
+	ReactorWarmStandbyChangeEvent wsbChangeEvent()
+	{
+		return wsbChangeEvents.computeIfAbsent(-1, k -> new ReactorWarmStandbyChangeEvent());
+	}
+
+	// Return the WSB change event for service based warm standby mode by serviceId.
+	ReactorWarmStandbyChangeEvent wsbChangeEvent(int serviceId)
+	{
+		return wsbChangeEvents.computeIfAbsent(serviceId, k -> new ReactorWarmStandbyChangeEvent());
 	}
 
 	VaNode reactorQueueLink() 

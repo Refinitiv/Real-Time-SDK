@@ -2,16 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.access.unittest.requestrouting;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,17 +24,19 @@ import static org.junit.Assert.assertTrue;
 
 public class ConsumerTestClient implements OmmConsumerClient
 {
-	private ArrayBlockingQueue<Msg> _messageQueue = new ArrayBlockingQueue<Msg>(200);
+	private final ArrayBlockingQueue<Msg> _messageQueue = new ArrayBlockingQueue<Msg>(200);
 	
-	private ArrayBlockingQueue<ChannelInformation> _channelInfoQueue = new ArrayBlockingQueue<>(200);
+	private final ArrayBlockingQueue<ChannelInformation> _channelInfoQueue = new ArrayBlockingQueue<>(200);
 	
-	private ArrayBlockingQueue<List<ChannelInformation>> _sessionChannelInfoQueue = new ArrayBlockingQueue<>(200);
+	private final ArrayBlockingQueue<List<ChannelInformation>> _sessionChannelInfoQueue = new ArrayBlockingQueue<>(200);
+
+	private final Queue<WarmStandbyChangeEventInfo> _wsbChangeEventInfoQueue = new ArrayBlockingQueue<>(200);
+
+	private final ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
 	
-	private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
+	private final ConsumerTestOptions _consumerTestOptions;
 	
-	private ConsumerTestOptions _consumerTestOptions;
-	
-	private HashSet<Long> _handles = new HashSet<Long>();
+	private final HashSet<Long> _handles = new HashSet<>();
 	
 	private long _postId = 0;
 	
@@ -146,7 +148,33 @@ public class ConsumerTestClient implements OmmConsumerClient
 			_userLock.unlock();
 		}
 	}
-	
+
+	public int wsbChangeEventInfoSize()
+	{
+		_userLock.lock();
+		try
+		{
+			return _wsbChangeEventInfoQueue.size();
+		}
+		finally
+		{
+			_userLock.unlock();
+		}
+	}
+
+	public WarmStandbyChangeEventInfo popWsbChangeEventInfo()
+	{
+		_userLock.lock();
+		try
+		{
+			return _wsbChangeEventInfoQueue.poll();
+		}
+		finally
+		{
+			_userLock.unlock();
+		}
+	}
+
 	private void addChannelAndSessionInfo(OmmConsumerEvent consumerEvent)
 	{
 		if(_consumerTestOptions.getChannelInformation)
@@ -167,7 +195,19 @@ public class ConsumerTestClient implements OmmConsumerClient
 			_sessionChannelInfoQueue.add(sessionInfo);
 		}
 	}
-	
+
+	private void addWsbChangeEventInfo(OmmConsumerEvent consumerEvent)
+	{
+		if(_consumerTestOptions.getWsbChangeEventInfo)
+		{
+			WarmStandbyChangeEventInfo wsbChangeEventInfo =  consumerEvent.warmStandbyChangeEventInfo();
+
+			_wsbChangeEventInfoQueue.offer(wsbChangeEventInfo);
+
+			System.out.println(wsbChangeEventInfo);
+		}
+	}
+
 	public void unregisterAllHandles()
 	{
 		for(Long handle : _handles)
@@ -279,6 +319,10 @@ public class ConsumerTestClient implements OmmConsumerClient
 			_messageQueue.add(cloneMsg);
 			
 			addChannelAndSessionInfo(consumerEvent);
+			if (statusMsg.state().statusCode() == OmmState.StatusCode.WSB_CHANGE_ACTIVE_COMPLETE)
+			{
+				addWsbChangeEventInfo(consumerEvent);
+			}
 		}
 		finally
 		{

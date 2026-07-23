@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2019-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2019-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -238,6 +238,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-restProxyDomain rest proxy domain.
  * <li>-restProxyKrb5ConfigFile rest proxy Krb5 file.
  * <li>
+ * <li>-wsbChangeEvents Provides Warm Standby change events.
+ * <li>-wsbChannelInfoEvents Provides Warm Standby channel info events.
+ * <li>
  * <li>Reconnection options:
  * <ul>
  * <li>-reconnectAttemptLimit Specifies the maximum number of reconnection attempts.
@@ -260,7 +263,8 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * </ul>
  */
 public class wsbConsumer implements ConsumerCallback,
-		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback
+		ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback, ReactorOAuthCredentialEventCallback,
+		ReactorWarmStandbyChangeEventCallback, ReactorWarmStandbyChannelInfoCallback
 {
 	private static final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
 	private static final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
@@ -390,8 +394,9 @@ public class wsbConsumer implements ConsumerCallback,
 		{
 			reactorOptions.tokenServiceURL_V1().data(watchlistConsumerConfig.tokenUrlV1());
 		}
+
 		reactorOptions.debuggerOptions().enableLevel(ReactorDebuggerLevels.LEVEL_CONNECTION);
-		
+
 		if (watchlistConsumerConfig.tokenUrlV2() != null && !watchlistConsumerConfig.tokenUrlV2().isEmpty())
 		{
 			reactorOptions.tokenServiceURL_V2().data(watchlistConsumerConfig.tokenUrlV2());
@@ -490,6 +495,8 @@ public class wsbConsumer implements ConsumerCallback,
 	private void run()
 	{
 		int selectRetVal, selectTime = 1000;
+		final int printInterval = 5000;
+		long nextPrintTime = System.currentTimeMillis() + printInterval;
 		while (true)
 		{
 			Set<SelectionKey> keySet = null;
@@ -508,6 +515,17 @@ public class wsbConsumer implements ConsumerCallback,
 			}
 
 			long currentTime = System.currentTimeMillis();
+			if (watchlistConsumerConfig.enableWsbChannelInfoEvents() && currentTime >= nextPrintTime)
+			{
+				// Get warm standby channel info
+				if (reactor.getWarmStandbyChannelInfo(chnlInfo.reactorChannel, this, errorInfo)
+						!= ReactorReturnCodes.SUCCESS)
+				{
+					System.out.println("Error getting warm standby channel info: " + errorInfo.error().text());
+				}
+				nextPrintTime = currentTime + printInterval;
+			}
+
 			if (isModifyIOCtlReady(currentTime))
 			{
 				ReactorChannel rc = chnlInfo.reactorChannel;
@@ -1116,6 +1134,7 @@ public class wsbConsumer implements ConsumerCallback,
 
 				/* Decode data body according to its domain. */
 				itemDecoder.decodeDataBody(event.reactorChannel(), updateMsg);
+
 				break;
 
 			case MsgClasses.STATUS:
@@ -1557,6 +1576,24 @@ public class wsbConsumer implements ConsumerCallback,
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
+	@Override
+	public int reactorWarmStandbyChangeEventCallback(ReactorWarmStandbyChangeEvent event)
+	{
+		System.out.println(event);
+		System.out.println();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	@Override
+	public int reactorWarmStandbyChannelInfoCallback(ReactorWarmStandbyChannelInfoEvent event)
+	{
+		System.out.println(event);
+		System.out.println();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
 	private void initChannelInfo(ChannelInfo chnlInfo)
 	{
 		// set up consumer role
@@ -1568,6 +1605,12 @@ public class wsbConsumer implements ConsumerCallback,
 		chnlInfo.consumerRole.watchlistOptions().itemCountHint(4);
 		chnlInfo.consumerRole.watchlistOptions().obeyOpenWindow(true);
 		chnlInfo.consumerRole.watchlistOptions().channelOpenCallback(this);
+
+		// enable receiving Warm Standby change events if specified
+		if (watchlistConsumerConfig.enableWsbChangeEvents())
+		{
+			chnlInfo.consumerRole.wsbChangeEventCallback(this);
+		}
 
 		if (!itemDecoder.fieldDictionaryLoadedFromFile && !itemDecoder.enumTypeDictionaryLoadedFromFile)
 		{

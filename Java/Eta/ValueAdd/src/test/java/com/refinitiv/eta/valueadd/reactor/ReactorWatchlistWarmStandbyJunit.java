@@ -2,34 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2025-2026 LSEG. All rights reserved.
+ *|           Copyright (C) 2022,2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.valueadd.reactor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
+import com.refinitiv.eta.transport.ConnectionTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CloseMsg;
-import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.DataDictionary;
@@ -45,11 +38,9 @@ import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.StateCodes;
 import com.refinitiv.eta.codec.StatusMsg;
 import com.refinitiv.eta.codec.StreamStates;
-import com.refinitiv.eta.codec.UpdateMsg;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Directory.WarmStandbyDirectoryServiceTypes;
 import com.refinitiv.eta.rdm.Login.ServerTypes;
-import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryConsumerStatus;
@@ -65,7 +56,10 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
-import org.junit.rules.TestName;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyServiceBasedChannelInfoEvent.WSBPerChannelServiceInfo;
+
+import static com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode.*;
+import static org.junit.Assert.*;
 
 public class ReactorWatchlistWarmStandbyJunit {
 	private static final Buffer proxyHost = CodecFactory.createBuffer();
@@ -506,6 +500,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -514,12 +509,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
+			consumerRole.wsbChangeEventCallback(consumer);
 			
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -643,7 +639,21 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(ConnectionTypes.SOCKET, wsbChangeEvent.currentChannel().connectionType());
+			assertEquals(-1, wsbChangeEvent.currentChannel().encryptedConnectionType());
+			assertEquals(0, wsbChangeEvent.currentChannel().protocolType());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -896,7 +906,35 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertEquals(ConnectionTypes.SOCKET, wsbChannelInfoEvent.activeChannel().connectionType());
+			assertEquals(-1, wsbChannelInfoEvent.activeChannel().encryptedConnectionType());
+			assertEquals(0, wsbChannelInfoEvent.activeChannel().protocolType());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelList = wsbChannelInfoEvent.channelsList();
+			channelList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelList.get(0).hostname());
+			assertEquals(expectedPort, channelList.get(0).port());
+			assertEquals(ConnectionTypes.SOCKET, channelList.get(0).connectionType());
+			assertEquals(-1, channelList.get(0).encryptedConnectionType());
+			assertEquals(0, channelList.get(0).protocolType());
+			assertNotNull(channelList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelList.get(1).port());
+			assertEquals(ConnectionTypes.SOCKET, channelList.get(1).connectionType());
+			assertEquals(-1, channelList.get(1).encryptedConnectionType());
+			assertEquals(0, channelList.get(1).protocolType());
+			assertNotNull(channelList.get(1).userSpecObject());
+
             /* Consumer sends close message */
             closeMsg.clear();
             closeMsg.msgClass(MsgClasses.CLOSE);
@@ -980,6 +1018,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -988,12 +1027,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -1117,7 +1157,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -1372,8 +1423,27 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
-    		/* Consumer sends generic messages. */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails> channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
+			/* Consumer sends generic messages. */
             genericMsg.clear();
             genericMsg.msgClass(MsgClasses.GENERIC);
             genericMsg.streamId(5);
@@ -1460,6 +1530,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -1468,12 +1539,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -1597,7 +1669,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -1852,8 +1935,27 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
-            /* Consumer sends post messages. */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
+			/* Consumer sends post messages. */
 	        postMsg.clear();
 	        postMsg.msgClass(MsgClasses.POST);
 	        postMsg.streamId(5);
@@ -1958,6 +2060,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -1966,12 +2069,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -2111,7 +2215,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -2325,14 +2440,33 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             }
-            
-            // kill provider 1.
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
+			// kill provider 1.
             provider.close();
-            
-            /* Consumer receives FD_CHANGE event and then an open suspect status*/
+
+			/* Consumer receives FD_CHANGE event and then an open suspect status*/
             consumerReactor.dispatch(2);
-            
-            event = consumerReactor.pollEvent();
+
+			event = consumerReactor.pollEvent();
     		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
     		channelEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals(ReactorChannelEventTypes.FD_CHANGE, channelEvent.eventType());
@@ -2354,9 +2488,27 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
 			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
 			/* new active, so this should set to 0 */
-			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);        
-            
-     
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedNewHostname = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.hostname();
+			int expectedNewPort = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedNewHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
 		}
 		finally
 		{
@@ -2407,6 +2559,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -2415,12 +2568,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -2541,7 +2695,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -2774,8 +2939,27 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             }
-            
-            // kill provider 1.
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
+			// kill provider 1.
             provider.close();
             
             /* Consumer receives FD_CHANGE event and then an open suspect status*/
@@ -2803,9 +2987,27 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(LoginMsgType.CONSUMER_CONNECTION_STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
 			assertTrue(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).checkHasWarmStandbyInfo());
 			/* new active, so this should set to 0 */
-			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);        
-            
-     
+			assertEquals(((LoginConsumerConnectionStatus)loginMsgEvent.rdmLoginMsg()).warmStandbyInfo().warmStandbyMode(), ServerTypes.ACTIVE);
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedNewHostname = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.hostname();
+			int expectedNewPort = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedNewHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
 		}
 		finally
 		{
@@ -2857,6 +3059,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -2865,12 +3068,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -2991,7 +3195,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -3246,7 +3461,26 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
             // kill provider 1.
             provider.close();
             
@@ -3318,9 +3552,42 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertTrue(receivedRefreshMsg.msgKey().checkHasIdentifier());
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
-            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));         
-            
-     
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedNewHostname = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.hostname();
+			int expectedNewPort = consumer.reactorChannel()
+					.warmStandByHandlerImpl
+					.activeReactorChannel()
+					.channel()
+					.port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedNewHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedNewHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedNewPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(1, wsbChannelInfoEvent.channelsList().size());
+			assertEquals(expectedNewHostname, wsbChannelInfoEvent.channelsList().get(0).hostname());
+			assertEquals(expectedNewPort, wsbChannelInfoEvent.channelsList().get(0).port());
+			assertNotNull(wsbChannelInfoEvent.channelsList().get(0).userSpecObject());
+
 		}
 		finally
 		{
@@ -3372,6 +3639,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -3380,12 +3648,13 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -3506,7 +3775,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
 			directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
 			assertEquals(DirectoryMsgType.REQUEST, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(LOGIN_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider sends a default directory refresh. */
 			DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsgEvent.rdmDirectoryMsg();
 			DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -3763,8 +4043,27 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
-            /* Consumer sends pause request. */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyLoginBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyLoginBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(LOGIN_BASED, wsbChannelInfoEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChannelInfoEvent.activeChannel().hostname());
+			assertEquals(expectedPort, wsbChannelInfoEvent.activeChannel().port());
+			assertNotNull(wsbChannelInfoEvent.activeChannel().userSpecObject());
+			assertEquals(2, wsbChannelInfoEvent.channelsList().size());
+			List<ReactorWarmStandbyChannelDetails>  channelsList = wsbChannelInfoEvent.channelsList();
+			channelsList.sort(Comparator.comparingInt(ReactorWarmStandbyChannelDetails::port));
+			assertEquals(expectedHostname, channelsList.get(0).hostname());
+			assertEquals(expectedPort, channelsList.get(0).port());
+			assertNotNull(channelsList.get(0).userSpecObject());
+			assertEquals(expectedHostname, channelsList.get(1).hostname());
+			assertEquals(expectedPort + 1, channelsList.get(1).port());
+			assertNotNull(channelsList.get(1).userSpecObject());
+
+			/* Consumer sends pause request. */
             requestMsg.clear();
             requestMsg.msgClass(MsgClasses.REQUEST);
             requestMsg.streamId(5);
@@ -3835,7 +4134,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			
 			// Connect the consumer and providers.
 			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
-			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.wsbMode(LOGIN_BASED);
 			opts.reconnectAttemptLimit(-1);
 			
 			/* Create provider reactor. */
@@ -4157,6 +4456,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -4165,7 +4465,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -4340,7 +4641,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service.serviceId());
 
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-    		
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(1, wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
     		/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
@@ -4558,8 +4872,39 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
-            /* Consumer sends close message */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo>  perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort + 1, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+
+			/* Consumer sends close message */
             closeMsg.clear();
             closeMsg.msgClass(MsgClasses.CLOSE);
             closeMsg.domainType(DomainTypes.MARKET_PRICE);
@@ -4651,6 +4996,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -4659,7 +5005,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -4880,7 +5227,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider 1 receives request. */
             event = provider.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -4942,8 +5302,28 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             }
-			
-    		/* Now handle the standby */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo>  perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
 			/* Provider receives channel-up/channel-ready */
@@ -5076,8 +5456,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
 
+			// Check ReactorWarmStandbyChangeEvent values
+			expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedNewPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
 
-			 /* Provider 2 receives request. */
+			/* Provider 2 receives request. */
             event = provider2.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
             msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -5142,8 +5534,40 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService2().info().serviceName().toString()));
             }
-                        
-           
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedNewPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
 		}
 		finally
 		{
@@ -5197,6 +5621,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -5205,7 +5630,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -5428,7 +5854,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider 1 receives request. */
             event = provider.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -5490,8 +5929,28 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
             }
-			
-    		/* Now handle the standby */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo>  perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
 			/* Provider receives channel-up/channel-ready */
@@ -5624,6 +6083,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
 
+			// Check ReactorWarmStandbyChangeEvent values
+			expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedNewPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
 
 			 /* Provider 2 receives request. */
             event = provider2.testReactor().pollEvent();
@@ -5690,8 +6161,40 @@ public class ReactorWatchlistWarmStandbyJunit {
 	            assertNotNull(msgEvent.streamInfo().serviceName());
 	            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService2().info().serviceName().toString()));
             }
-                        
-           
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedNewPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
 		}
 		finally
 		{
@@ -5753,6 +6256,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -5761,7 +6265,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -5972,7 +6477,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider 1 receives request. */
             event = provider.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -6027,8 +6545,28 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
             assertFalse(receivedRefreshMsg.msgKey().checkHasIdentifier());
             assertNotNull(msgEvent.streamInfo());
-			
-    		/* Now handle the standby */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo>  perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
 			/* Provider receives channel-up/channel-ready */
@@ -6161,6 +6699,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
 
+			// Check ReactorWarmStandbyChangeEvent values
+			expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedNewPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
 
 			 /* Provider 2 receives request 1. */
             event = provider2.testReactor().pollEvent();
@@ -6260,7 +6810,41 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
 	        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService2().info().serviceName().toString()));
-	        
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedNewPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
+
     		/* Consumer sends generic messages. */
             genericMsg.clear();
             genericMsg.msgClass(MsgClasses.GENERIC);
@@ -6385,6 +6969,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -6393,7 +6978,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -6604,7 +7190,20 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider 1 receives request. */
             event = provider.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -6659,8 +7258,28 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
             assertFalse(receivedRefreshMsg.msgKey().checkHasIdentifier());
             assertNotNull(msgEvent.streamInfo());
-			
-    		/* Now handle the standby */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo>  perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
 			/* Provider receives channel-up/channel-ready */
@@ -6793,6 +7412,18 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
 
+			// Check ReactorWarmStandbyChangeEvent values
+			expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedNewPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
 
 			 /* Provider 2 receives request 1. */
             event = provider2.testReactor().pollEvent();
@@ -6892,8 +7523,42 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
 	        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService2().info().serviceName().toString()));
-	        
-    		/* Consumer sends post messages. */
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(1, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedNewPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
+
+			/* Consumer sends post messages. */
 	        postMsg.clear();
 	        postMsg.msgClass(MsgClasses.POST);
 	        postMsg.streamId(5);
@@ -7019,6 +7684,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -7027,7 +7693,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -7214,8 +7881,31 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-    		
-    		/* Now handle the standby */
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
+			/* Now handle the standby */
     		provider2.testReactor().accept(opts, provider2);
 
 			/* Provider receives channel-up/channel-ready */
@@ -7347,7 +8037,6 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.STANDBY);
 
-
 			 /* Provider 2 receives request. */
             event = provider2.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -7440,8 +8129,45 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-            
-            provider.close();
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(2, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo> perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+			perChannelServiceList.sort(Comparator.comparing(info -> info.channel().port()));
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
+
+			wsbChannelInfo = perChannelServiceList.get(1);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort + 1, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertFalse(wsbChannelInfo.serviceList().get(1).isActive());
+
+			provider.close();
             
             /* Consumer receives FD_CHANGE event and then an open suspect status*/
             consumerReactor.dispatch(2);
@@ -7478,7 +8204,30 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort + 1, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort + 1, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+
 			/* Provider 2 sends refresh... this is to make sure that the consumer gets the correct refresh .*/
             refreshMsg.clear();
             refreshMsg.msgClass(MsgClasses.REFRESH);
@@ -7519,6 +8268,29 @@ public class ReactorWatchlistWarmStandbyJunit {
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort + 1, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
 		}
 		finally
 		{
@@ -7578,6 +8350,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
 			
 			consumer = new Consumer(consumerReactor);
+			consumer.wsbChannelInfoActive(true);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.initDefaultRDMLoginRequest();
 			consumerRole.initDefaultRDMDirectoryRequest();
@@ -7586,7 +8359,8 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.directoryMsgCallback(consumer);
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
-			
+			consumerRole.wsbChangeEventCallback(consumer);
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -7810,7 +8584,30 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-			
+
+			// Check ReactorWarmStandbyChangeEvent values
+			String expectedHostname = consumer.reactorChannel().channel().hostname();
+			int expectedPort = consumer.reactorChannel().channel().port();
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			ReactorWarmStandbyChangeEvent wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
+			assertNull(wsbChangeEvent.prevChannel());
+
 			/* Provider 1 receives request 1. */
 	        event = provider.testReactor().pollEvent();
 	        assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -7899,7 +8696,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 	        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
 	        assertFalse(receivedRefreshMsg.msgKey().checkHasIdentifier());
 	        assertNotNull(msgEvent.streamInfo());
-	        
+
 	        event = consumerReactor.pollEvent();
 	        assertEquals(TestReactorEventTypes.MSG, event.type());
 	        msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -7917,7 +8714,52 @@ public class ReactorWatchlistWarmStandbyJunit {
 	        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
 	        assertFalse(receivedRefreshMsg.msgKey().checkHasIdentifier());
 	        assertNotNull(msgEvent.streamInfo());
-			
+
+			// Check ReactorWarmStandbyChannelInfoEvent values
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			ReactorWarmStandbyServiceBasedChannelInfoEvent wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			List<WSBPerChannelServiceInfo> perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			WSBPerChannelServiceInfo wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
+
+			assertFalse(consumer.reactorWarmStandbyChannelInfoEvents().isEmpty());
+			wsbChannelInfoEvent =
+					(ReactorWarmStandbyServiceBasedChannelInfoEvent) consumer.reactorWarmStandbyChannelInfoEvents().pollLast();
+			assertNotNull(wsbChannelInfoEvent);
+			assertEquals(SERVICE_BASED, wsbChannelInfoEvent.warmStandbyMode());
+
+			assertEquals(1, wsbChannelInfoEvent.perChannelServiceList().size());
+			perChannelServiceList = wsbChannelInfoEvent.perChannelServiceList();
+
+			wsbChannelInfo = perChannelServiceList.get(0);
+			assertNotNull(wsbChannelInfo);
+			assertEquals(expectedHostname, wsbChannelInfo.channel().hostname());
+			assertEquals(expectedPort, wsbChannelInfo.channel().port());
+			assertNotNull(wsbChannelInfo.channel().userSpecObject());
+			assertEquals(2, wsbChannelInfo.serviceList().size());
+			assertEquals(service.serviceId(), wsbChannelInfo.serviceList().get(0).serviceId());
+			assertEquals(service.info().serviceName().toString(), wsbChannelInfo.serviceList().get(0).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(0).isActive());
+			assertEquals(service2.serviceId(), wsbChannelInfo.serviceList().get(1).serviceId());
+			assertEquals(service2.info().serviceName().toString(), wsbChannelInfo.serviceList().get(1).serviceName());
+			assertTrue(wsbChannelInfo.serviceList().get(1).isActive());
+
 			/* Now handle the standby */
 			provider2.testReactor().accept(opts, provider2);
 	
@@ -8182,9 +9024,30 @@ public class ReactorWatchlistWarmStandbyJunit {
 			/* 1st connection, so this should set to 0 */
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).serviceId(), service2.serviceId());
 			assertEquals(((DirectoryConsumerStatus)directoryMsgEvent.rdmDirectoryMsg()).consumerServiceStatusList().get(0).warmStandbyMode(), WarmStandbyDirectoryServiceTypes.ACTIVE);
-	
-	        
-	    
+
+			// Check ReactorWarmStandbyChangeEvent values
+			int expectedNewPort = expectedPort + 1;
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
+			assertEquals(service2.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service2.serviceId(), wsbChangeEvent.serviceId());
+
+			assertFalse(consumer.reactorWarmStandbyChangeEvents().isEmpty());
+			wsbChangeEvent = consumer.reactorWarmStandbyChangeEvents().pollLast();
+			assertNotNull(wsbChangeEvent);
+			assertEquals(SERVICE_BASED, wsbChangeEvent.warmStandbyMode());
+			assertEquals(expectedHostname, wsbChangeEvent.currentChannel().hostname());
+			assertEquals(expectedNewPort, wsbChangeEvent.currentChannel().port());
+			assertEquals(expectedHostname, wsbChangeEvent.prevChannel().hostname());
+			assertEquals(expectedPort, wsbChangeEvent.prevChannel().port());
+			assertEquals(service.info().serviceName().toString(), wsbChangeEvent.serviceName());
+			assertEquals(service.serviceId(), wsbChangeEvent.serviceId());
 		}
 		finally
 		{

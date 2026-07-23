@@ -1088,4 +1088,13 @@ public class EmaFactory
 	public static ServiceList createServiceList(String name) {
 		return new ServiceListImpl(name);
 	}
+
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.SessionInformation}.
+	 * @return {@link com.refinitiv.ema.access.SessionInformation}
+	 */
+	public static SessionInformation createSessionInformation()
+	{
+		return new SessionInformation();
+	}
 }

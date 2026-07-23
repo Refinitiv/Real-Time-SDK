@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -41,6 +41,7 @@ public class ConsumerRole extends ReactorRole
     DictionaryRequest _enumDictionaryRequest = null;
     DictionaryClose _enumDictionaryClose = null;
     ReactorAuthTokenEventCallback _reactorAuthTokenEventCallback = null;
+    ReactorWarmStandbyChangeEventCallback _wsbChangeEventCallback = null;
     RDMLoginMsgCallback _loginMsgCallback = null;
     RDMDirectoryMsgCallback _directoryMsgCallback = null;
     RDMDictionaryMsgCallback _dictionaryMsgCallback = null;
@@ -582,6 +583,27 @@ public class ConsumerRole extends ReactorRole
         return _dictionaryMsgCallback;
     }
 
+    /**
+     *  A callback function for processing ReactorWarmStandbyChangeEvent received.
+     *
+     * @param callback the callback
+     * @see ReactorWarmStandbyChangeEventCallback
+     * @see ReactorWarmStandbyChangeEvent
+     */
+    public void wsbChangeEventCallback(ReactorWarmStandbyChangeEventCallback callback)
+    {
+        _wsbChangeEventCallback = callback;
+    }
+
+    /** A callback function for processing ReactorWarmStandbyChangeEvent received.
+     *
+     * @return the wsbChangeEventCallback
+     */
+    public ReactorWarmStandbyChangeEventCallback wsbChangeEventCallback()
+    {
+        return _wsbChangeEventCallback;
+    }
+
     /** Options for using the watchlist. Use to enable watchlist and
      * set watchlist options for ConsumerRole.
      *
@@ -603,6 +625,7 @@ public class ConsumerRole extends ReactorRole
         _directoryMsgCallback = role.directoryMsgCallback();
         _dictionaryMsgCallback = role.dictionaryMsgCallback();
         _dictionaryDownloadMode = role.dictionaryDownloadMode();
+        _wsbChangeEventCallback = role.wsbChangeEventCallback();
         _consumerWatchlistOptions.copy(role.watchlistOptions());
         if(role.clientId() != null)
         	_clientId.data(role.clientId().toString());

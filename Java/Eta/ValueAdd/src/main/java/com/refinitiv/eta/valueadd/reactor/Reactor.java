@@ -95,7 +95,6 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.ConsumerStatusService;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.ConsumerStatusServiceFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryClose;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryConsumerStatus;
@@ -109,7 +108,6 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginClose;
-import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatusFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
@@ -122,6 +120,9 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.queue.QueueMsg;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
 import com.refinitiv.eta.valueadd.reactor.ReactorTokenSession.SessionState;
+
+import static com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode.LOGIN_BASED;
+import static com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode.SERVICE_BASED;
 
 /**
  * The Reactor. Applications create Reactor objects by calling
@@ -3886,6 +3887,22 @@ public class Reactor
 							reactorChannel.isActiveServer = true;
 							reactorChannel.warmStandByHandlerImpl.activeReactorChannel(reactorChannel);
 
+							// Send warm standby change event
+							ReactorWarmStandbyChangeEvent wsbChangeEvent =
+									reactorChannel.warmStandByHandlerImpl.wsbChangeEvent();
+							wsbChangeEvent.clear();
+							wsbChangeEvent.warmStandbyMode(LOGIN_BASED);
+							wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+							wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+							sendWsbChangeEventCallback("Reactor.sendLoginMsgCallback", reactorChannel,
+									wsbChangeEvent, rdmLoginMsgEvent.errorInfo());
+
+							if (debugWarmStandbyLevel())
+							{
+								debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+										reactorChannel.hashCode(),
+										"Login-based WSB mode : Reactor.sendLoginMsgCallback() : not RECEIVED_PRIMARY_LOGIN_RESPONSE");
+							}
 						}
 
 					} else
@@ -4144,6 +4161,23 @@ public class Reactor
 
 								reactorChannel.isActiveServer = true;
 								reactorChannel.warmStandByHandlerImpl.activeReactorChannel(reactorChannel);
+
+								// Send warm standby change event
+								ReactorWarmStandbyChangeEvent wsbChangeEvent =
+										reactorChannel.warmStandByHandlerImpl.wsbChangeEvent();
+								wsbChangeEvent.clear();
+								wsbChangeEvent.warmStandbyMode(LOGIN_BASED);
+								wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+								wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+								sendWsbChangeEventCallback("Reactor.sendLoginMsgCallback", reactorChannel,
+										wsbChangeEvent, rdmLoginMsgEvent.errorInfo());
+
+								if (debugWarmStandbyLevel())
+								{
+									debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+											reactorChannel.hashCode(),
+											"Login-based WSB mode : Reactor.sendLoginMsgCallback() : RECEIVED_PRIMARY_LOGIN_RESPONSE");
+								}
 							}
 						}
 					}
@@ -4692,6 +4726,26 @@ public class Reactor
 			return ReactorReturnCodes.FAILURE;
 		}
 		return retval;
+	}
+
+	int sendWsbChangeEventCallback(String location, ReactorChannel reactorChannel, ReactorWarmStandbyChangeEvent event,
+								   ReactorErrorInfo errorInfo)
+	{
+		if (reactorChannel.role().type() == ReactorRoleTypes.CONSUMER)
+		{
+			ReactorWarmStandbyChangeEventCallback callback = ((ConsumerRole) reactorChannel.role()).wsbChangeEventCallback();
+			if (callback != null)
+			{
+				int ret = callback.reactorWarmStandbyChangeEventCallback(event);
+				if (ret == ReactorCallbackReturnCodes.FAILURE)
+				{
+					return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+							"ReactorCallbackReturnCodes.FAILURE was returned from reactorWarmStandbyChangeEventCallback.");
+				}
+			}
+		}
+
+		return ReactorReturnCodes.SUCCESS;
 	}
 
 	// return success if no more to dispatch, positive value if there are more
@@ -6024,18 +6078,11 @@ public class Reactor
 				}
 				if (reactorChannel.watchlist().watchlistOptions().enableWarmStandby())
 				{
-					ReactorChannel pReactorChannel = event.reactorChannel();
-					ReactorWarmStandbyHandler warmStandByHandlerImpl = null;
-					ReactorWarmStandbyGroupImpl warmStandbyGroup = null;
-					ReactorChannel processReactorChannel = null;
-
-					if (pReactorChannel != null)
-					{
-						warmStandByHandlerImpl = pReactorChannel.warmStandByHandlerImpl;
-						warmStandbyGroup = pReactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
-					}
-
-					ReactorChannel startingReactorChannel = null;
+					ReactorWarmStandbyHandler warmStandByHandlerImpl = reactorChannel.warmStandByHandlerImpl;
+					ReactorWarmStandbyGroupImpl warmStandbyGroup =
+							reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
+					ReactorChannel processReactorChannel;
+					ReactorChannel startingReactorChannel;
 
 					switch (event.warmStandbyEventType())
 					{
@@ -6063,13 +6110,6 @@ public class Reactor
 						if (warmStandbyGroup.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED
 								&& warmStandByHandlerImpl.nextActiveReactorChannel() != null)
 						{
-							if (reactorChannel._loginConsumerStatus == null)
-							{
-								reactorChannel._loginConsumerStatus = (LoginConsumerConnectionStatus) LoginMsgFactory
-										.createMsg();
-								reactorChannel._loginConsumerStatus.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
-							}
-
 							/*
 							 * Send a login consumer status message indicating that this is the new active
 							 * This should trigger the upstream provider to start sending data.
@@ -6120,11 +6160,29 @@ public class Reactor
 							reactorWSBFanoutStatusMsg(warmStandByHandlerImpl.nextActiveReactorChannel(), errorInfo);
 							warmStandByHandlerImpl.nextActiveReactorChannel(null);
 
-						}
+							// Send warm standby change event
+							ReactorWarmStandbyChangeEvent wsbChangeEvent = warmStandByHandlerImpl.wsbChangeEvent();
+							wsbChangeEvent.warmStandbyMode(LOGIN_BASED);
+							// reactorChannel.channel() is previous here
+							wsbChangeEvent.prevChannel(wsbChangeEvent.currentChannel());
+							wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(warmStandByHandlerImpl
+									.activeReactorChannel().channel()));
+							wsbChangeEvent.reactorChannel(warmStandByHandlerImpl.activeReactorChannel()
+									.warmStandByHandlerImpl
+									.mainReactorChannelImpl());
+							sendWsbChangeEventCallback("Reactor.processWorkerEvent", reactorChannel,
+									wsbChangeEvent, errorInfo);
 
+							if (debugWarmStandbyLevel())
+							{
+								debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+										reactorChannel.hashCode(),
+										"Login-based WSB mode : Reactor.processWorkerEvent() : CHANGE_ACTIVE_TO_STANDBY_SERVER");
+							}
+						}
 						break;
 					case ReactorWarmStandbyEventTypes.CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN:
-						ret = wsbServiceSwitchActiveToStandbyChannelDown(reactorChannel, reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl(), warmStandByHandlerImpl, true, reactorChannel.getEDPErrorInfo());
+						ret = wsbServiceSwitchActiveToStandbyChannelDown(reactorChannel);
 						if (ret != ReactorReturnCodes.SUCCESS)
 							return ret;
 						break;
@@ -6470,17 +6528,11 @@ public class Reactor
 						// Check if login based
 						if (warmStandByHandlerImpl.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
 						{
+							ReactorChannel prevReactorChannel = warmStandByHandlerImpl.activeReactorChannel();
 							// Send generic login message to current active that it's now a standby
 							if (warmStandByHandlerImpl.activeReactorChannel() != null)
 							{
 								warmStandByHandlerImpl.activeReactorChannel().isActiveServer = false;
-								
-								if (reactorChannel._loginConsumerStatus == null)
-								{
-									reactorChannel._loginConsumerStatus = (LoginConsumerConnectionStatus) LoginMsgFactory
-											.createMsg();
-									reactorChannel._loginConsumerStatus.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
-								}
 								
 								/*
 								 * Send a login consumer status message indicating that this is now a standby
@@ -6519,13 +6571,6 @@ public class Reactor
 									}
 								}
 
-							}
-
-							if (reactorChannel._loginConsumerStatus == null)
-							{
-								reactorChannel._loginConsumerStatus = (LoginConsumerConnectionStatus) LoginMsgFactory
-										.createMsg();
-								reactorChannel._loginConsumerStatus.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
 							}
 
 							/*
@@ -6579,6 +6624,27 @@ public class Reactor
 							 */
 							reactorWSBFanoutStatusMsg(warmStandByHandlerImpl.startingReactorChannel(), errorInfo);
 							warmStandByHandlerImpl.nextActiveReactorChannel(null);
+
+							// Send warm standby change event
+							ReactorWarmStandbyChangeEvent wsbChangeEvent =
+									warmStandByHandlerImpl.wsbChangeEvent();
+							wsbChangeEvent.clear();
+							wsbChangeEvent.warmStandbyMode(LOGIN_BASED);
+							wsbChangeEvent.prevChannel(ReactorWarmStandbyChannelDetails.create(prevReactorChannel.channel()));
+							wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(warmStandByHandlerImpl
+									.activeReactorChannel().channel()));
+							wsbChangeEvent.reactorChannel(warmStandByHandlerImpl.activeReactorChannel()
+									.warmStandByHandlerImpl
+									.mainReactorChannelImpl());
+							sendWsbChangeEventCallback("Reactor.processWorkerEvent", reactorChannel,
+									wsbChangeEvent, errorInfo);
+
+							if (debugWarmStandbyLevel())
+							{
+								debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+										reactorChannel.hashCode(),
+										"Login-based WSB mode : Reactor.processWorkerEvent() : PREFERRED_HOST_FALLBACK_IN_GROUP");
+							}
 						}
 						else if (warmStandbyGroup.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED) // service based
 						{
@@ -6598,7 +6664,7 @@ public class Reactor
 								}
 							}
 
-							pReactorChannel._switchingToPreferredWSBGroup = false;
+							reactorChannel._switchingToPreferredWSBGroup = false;
 							// Reset services that have been switched
 							for (WlInteger serviceId : warmStandbyGroup._perServiceById.keySet())
 							{
@@ -6887,12 +6953,6 @@ public class Reactor
 						oldChannel = wsbService.activeChannel;
 						if (oldChannel.channel().state() == ChannelState.ACTIVE)
 						{
-							if (oldChannel._serviceConsumerStatus == null)
-							{
-								oldChannel._serviceConsumerStatus = (ConsumerStatusService) DirectoryMsgFactory
-										.createMsg();
-							}
-
 							/*
 							 * Send a service consumer status message indicating that this is the new active
 							 * This should trigger the upstream provider to start sending data.
@@ -6933,12 +6993,6 @@ public class Reactor
 							}
 						}
 						
-						if (reactorChannel._serviceConsumerStatus == null)
-						{
-							reactorChannel._serviceConsumerStatus = (ConsumerStatusService) DirectoryMsgFactory
-									.createMsg();
-						}
-
 						/*
 						 * Send a service consumer status message indicating that this is the new active
 						 * This should trigger the upstream provider to start sending data.
@@ -6984,6 +7038,26 @@ public class Reactor
 						
 						// We have successfully switched, set this service's preferred host switch to true
 						wsbService.preferredHostSwitched = true;
+
+						// Send warm standby change event
+						ReactorWarmStandbyChangeEvent wsbChangeEvent =
+								reactorChannel.warmStandByHandlerImpl.wsbChangeEvent(service.rdmService().serviceId());
+						wsbChangeEvent.clear();
+						wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+						wsbChangeEvent.prevChannel(ReactorWarmStandbyChannelDetails.create(oldChannel.channel()));
+						wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+						wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+						wsbChangeEvent.serviceId(service.rdmService().serviceId());
+						wsbChangeEvent.serviceName(serviceName.toString());
+						sendWsbChangeEventCallback("Reactor.preferredHostFallbackForWSBService", reactorChannel,
+								wsbChangeEvent, errorInfo);
+
+						if (debugWarmStandbyLevel())
+						{
+							debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+									reactorChannel.hashCode(),
+									"Service-based WSB mode : Reactor.preferredHostFallbackForWSBService() : PREFERRED_HOST_FALLBACK_IN_GROUP");
+						}
 					}
 				}
 			}
@@ -7052,6 +7126,25 @@ public class Reactor
 									errorInfo);
 							return;
 						}
+					}
+
+					// Send warm standby change event
+					ReactorWarmStandbyChangeEvent wsbChangeEvent =
+							reactorChannel.warmStandByHandlerImpl.wsbChangeEvent(wlService._rdmService.serviceId());
+					wsbChangeEvent.clear();
+					wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+					wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(reactorChannel.channel()));
+					wsbChangeEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+					wsbChangeEvent.serviceId(wlService._rdmService.serviceId());
+					wsbChangeEvent.serviceName(wlService.rdmService().info().serviceName().toString());
+					sendWsbChangeEventCallback("Reactor.reactorWSBHandleServiceActiveStandby", reactorChannel,
+							wsbChangeEvent, errorInfo);
+
+					if (debugWarmStandbyLevel())
+					{
+						debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+								reactorChannel.hashCode(),
+								"Service-based WSB mode : Reactor.reactorWSBHandleServiceActiveStandby()");
 					}
 
 					service.activeChannel = reactorChannel;
@@ -8182,13 +8275,14 @@ public class Reactor
 			reactorChannel.flushAgain(false);
 	}
 	
-	int wsbServiceSwitchActiveToStandbyChannelDown(ReactorChannel reactorChannel, ReactorWarmStandbyGroupImpl warmStandbyGroupImpl, ReactorWarmStandbyHandler warmStandbyHandlerImpl, 
-			boolean sendMsg, ReactorErrorInfo errorInfo)
+	int wsbServiceSwitchActiveToStandbyChannelDown(ReactorChannel reactorChannel)
 	{
-		ReactorWarmStandbyGroupImpl warmStandbyGroup = null;
-		ReactorChannel processReactorChannel = null;
+		ReactorErrorInfo errorInfo = reactorChannel.getEDPErrorInfo();
+		ReactorWarmStandbyHandler warmStandbyHandlerImpl = reactorChannel.warmStandByHandlerImpl;
+		ReactorWarmStandbyGroupImpl warmStandbyGroupImpl = warmStandbyHandlerImpl.currentWarmStandbyGroupImpl();
+		ReactorChannel processReactorChannel;
 		ReactorWSBService service;
-		WlService wlService = null;
+		WlService wlService;
 		
 		for (WlInteger serviceId : warmStandbyGroupImpl._perServiceById.keySet())
 		{
@@ -8205,7 +8299,7 @@ public class Reactor
 				}
 				
 				warmStandbyHandlerImpl.warmStandByHandlerLock().lock();
-				
+
 				for (int i = 0; i < service.channels.size(); i++)
 				{
 					processReactorChannel = service.channels.get(i);
@@ -8272,7 +8366,26 @@ public class Reactor
 
 						service.activeChannel = processReactorChannel;
 						processReactorChannel.isActiveServer = true;
-						
+
+						// Send warm standby change event
+						ReactorWarmStandbyChangeEvent wsbChangeEvent = processReactorChannel.warmStandByHandlerImpl
+										.wsbChangeEvent(wlService.rdmService().serviceId());
+						wsbChangeEvent.warmStandbyMode(SERVICE_BASED);
+						// Previous channel is reactorChannel.channel() that may be set to null at this point
+						wsbChangeEvent.prevChannel(wsbChangeEvent.currentChannel());
+						wsbChangeEvent.currentChannel(ReactorWarmStandbyChannelDetails.create(processReactorChannel.channel()));
+						wsbChangeEvent.reactorChannel(processReactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+						wsbChangeEvent.serviceId(wlService.rdmService().serviceId());
+						wsbChangeEvent.serviceName(wlService.rdmService().info().serviceName().toString());
+						sendWsbChangeEventCallback("Reactor.wsbServiceSwitchActiveToStandbyChannelDown",
+								reactorChannel, wsbChangeEvent, errorInfo);
+
+						if (debugWarmStandbyLevel())
+						{
+							debugger.writeDebugInfo(ReactorDebugger.WSB_CHANGE_EVENT, this.hashCode(),
+									reactorChannel.hashCode(),
+									"Service-based WSB mode : Reactor.wsbServiceSwitchActiveToStandbyChannelDown() : CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN");
+						}
 						// Break out of this for loop
 						break;
 					}
@@ -8282,108 +8395,6 @@ public class Reactor
 			}
 		}
 
-		if (reactorChannel != null)
-		{
-			warmStandbyGroup = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
-		}
-
-		if (warmStandbyGroup.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
-		{
-			/*
-			 * Submits to a channel that belongs to the warm standby feature and it is
-			 * active
-			 */
-
-			Iterator<Map.Entry<WlInteger, ReactorWSBService>> iter = warmStandbyGroup._perServiceById
-					.entrySet().iterator();
-			
-			while (iter.hasNext())
-			{
-				service = iter.next().getValue();
-
-				if (reactorChannel != service.activeChannel)
-				{
-					/* This channel does is not the active channel for this service, continue */
-					continue;
-				} else
-				{
-					service.activeChannel = null;
-				}
-
-				for (int i = 0; i < service.channels.size(); i++)
-				{
-					processReactorChannel = service.channels.get(i);
-
-					wlService = processReactorChannel.watchlist()
-							.directoryHandler()._serviceCache._servicesByIdTable.get(service.serviceId);
-
-					if (wlService != null)
-					{
-						/* service is down on this channel */
-						if (wlService._rdmService.state().serviceState() == 0)
-						{
-							continue;
-						}
-						
-						if (isReactorChannelActive(processReactorChannel))
-						{
-							/*
-							 * Fanout any previously closed streams on the new active to the user and also
-							 * close them in all of the other channels
-							 */
-							reactorWSBFanoutStatusMsg(processReactorChannel, errorInfo);
-						}
-
-						processReactorChannel._directoryConsumerStatus.clear();
-						processReactorChannel._directoryConsumerStatus.streamId(processReactorChannel
-								.watchlist().directoryHandler()._directoryStreamId);
-						processReactorChannel._serviceConsumerStatus.clear();
-						processReactorChannel._serviceConsumerStatus
-								.flags(ConsumerStatusServiceFlags.HAS_WARM_STANDY_MODE);
-						processReactorChannel._serviceConsumerStatus
-								.warmStandbyMode(WarmStandbyDirectoryServiceTypes.ACTIVE);
-						processReactorChannel._serviceConsumerStatus
-								.serviceId(wlService._rdmService.serviceId());
-						processReactorChannel._directoryConsumerStatus.consumerServiceStatusList()
-								.add(processReactorChannel._serviceConsumerStatus);
-
-						/*
-						 * Write directly to the channel without involving the watchlist or wsb message
-						 * queues
-						 */
-						if (submitChannel(processReactorChannel, processReactorChannel._directoryConsumerStatus,
-								reactorSubmitOptions, errorInfo) < ReactorReturnCodes.SUCCESS)
-						{
-							if (processReactorChannel.server() == null
-									&& !processReactorChannel.recoveryAttemptLimitReached()) // client
-																								// channel
-							{
-								processReactorChannel.state(State.DOWN_RECONNECTING);
-								sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
-										ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
-										processReactorChannel, errorInfo);
-								break;
-							} else // server channel or no more retries
-							{
-								processReactorChannel.state(State.DOWN);
-								sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",
-										ReactorChannelEventTypes.CHANNEL_DOWN, processReactorChannel,
-										errorInfo);
-								break;
-							}
-						}
-
-						service.activeChannel = processReactorChannel;
-						processReactorChannel.isActiveServer = true;
-						
-						// Break out of this for loop
-						break;
-					}
-				}
-			}
-
-		}
-		
 		return ReactorReturnCodes.SUCCESS;
 	}
 
@@ -10796,6 +10807,15 @@ public class Reactor
 	}
 
 	/**
+	 * Determines whether the WARMSTANDBY debugging level is enabled
+	 * @return true if the WARMSTANDBY debugging level is enabled, false otherwise
+	 */
+	boolean debugWarmStandbyLevel()
+	{
+		return _reactorOptions.debuggerOptions().debugWarmStandbyLevel();
+	}
+
+	/**
 	 * Determines whether any debugging is done at all
 	 * 
 	 * @return true if at least one debugging level is enabled, false otherwise
@@ -10839,4 +10859,129 @@ public class Reactor
 		return majorVersion;
 	}
 
+	/**
+	 * Provides the Reactor warm standby channel information for the application
+	 *
+	 * @param reactorChannel the channel for which information should be provided, must not be null
+	 * @param callback callback to provide channel information for the application, must not be null
+	 * @param serviceNames list of service names to restrict provided information only to them,
+	 *                     must not be null (can be empty to receive information for all services)
+	 * @param errorInfo error structure to be populated in the event of failure, must not be null
+	 *
+	 * @return {@link ReactorReturnCodes} indicating success or failure
+	 */
+	public int getWarmStandbyChannelInfo(ReactorChannel reactorChannel, ReactorWarmStandbyChannelInfoCallback callback,
+										 List<String> serviceNames, ReactorErrorInfo errorInfo)
+	{
+		final String location = "Reactor.getWarmStandbyChannelInfo";
+
+		if (errorInfo == null)
+		{
+			return ReactorReturnCodes.FAILURE;
+		}
+
+		if (reactorChannel == null)
+		{
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+					"ReactorChannel must be set to receive the WarmStandby Channel Info.");
+		}
+
+		if (callback == null)
+		{
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+					"ReactorWarmStandbyChannelInfoCallback must be set to receive the WarmStandby Channel Info.");
+		}
+
+		if (serviceNames == null)
+		{
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+					"serviceNames cannot be null.");
+		}
+
+		_reactorLock.lock();
+		try
+		{
+			if (isShutdown())
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+						"Reactor is shutdown.");
+			}
+
+			if (!isReactorChannelReady(reactorChannel))
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+						"ReactorChannel is not active.");
+			}
+
+			if (!reactorHandlesWarmStandby(reactorChannel)
+					|| reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl() == null)
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+						"WarmStandby is not enabled or not initialized for this Channel.");
+			}
+
+			ReactorWarmStandbyChannelInfoEvent wsbChannelInfoEvent = null;
+			if (reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl()
+					.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+			{
+				wsbChannelInfoEvent = ReactorWarmStandbyLoginBasedChannelInfoEvent.create(reactorChannel);
+			}
+			else if (reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl()
+					.warmStandbyMode() == ReactorWarmStandbyMode.SERVICE_BASED)
+			{
+				Set<String> filteredNames = new HashSet<>(serviceNames.size());
+				for(String name : serviceNames)
+				{
+					if(name != null && !name.isBlank())
+					{
+						filteredNames.add(name);
+					}
+				}
+				wsbChannelInfoEvent = ReactorWarmStandbyServiceBasedChannelInfoEvent.create(reactorChannel, filteredNames);
+			}
+
+			if (wsbChannelInfoEvent != null)
+			{
+				wsbChannelInfoEvent.reactorChannel(reactorChannel.warmStandByHandlerImpl.mainReactorChannelImpl());
+
+				int ret = callback.reactorWarmStandbyChannelInfoCallback(wsbChannelInfoEvent);
+				if (ret == ReactorCallbackReturnCodes.FAILURE)
+				{
+					return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+							"ReactorCallbackReturnCodes.FAILURE was returned from reactorWarmStandbyChannelInfoCallback.");
+				}
+			}
+			else
+			{
+				return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+						"Failed to create the WarmStandby Channel Info event.");
+			}
+
+			return ReactorReturnCodes.SUCCESS;
+		}
+		catch (Exception ex)
+		{
+			return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location,
+					"Exception in getWarmStandbyChannelInfo: " + ex.getMessage());
+		}
+		finally
+		{
+			_reactorLock.unlock();
+		}
+	}
+
+	/**
+	 * Provides the Reactor warm standby channel information for the application
+	 *
+	 * @param reactorChannel the channel for which information should be provided, must not be null
+	 * @param callback callback to provide channel information for the application, must not be null
+	 * @param errorInfo error structure to be populated in the event of failure, must not be null
+	 *
+	 * @return {@link ReactorReturnCodes} indicating success or failure
+	 */
+	public int getWarmStandbyChannelInfo(ReactorChannel reactorChannel, ReactorWarmStandbyChannelInfoCallback callback,
+										 ReactorErrorInfo errorInfo)
+	{
+		return getWarmStandbyChannelInfo(reactorChannel, callback, Collections.emptyList(), errorInfo);
+	}
 }

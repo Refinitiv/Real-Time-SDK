@@ -2,26 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.training.consumer.series500.ex511_RequestRouting_ProgrammaticCfg;
 
-import com.refinitiv.ema.access.AckMsg;
-import com.refinitiv.ema.access.ElementList;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.GenericMsg;
-import com.refinitiv.ema.access.Map;
-import com.refinitiv.ema.access.MapEntry;
-import com.refinitiv.ema.access.Msg;
-import com.refinitiv.ema.access.OmmConsumer;
-import com.refinitiv.ema.access.OmmConsumerClient;
-import com.refinitiv.ema.access.OmmConsumerEvent;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.RefreshMsg;
-import com.refinitiv.ema.access.StatusMsg;
-import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.*;
 
 class AppClient implements OmmConsumerClient
 {
@@ -32,7 +19,13 @@ class AppClient implements OmmConsumerClient
 	
 	public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( updateMsg + "\nevent channel info (update)\n" + event.channelInformation() );
+		System.out.println(updateMsg);
+
+		SessionInformation si = event.sessionInformation();
+		if (si != null)
+		{
+			System.out.println("\nevent session channel info (update)\n" + si);
+		}
 	}
 
 	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 

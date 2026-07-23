@@ -29,11 +29,12 @@ ex470_MP_WarmStandby implements the following high-level steps:
 + Instantiates and modifies OmmConsumerConfig object
   - sets Omm Consumer configuration with data from the programmatic configuration
 + Instantiates OmmConsumer object which initializes connection and logins into
-  the specified server
+  the specified server with enabling warm standby change event receiving feature
 + Opens a streaming item interest
   - MarketPrice Domain IBM.N item from DIRECT_FEED service
 + Processes data received from API for 60 seconds
   - all received messages are processed on API thread of control
+  - gets warm standby session information and display it
 + Exits
 
 Note: If needed, these and other details may be modified to fit your local
