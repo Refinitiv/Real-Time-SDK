@@ -1688,7 +1688,7 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 			struct timespec ts;
 			ts.tv_sec = 0;
 			ts.tv_nsec = 500000000;
-			sleep(1);
+			nanosleep(&ts, NULL);
 #endif
 			++maxWaitCount;
 		}
