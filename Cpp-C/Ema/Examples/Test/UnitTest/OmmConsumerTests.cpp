@@ -14081,8 +14081,22 @@ TEST_F(OmmConsumerTest, LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndA
 		provClient4.clear();
 		provClient5.clear();
 
-		ASSERT_EQ(consClient.getMessageQueueSize(), 1);
-		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 1);
+		ASSERT_EQ(consClient.getMessageQueueSize(), 2);
+		ASSERT_EQ(consClient.getChannelInfoQueueSize(), 2);
+
+		msg = consClient.popMsg();
+
+		ASSERT_EQ(msg->getDataType(), DataType::StatusMsgEnum);
+		statusMsg = static_cast<StatusMsg*>(msg);
+		ASSERT_EQ(statusMsg->getDomainType(), MMT_LOGIN);
+		ASSERT_TRUE(statusMsg->hasState());
+		ASSERT_EQ(statusMsg->getState().getStreamState(), OmmState::StreamState::OpenEnum);
+		ASSERT_EQ(statusMsg->getState().getDataState(), OmmState::DataState::SuspectEnum);
+		ASSERT_EQ(statusMsg->getState().getStatusCode(), OmmState::StatusCode::NoneEnum);
+		ASSERT_STREQ(statusMsg->getState().getStatusText(), "channel down");
+		ChannelInformation* pChannelInfo = consClient.popChannelInfo();
+		ASSERT_STREQ(pChannelInfo->getName(), "TestChannel_15000");
+		ASSERT_EQ(pChannelInfo->port(), 15000);
 
 		msg = consClient.popMsg();
 
@@ -14093,7 +14107,7 @@ TEST_F(OmmConsumerTest, LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndA
 		ASSERT_TRUE(refreshMsg->getComplete());
 		ASSERT_STREQ(refreshMsg->getState().toString(), "Open / Ok / None / 'Login Accepted'");
 		ASSERT_EQ(refreshMsg->getAttrib().getDataType(), DataType::ElementListEnum);
-		ChannelInformation* pChannelInfo = consClient.popChannelInfo();
+		pChannelInfo = consClient.popChannelInfo();
 		ASSERT_EQ(pChannelInfo->getName(), "TestChannel_15002");
 		ASSERT_EQ(pChannelInfo->port(), 15002);
 
