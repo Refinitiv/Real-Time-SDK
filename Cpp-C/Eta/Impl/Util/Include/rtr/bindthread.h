@@ -21,16 +21,12 @@
 extern "C" {
 #endif
 
+#ifdef WIN32
 #include "eta/cputopology.h"
+#endif
+
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslTypes.h"
-
-/* CPU topology data structure */
-typedef struct {
-    RsslUInt32	logicalCpuCount;   // the number of logical processors
-    GLKTSN_T* cpu_topology_ptr;  // full CPU topology describers
-} RsslCPUTopology;
-
 
 /* Binds the calling thread to the core with the given CPU as cpuString in P:X C:Y T:Z format. */
 /* @param cpuString the Cpu core in string format (P:X C:Y T:Z format). */
@@ -80,6 +76,18 @@ RSSL_API RsslRet getPCTByProcessorCoreNumber(RsslInt32 cpuId, RsslBuffer* pCpuPC
 * @return RSSL_FALSE when the processor unit is in offline, or cputopology is not initialized.
 */
 RSSL_API RsslBool isProcessorCoreOnline(RsslInt32 cpuId);
+
+/**
+* @brief Gets the current CPU Initialization Error state
+* @param (in)  pError RsslErrorInfo.
+* 
+* @return RSSL_RET_SUCCESS when if the thread initialization has completed.
+* @return RSSL_RET_FAILURE if thread initialization has not finished, with pError containing additional information.
+*/
+RSSL_API RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError);
+
+// Test method to set failure for unit tests
+RSSL_API void setTestErrorInitializationFailure();
 
 #ifdef __cplusplus
 }

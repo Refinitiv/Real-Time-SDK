@@ -8,8 +8,6 @@
 
 #include "rtr/rsslBindThread.h"
 #include "rtr/rsslErrors.h"
-#include "rtr/rsslThread.h"
-#include "rtr/bindthread.h"
 #include "rtr/rtratomic.h"
 
 #include <stdlib.h>
@@ -19,13 +17,59 @@
 #ifndef WIN32
 #include <unistd.h>
 #include <errno.h>
+#include <sched.h>
 #endif
+
+#include "rtr/bindthread.h"
+
+// This is used for Linux CPU information
+typedef struct {
+	unsigned int cpuId;			// OS defined id of the CPU, from /sys/devices/system/cpu/cpu<CPU Number>
+	unsigned int online;			// 1 if CPU is online, 0 if not.
+	unsigned int pkgId;			// OS defined package Id of the CPU, from /sys/devices/system/cpu/cpu%d/topology/physical_package_id
+	unsigned int coreId;			// OS defined core id of the CPU, from /sys/devices/system/cpu/cpu%d/topology/core_id
+	unsigned int threadId;		// This is a calculated value, based on the number of matching pkgId and coreId CPUs are present in /sys/devices/system/cpu/
+	// So for example, if cpu3 id has pkgId 1 and coreId 2, and cpu4 has pkgId1 and coreId 2, cpu3 will have a threadId of 0, and cpu4 will have a threadId of 1
+} RsslPkgCoreInfo;
+
+/* CPU topology data structure */
+typedef struct {
+	RsslUInt32	logicalCpuCount;   // the number of logical processors
+#ifdef WIN32
+	GLKTSN_T* cpu_topology_ptr;  // full CPU topology describers, used only for Windows
+#else
+	RsslPkgCoreInfo* cpuInfoArray;	// Array of RsslPkgCoreInfo describing all CPUs.  Size is determined by logicalCpuCount.  This is used only for Linux.
+#endif
+
+} RsslCPUTopology;
 
 // Allows to print debug information
 #undef _DUMP_DEBUG_
 
-static RsslCPUTopology rsslCPUTopology;
+// Defined for Linux.
+#ifndef MAX_CPUS_ARRAY
+#define MAX_CPUS_ARRAY 1024
+#endif
+
+static RsslCPUTopology rsslCPUTopology = { 0, NULL };
 static rtr_atomic_val initializedCpuTopology = 0L;
+
+// This function reads an integer value from a file at the given path and stores it in the provided value pointer. It returns 1 on success and 0 on failure.
+static int _readIntFromFile(const char* path, int* value)
+{
+	FILE* fp = fopen(path, "r");
+	if (!fp)
+		return 0;
+
+	if (fscanf(fp, "%d", value) != 1)
+	{
+		fclose(fp);
+		return 0;
+	}
+
+	fclose(fp);
+	return 1;
+}
 
 RSSL_API RsslUInt32 rsslGetNumberOfProcessorCore(void)
 {
@@ -90,9 +134,12 @@ RSSL_API RsslBool rsslIsStrProcessorCoreBindValid(const char* cpuString)
 	return RSSL_FALSE;
 }
 
-RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
+RSSL_API RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
 {
-	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
+	RsslErrorInfo* pInitCpuIdLibError = NULL;
+
+#ifdef WIN32
+	pInitCpuIdLibError = getErrorInitializationStage();
 	if (rsslCPUTopology.cpu_topology_ptr == NULL || pInitCpuIdLibError != NULL)
 	{
 		if (pInitCpuIdLibError != NULL)
@@ -106,6 +153,14 @@ RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
 		}
 		return RSSL_RET_FAILURE;
 	}
+#else
+	if (initializedCpuTopology == 0 || rsslCPUTopology.cpuInfoArray == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"Cpu topology information is unavailable.");
+		return RSSL_RET_FAILURE;
+	}
+#endif
 
 	return RSSL_RET_SUCCESS;
 }
@@ -235,18 +290,24 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 			currentId = (currentId * 10) + (int)*stringIter - '0';
 		}
 	}
+
 	if (!foundChar)
 	{
+		// THis is the case where the string is just a numeric CPU Id value.  
+		// rsslBindThreadInitialize() is optional in this case, so if it has not been called, do not check to see if the CPU is online prior to binding.
 		if (currentId < lcl_maxcpu)
 		{
 			int isOnline = 1;
 			if (checkCpuIdInitializationError(pError) == RSSL_RET_SUCCESS)
 			{
-				GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
-				if (pCpuTopology->pApicAffOrdMapping[currentId].offline)  // the fields offline was removed.
+#ifdef WIN32
+				if (rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[currentId].offline)  // the fields offline was removed.
 				{
 					isOnline = 0;
 				}
+#else
+				isOnline = isProcessorCoreOnline(currentId);
+#endif
 			}
 
 			if (isOnline)
@@ -258,31 +319,55 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 	}
 	else
 	{
+		// This is a C: P: T: formatted string, so iterate through the list of cached logical processor information and attempt to match the requested values.
 		// When during initialization CpuTopology got an error we can not perform mapping PCT to logical processor unit id
 		if (checkCpuIdInitializationError(pError) != RSSL_RET_SUCCESS)
 			return RSSL_RET_FAILURE;
-
-		GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
-
+#ifdef WIN32
 		/* Iterate through the processor list to find matches */
 		for (i = 0; i < lcl_maxcpu; i++)
 		{
 			// Don't check this logical id if its currently offline or
 			// unavailable.
-			if (pCpuTopology->pApicAffOrdMapping[i].offline)  // the fields offline was removed.
+			if (rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].offline)  // the fields offline was removed.
 				continue;
-			if (pCpuTopology->pApicAffOrdMapping[i].packageORD != procId)
-				continue;
-
-			if (!(coreId == -1 || pCpuTopology->pApicAffOrdMapping[i].coreORD == coreId))
+			if (rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].packageORD != procId)
 				continue;
 
-			if (!(threadId == -1 || pCpuTopology->pApicAffOrdMapping[i].threadORD == threadId))
+			if (!(coreId == -1 || rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].coreORD == coreId))
 				continue;
 
+			if (!(threadId == -1 || rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].threadORD == threadId))
+				continue;
+
+			// This is a match, add it to the list of logical processors to bind to and break out of for loop.
 			idArray[*idCount] = i;
 			*idCount = *idCount + 1;
 		}
+#else
+
+		for (i = 0; i < (int)lcl_maxcpu; ++i)
+		{
+
+			// Don't check this logical id if its currently offline or
+			// unavailable.
+			if (rsslCPUTopology.cpuInfoArray[i].online == 0)  // The CPU is offline.
+				continue;
+
+			if (rsslCPUTopology.cpuInfoArray[i].pkgId != (unsigned int)procId)
+				continue;
+
+			if (!(coreId == -1 || rsslCPUTopology.cpuInfoArray[i].coreId == (unsigned int)coreId))
+				continue;
+
+			if (!(threadId == -1 || rsslCPUTopology.cpuInfoArray[i].threadId == (unsigned int)threadId))
+				continue;
+
+			// This is a match, add it to the list of logical processors to bind to and break out of for loop.
+			idArray[*idCount] = i;
+			*idCount = *idCount + 1;
+		}
+#endif
 	}
 
 	ret = (*idCount > idCount0 ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE);
@@ -377,13 +462,12 @@ RsslRet convertCpuIdArrayToAssignment(const RsslUInt* cpuIdArray, RsslUInt cpuCo
 	printf("rsslBindThreadToCpuArray. dump CpuIdArray: ");
 	dumpCpuArray(cpuIdArray, cpuCount);
 #endif // _DUMP_DEBUG_
-	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
 	unsigned i;
 
 	for (i = 0; i < cpuCount; i++)
 	{
 		RsslUInt idProcessorUnit = cpuIdArray[i];
-		if (idProcessorUnit < lcl_maxcpu && idProcessorUnit < MAX_CPUS_ARRAY)
+		if (idProcessorUnit < rsslCPUTopology.logicalCpuCount && idProcessorUnit < MAX_CPUS_ARRAY)
 		{
 			cpuIdAssign[idProcessorUnit] = 1;
 		}
@@ -394,7 +478,7 @@ RsslRet convertCpuIdArrayToAssignment(const RsslUInt* cpuIdArray, RsslUInt cpuCo
 
 RsslRet rsslBindThreadToCpuAssignmentArray(const char* cpuString, RsslUInt8* cpuIdAssign, RsslErrorInfo* pError)
 {
-	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
+	RsslUInt32 lcl_maxcpu = rsslGetNumberOfProcessorCore();
 #if defined(Linux) && !defined(x86_Linux_2X)
 	RsslUInt i;
 	cpu_set_t currentCPUSet;
@@ -481,14 +565,14 @@ RSSL_API RsslRet rsslBindProcessorCoreThread(RsslInt32 cpuId, RsslErrorInfo* pEr
 RSSL_API void dumpCpuTopology()
 {
 	RsslUInt32 i;
-	RsslUInt32 lcl_maxcpu;
-
-	GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
-	lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //getLogicalCpuCount();
+	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //rsslGetNumberOfProcessorCore();
 
 	printf("MaxCpu = %u\n\n", lcl_maxcpu);
 
-	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
+	RsslErrorInfo* pInitCpuIdLibError = NULL;
+
+#ifdef WIN32
+	pInitCpuIdLibError = getErrorInitializationStage();
 	if (pInitCpuIdLibError != NULL)
 	{
 		printf("Error of the initialization stage.\n");
@@ -496,9 +580,10 @@ RSSL_API void dumpCpuTopology()
 		printf("errorLocation = {%s}\n", pInitCpuIdLibError->errorLocation);
 		printf("rsslError: rsslErrorId = %d, sysError = %u, text = {%s}\n\n",
 			pInitCpuIdLibError->rsslError.rsslErrorId, pInitCpuIdLibError->rsslError.sysError, pInitCpuIdLibError->rsslError.text);
+		return;
 	}
 
-	if (pCpuTopology == NULL)
+	if (rsslCPUTopology.cpu_topology_ptr == NULL)
 	{
 		printf("Cpu topology information is unavailable.\n");
 	}
@@ -507,32 +592,65 @@ RSSL_API void dumpCpuTopology()
 		// internal details
 		if (pInitCpuIdLibError != NULL)
 		{
-			printf("EnumeratedPkgCount = %u\n", pCpuTopology->EnumeratedPkgCount);
-			printf("EnumeratedCoreCount = %u\n", pCpuTopology->EnumeratedCoreCount);
-			printf("EnumeratedThreadCount = %u\n\n", pCpuTopology->EnumeratedThreadCount);
-			printf("SMTSelectMask = %u (0x%X)\n", pCpuTopology->SMTSelectMask, pCpuTopology->SMTSelectMask);
-			printf("PkgSelectMask = %u (0x%X)\n", pCpuTopology->PkgSelectMask, pCpuTopology->PkgSelectMask);
-			printf("CoreSelectMask = %u (0x%X)\n", pCpuTopology->CoreSelectMask, pCpuTopology->CoreSelectMask);
-			printf("PkgSelectMaskShift = %u\n", pCpuTopology->PkgSelectMaskShift);
-			printf("SMTMaskWidth = %u\n\n", pCpuTopology->SMTMaskWidth);
+			printf("EnumeratedPkgCount = %u\n", rsslCPUTopology.cpu_topology_ptr->EnumeratedPkgCount);
+			printf("EnumeratedCoreCount = %u\n", rsslCPUTopology.cpu_topology_ptr->EnumeratedCoreCount);
+			printf("EnumeratedThreadCount = %u\n\n", rsslCPUTopology.cpu_topology_ptr->EnumeratedThreadCount);
+			printf("SMTSelectMask = %u (0x%X)\n", rsslCPUTopology.cpu_topology_ptr->SMTSelectMask, rsslCPUTopology.cpu_topology_ptr->SMTSelectMask);
+			printf("PkgSelectMask = %u (0x%X)\n", rsslCPUTopology.cpu_topology_ptr->PkgSelectMask, rsslCPUTopology.cpu_topology_ptr->PkgSelectMask);
+			printf("CoreSelectMask = %u (0x%X)\n", rsslCPUTopology.cpu_topology_ptr->CoreSelectMask, rsslCPUTopology.cpu_topology_ptr->CoreSelectMask);
+			printf("PkgSelectMaskShift = %u\n", rsslCPUTopology.cpu_topology_ptr->PkgSelectMaskShift);
+			printf("SMTMaskWidth = %u\n\n", rsslCPUTopology.cpu_topology_ptr->SMTMaskWidth);
 		}
 
 		for (i = 0; i < lcl_maxcpu; i++)
 		{
 			printf("[%u]  P:%u C:%u T:%u | APICID=%u OrdIndexOAMsk=%u pkg_IDAPIC=%u Core_IDAPIC=%u SMT_IDAPIC=%u online=%c\n",
 				i,
-				pCpuTopology->pApicAffOrdMapping[i].packageORD,
-				pCpuTopology->pApicAffOrdMapping[i].coreORD,
-				pCpuTopology->pApicAffOrdMapping[i].threadORD,
-				pCpuTopology->pApicAffOrdMapping[i].APICID,
-				pCpuTopology->pApicAffOrdMapping[i].OrdIndexOAMsk,
-				pCpuTopology->pApicAffOrdMapping[i].pkg_IDAPIC,
-				pCpuTopology->pApicAffOrdMapping[i].Core_IDAPIC,
-				pCpuTopology->pApicAffOrdMapping[i].SMT_IDAPIC,
-				(pCpuTopology->pApicAffOrdMapping[i].offline != 0 ? 'n' : 'y')
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].packageORD,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].coreORD,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].threadORD,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].APICID,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].OrdIndexOAMsk,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].pkg_IDAPIC,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].Core_IDAPIC,
+				rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].SMT_IDAPIC,
+				(rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].offline != 0 ? 'n' : 'y')
 			);
 		}
 	}
+#else
+	if(initializedCpuTopology == 0)
+	{
+		printf("rsslBindThreadInitialize has not been called.\n");
+		return;
+	}
+
+	if (rsslCPUTopology.cpuInfoArray == NULL)
+	{
+		printf("Cpu topology information is unavailable.\n");
+	}
+	else
+	{
+		printf("Processor Count: %u\n", lcl_maxcpu);
+
+		for (i = 0; i < lcl_maxcpu; i++)
+		{
+			if (rsslCPUTopology.cpuInfoArray[i].online == 0)
+			{
+				printf("[%u] online=n", i);
+			}
+			else
+			{
+				printf("[%u]  P:%u C:%u T:%u | online=y\n",
+					i,
+					rsslCPUTopology.cpuInfoArray[i].pkgId,
+					rsslCPUTopology.cpuInfoArray[i].coreId,
+					rsslCPUTopology.cpuInfoArray[i].threadId);
+			}
+		}
+	}
+
+#endif
 }
 
 RsslRet printLogicalIds(RsslUInt cpuCount, RsslUInt8* cpuIdAssign, RsslBuffer* pOutputResult)
@@ -659,6 +777,7 @@ RSSL_API RsslRet rsslBindThreadEx(const char* cpuString, RsslBuffer* outputResul
 
 RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 {
+
 	if (!initializedCpuTopology)
 	{
 		RsslErrorInfo rsslErrorInfo;
@@ -667,10 +786,10 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 
 		memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
 
-		initCpuTopologyMutex();
-
 		/* Get CPU affinity of the thread */
 #ifdef WIN32
+		initCpuTopologyMutex();
+
 		DWORD_PTR cpuMask = (DWORD_PTR)(-1LL);
 		DWORD_PTR oldMask = 0ULL;
 
@@ -681,42 +800,93 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 			// If the thread affinity mask requests a processor that is not selected for the process affinity mask,
 			// the last error code is ERROR_INVALID_PARAMETER.
 		}
-#else	// Linux
-		RsslBool restoreAffinity = RSSL_TRUE;
-		cpu_set_t cpuSet;
-		CPU_ZERO(&cpuSet);
-
-		if (pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuSet) != 0)
-		{
-			// pthread_getaffinity_np returns an error so don't restore the process affinity mask.
-			restoreAffinity = RSSL_FALSE;
-		}
 #endif
 
-		if (initializeCpuTopology(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+// Set the logical CPU count here.
+rsslCPUTopology.logicalCpuCount = rsslGetNumberOfProcessorCore();
+
+#ifdef WIN32
+	if (initializeCpuTopology(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s> %s\n", rsslErrorInfo.errorLocation, rsslErrorInfo.rsslError.text);
+
+		destroyCpuTopologyMutex();
+		RTR_ATOMIC_SET(initializedCpuTopology, 0);
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslCPUTopology.cpu_topology_ptr = getCpuTopology();
+#else
+	{
+		int i, j;
+		rsslCPUTopology.cpuInfoArray = (RsslPkgCoreInfo*)malloc(rsslCPUTopology.logicalCpuCount * sizeof(RsslPkgCoreInfo));
+		if (rsslCPUTopology.cpuInfoArray == NULL)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-#if defined(__GNUC__) && (__GNUC__ >= 9)
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wformat-truncation"
-#endif
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s> %s\n", rsslErrorInfo.errorLocation, rsslErrorInfo.rsslError.text);
-#if defined(__GNUC__) && (__GNUC__ >= 9)
-	#pragma GCC diagnostic pop
-#endif
-
-			destroyCpuTopologyMutex();
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "Could not allocate cpuInfoArray\n");
 			RTR_ATOMIC_SET(initializedCpuTopology, 0);
 			return RSSL_RET_FAILURE;
 		}
 
-		rsslCPUTopology.cpu_topology_ptr = getCpuTopology();
-		rsslCPUTopology.logicalCpuCount = getLogicalCpuCount();
+		memset((void*)rsslCPUTopology.cpuInfoArray, 0, rsslCPUTopology.logicalCpuCount * sizeof(RsslPkgCoreInfo));
+		// Iterate through the list of CPUs contained in /sys/devices/system/cpu/.
+		// For each one, determine if it is online, and store the associated package, core Id, and calculate the threadId for the that specific CPU.
+		// These are all represented by 
+		for (i = 0; i < (int)rsslCPUTopology.logicalCpuCount; ++i)
+		{
+			int pkg = -1;
+			int core = -1;
+			int threadId = 0;
+			int online = 0;
+			char path[256];
+
+			rsslCPUTopology.cpuInfoArray[i].cpuId = i;
+
+			snprintf(path, sizeof(path), "/sys/devices/system/cpu/cpu%d/online", online);
+			if (!_readIntFromFile(path, &online))
+				rsslCPUTopology.cpuInfoArray[i].online = 1; /* cpu0 or kernels without online file */
+			else
+			{
+				rsslCPUTopology.cpuInfoArray[i].online = online;
+				if (online == 0)
+					continue;
+			}
+
+			snprintf(path, sizeof(path), "/sys/devices/system/cpu/cpu%d/topology/physical_package_id", i);
+			if (!_readIntFromFile(path, &pkg))
+				continue;
+
+			rsslCPUTopology.cpuInfoArray[i].pkgId = pkg;
+
+			snprintf(path, sizeof(path), "/sys/devices/system/cpu/cpu%d/topology/core_id", i);
+			if (!_readIntFromFile(path, &core))
+				continue;
+
+			rsslCPUTopology.cpuInfoArray[i].coreId = core;
+
+			// Determine the threadId for the core.
+			threadId = 0;
+			for (j = 0; j < i; ++j)
+			{
+				if (rsslCPUTopology.cpuInfoArray[j].coreId == core && rsslCPUTopology.cpuInfoArray[j].pkgId == pkg)
+					++threadId;
+			}
+			rsslCPUTopology.cpuInfoArray[i].threadId = threadId;
+		}
+	}
+#endif
+		
 
 #ifdef _DUMP_DEBUG_
-		if (rsslCPUTopology.cpu_topology_ptr != NULL)
-			dumpCpuTopology();
-#endif
+#ifdef WIN32
+	if (rsslCPUTopology.cpu_topology_ptr != NULL)
+		dumpCpuTopology();
+#else
+	if(rsslCPUTopology.cpuInfoArray != NULL)
+		dumpCpuTopology();
+#endif // WIN32
+#endif // _DUMP_DEBUG_
 
 		/* Restore CPU affinity for the thread */
 #ifdef WIN32
@@ -737,19 +907,6 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 				return RSSL_RET_FAILURE;
 			}
 		}
-#else	// Linux
-		if ( (restoreAffinity == RSSL_TRUE) && (sched_setaffinity(0, sizeof(cpu_set_t), &cpuSet) < 0) )
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> rsslBindThreadInitialize() Unable to restore processor affinity.\n", __FILE__, __LINE__);
-
-			unInitializeCpuTopology();
-			destroyCpuTopologyMutex();
-			rsslCPUTopology.cpu_topology_ptr = NULL;
-			RTR_ATOMIC_SET(initializedCpuTopology, 0);
-			return RSSL_RET_FAILURE;
-		}
 #endif
 	}
 	return RSSL_RET_SUCCESS;
@@ -757,11 +914,16 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 
 RSSL_API RsslRet rsslBindThreadUninitialize()
 {
-	if (initializedCpuTopology)
+	if (initializedCpuTopology == 1)
 	{
+#ifdef WIN32
 		unInitializeCpuTopology();
-		destroyCpuTopologyMutex();
 		rsslCPUTopology.cpu_topology_ptr = NULL;
+#else
+		if (rsslCPUTopology.cpuInfoArray != NULL)
+			free((void*)rsslCPUTopology.cpuInfoArray);
+		rsslCPUTopology.cpuInfoArray = NULL;
+#endif
 		RTR_ATOMIC_SET(initializedCpuTopology, 0);
 	}
 
@@ -773,15 +935,14 @@ RSSL_API void rsslClearBindings()
 	int lcl_maxcpu = rsslGetNumberOfProcessorCore();
 	unsigned long mask = 0;
 	int i;
-	GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
 #if defined(Linux) && !defined(x86_Linux_2X)
 	cpu_set_t currentCPU;
 	CPU_ZERO(&currentCPU);
 	for (i = 0; i < lcl_maxcpu; i++)
 	{
 		// Don't check this logical id if its currently offline or 
-		// unavailable. 
-		if (pCpuTopology != NULL && pCpuTopology->pApicAffOrdMapping[i].offline)
+		// unavailable.  If rsslCPUTopology.cpuInfoArray is NULL, this was not initialized, but we can still clear the bindings.
+		if (rsslCPUTopology.cpuInfoArray != NULL && rsslCPUTopology.cpuInfoArray[i].online == 0)
 			continue;
 #if defined(x86_Linux_3X) && !defined(x86_Linux_S9X)
 		mask = (unsigned long)(DWORD_PTR)(1ULL << i);
@@ -803,7 +964,7 @@ RSSL_API void rsslClearBindings()
 	{
 		// Don't check this logical id if its currently offline or 
 		// unavailable. 
-		if (pCpuTopology != NULL && pCpuTopology->pApicAffOrdMapping[i].offline)
+		if (rsslCPUTopology.cpu_topology_ptr != NULL && rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[i].offline)
 			continue;
 		affinity = affinity | (DWORD_PTR)(1ULL << i);
 	}
@@ -816,15 +977,13 @@ RSSL_API void rsslClearBindings()
 
 RsslRet getPCTByProcessorCoreNumber(RsslInt32 cpuId, RsslBuffer* pCpuPCTString, RsslErrorInfo* pError)
 {
-	GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
-	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //getLogicalCpuCount();
 	int len;
 
 	// When during initialization CpuTopology got an error we can not perform mapping PCT to logical processor unit id
 	if (checkCpuIdInitializationError(pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
-	if (cpuId < 0 || lcl_maxcpu <= (unsigned)cpuId)
+	if (cpuId < 0 || rsslCPUTopology.logicalCpuCount <= (unsigned)cpuId)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 			"Configuration setting %d did not match any physical processors on the system.", cpuId);
@@ -838,11 +997,19 @@ RsslRet getPCTByProcessorCoreNumber(RsslInt32 cpuId, RsslBuffer* pCpuPCTString, 
 		return RSSL_RET_FAILURE;
 	}
 
+	#ifdef WIN32
 	len = snprintf(pCpuPCTString->data, pCpuPCTString->length, "P:%u C:%u T:%u",
-			pCpuTopology->pApicAffOrdMapping[cpuId].packageORD,
-			pCpuTopology->pApicAffOrdMapping[cpuId].coreORD,
-			pCpuTopology->pApicAffOrdMapping[cpuId].threadORD
+			rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[cpuId].packageORD,
+			rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[cpuId].coreORD,
+			rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[cpuId].threadORD
 			);
+	#else
+		len = snprintf(pCpuPCTString->data, pCpuPCTString->length, "P:%u C:%u T:%u",
+			rsslCPUTopology.cpuInfoArray[cpuId].pkgId,
+			rsslCPUTopology.cpuInfoArray[cpuId].coreId,
+			rsslCPUTopology.cpuInfoArray[cpuId].threadId
+		);
+	#endif
 
 	if (len > 0)
 		pCpuPCTString->length = (unsigned)len;
@@ -854,21 +1021,24 @@ RsslRet getPCTByProcessorCoreNumber(RsslInt32 cpuId, RsslBuffer* pCpuPCTString, 
 
 RSSL_API RsslBool isProcessorCoreOnline(RsslInt32 cpuId)
 {
-	GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
-	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //getLogicalCpuCount();
+	int online = 0;
 
 	RsslErrorInfo rsslError;
 
 	// When during initialization CpuTopology got an error we can not perform mapping PCT to logical processor unit id
 	if (checkCpuIdInitializationError(&rsslError) != RSSL_RET_SUCCESS)
 		return RSSL_FALSE;
-
-	if (0 <= cpuId && (unsigned)cpuId < lcl_maxcpu)
+#ifdef WIN32
+	if (0 <= cpuId && (unsigned)cpuId < rsslCPUTopology.logicalCpuCount)
 	{
-		if (pCpuTopology->pApicAffOrdMapping[cpuId].offline)
+		if (rsslCPUTopology.cpu_topology_ptr->pApicAffOrdMapping[cpuId].offline)
 			return RSSL_FALSE;
 		return RSSL_TRUE;
 	}
+#else
+	if (0 <= cpuId && (unsigned)cpuId < rsslCPUTopology.logicalCpuCount)
+		return rsslCPUTopology.cpuInfoArray[cpuId].online == 1 ? RSSL_TRUE : RSSL_FALSE;
+#endif
 
 	return RSSL_FALSE;
 }
@@ -924,4 +1094,18 @@ RSSL_API RsslRet rsslGetLogicalCpuIdsbyPCT(const char* cpuString, RsslBuffer* pL
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+RSSL_API void setTestErrorInitializationFailure()
+{
+#ifdef WIN32
+	setTestErrorInitializationStage();
+#else
+	// Just clean out everything
+	if (rsslCPUTopology.cpuInfoArray != NULL)
+		free((void*)rsslCPUTopology.cpuInfoArray);
+
+	rsslCPUTopology.cpuInfoArray = NULL;
+	RTR_ATOMIC_SET(initializedCpuTopology, 0);
+#endif
 }

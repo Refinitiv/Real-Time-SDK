@@ -282,15 +282,8 @@ else()
 	                ${Eta_SOURCE_DIR}/Impl/Util/rsslBindThread.c
 					${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/bindthread.h
 					${Eta_SOURCE_DIR}/Include/Util/rtr/rsslBindThread.h
+				)
 
-					${Eta_SOURCE_DIR}/Impl/Util/cpu_topo.c
-	                ${Eta_SOURCE_DIR}/Impl/Util/Include/eta/cputopology.h
-					${Eta_SOURCE_DIR}/Impl/Util/util_os.c
-				)
-			set(rsslLnx64Asm
-					${Eta_SOURCE_DIR}/Impl/Util/get_cpuid_lix64.s
-				)
-			add_library(rssl_asm OBJECT ${rsslLnx64Asm})
 		endif()
     endif()
 
@@ -313,7 +306,7 @@ else()
     else()
 		if(BUILD_ETA_CPU_BIND)
 			add_library( librssl_tmp STATIC 
-							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} $<TARGET_OBJECTS:rssl_asm> )
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} )
 		else()
 			add_library( librssl_tmp STATIC 
 							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} )
@@ -425,7 +418,7 @@ else()
     else()
 		if(BUILD_ETA_CPU_BIND)			
 			add_library( librssl_shared SHARED 
-							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} $<TARGET_OBJECTS:rssl_asm> )
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} )
 		else()
 			add_library( librssl_shared SHARED 
 							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} )

@@ -2982,6 +2982,7 @@ TEST_F(ThreadBindProcessorCoreTestETAInit, GetLogicalCpuIdsbyPCTCpuPCTWhenSkipCp
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
@@ -2990,6 +2991,8 @@ TEST_F(ThreadBindProcessorCoreTestETAInit, CpuTopologyInitializationShouldReturn
 {
 	RsslError error;
 	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslRet ret;
+	RsslErrorInfo errorInfo;
 
 	ASSERT_EQ(RSSL_TRUE, rsslInitExOpts.shouldInitializeCPUIDlib);
 
@@ -3001,8 +3004,8 @@ TEST_F(ThreadBindProcessorCoreTestETAInit, CpuTopologyInitializationShouldReturn
 	dumpCpuTopology();
 
 	// Verify that there are no Cpu topology initialization errors.
-	RsslErrorInfo* pInitCpuIdLibError = getErrorInitializationStage();
-	ASSERT_EQ((RsslErrorInfo *)NULL, pInitCpuIdLibError) << "Please report about the CPU topology detection error to RTSDK developers.";
+	ret = checkCpuIdInitializationError(&errorInfo);
+	ASSERT_EQ(ret, RSSL_RET_SUCCESS) << "Please report about the CPU topology detection error to RTSDK developers.";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -3020,7 +3023,7 @@ protected:
 		ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
 
 		// Set up the test error in Cpu topology
-		setTestErrorInitializationStage();
+		setTestErrorInitializationFailure();
 	}
 
 	virtual void TearDown()
@@ -3066,8 +3069,14 @@ TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadPCTShouldReturnError
 	ASSERT_EQ(rsslBindThread(sCpuCorePCT, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+#ifdef WIN32
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+#else // Linux
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+#endif
+
 }
 
 TEST_F(ThreadBindProcessorCoreInitializationFail, BindProcessorCoreThreadShouldReturnOk)
@@ -3146,9 +3155,16 @@ TEST_F(ThreadBindProcessorCoreInitializationFail, BindThreadExPCTShouldReturnErr
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	
+#ifdef WIN32
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
 	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_TEST);
+#else // Linux
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+#endif
 }
 
 TEST_F(ThreadBindProcessorCoreInitializationFail, GetLogicalCpuIdsbyPCTCpu0ShouldReturnOk)
@@ -3189,8 +3205,13 @@ TEST_F(ThreadBindProcessorCoreInitializationFail, GetLogicalCpuIdsbyPCTCpuPCTSho
 	ASSERT_EQ(rsslGetLogicalCpuIdsbyPCT(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+#ifdef WIN32
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_FAILURE);
 	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_TEST);
+#else // Linux
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+#endif
 	ASSERT_STREQ(outputResult.data, "");
 }
 
