@@ -15,8 +15,6 @@ import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyLoginBasedChannelInf
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.refinitiv.ema.access.EmaConfig.*;
-
 /**
  * Represents warm standby session information for a login-based warm standby consumer channel.
  * <p>
@@ -35,6 +33,9 @@ import static com.refinitiv.ema.access.EmaConfig.*;
  */
 public final class WarmStandbyLoginBasedChannelInformation extends WarmStandbyChannelInformation
 {
+    private static final String ACTIVE_CHANNEL_MARKER = formatChannelMarker("active:");
+    private static final String STANDBY_CHANNEL_MARKER = formatChannelMarker("standby:");
+
     private int activeChannelIndex = -1;
     private final List<WarmStandbyChannelDetails> channelsList = new ArrayList<>();
 
@@ -85,8 +86,9 @@ public final class WarmStandbyLoginBasedChannelInformation extends WarmStandbyCh
     /**
      * Returns a human-readable representation of the login-based warm standby session information.
      * <p>
-     * The returned string includes the warm standby mode, warm standby group name, active channel
-     * index, and the reported channel list.
+     * The returned string includes the warm standby mode, warm standby group name, and the reported
+     * channel list. Each channel entry is prefixed with a state marker. Active channels use
+     * {@code "active:"}; standby channels use {@code "standby:"}.
      *
      * @return formatted login-based warm standby information string
      */
@@ -95,11 +97,6 @@ public final class WarmStandbyLoginBasedChannelInformation extends WarmStandbyCh
     {
         StringBuilder stringBuilder = super.buildStringBuilder();
         stringBuilder.insert(0, "WarmStandbyLoginBasedChannelInformation: " + EOL);
-
-        stringBuilder.append(TAB)
-                .append("activeChannelIndex: ")
-                .append(activeChannelIndex() == -1 ? "N/A" : activeChannelIndex())
-                .append(EOL);
 
         stringBuilder.append(TAB)
                 .append("channelsList: ")
@@ -113,10 +110,12 @@ public final class WarmStandbyLoginBasedChannelInformation extends WarmStandbyCh
         }
         else
         {
-            for (WarmStandbyChannelDetails channel : channelsList())
+            for (int index = 0; index < channelsList.size(); index++)
             {
+                WarmStandbyChannelDetails channel = channelsList.get(index);
                 stringBuilder.append(TAB)
                         .append(TAB)
+                        .append(index == activeChannelIndex() ? ACTIVE_CHANNEL_MARKER : STANDBY_CHANNEL_MARKER)
                         .append(channel == null ? "N/A" : channel)
                         .append(EOL);
             }
@@ -124,6 +123,11 @@ public final class WarmStandbyLoginBasedChannelInformation extends WarmStandbyCh
         stringBuilder.append(EOL);
 
         return stringBuilder.toString();
+    }
+
+    private static String formatChannelMarker(String channelMarker)
+    {
+        return String.format("%8s ", channelMarker);
     }
 
     static WarmStandbyLoginBasedChannelInformation create(ReactorWarmStandbyLoginBasedChannelInfoEvent event)

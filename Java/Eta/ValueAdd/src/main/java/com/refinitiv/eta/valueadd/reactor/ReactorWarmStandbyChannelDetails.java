@@ -162,8 +162,6 @@ public final class ReactorWarmStandbyChannelDetails
                 .append('\'')
                 .append(", protocolType=")
                 .append(protocolType())
-                .append(", userSpecObject=")
-                .append(userSpecObject() == null ? "N/A" : userSpecObject().hashCode())
                 .append('}');
 
         return stringBuilder.toString();

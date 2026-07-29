@@ -118,15 +118,19 @@ public class WarmStandbyLoginBasedChannelInformationTest
     }
 
     @Test
-    public void givenInformation_whenToString_thenIncludeModeGroupActiveIndexAndChannels()
+    public void givenInformation_whenToString_thenIncludeModeGroupActiveMarkerAndChannels()
     {
         ReactorWarmStandbyLoginBasedChannelInfoEvent event = mock(ReactorWarmStandbyLoginBasedChannelInfoEvent.class);
         ChannelInfo activeChannelInfo = mock(ChannelInfo.class);
         when(activeChannelInfo.name()).thenReturn("channelA");
+        ReactorWarmStandbyChannelDetails standbyChannel = mockChannelDetails("standbyHostA", 15999,
+                ConnectionTypes.ENCRYPTED, ConnectionTypes.HTTP, ProtocolType.RWF, null);
         ReactorWarmStandbyChannelDetails activeChannel = mockChannelDetails("activeHost", 16000,
                 ConnectionTypes.SOCKET, -1, ProtocolType.JSON, activeChannelInfo);
+        ReactorWarmStandbyChannelDetails standbyChannelB = mockChannelDetails("standbyHostB", 16001,
+                ConnectionTypes.SOCKET, -1, ProtocolType.RWF, new Object());
 
-        when(event.channelsList()).thenReturn(Collections.singletonList(activeChannel));
+        when(event.channelsList()).thenReturn(Arrays.asList(standbyChannel, activeChannel, standbyChannelB));
         when(event.activeChannel()).thenReturn(activeChannel);
 
         WarmStandbyLoginBasedChannelInformation info = WarmStandbyLoginBasedChannelInformation.create(event);
@@ -137,12 +141,18 @@ public class WarmStandbyLoginBasedChannelInformationTest
         assertTrue(text.contains("WarmStandbyLoginBasedChannelInformation:"));
         assertTrue(text.contains("warmStandbyMode: LOGIN_BASED"));
         assertTrue(text.contains("warmStandbyGroupName: wsbGroupA"));
-        assertTrue(text.contains("activeChannelIndex: 0"));
         assertTrue(text.contains("channelsList:"));
+        assertTrue(text.contains("active: {channelName='channelA'"));
+        assertTrue(text.contains("standby: {channelName='N/A', hostName='standbyHostA'"));
+        assertTrue(text.contains("standby: {channelName='N/A', hostName='standbyHostB'"));
         assertTrue(text.contains("channelName='channelA'"));
         assertTrue(text.contains("connectionType='socket'"));
         assertTrue(text.contains("encryptedConnectionType='N/A'"));
+        assertTrue(text.contains("connectionType='encrypted'"));
+        assertTrue(text.contains("encryptedConnectionType='http'"));
         assertTrue(text.contains("hostName='activeHost'"));
+        assertFalse(text.contains("active: {channelName='N/A', hostName='standbyHostA'"));
+        assertFalse(text.contains("active: {channelName='N/A', hostName='standbyHostB'"));
     }
 
     private ReactorWarmStandbyChannelDetails mockChannelDetails(String hostname, int port, int connectionType,
