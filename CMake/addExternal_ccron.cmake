@@ -17,7 +17,7 @@ function(_write_custom_ccronexpr_entrypoint _file_name)
 
 file(WRITE ${_file_name}
 "
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(ccronexpr)
 
 # Include this to get a standardized lib directory

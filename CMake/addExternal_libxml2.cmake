@@ -189,10 +189,8 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# written using the previously set template arguments
 	rcdev_config_build_ep(${_EPA_NAME})
 	
-
-	# Since the CMake FindLibXml2.cmake does not yet support this new standard
-	# of using <package>_ROOT, it will be commented out until it provides the support
-	#[==============================================================================[
+	# this policy is needed to suppress a CMake warning about the new
+	# standard for using <project>_ROOT variable for find_package()
 	if( POLICY CMP0074 )
 		#message("Setting CMake policy CMP0074")
 		cmake_policy(SET CMP0074 NEW)
@@ -201,13 +199,28 @@ if((NOT libxml2_USE_INSTALLED) AND
 	if(NOT LIBXML2_ROOT)
 		set(LIBXML2_ROOT "${libxml2_install}")
 	endif()
-	#]==============================================================================]
+	
+	if (EXISTS "${libxml_libdir}/${LIBXML2_STATIC_NAME}")
+		set(LIBXML2_LIBRARY "${libxml_libdir}/${LIBXML2_STATIC_NAME}" CACHE FILEPATH "")
+	endif()
+	
+		rcdev_config_build_ep(${_EPA_NAME})
+	
+	# this policy is needed to suppress a CMake warning about the new
+	# standard for using <project>_ROOT variable for find_package()
+	if( POLICY CMP0074 )
+		#message("Setting CMake policy CMP0074")
+		cmake_policy(SET CMP0074 NEW)
+	endif()
 
+	if(NOT LIBXML2_ROOT)
+		set(LIBXML2_ROOT "${libxml2_install}" CACHE PATH "")
+	endif()
+	
 	if(WIN32)
 		set(LIBXML2_STATIC_NAME "libxml2${CMAKE_STATIC_LIBRARY_SUFFIX}")
 	else()
 		set(LIBXML2_STATIC_NAME "libxml2${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
 	endif()
 
 	if (EXISTS "${libxml_libdir}/${LIBXML2_STATIC_NAME}")
@@ -217,6 +230,7 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# These two assignments will ensure the call to find package will locate the package
 	# and define the target
 	set(LIBXML2_INCLUDE_DIR "${libxml2_install}/include/libxml2" CACHE PATH "")
+
 
 	unset(_libdir)
 	unset(_shared_arg)
@@ -230,7 +244,7 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# this template will be at risk being currupted with old values.
 	rcdev_reset_ep_add()
 
-	set(libxml2_find_options HINTS ${libxml2_install})
+
 
 endif()
 
@@ -239,6 +253,8 @@ endif()
 # just added with the ecternal project template
 if ((NOT LibXml2_FOUND) OR
 	(NOT TARGET LibXml2::LibXml2) )
+	
+	set(libxml2_find_options HINTS ${LIBXML2_ROOT})
 
 	# Calling find_package with a required version number will fail if the
 	# package does not have a <name>version.cmake in the same location as
