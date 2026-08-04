@@ -2,12 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.valueadd.domainrep.rdm.directory;
 
+import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.State;
 
 /**
@@ -130,12 +131,42 @@ public interface DirectoryStatus extends DirectoryMsg
 
     /**
      * Checks the presence of state field.
-     * 
+     *
      * Flags may also be bulk-get via {@link #flags()}.
-     * 
+     *
      * @return true - if exists; false if does not exist.
      */
     public boolean checkHasState();
+
+    /**
+     * Checks the presence of permData field.
+     *
+     * Flags may also be bulk-get via {@link #flags()}.
+     *
+     * @return true - if exists; false if does not exist.
+     */
+    public boolean checkHasPermData();
+
+    /**
+     * Applies permData presence flag.
+     *
+     * Flags may also be bulk-set via {@link #flags(int)}.
+     */
+    public void applyHasPermData();
+
+    /**
+     * Returns current permData.
+     *
+     * @return permData.
+     */
+    public Buffer permData();
+
+    /**
+     * Sets permData for the directory status message.
+     *
+     * @param permData the permData
+     */
+    public void permData(Buffer permData);
 
     /**
      * Performs a deep copy of {@link DirectoryStatus} object.

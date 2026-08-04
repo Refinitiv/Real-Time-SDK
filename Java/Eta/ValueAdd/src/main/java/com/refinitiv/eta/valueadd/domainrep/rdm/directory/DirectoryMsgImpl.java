@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -409,6 +409,38 @@ class DirectoryMsgImpl implements DirectoryMsg, DirectoryClose, DirectoryStatus,
     public boolean checkHasState()
     {
         return rdmDirectoryStatus().checkHasState();
+    }
+
+    @Override
+    public void applyHasPermData()
+    {
+        rdmDirectoryStatus().applyHasPermData();
+    }
+
+    @Override
+    public boolean checkHasPermData()
+    {
+        return rdmDirectoryStatus().checkHasPermData();
+    }
+
+    @Override
+    public Buffer permData()
+    {
+        if (rdmMsgType() == DirectoryMsgType.STATUS)
+        {
+            return rdmDirectoryStatus().permData();
+        }
+
+        return null;
+    }
+
+    @Override
+    public void permData(Buffer permData)
+    {
+        if (rdmMsgType() == DirectoryMsgType.STATUS)
+        {
+            rdmDirectoryStatus().permData(permData);
+        }
     }
 
     // ///////////////////////////// Request //////////////////////////////////

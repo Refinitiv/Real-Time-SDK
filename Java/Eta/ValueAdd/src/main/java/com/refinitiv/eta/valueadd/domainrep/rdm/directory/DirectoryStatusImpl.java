@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -30,18 +30,20 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBaseImpl;
 class DirectoryStatusImpl extends MsgBaseImpl
 {
     private final State state;
+    private final Buffer permData;
     private long filter;
     private int serviceId;
     private int flags;
     
     private final static String eol = System.getProperty("line.separator");
     private final static String tab = "\t";
-    private StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();           
+    private final StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();
     
     DirectoryStatusImpl()
     {
         super();
         state = CodecFactory.createState();
+        permData = CodecFactory.createBuffer();
     }
     
     public void applyHasFilter()
@@ -100,7 +102,20 @@ class DirectoryStatusImpl extends MsgBaseImpl
                 destStatusMsg.state().text(stateText);
             }
         }
-       
+
+        if (checkHasPermData())
+        {
+            destStatusMsg.applyHasPermData();
+            if (this.permData.length() > 0)
+            {
+                Buffer copiedPermData = CodecFactory.createBuffer();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(this.permData.length());
+                this.permData.copy(byteBuffer);
+                copiedPermData.data(byteBuffer);
+                destStatusMsg.permData(copiedPermData);
+            }
+        }
+
         return CodecReturnCodes.SUCCESS;
     }
     
@@ -124,6 +139,7 @@ class DirectoryStatusImpl extends MsgBaseImpl
         state.streamState(StreamStates.OPEN);
         state.dataState(DataStates.OK);
         state.code(StateCodes.NONE);
+        permData.clear();
     }
 
     public int encode(EncodeIterator encodeIter)
@@ -161,7 +177,13 @@ class DirectoryStatusImpl extends MsgBaseImpl
             statusMsg.state().code(state().code());
             statusMsg.state().text(state().text());
         }
-       
+
+        if (checkHasPermData())
+        {
+            statusMsg.applyHasPermData();
+            statusMsg.permData(permData);
+        }
+
         return statusMsg.encode(encodeIter);
     }
     
@@ -187,7 +209,13 @@ class DirectoryStatusImpl extends MsgBaseImpl
             
            applyHasState();
         }
-        
+
+        if (statusMsg.checkHasPermData())
+        {
+            permData(statusMsg.permData());
+            applyHasPermData();
+        }
+
         if (statusMsg.checkClearCache())
         {
             applyClearCache();
@@ -266,7 +294,27 @@ class DirectoryStatusImpl extends MsgBaseImpl
         this.state().code(state.code());
         this.state().text(state.text());
     }
-    
+
+    public boolean checkHasPermData()
+    {
+        return (flags & DirectoryStatusFlags.HAS_PERM_DATA) != 0;
+    }
+
+    public void applyHasPermData()
+    {
+        flags |= DirectoryStatusFlags.HAS_PERM_DATA;
+    }
+
+    public Buffer permData()
+    {
+        return permData;
+    }
+
+    public void permData(Buffer permData)
+    {
+        this.permData.data(permData.data(), permData.position(), permData.length());
+    }
+
     public String toString()
     {
         StringBuilder stringBuf = super.buildStringBuffer();
@@ -293,6 +341,14 @@ class DirectoryStatusImpl extends MsgBaseImpl
             stringBuf.append(tab);
             stringBuf.append("state: ");
             stringBuf.append(state());
+            stringBuf.append(eol);
+        }
+
+        if (checkHasPermData())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("permData: ");
+            stringBuf.append(permData().toHexString());
             stringBuf.append(eol);
         }
 
