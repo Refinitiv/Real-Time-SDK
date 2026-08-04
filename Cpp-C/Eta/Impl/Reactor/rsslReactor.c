@@ -2912,7 +2912,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 		ret = _reactorCheckAccessTokenAndServiceDiscovery(pReactorChannel, &restConnectInfo, &restAuthInfo, pError);
 		if (pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
-			RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+			RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex); /* The mutex is acquired via the _reactorChannelCopyRole() method */
 		if (ret != RSSL_RET_SUCCESS)
 			goto reactorConnectFail;
 	}
@@ -6802,6 +6802,10 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								if (rsslDeepCopyRsslBuffer(&pStandByReactorChannel->userName, &pStandByReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName)
 										!= RSSL_RET_SUCCESS)
 								{
+									/* The mutex is acquired via the _reactorChannelCopyRoleForWarmStandBy() method. */
+									if (pStandByReactorChannel->pCurrentTokenSession != NULL && pStandByReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+										RSSL_MUTEX_UNLOCK(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex);
+
 									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to allocate a memory buffer for userName for the standby server.");
 									return RSSL_RET_FAILURE;
 								}
@@ -11256,6 +11260,7 @@ RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel,
 						{
 							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
 								"Failed to allocate memory for the trace message file name.");
+							RSSL_MUTEX_UNLOCK(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
 							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 						}
 
