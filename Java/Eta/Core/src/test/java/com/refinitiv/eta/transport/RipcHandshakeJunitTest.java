@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -1654,17 +1654,64 @@ public class RipcHandshakeJunitTest
     }
 
     /*
-     * This test assumes that the current RIPC version is 13. In this test, the
+     * This test assumes that the current RIPC version is 14. In this test, the
      * ETAJ client will connect to the TestServer and send a ConnectReq. The
-     * TestServer will verify the ConnectReq (as RIPC13). The TestServer will
+     * TestServer will verify the ConnectReq (as RIPC14). The TestServer will
      * send a complete ConnectNak in a single packet. initChannel() will be
      * called until the initChannel() call fails and error.text() is populated
      * with the expected error test, or until a timeout occurs.
      */
     @Test
-    public void clientRcvSingleConnectNakTest()
+    public void clientRcvSingleCorrectConnectNakTest()
     {
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/50_input_connectNak_Ripc13.txt";
+        final String errorText = "Test Refused";
+        final int errorCode = TransportReturnCodes.CHAN_INIT_REFUSED;
+
+        clientRcvSingleConnectNakTest(inputFile, errorText, errorCode);
+    }
+
+    /*
+     * This test assumes that the current RIPC version is 14. In this test, the
+     * ETAJ client will connect to the TestServer and send a ConnectReq. The
+     * TestServer will verify the ConnectReq (as RIPC14). The TestServer will
+     * send an incorrect ConnectNak in a single packet. initChannel() will be
+     * called until the initChannel() call fails and error.text() is populated
+     * with the expected error test, or until a timeout occurs.
+     * RTSDK-10273
+     */
+    @Test
+    public void clientRcvSingleIncorrectConnectNakMessageTest()
+    {
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/50_input_incorrectConnectNak_Ripc14.txt";
+        final String errorText = "Message length (12848) exceeds available bytes (48)";
+        final int errorCode = TransportReturnCodes.FAILURE;
+
+        clientRcvSingleConnectNakTest(inputFile, errorText, errorCode);
+    }
+
+    @Test
+    public void clientRcvSingleIncorrectConnectNakMessageWithInconsistentMsgLenAndHdrLenTest()
+    {
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/50_input_incorrectConnectNakWithInconsistentMsgLenAndHdrLen_Ripc14.txt";
+        final String errorText = "Message length (20) doesn't equal header length (19)";
+        final int errorCode = TransportReturnCodes.CHAN_INIT_REFUSED;
+
+        clientRcvSingleConnectNakTest(inputFile, errorText, errorCode);
+    }
+
+    @Test
+    public void clientRcvSingleIncorrectConnectNakMessageWithInconsistentMsgLenAndTextLenTest()
+    {
+        final String inputFile = BASE_TEST_DATA_DIR_NAME + "/50_input_incorrectConnectNakWithInconsistentMsgLenAndTextLen_Ripc14.txt";
+        final String errorText = "Text length (10) isn't positive or doesn't fit message length (20)";
+        final int errorCode = TransportReturnCodes.CHAN_INIT_REFUSED;
+
+        clientRcvSingleConnectNakTest(inputFile, errorText, errorCode);
+    }
+
+    private void clientRcvSingleConnectNakTest(String inputFile, String errorText, int errorCode)
+    {
 
         NetworkReplay replay = null;
         InProgInfo inProg = TransportFactory.createInProgInfo();
@@ -1683,7 +1730,7 @@ public class RipcHandshakeJunitTest
 
             // make ETA call to connect to server.
             if ((consumerChannel = connectToRsslServer("localhost",
-                                                       String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
+                    String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
                 fail("Unable to connect to RSSL server: <" + error.text() + ">");
             }
@@ -1720,7 +1767,9 @@ public class RipcHandshakeJunitTest
                 else
                     Thread.sleep(SLEEPTIMEMS);
             }
-            assertTrue("Did not rcv expected error text.", error.text().contains("Error occurred during connection process."));
+            String expectedErrorText = "Error occurred during connection process. " + errorText;
+            assertEquals("Did not rcv expected error text.", expectedErrorText, error.text());
+            assertEquals("Did not rcv expected error code.", errorCode, error.errorId());
         }
         catch (IOException | InterruptedException e)
         {

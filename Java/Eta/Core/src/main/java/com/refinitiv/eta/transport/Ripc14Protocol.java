@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -471,10 +471,7 @@ class Ripc14Protocol extends IpcProtocol
 
         if (messageLength < MIN_CONNECT_REQUEST_HEADER)
         {
-            error.channel(_channel);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            error.text("Invalid Ripc connection request size (" + messageLength + ")");
+            populateError(error, TransportReturnCodes.FAILURE, "Invalid Ripc connection request size (" + messageLength + ")");
             return TransportReturnCodes.FAILURE;
         }
 
@@ -628,10 +625,7 @@ class Ripc14Protocol extends IpcProtocol
 
         if (adjustedHeader != messageLength)
         {
-            error.channel(_channel);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            error.text("Invalid header size " + adjustedHeader);
+            populateError(error, TransportReturnCodes.FAILURE, "Invalid header size " + adjustedHeader);
             return TransportReturnCodes.FAILURE;
         }
 
@@ -641,111 +635,10 @@ class Ripc14Protocol extends IpcProtocol
     @Override
     int decodeConnectionReply(ByteBuffer buffer, int offset, Error error)
     {
-        int msgLen = 0; // unsigned short
-        byte flags = 0;
-        int opCode = 0;
-        int ripcVersionNumber; // unsigned int
-        int bufferIndex = offset;
-
-        /* Message Length */
-        msgLen = buffer.getShort(bufferIndex) & 0xFFFF;
-        bufferIndex += 2;
-
-        buffer.position(offset);
-
-        /* RIPC Flags */
-        flags = buffer.get(bufferIndex++);
-        if ((flags & Ripc.Flags.HAS_OPTIONAL_FLAGS) > 0)
-            opCode = buffer.get(bufferIndex++);
-
-        if ((opCode & Ripc.Flags.Optional.CONNECT_NAK) > 0)
-        {
-            /* ConnectNak received. */
-            /* set bufferIndex to position of error text length */
-            bufferIndex += 2;
-            int errorTextLength = buffer.getShort(bufferIndex) & 0xFFFF;
-            if (errorTextLength > 0)
-            {
-                byte[] errorText = new byte[errorTextLength];
-                bufferIndex += 2;
-                buffer.position(bufferIndex);
-                buffer.get(errorText, 0, errorTextLength);
-                error.channel(_channel);
-                error.errorId(TransportReturnCodes.CHAN_INIT_REFUSED);
-                error.sysError(0);
-                error.text(new String(errorText));
-            }
-            return TransportReturnCodes.CHAN_INIT_REFUSED;
-        }
-        else if ((opCode & Ripc.Flags.Optional.CONNECT_ACK) == 0)
-        {
-            error.channel(_channel);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            error.text("Invalid IPC Mount Opcode (" + opCode + ")");
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* This is a ConnectAck */
-
-        /* skip HeaderLen and Unknown (unused) byte */
-        bufferIndex += 2; // skip headerLen and unused byte
-
-        /* IPC Version number */
-        /* read an unsigned int into a signed int */
-        ripcVersionNumber = buffer.getInt(bufferIndex);
-        bufferIndex += 4;
-        if (ripcVersionNumber != ripcVersion())
-        {
-            error.channel(_channel);
-            error.errorId(TransportReturnCodes.CHAN_INIT_REFUSED);
-            error.sysError(0);
-            error.text("incorrect version received from server");
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* Maximum User Message Size */
-        /* convert from signed short to unsigned short */
-        _protocolOptions._maxUserMsgSize = buffer.getShort(bufferIndex) & 0xFFFF;
-        bufferIndex += 2;
-
-        /* Session Flags */
-        _protocolOptions._serverSessionFlags = buffer.get(bufferIndex++);
-
-        /* Ping Timeout - convert from signed byte to unsigned byte */
-        _protocolOptions._pingTimeout = buffer.get(bufferIndex++) & 0xFF;
-
-        /* Major Version */
-        _protocolOptions._majorVersion = buffer.get(bufferIndex++) & 0xFF;
-
-        /* Minor Version */
-        _protocolOptions._minorVersion = buffer.get(bufferIndex++) & 0xFF;
-
-        /* convert from signed short to unsigned short */
-        int compressionType = buffer.getShort(bufferIndex) & 0xFFFF;
-        bufferIndex += 2;
-        if (compressionType > Ripc.CompressionTypes.MAX_DEFINED)
-        {
-            error.channel(_channel);
-            error.errorId(TransportReturnCodes.FAILURE);
-            error.sysError(0);
-            error.text("Server wants to do unknown compression type " + compressionType);
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* check if the server has forced compression */
-        if ((flags & Ripc.Flags.FORCE_COMPRESSION) > 0 && compressionType == Ripc.CompressionTypes.NONE)
-        {
-            /* The server has forced compression.
-             * Use ZLIB since that is what everyone supports for RIPC13. */
-            compressionType = Ripc.CompressionTypes.ZLIB;
-        }
-        _protocolOptions._sessionCompType = compressionType;
-        _protocolOptions._sessionInDecompress = compressionType;
-        _protocolOptions._sessionOutCompression = compressionType;
-
-        /* Compression Level */
-        _protocolOptions._sessionCompLevel = (short)(buffer.get(bufferIndex++) & 0xFF);
+        ConnectionReplyState state = new ConnectionReplyState();
+        int ret = decodeConnectionReplyCommon(buffer, offset, error, state, true);
+        if (ret != TransportReturnCodes.SUCCESS)
+            return ret;
 
         /* Key exchange */
         /* this is client side of the conn ack */
@@ -753,50 +646,36 @@ class Ripc14Protocol extends IpcProtocol
         {
 
             @SuppressWarnings("unused")
-            short keyExchange = (short)(buffer.get(bufferIndex++) & 0xFF);
-            short keyExchangeType = (short)(buffer.get(bufferIndex++) & 0xFF);
-            short encLen = (short)(buffer.get(bufferIndex++) & 0xFF);
+            short keyExchange = (short)(buffer.get(state.bufferIndex++) & 0xFF);
+            short keyExchangeType = (short)(buffer.get(state.bufferIndex++) & 0xFF);
+            short encLen = (short)(buffer.get(state.bufferIndex++) & 0xFF);
             if (keyExchangeType == EncryptionDecryptionSL164Impl.TR_SL1_64)
             {
-                _protocolOptions._P = buffer.getLong(bufferIndex);
-                bufferIndex += 8;
-                _protocolOptions._G = buffer.getLong(bufferIndex);
-                bufferIndex += 8;
-                _protocolOptions._send_key = buffer.getLong(bufferIndex);
-                bufferIndex += 8;
+                _protocolOptions._P = buffer.getLong(state.bufferIndex);
+                state.bufferIndex += 8;
+                _protocolOptions._G = buffer.getLong(state.bufferIndex);
+                state.bufferIndex += 8;
+                _protocolOptions._send_key = buffer.getLong(state.bufferIndex);
+                state.bufferIndex += 8;
                 _protocolOptions._encryptionType = EncryptionDecryptionSL164Impl.TR_SL1_64;
             }
             else
             {
                 /* zero out everything */
                 /* we don't know how to handle other types right now */
-                bufferIndex += encLen;
+                state.bufferIndex += encLen;
                 _protocolOptions._encryptionType = 0;
             }
         }
 
         /* Server Component Version */
-        _protocolOptions._receivedComponentVersionList.clear();
-        /* Connected Component Version - container length (uint8) */
-        int componentVersionContainerLen = buffer.get(bufferIndex++) & 0xFF;
-        if (componentVersionContainerLen > 0)
-        {
-            /* Connected Component Version - name length (u15-rb) */
-            int componentVersionLen = buffer.get(bufferIndex++) & 0xFF;
-            if (componentVersionLen > 0)
-            {
-                ComponentInfo ci = new ComponentInfoImpl();
-                ci.componentVersion().data(buffer, bufferIndex, componentVersionLen);
-                _protocolOptions._receivedComponentVersionList.add(ci);
-                bufferIndex += componentVersionLen;
-            }
-        }
+        decodeComponentVersion(buffer, state.bufferIndex);
 
         /* set the position to the end of the message */
-        buffer.position(msgLen + offset);
+        buffer.position(state.msgLen + offset);
 
         return TransportReturnCodes.SUCCESS;
-    }    
+    }
 
     @Override
     ByteBuffer encodeClientKey(ByteBuffer buffer, Error error)

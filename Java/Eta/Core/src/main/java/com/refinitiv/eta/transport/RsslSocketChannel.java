@@ -3599,7 +3599,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             error.channel(this);
             error.errorId(retVal);
             error.sysError(0);
-            error.text("Error occurred during connection process.");
+            error.text("Error occurred during connection process. " + error.text());
             if (_providerHelper != null && !_providerHelper._wininetStream)
             {
                 _needCloseSocket = true;

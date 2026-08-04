@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2025,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,14 @@ import java.nio.ByteBuffer;
 
 abstract class IpcProtocol
 {
+    protected static class ConnectionReplyState
+    {
+        int msgLen;
+        byte flags;
+        int opCode;
+        int bufferIndex;
+    }
+
     IpcProtocolOptions _protocolOptions = new IpcProtocolOptions();
     Channel _channel;
 
@@ -85,6 +93,158 @@ abstract class IpcProtocol
     {
         assert (channel != null);
         _channel = channel;
+    }
+
+    protected int populateError(Error error, int errorId, String text)
+    {
+        error.channel(_channel);
+        error.errorId(errorId);
+        error.sysError(0);
+        error.text(text);
+        return errorId;
+    }
+
+    protected int decodeConnectionReplyCommon(ByteBuffer buffer, int offset, Error error,
+            ConnectionReplyState state, boolean hasSessionCompType)
+    {
+        state.bufferIndex = offset;
+        int readableBytes = buffer.position() - offset;
+
+        if (readableBytes < Short.BYTES)
+        {
+            return populateError(error, TransportReturnCodes.FAILURE,
+                    "Insufficient bytes available to read message length (" + readableBytes + ")");
+        }
+
+        /* Message Length */
+        state.msgLen = buffer.getShort(state.bufferIndex) & 0xFFFF;
+        if (state.msgLen > readableBytes)
+        {
+            return populateError(error, TransportReturnCodes.FAILURE,
+                    "Message length (" + state.msgLen + ") exceeds available bytes (" + readableBytes + ")");
+        }
+        state.bufferIndex += 2;
+
+        buffer.position(offset);
+
+        /* RIPC Flags */
+        state.flags = buffer.get(state.bufferIndex++);
+        state.opCode = 0;
+        if ((state.flags & Ripc.Flags.HAS_OPTIONAL_FLAGS) > 0)
+            state.opCode = buffer.get(state.bufferIndex++);
+
+        if ((state.opCode & Ripc.Flags.Optional.CONNECT_NAK) > 0)
+            return decodeConnectionNak(buffer, error, state);
+        else if ((state.opCode & Ripc.Flags.Optional.CONNECT_ACK) == 0)
+            return populateError(error, TransportReturnCodes.FAILURE, "Invalid IPC Mount Opcode (" + state.opCode + ")");
+
+        /* This is a ConnectAck */
+
+        /* skip HeaderLen and Unknown (unused) byte */
+        state.bufferIndex += 2;
+
+        /* IPC Version number */
+        /* read an unsigned int into a signed int */
+        int ripcVersionNumber = buffer.getInt(state.bufferIndex);
+        state.bufferIndex += 4;
+        if (ripcVersionNumber != ripcVersion())
+        {
+            populateError(error, TransportReturnCodes.CHAN_INIT_REFUSED, "incorrect version received from server");
+            return TransportReturnCodes.FAILURE;
+        }
+
+        /* Maximum User Message Size */
+        /* convert from signed short to unsigned short */
+        _protocolOptions._maxUserMsgSize = buffer.getShort(state.bufferIndex) & 0xFFFF;
+        state.bufferIndex += 2;
+
+        /* Session Flags */
+        _protocolOptions._serverSessionFlags = buffer.get(state.bufferIndex++);
+
+        /* Ping Timeout - convert from signed byte to unsigned byte */
+        _protocolOptions._pingTimeout = buffer.get(state.bufferIndex++) & 0xFF;
+
+        /* Major Version */
+        _protocolOptions._majorVersion = buffer.get(state.bufferIndex++) & 0xFF;
+
+        /* Minor Version */
+        _protocolOptions._minorVersion = buffer.get(state.bufferIndex++) & 0xFF;
+
+        /* convert from signed short to unsigned short */
+        int compressionType = buffer.getShort(state.bufferIndex) & 0xFFFF;
+        state.bufferIndex += 2;
+        if (compressionType > Ripc.CompressionTypes.MAX_DEFINED)
+        {
+            return populateError(error, TransportReturnCodes.FAILURE,
+                    "Server wants to do unknown compression type " + compressionType);
+        }
+
+        /* check if the server has forced compression */
+        if ((state.flags & Ripc.Flags.FORCE_COMPRESSION) > 0 && compressionType == Ripc.CompressionTypes.NONE)
+        {
+            /* The server has forced compression. Use ZLIB since that is what everyone supports for older RIPC versions. */
+            compressionType = Ripc.CompressionTypes.ZLIB;
+        }
+        if (hasSessionCompType)
+            _protocolOptions._sessionCompType = compressionType;
+        _protocolOptions._sessionInDecompress = compressionType;
+        _protocolOptions._sessionOutCompression = compressionType;
+
+        /* Compression Level */
+        _protocolOptions._sessionCompLevel = (short)(buffer.get(state.bufferIndex++) & 0xFF);
+
+        return TransportReturnCodes.SUCCESS;
+    }
+
+    protected int decodeConnectionNak(ByteBuffer buffer, Error error, ConnectionReplyState state)
+    {
+        /* ConnectNak received. */
+        /* Header Length */
+        int hdrLen = buffer.get(state.bufferIndex);
+        if (state.msgLen != hdrLen)
+        {
+            return populateError(error, TransportReturnCodes.CHAN_INIT_REFUSED,
+                    "Message length (" + state.msgLen + ") doesn't equal header length (" + hdrLen + ")");
+        }
+
+        /* set bufferIndex to position of error text length */
+        state.bufferIndex += 2;
+        int errorTextLength = buffer.getShort(state.bufferIndex) & 0xFFFF;
+
+        /* Text length should be positive and should be equal the message length minus the header length */
+        if (errorTextLength > 0 && errorTextLength == (state.msgLen - CONNECT_NAK_HEADER))
+        {
+            byte[] errorText = new byte[errorTextLength];
+            state.bufferIndex += 2;
+            buffer.position(state.bufferIndex);
+            buffer.get(errorText, 0, errorTextLength);
+            return populateError(error, TransportReturnCodes.CHAN_INIT_REFUSED, new String(errorText));
+        }
+
+        return populateError(error, TransportReturnCodes.CHAN_INIT_REFUSED,
+                "Text length (" + errorTextLength + ") isn't positive or doesn't fit message length (" + state.msgLen + ")");
+    }
+
+    protected int decodeComponentVersion(ByteBuffer buffer, int bufferIndex)
+    {
+        _protocolOptions._receivedComponentVersionList.clear();
+
+        /* Connected Component Version - container length (uint8) */
+        int componentVersionContainerLen = buffer.get(bufferIndex++) & 0xFF;
+        if (componentVersionContainerLen > 0)
+        {
+            /* Connected Component Version - name length (u15-rb) */
+            int componentVersionLen = buffer.get(bufferIndex++) & 0xFF;
+            if (componentVersionLen > 0)
+            {
+                ComponentInfo ci = new ComponentInfoImpl();
+                ci.componentVersion().data(buffer, bufferIndex, componentVersionLen);
+                _protocolOptions._receivedComponentVersionList.add(ci);
+                bufferIndex += componentVersionLen;
+            }
+        }
+
+        return bufferIndex;
     }
 
     /* Returns the connection version of this protocol. */
