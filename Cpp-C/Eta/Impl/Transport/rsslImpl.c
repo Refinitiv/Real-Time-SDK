@@ -69,6 +69,13 @@ RsslLockingTypes  multiThread = 0;  /* 0 == No Locking; 1 == All locking; 2 == O
 /*  debug globals - set to 0 is off, set to 1 will print debug msgs */
 unsigned char memoryDebug = 0;
 
+/* Memory allocation function pointers - defaults to the built-in malloc/realloc/free
+ * based implementations declared in rsslAlloc.h.  These can be overwritten
+ * (e.g. by rsslTransportUnitTest) to substitute a custom allocator. */
+RsslMallocFunc  rsslMallocFunc  = _rsslMallocDefault;
+RsslReallocFunc rsslReallocFunc = _rsslReallocDefault;
+RsslFreeFunc    rsslFreeFunc    = _rsslFreeDefault;
+
 /* used to keep track of the allocated channels */
 static RsslQueue freeChannelList;
 static RsslQueue freeServerList;

@@ -12,7 +12,7 @@ set ( rsslTransportUnitTestSrcFiles
 	rwsWaitResponseHandshakeUnitTest.cpp
 	rsslSocketWriteWebSocketUnitTest.cpp
 	rsslWebSocketReadUnitTest.cpp
-
+	rsslWebSocketHttpCallbackTest.cpp
 	TransportUnitTest.h
 )
 

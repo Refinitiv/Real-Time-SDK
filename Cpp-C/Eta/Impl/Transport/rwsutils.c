@@ -2237,7 +2237,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 			if (httpHdr == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP headers\n", __FILE__, __LINE__);
 				rsslSocketChannel->httpCallback(NULL, error);
 				return (-1);
 			}
@@ -2265,8 +2265,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 			rsslSocketChannel->httpCallback(&httpMsg, error);
 
 			/*Realease memory allocated for queue*/
-			if (httpHdr)
-				_rsslFree(httpHdr);
+			_rsslFree(httpHdr);
 		}
 		else
 		{
@@ -3260,7 +3259,14 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 	} 
 	else 
 	{
+		RsslInt32 databodyLength = 0;
+
 		wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
+		if (wsSess->foundEndOfHttpHdr && cc > httpHeaderLen)
+		{
+			databodyLength = cc - httpHeaderLen;
+		}
 
 		/* Callback to provide HTTP header */
 		if (rsslSocketChannel->httpCallback != NULL)
@@ -3284,7 +3290,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 			if (httpHdr == 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP headers\n", __FILE__, __LINE__);
 				rsslSocketChannel->httpCallback(NULL, error);
 				return(-1);
 			}
@@ -3313,11 +3319,16 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 
 			httpMsg.userSpecPtr = rsslSocketChannel->userSpecPtr;
 
+			if (databodyLength > 0)
+			{
+				httpMsg.dataBody.length = databodyLength;
+				httpMsg.dataBody.data = hdrStart + httpHeaderLen;
+			}
+
 			rsslSocketChannel->httpCallback(&httpMsg, error);
 
 			/* Release allocated memory for headers */
-			if (httpHdr)
-				_rsslFree(httpHdr);
+			_rsslFree(httpHdr);
 		}
 		else
 		{
@@ -3331,6 +3342,7 @@ ripcSessInit rwsValidateWebSocketRequest(RsslSocketChannel *rsslSocketChannel, c
 									httpHeaderLen)
 
 		rsslSocketChannel->inputBufCursor += httpHeaderLen;
+		rsslSocketChannel->inputBufCursor += databodyLength;
 
 		if ( rsslSocketChannel->inputBuffer->length == rsslSocketChannel->inputBufCursor )
 		{
