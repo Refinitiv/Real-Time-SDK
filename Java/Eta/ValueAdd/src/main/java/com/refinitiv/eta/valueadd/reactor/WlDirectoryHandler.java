@@ -2,14 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.valueadd.reactor;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.Directory;
@@ -46,10 +50,10 @@ class WlDirectoryHandler implements WlHandler
     boolean _hasPendingRequest;
 
     // pool of Service 
-    LinkedList<Service> _servicePool = new LinkedList<Service>();
+    LinkedList<Service> _servicePool = new LinkedList<>();
     
     // pool of DirectoryRefresh messages
-    LinkedList<DirectoryRefresh> _directoryRefreshPool = new LinkedList<DirectoryRefresh>();
+    LinkedList<DirectoryRefresh> _directoryRefreshPool = new LinkedList<>();
     
     // flag for dispatching requests
     boolean _requestDispatchFlag;
@@ -122,7 +126,7 @@ class WlDirectoryHandler implements WlHandler
         // Queue request message for assembly and dispatch only if the requestMsg wants a refresh and we have a refresh message
         if (!wlRequest.requestMsg().checkNoRefresh() && !_serviceCache._serviceList.isEmpty())
         {
-            if (_requestDispatchFlag == false)
+            if (!_requestDispatchFlag)
             {
                 // trigger dispatch only for first add to list, and only if the directory refresh was received
                 _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
@@ -168,7 +172,7 @@ class WlDirectoryHandler implements WlHandler
                             
                         }
                         
-                        if ((ret = _watchlist.changeServiceNameToID(((GenericMsg)msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
+                        if ((ret = _watchlist.changeServiceNameToID(msg.msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
                         {
                             return ret;
                         }
@@ -186,8 +190,8 @@ class WlDirectoryHandler implements WlHandler
 	                // reset service id if necessary
 	                if (resetServiceId)
 	                {
-	                    ((GenericMsg)msg).msgKey().flags(((GenericMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
-	                    ((GenericMsg)msg).msgKey().serviceId(0);
+	                    msg.msgKey().flags(msg.msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+	                    msg.msgKey().serviceId(0);
 	                }              
 	                
 	                // return if send message not successful
@@ -215,80 +219,238 @@ class WlDirectoryHandler implements WlHandler
         return ReactorReturnCodes.SUCCESS;
     }
 	
-    public void fillDirectoryRefreshFromRequestMsg(DirectoryRefresh directoryRefresh, RequestMsg requestMsg)
+    public void fillDirectoryRefreshFromRequestMsg(DirectoryRefresh directoryRefresh, WlRequest wlRequest, int requestedServiceId)
     {
-	        directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
-	        
-	        directoryRefresh.streamId(requestMsg.streamId());
-            if (requestMsg.msgKey().checkHasFilter())
-            	directoryRefresh.filter(requestMsg.msgKey().filter());
-            else
-            	directoryRefresh.filter(_directoryRefresh.filter());
+        directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
 
-	        directoryRefresh.applySolicited();
-	        directoryRefresh.state().dataState(_directoryRefresh.state().dataState());
-	        directoryRefresh.state().streamState(_directoryRefresh.state().streamState());
+        RequestMsg requestMsg = wlRequest.requestMsg();
+        directoryRefresh.streamId(requestMsg.streamId());
+        directoryRefresh.filter(resolveEffectiveFilter(requestMsg));
+
+        directoryRefresh.applySolicited();
+        directoryRefresh.state().dataState(_directoryRefresh.state().dataState());
+        directoryRefresh.state().streamState(_directoryRefresh.state().streamState());
 	        
-	        if (requestMsg.msgKey().checkHasServiceId())
-	        {
-	        	directoryRefresh.applyHasServiceId();
-	        	directoryRefresh.serviceId(requestMsg.msgKey().serviceId());
-	        }
+        applyRequestedServiceId(directoryRefresh, requestedServiceId);
     }
-	
-    private void fillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh, String serviceName) {
-    	Service service = null;
-    	if (_servicePool.isEmpty())
-		{
-			service = DirectoryMsgFactory.createService();
-		}
-    	else
-    	{
-    		service = _servicePool.poll();
-    		service.clear();
-    	}
-    	
-    	if (serviceName != null)
-    	{
-    		if (_serviceCache.service(serviceName) != null)
-    		{
-    			_serviceCache.service(serviceName).rdmService().copy(service);
-    			directoryRefresh.serviceList().add(service);
-    			setFilterFlagsRefresh(directoryRefresh.filter(), directoryRefresh.serviceList().get(0));
-    		}
-    	}
-    	else if (directoryRefresh.checkHasServiceId())
-    	{
-    		if (_serviceCache.service(directoryRefresh.serviceId()) != null)
-    		{
-    			_serviceCache.service(directoryRefresh.serviceId()).rdmService().copy(service);
-    			directoryRefresh.serviceList().add(service);
-    			setFilterFlagsRefresh(directoryRefresh.filter(), directoryRefresh.serviceList().get(0));
-    		}
-    	}
-    	else
-    	{
-    		// Copy the service services here.
-    		for (int i = 0; i < serviceList().size(); ++i)
-    		{
-    	    	if (_servicePool.isEmpty())
-    			{
-    	    		service = DirectoryMsgFactory.createService();
-    			}
-    	    	else
-    	    	{
-    	    		service = _servicePool.poll();
-    	    		service.clear();
-    	    	}
-    	    	
-    			serviceList().get(i).rdmService().copy(service);
-    			setFilterFlagsRefresh(directoryRefresh.filter(), service);
-    			directoryRefresh.serviceList().add(service);
-    		}
-    	}
+
+    private long resolveEffectiveFilter(RequestMsg requestMsg)
+    {
+        long responseFilter = _directoryRefresh.filter();
+        if (responseFilter == 0)
+        {
+            responseFilter = ALL_FILTERS;
+        }
+
+        // No filter or filter value 0 means all filters set
+        return requestMsg.msgKey().checkHasFilter() && requestMsg.msgKey().filter() != 0 ?
+                getResultingFilter(requestMsg.msgKey().filter(), responseFilter) : responseFilter;
+    }
+
+    private boolean isAllServicesRequest(WlRequest wlRequest)
+    {
+        MsgKey msgKey = wlRequest.requestMsg().msgKey();
+        return wlRequest.streamInfo().serviceName() == null && !msgKey.checkHasServiceId();
+    }
+
+    private int requestedServiceId(WlRequest wlRequest)
+    {
+        RequestMsg requestMsg = wlRequest.requestMsg();
+        if (requestMsg.msgKey().checkHasServiceId())
+        {
+            return requestMsg.msgKey().serviceId();
+        }
+
+        String serviceName = wlRequest.streamInfo().serviceName();
+        return serviceName != null ? _serviceCache.serviceId(serviceName) : ReactorReturnCodes.PARAMETER_INVALID;
+    }
+
+    private void applyRequestedServiceId(DirectoryRefresh directoryRefresh, int requestedServiceId)
+    {
+        if (requestedServiceId >= 0)
+        {
+            directoryRefresh.applyHasServiceId();
+            directoryRefresh.serviceId(requestedServiceId);
+        }
+    }
+
+    private void applyRequestedServiceId(DirectoryUpdate directoryUpdate, int requestedServiceId)
+    {
+        if (requestedServiceId >= 0)
+        {
+            directoryUpdate.applyHasServiceId();
+            directoryUpdate.serviceId(requestedServiceId);
+        }
+    }
+
+    private void fillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh, String serviceName,
+                                                          List<WlService> serviceList, boolean isUnsolicitedAndCacheCleared)
+    {
+        if (serviceName != null)
+        {
+            addCachedServiceToRefresh(directoryRefresh, _serviceCache.service(serviceName), isUnsolicitedAndCacheCleared);
+        }
+        else if (directoryRefresh.checkHasServiceId())
+        {
+            addCachedServiceToRefresh(directoryRefresh, _serviceCache.service(directoryRefresh.serviceId()), isUnsolicitedAndCacheCleared);
+        }
+        else
+        {
+		    // Copy all services here.
+            for (WlService cachedService : serviceList)
+            {
+                addCachedServiceToRefresh(directoryRefresh, cachedService, isUnsolicitedAndCacheCleared);
+            }
+        }
 	}
-    
-    void fillDirectoryUpdateFromRequestMsg(DirectoryUpdate directoryUpdate, WlRequest wlRequest)
+
+    private long actualServiceListFilter(List<Service> serviceList)
+    {
+        long filter = 0;
+
+        for (Service service : serviceList)
+        {
+            if (service.checkHasInfo())
+                filter |= Directory.ServiceFilterFlags.INFO;
+
+            if (service.checkHasData())
+                filter |= Directory.ServiceFilterFlags.DATA;
+
+            if (!service.groupStateList().isEmpty())
+                filter |= Directory.ServiceFilterFlags.GROUP;
+
+            if (service.checkHasLink())
+                filter |= Directory.ServiceFilterFlags.LINK;
+
+            if (service.checkHasLoad())
+                filter |= Directory.ServiceFilterFlags.LOAD;
+
+            if (service.checkHasState())
+                filter |= Directory.ServiceFilterFlags.STATE;
+        }
+
+        return filter;
+    }
+
+    private void applyActualServiceListFilter(DirectoryRefresh directoryRefresh)
+    {
+        directoryRefresh.filter(actualServiceListFilter(directoryRefresh.serviceList()));
+    }
+
+    private void applyActualServiceListFilter(DirectoryUpdate directoryUpdate)
+    {
+        directoryUpdate.filter(actualServiceListFilter(directoryUpdate.serviceList()));
+    }
+
+    private void addCachedServiceToRefresh(DirectoryRefresh directoryRefresh, WlService cachedService, boolean isUnsolicitedAndCacheCleared)
+    {
+        if (cachedService != null && (!isUnsolicitedAndCacheCleared || cachedService.rdmService().action() == MapEntryActions.ADD))
+        {
+            Service service = acquireService();
+            cachedService.rdmService().copy(service);
+            setFilterFlagsRefresh(directoryRefresh.filter(), service);
+            directoryRefresh.serviceList().add(service);
+        }
+    }
+
+    private void addDeletedServicesToRefresh(DirectoryRefresh directoryRefresh, WlRequest wlRequest,
+                                             int requestedServiceIdForDeletedServices,
+                                             List<Service> services)
+    {
+        if (services == null)
+            return;
+
+        for (Service service : services)
+        {
+            if (service.action() != MapEntryActions.DELETE)
+                continue;
+
+            if (!matchesRefreshDeletedServiceForRequest(wlRequest, requestedServiceIdForDeletedServices, service))
+                continue;
+
+            Service serviceToAdd = acquireService();
+            serviceToAdd.serviceId(service.serviceId());
+            serviceToAdd.action(MapEntryActions.DELETE);
+            directoryRefresh.serviceList().add(serviceToAdd);
+        }
+    }
+
+    private boolean matchesRefreshDeletedServiceForRequest(WlRequest wlRequest, int requestedServiceIdForDeletedServices,
+                                                           Service service)
+    {
+        return isAllServicesRequest(wlRequest)
+                || requestedServiceIdForDeletedServices >= 0
+                && requestedServiceIdForDeletedServices == service.serviceId();
+    }
+
+    private Service acquireService()
+    {
+        Service service;
+        if (_servicePool.isEmpty())
+        {
+            service = DirectoryMsgFactory.createService();
+        }
+        else
+        {
+            service = _servicePool.poll();
+            service.clear();
+        }
+        return service;
+    }
+
+    private boolean addDeleteServicesForRequest(DirectoryUpdate directoryUpdate, WlRequest wlRequest)
+    {
+        boolean requestedAllServices = isAllServicesRequest(wlRequest);
+        int resolvedServiceId = requestedServiceId(wlRequest);
+
+        if (!requestedAllServices && resolvedServiceId >= 0)
+        {
+            directoryUpdate.applyHasServiceId();
+            directoryUpdate.serviceId(resolvedServiceId);
+        }
+
+        int initialServiceCount = directoryUpdate.serviceList().size();
+        for (WlService cachedService : serviceList())
+        {
+            int cachedServiceId = cachedService.rdmService().serviceId();
+            // Only add services requested by the user, or all services when no specific service was requested.
+            if (!requestedAllServices && cachedServiceId != resolvedServiceId)
+                continue;
+
+            Service service = acquireService();
+            // Only serviceId and DELETE action are required to create an update message.
+            service.serviceId(cachedServiceId);
+            service.action(MapEntryActions.DELETE);
+            directoryUpdate.serviceList().add(service);
+        }
+
+        return directoryUpdate.serviceList().size() > initialServiceCount;
+    }
+
+    private int callbackDeleteUpdateForRequest(WlRequest wlRequest, String callbackLocation)
+    {
+        int ret = ReactorCallbackReturnCodes.SUCCESS;
+
+        _directoryUpdate.streamId(wlRequest.requestMsg().streamId());
+
+        if (addDeleteServicesForRequest(_directoryUpdate, wlRequest))
+        {
+            _tempUpdateMsg.clear();
+            _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
+
+            _tempWlInteger.value(_tempUpdateMsg.streamId());
+            ret = callbackUser(callbackLocation, _tempUpdateMsg, _directoryUpdate,
+                    _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo);
+        }
+
+        _servicePool.addAll(_directoryUpdate.serviceList());
+        _directoryUpdate.clear();
+        _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
+
+        return ret;
+    }
+
+    void fillDirectoryUpdateFromRequestMsg(DirectoryUpdate directoryUpdate, WlRequest wlRequest, int requestedServiceId)
     {
         directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
         
@@ -315,99 +477,97 @@ class WlDirectoryHandler implements WlHandler
           else
             directoryUpdate.filter(filter);
         }
-        
-        if (wlRequest.requestMsg().msgKey().checkHasServiceId())
+
+        applyRequestedServiceId(directoryUpdate, requestedServiceId);
+    }
+
+    private boolean matchesUpdateServiceForRequest(WlRequest wlRequest, int requestedServiceIdBeforeUpdate,
+                                                   int effectiveRequestedServiceId, Service updateMsgService)
+    {
+        if (isAllServicesRequest(wlRequest))
         {
-        	directoryUpdate.applyHasServiceId();
-        	directoryUpdate.serviceId(wlRequest.requestMsg().msgKey().serviceId());
+            return true;
         }
-        else if (wlRequest.streamInfo().serviceName() != null)
+
+        if (updateMsgService.action() == MapEntryActions.DELETE)
         {
-        	int serviceId = _serviceCache.serviceId(wlRequest.streamInfo().serviceName());
-        	if (serviceId >= 0)
-        	{
-            	directoryUpdate.applyHasServiceId();
-            	directoryUpdate.serviceId(serviceId);        		
-        	}
+            return requestedServiceIdBeforeUpdate >= 0
+                    && requestedServiceIdBeforeUpdate == updateMsgService.serviceId();
         }
+
+        return effectiveRequestedServiceId >= 0
+                && effectiveRequestedServiceId == updateMsgService.serviceId();
     }
 	
-    void fillDirectoryUpdateServiceListFromUpdateMsgServices(DirectoryUpdate directoryUpdate, List<Service> services)
+    void fillDirectoryUpdateServiceListFromUpdateMsgServices(DirectoryUpdate directoryUpdate, WlRequest wlRequest,
+                                                             int requestedServiceIdBeforeUpdate,
+                                                             int effectiveRequestedServiceId,
+                                                             List<Service> services)
     {
-    	Service service = null;
-   		for (int i = 0; i < services.size(); ++i)
-		{
-   			if ((directoryUpdate.checkHasServiceId() && directoryUpdate.serviceId() == services.get(i).serviceId()) ||
-   				!directoryUpdate.checkHasServiceId())
-   			{
-		    	if (_servicePool.isEmpty())
-				{
-		    		service = DirectoryMsgFactory.createService();
-				}
-		    	else
-		    	{
-		    		service = _servicePool.poll();
-		    		service.clear();
-		    	}
-		    	
-		    	services.get(i).copy(service);
-				int ret = setFilterFlagsUpdate(directoryUpdate.filter(), service, services.get(i));
-				if (services.get(i).action() == MapEntryActions.DELETE ||
-					services.get(i).action() == MapEntryActions.ADD)
-				{
-					directoryUpdate.serviceList().add(service);
-				}
-				else // UPDATE
-				{
-					if (ret > 0 || directoryUpdate.filter() == 0)
-					{
-						directoryUpdate.serviceList().add(service);
-					}
-					else
-					{
-						// service shouldn't be added to directory update
-						_servicePool.add(service);
-					}
-				}
-   			}
-		}
+        for (Service updateMsgService : services)
+        {
+            if (matchesUpdateServiceForRequest(wlRequest, requestedServiceIdBeforeUpdate,
+                    effectiveRequestedServiceId, updateMsgService))
+            {
+                Service service = acquireService();
+                updateMsgService.copy(service);
+                int ret = setFilterFlagsUpdate(directoryUpdate.filter(), service, updateMsgService);
+                if (updateMsgService.action() == MapEntryActions.DELETE ||
+                        updateMsgService.action() == MapEntryActions.ADD)
+                {
+                    directoryUpdate.serviceList().add(service);
+                }
+                else // UPDATE
+                {
+                    if (ret > 0 || directoryUpdate.filter() == 0)
+                    {
+                        directoryUpdate.serviceList().add(service);
+                    }
+                    else
+                    {
+                        // service shouldn't be added to directory update
+                        _servicePool.add(service);
+                    }
+                }
+            }
+        }
 	}
 
     void setFilterFlagsRefresh(long filter, Service service)
     {
 		// One service selected
-		if (service.checkHasInfo() == true && 
+		if (service.checkHasInfo() &&
 			((filter & Directory.ServiceFilterFlags.INFO) == 0))
 		{
 	        service.flags(service.flags() & ~ServiceFlags.HAS_INFO);
 		}
 
-		if (service.checkHasData() == true && 
+		if (service.checkHasData() &&
 			((filter & Directory.ServiceFilterFlags.DATA) == 0))
 		{
 		    service.flags(service.flags() & ~ServiceFlags.HAS_DATA);
 		}
 			
 		
-		if ((service.groupStateList().size() > 0) && 
+		if ((!service.groupStateList().isEmpty()) &&
 			((filter & Directory.ServiceFilterFlags.GROUP) == 0)) 
 		{
 			service.groupStateList().clear(); // Remove group
 		}
 
-		if (service.checkHasLink() == true && 
+		if (service.checkHasLink() &&
 			((filter & Directory.ServiceFilterFlags.LINK) == 0))
 		{
 			service.flags(service.flags() & ~ServiceFlags.HAS_LINK);
 		}
 
-		if (service.checkHasLoad() == true && 
+		if (service.checkHasLoad() &&
 			((filter & Directory.ServiceFilterFlags.LOAD) == 0))
 		{
 			service.flags(service.flags() & ~ServiceFlags.HAS_LOAD);
 		}
 
-		if (service.checkHasState() == true && 
+		if (service.checkHasState() &&
 			((filter & Directory.ServiceFilterFlags.STATE) == 0))
 		{
 			service.flags(service.flags() & ~ServiceFlags.HAS_STATE);
@@ -426,7 +586,7 @@ class WlDirectoryHandler implements WlHandler
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.INFO);
+        	service.flags(service.flags() & ~ServiceFlags.HAS_INFO);
         }
 
         if (serviceReceived.checkHasData() && 
@@ -437,17 +597,16 @@ class WlDirectoryHandler implements WlHandler
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.DATA);
+        	service.flags(service.flags() & ~ServiceFlags.HAS_DATA);
         }
         
-        if ((serviceReceived.groupStateList().size() > 0) && 
+        if ((!serviceReceived.groupStateList().isEmpty()) &&
                 ((filter & Directory.ServiceFilterFlags.GROUP) != 0))
         {
             retNumFilters++;
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.GROUP);
         	service.groupStateList().clear();
         }
 
@@ -459,7 +618,7 @@ class WlDirectoryHandler implements WlHandler
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.LINK);
+        	service.flags(service.flags() & ~ServiceFlags.HAS_LINK);
         }
 
         if (serviceReceived.checkHasLoad() && 
@@ -470,7 +629,7 @@ class WlDirectoryHandler implements WlHandler
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.LOAD);
+        	service.flags(service.flags() & ~ServiceFlags.HAS_LOAD);
         }
 
         if (serviceReceived.checkHasState() && 
@@ -481,7 +640,7 @@ class WlDirectoryHandler implements WlHandler
         }
         else
         {
-        	service.flags(service.flags() & ~Directory.ServiceFilterFlags.STATE);
+        	service.flags(service.flags() & ~ServiceFlags.HAS_STATE);
         }
         
         return retNumFilters;
@@ -547,10 +706,7 @@ class WlDirectoryHandler implements WlHandler
         switch (msg.msgClass())
         {
             case MsgClasses.REFRESH:
-            	if (!_receivedRefresh)
-            		ret = readRefreshMsg(wlStream, dIter, msg, errorInfo);
-            	else
-            		ret = readRefreshMsgAsUpdate(wlStream, dIter, msg, errorInfo);
+            	ret = readRefreshMsg(wlStream, dIter, msg, errorInfo);
                 break;
             case MsgClasses.STATUS:
                 ret =  readStatusMsg(wlStream, dIter, msg, errorInfo);
@@ -592,7 +748,7 @@ class WlDirectoryHandler implements WlHandler
                             if (ret == ReactorReturnCodes.SUCCESS)
                             {
                                 _watchlist.reactorChannel().state(ReactorChannel.State.READY);
-                                _watchlist.reactorChannel().clearAccessTokenForV2();;
+                                _watchlist.reactorChannel().clearAccessTokenForV2();
                                 // notify item handler that directory stream is open
                                 ret = _watchlist.itemHandler().directoryStreamOpen();
                             }
@@ -612,69 +768,25 @@ class WlDirectoryHandler implements WlHandler
     	LinkedList<WlRequest> requestList = wlStream.userRequestList();
      	   
     	WlRequest usrRequest = null;
-    	Service service = null;
 
         closeDirectoryStream();
         
     	_directoryUpdate.clear();
     	_directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
     	
-    	for (usrRequest = requestList.poll(); usrRequest!= null; usrRequest = requestList.poll())
+    	for (usrRequest = requestList.poll(); usrRequest != null; usrRequest = requestList.poll())
     	{    	 
-    		_directoryUpdate.streamId(usrRequest.requestMsg().streamId());
-    		
-        	for (int i = 0; i < serviceList().size(); ++i) 
-        	{
-        		// Only add services that the user requested (or all services if zero) to the serviceList of the update
-        		if (serviceList().get(i).rdmService().serviceId() == usrRequest.requestMsg().msgKey().serviceId() ||
-        				usrRequest.requestMsg().msgKey().serviceId() == 0)
-        		{
-                	if (_servicePool.isEmpty())
-            		{
-            			service = DirectoryMsgFactory.createService();
-            		}
-                	else
-                	{
-                		service = _servicePool.poll();
-                		service.clear();
-                	}
-            		serviceList().get(i).rdmService().copy(service);
-            		service.action(MapEntryActions.DELETE);
-            		_directoryUpdate.serviceList().add(service);
-        		}
-        	}
-    		
-    		_tempUpdateMsg.clear();
-    		_watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
-    		
-    		// use filter from user request
-    		int returnFilter = getResultingFilter(usrRequest.requestMsg().msgKey().filter(), _directoryUpdate.filter());
-            if (_tempUpdateMsg.checkHasMsgKey())
-            	_tempUpdateMsg.msgKey().filter(returnFilter);
-            if (_directoryUpdate.checkHasFilter())
-            	_directoryUpdate.filter(returnFilter);
+			if (callbackDeleteUpdateForRequest(usrRequest, "WlDirectoryHandler.handleClose") < ReactorCallbackReturnCodes.SUCCESS)
+				break;
+    	}
 
-            _tempWlInteger.value(_tempUpdateMsg.streamId());
-    		if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-    		{
-    			break;
-    		}
-    	}
-    	
-    	for (int i = 0; i < _directoryUpdate.serviceList().size(); ++i)
-    	{
-        	_servicePool.add(_directoryUpdate.serviceList().get(i));	
-    	}
-    	
+        _servicePool.addAll(_directoryUpdate.serviceList());
     	_serviceCache.clearCache(false);
     }
     
     void deleteAllServices(WlStream wlStream, boolean isChannelDown, ReactorErrorInfo errorInfo)
     {
     	LinkedList<WlRequest> requestList = wlStream.userRequestList();
-     	   
-    	WlRequest usrRequest = null;
-    	Service service = null;
     	
         _stream.channelDown();
         if (_stream.state().streamState() == StreamStates.OPEN)
@@ -688,58 +800,15 @@ class WlDirectoryHandler implements WlHandler
             _directoryUpdate.clear();
             _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
 
-            for (int j = 0; j < requestList.size(); j++)
-            {    	 
-                usrRequest = requestList.get(j);
-                usrRequest.state(WlRequest.State.PENDING_REFRESH);
-                _directoryUpdate.streamId(usrRequest.requestMsg().streamId());
-
-                for (int i = 0; i < serviceList().size(); ++i) 
-                {
-                    // Only add services that the user requested (or all services if zero) to the serviceList of the update
-                    if (serviceList().get(i).rdmService().serviceId() == usrRequest.requestMsg().msgKey().serviceId() ||
-                            usrRequest.requestMsg().msgKey().serviceId() == 0)
-                    {
-                        if (_servicePool.isEmpty())
-                        {
-                            service = DirectoryMsgFactory.createService();
-                        }
-                        else
-                        {
-                            service = _servicePool.poll();
-                            service.clear();
-                        }
-                        serviceList().get(i).rdmService().copy(service);
-                        service.action(MapEntryActions.DELETE);
-                        
-                        _directoryUpdate.serviceList().add(service);
-                    }
-                }
-
-                _tempUpdateMsg.clear();
-                _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
-
-        		// use filter from user request
-                int returnFilter = getResultingFilter(usrRequest.requestMsg().msgKey().filter(), _directoryUpdate.filter());
-                if (_tempUpdateMsg.checkHasMsgKey())
-                	_tempUpdateMsg.msgKey().filter(returnFilter);
-                if (_directoryUpdate.checkHasFilter())
-                	_directoryUpdate.filter(returnFilter);
-
-                _tempWlInteger.value(_tempUpdateMsg.streamId());
-                if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-                {
-                    break;
-                }
-                
-                _directoryUpdate.clear();
-                _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
-            }
-
-            for (int i = 0; i < _directoryUpdate.serviceList().size(); ++i)
+            for (WlRequest usrRequest : requestList)
             {
-                _servicePool.add(_directoryUpdate.serviceList().get(i));	
+                usrRequest.state(WlRequest.State.PENDING_REFRESH);
+
+                if (callbackDeleteUpdateForRequest(usrRequest, "WlDirectoryHandler.deleteAllServices") < ReactorCallbackReturnCodes.SUCCESS)
+                    break;
             }
+
+            _servicePool.addAll(_directoryUpdate.serviceList());
             _serviceCache.clearCache(isChannelDown);
         }
     }
@@ -754,9 +823,9 @@ class WlDirectoryHandler implements WlHandler
         if (!((RefreshMsg)msg).checkRefreshComplete())
         {
            return _watchlist.reactor().populateErrorInfo(errorInfo,
-                                                         ReactorReturnCodes.FAILURE,
-                                                         "WlDirectoryHandler.readRefreshMsg",
-                                                         "Watchlist doesn't handle multi-part directory refresh.");
+                   ReactorReturnCodes.FAILURE,
+                   "WlDirectoryHandler.readRefreshMsg",
+                   "Watchlist doesn't handle multi-part directory refresh.");
         }
 
         // notify stream that response received if solicited
@@ -767,16 +836,18 @@ class WlDirectoryHandler implements WlHandler
 
         // convert to rdm directory refresh and save
         _directoryRefresh.decode(dIter, msg);
-    
+
         if (((RefreshMsg)msg).checkClearCache())
         {
-        	// clear service cache
-            _serviceCache.clearCache(false);
-            
             // if refresh is unsolicited, notify item handler all services deleted
             if (!((RefreshMsg)msg).checkSolicited())
             {
                 _watchlist.directoryHandler().deleteAllServices(false);
+            }
+            else
+            {
+                // clear service cache
+                _serviceCache.clearCache(false);
             }
         }
         
@@ -791,20 +862,25 @@ class WlDirectoryHandler implements WlHandler
             ((RefreshMsg)msg).state().dataState(DataStates.SUSPECT);
         }
         
+        java.util.Map<WlRequest, Integer> requestedServiceIds = new HashMap<>();
+        for (WlRequest wlRequest : wlStream.userRequestList())
+        {
+            requestedServiceIds.put(wlRequest, requestedServiceId(wlRequest));
+        }
+
         /* Pass service list to service cache for processing. */
         List<Service> serviceList = _directoryRefresh.serviceList();
         if (serviceList != null)
         {
             ret = _serviceCache.processServiceList(serviceList, msg, errorInfo);
         }
+        List<WlService> servicesFromReceivedRefresh = convertServicesIntoWlServices(serviceList);
         
         if (ret == ReactorCallbackReturnCodes.SUCCESS)
         {
         	// fanout refresh message to user requests associated with the stream
-            for (int i = 0; i < wlStream.userRequestList().size(); i++)
+            for (WlRequest wlRequest : wlStream.userRequestList())
             {
-                WlRequest wlRequest = wlStream.userRequestList().get(i);
-
                 // only fanout to those whose state is PENDING_REFRESH or unsolicited
                 if (!((RefreshMsg)msg).checkSolicited() ||
                     wlRequest.state() == WlRequest.State.PENDING_REFRESH)
@@ -819,48 +895,86 @@ class WlDirectoryHandler implements WlHandler
                     {
                     	newDirectoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
                     }
-                    
+
                     // We have our Refresh, set state to open
                     wlRequest.state(WlRequest.State.OPEN);
-                    
-                    fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
-                    
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
-                    
-                    _tempRefreshMsg.clear();
-                    _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
-                    
-                    // use filter from user request
-                    int returnFilter = getResultingFilter(wlRequest.requestMsg().msgKey().filter(), newDirectoryRefresh.filter());
-                    if (_tempRefreshMsg.checkHasMsgKey())
-                    	_tempRefreshMsg.msgKey().filter(returnFilter);
-                   	newDirectoryRefresh.filter(returnFilter);
-                    
-                    // callback user
-                    _tempWlInteger.value(_tempRefreshMsg.streamId());
-                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsg", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-                     {
-                        // put Directory Refresh services back into pool since we are finished with them
-                        for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-                        {
-                            _servicePool.add(newDirectoryRefresh.serviceList().get(j));
-                        }
 
+                    boolean isUnsolicitedAndCacheCleared = ((RefreshMsg) msg).checkClearCache() && !((RefreshMsg)msg).checkSolicited();
+                    int requestedServiceIdBeforeRefresh = requestedServiceIds.get(wlRequest);
+                    int effectiveRequestedServiceId = requestedServiceIdBeforeRefresh;
+                    if (effectiveRequestedServiceId < 0)
+                    {
+                        effectiveRequestedServiceId = requestedServiceId(wlRequest);
+                    }
+                    int requestedServiceIdForDeletedServices = requestedServiceIdBeforeRefresh >= 0
+                            ? requestedServiceIdBeforeRefresh
+                            : effectiveRequestedServiceId;
+
+                    fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest, effectiveRequestedServiceId);
+
+                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName,
+                            servicesFromReceivedRefresh, isUnsolicitedAndCacheCleared);
+
+                    addDeletedServicesToRefresh(newDirectoryRefresh, wlRequest, requestedServiceIdForDeletedServices,
+                            serviceList);
+
+                    applyActualServiceListFilter(newDirectoryRefresh);
+
+                    // Don't send update if cache was cleared and service list is empty
+                    if (isUnsolicitedAndCacheCleared && newDirectoryRefresh.serviceList().isEmpty())
+                    {
                         // Put back in pool since we are finished with it
                         _directoryRefreshPool.add(newDirectoryRefresh);
+                        continue;
+                    }
 
+                    Msg callbackMsg;
+                    DirectoryMsg callbackDirectoryMsg;
+                    if (_receivedRefresh)
+                    {
+                        // Turn the Directory Refresh into a Directory Update before sending
+                        _directoryUpdate.clear();
+                        _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
+                        _directoryUpdate.serviceList().addAll(newDirectoryRefresh.serviceList());
+                        _directoryUpdate.applyHasFilter();
+                        _directoryUpdate.filter(newDirectoryRefresh.filter());
+                        _directoryUpdate.streamId(newDirectoryRefresh.streamId());
+                        if (newDirectoryRefresh.checkHasServiceId())
+                        {
+                            _directoryUpdate.applyHasServiceId();
+                            _directoryUpdate.serviceId(newDirectoryRefresh.serviceId());
+                        }
+                        _directoryUpdate.flags(newDirectoryRefresh.flags());
+
+                        _tempUpdateMsg.clear();
+                        _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
+                        callbackMsg = _tempUpdateMsg;
+                        callbackDirectoryMsg = _directoryUpdate;
+                    }
+                    else
+                    {
+                        _tempRefreshMsg.clear();
+                        _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
+                        callbackMsg = _tempRefreshMsg;
+                        callbackDirectoryMsg = newDirectoryRefresh;
+                    }
+                    
+                    // callback user
+                    _tempWlInteger.value(callbackMsg.streamId());
+
+                    ret = callbackUser("WlDirectoryHandler.readRefreshMsg", callbackMsg, callbackDirectoryMsg,
+                            _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
+
+                    // put Directory Refresh services back into pool since we are finished with them
+                    _servicePool.addAll(newDirectoryRefresh.serviceList());
+                    // Put back in pool since we are finished with it
+                    _directoryRefreshPool.add(newDirectoryRefresh);
+
+                    if (ret  < ReactorCallbackReturnCodes.SUCCESS)
+                    {
                     	// Break out of loop
                     	break;
                     }
-                    
-                    // put Directory Refresh services back into pool since we are finished with them
-                    for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-                    {
-                    	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
-                    }
-                    
-                    // Put back in pool since we are finished with it
-                    _directoryRefreshPool.add(newDirectoryRefresh);
                 }
             }
         }
@@ -869,141 +983,14 @@ class WlDirectoryHandler implements WlHandler
 
         return ret;
     }
-    
-    /* Reads a refresh message but fanout as update because stream is already up. */
-    int readRefreshMsgAsUpdate(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
+
+    private List<WlService> convertServicesIntoWlServices(List<Service> serviceList)
     {
-        int ret = ReactorCallbackReturnCodes.SUCCESS;
-        
-        // make sure refresh complete flag is set
-        // directory handler doesn't handle multi-part directory refreshes
-        if (!((RefreshMsg)msg).checkRefreshComplete())
-        {
-           return _watchlist.reactor().populateErrorInfo(errorInfo,
-                                                         ReactorReturnCodes.FAILURE,
-                                                         "WlDirectoryHandler.readRefreshMsg",
-                                                         "Watchlist doesn't handle multi-part directory refresh.");
-        }
-
-        // notify stream that response received if solicited
-        if (((RefreshMsg)msg).checkSolicited())
-        {
-            wlStream.responseReceived();
-        }
-
-        // convert to rdm directory refresh and save
-        _directoryRefresh.decode(dIter, msg);
-    
-        if (((RefreshMsg)msg).checkClearCache())
-        {
-        	// clear service cache
-            _serviceCache.clearCache(false);
-            
-            // if refresh is unsolicited, notify item handler all services deleted
-            if (!((RefreshMsg)msg).checkSolicited())
-            {
-                _watchlist.directoryHandler().deleteAllServices(false);
-            }
-        }
-        
-        // set state from directory refresh
-        _directoryRefresh.state().copy(wlStream.state());
-        
-        if (_directoryRefresh.state().streamState() == StreamStates.CLOSED_RECOVER)
-        {
-            _directoryRefresh.state().streamState(StreamStates.OPEN);
-            _directoryRefresh.state().dataState(DataStates.SUSPECT);
-            ((RefreshMsg)msg).state().streamState(StreamStates.OPEN);
-            ((RefreshMsg)msg).state().dataState(DataStates.SUSPECT);
-        }
-        
-        /* Pass service list to service cache for processing. */
-        List<Service> serviceList = _directoryRefresh.serviceList();
-        if (serviceList != null)
-        {
-            ret = _serviceCache.processServiceList(serviceList, msg, errorInfo);
-        }
-        
-        if (ret == ReactorCallbackReturnCodes.SUCCESS)
-        {
-        	// fanout refresh message to user requests associated with the stream
-            for (int i = 0; i < wlStream.userRequestList().size(); i++)
-            {
-                WlRequest wlRequest = wlStream.userRequestList().get(i);
-
-                // only fanout to those whose state is PENDING_REFRESH or unsolicited
-                if (!((RefreshMsg)msg).checkSolicited() ||
-                    wlRequest.state() == WlRequest.State.PENDING_REFRESH)
-                {
-                    DirectoryRefresh newDirectoryRefresh = null;
-                    if (!_directoryRefreshPool.isEmpty())
-                    {
-                    	newDirectoryRefresh = _directoryRefreshPool.poll();
-                        newDirectoryRefresh.clear();
-                    }
-                    else
-                    {
-                    	newDirectoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
-                    }
-                    
-                    // We have our Refresh, set state to open
-                    wlRequest.state(WlRequest.State.OPEN);
-                    
-                    fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
-                    
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
- 
-                    // Turn the Directory Refresh into a Directory Update before sending
-                    _directoryUpdate.clear();
-                    _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
-                    _directoryUpdate.serviceList().addAll(newDirectoryRefresh.serviceList());
-                    _directoryUpdate.applyHasFilter();
-                    _directoryUpdate.filter(newDirectoryRefresh.filter());
-                    _directoryUpdate.streamId(newDirectoryRefresh.streamId());
-                    _directoryUpdate.applyHasServiceId();
-                    _directoryUpdate.serviceId(newDirectoryRefresh.serviceId());
-                    _directoryUpdate.flags(newDirectoryRefresh.flags());
-                    
-                    _tempUpdateMsg.clear();
-                    _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
-                    
-                    // use filter from user request
-                    int returnFilter = getResultingFilter(wlRequest.requestMsg().msgKey().filter(), _directoryUpdate.filter());
-                    if (_tempUpdateMsg.checkHasMsgKey())
-                    	_tempUpdateMsg.msgKey().filter(returnFilter);
-                    if (_directoryUpdate.checkHasFilter())
-                    	_directoryUpdate.filter(returnFilter);
-
-                    // callback user
-                    _tempWlInteger.value(_tempUpdateMsg.streamId());
-                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsgAsUpdate", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-                     {
-                        // put Directory Refresh services back into pool since we are finished with them
-                        for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-                        {
-                            _servicePool.add(newDirectoryRefresh.serviceList().get(j));
-                        }
-
-                        // Put back in pool since we are finished with it
-                        _directoryRefreshPool.add(newDirectoryRefresh);
-
-                    	// Break out of loop
-                    	break;
-                    }
-                    
-                    // put Directory Refresh services back into pool since we are finished with them
-                    for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-                    {
-                    	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
-                    }
-                    
-                    // Put back in pool since we are finished with it
-                    _directoryRefreshPool.add(newDirectoryRefresh);
-                }
-            }
-        }
-
-        return ret;
+        return (serviceList == null) ? Collections.emptyList() :
+                serviceList.stream()
+                        .map(s -> _serviceCache.service(s.serviceId()))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
     }
 
     /* Reads a status message. */
@@ -1018,13 +1005,15 @@ class WlDirectoryHandler implements WlHandler
         
         if (((StatusMsg)msg).checkClearCache())
         {
-        	// clear service cache
-            _serviceCache.clearCache(false);
-            
             // if stream state is OPEN, notify item handler all services deleted
             if (_directoryStatus.state().streamState() == StreamStates.OPEN)
             {
                 _watchlist.directoryHandler().deleteAllServices(false);
+            }
+            else
+            {
+                // clear service cache
+                _serviceCache.clearCache(false);
             }
         }
         
@@ -1039,83 +1028,75 @@ class WlDirectoryHandler implements WlHandler
     /* Reads an update message. */
     int readUpdateMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
     {
-        int ret = ReactorCallbackReturnCodes.SUCCESS;
-        
         // convert to rdm directory update and save
         _directoryUpdate.clear();
         _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
-        ret = _directoryUpdate.decode(dIter, msg);
-        
-        if (ret == ReactorCallbackReturnCodes.SUCCESS)
+        int ret = _directoryUpdate.decode(dIter, msg);
+
+        if (ret != ReactorCallbackReturnCodes.SUCCESS)
+            return ret;
+
+        java.util.Map<WlRequest, Integer> requestedServiceIds = new HashMap<>();
+        for (WlRequest wlRequest : wlStream.userRequestList())
         {
-            /* Pass service list to service cache for processing. */
-            List<Service> serviceList = _directoryUpdate.serviceList();
-            if (serviceList != null)
-            {
-                ret = _serviceCache.processServiceList(serviceList, msg, errorInfo);
-                if (ret < ReactorCallbackReturnCodes.SUCCESS)
-        		{
-        			return ret;
-        		}
-            }
+            requestedServiceIds.put(wlRequest, requestedServiceId(wlRequest));
         }
-        else
+
+        /* Pass service list to service cache for processing. */
+        List<Service> serviceList = _directoryUpdate.serviceList();
+        if (serviceList != null)
         {
-        	return ret;
+            ret = _serviceCache.processServiceList(serviceList, msg, errorInfo);
+            if (ret < ReactorCallbackReturnCodes.SUCCESS)
+                return ret;
         }
-        
+
         // fanout update message to user requests associated with the stream
-        for (int i = 0; i < wlStream.userRequestList().size(); i++)
+        for (WlRequest wlRequest : wlStream.userRequestList())
         {
-            WlRequest wlRequest = wlStream.userRequestList().get(i);
-            
             // only fanout to those whose state is PENDING_REFRESH OR OPEN
             if (wlRequest.state() == WlRequest.State.PENDING_REFRESH || 
             		wlRequest.state() == WlRequest.State.OPEN)
             {
         		// Find services they want and keep them on the list of services for the update
+                int requestedServiceIdBeforeUpdate = requestedServiceIds.get(wlRequest);
+                int effectiveRequestedServiceId = requestedServiceIdBeforeUpdate;
+                if (effectiveRequestedServiceId < 0)
+                {
+                    effectiveRequestedServiceId = requestedServiceId(wlRequest);
+                }
+
                 _directoryUpdateCopy.clear();
-                fillDirectoryUpdateFromRequestMsg(_directoryUpdateCopy, wlRequest);
+                fillDirectoryUpdateFromRequestMsg(_directoryUpdateCopy, wlRequest, effectiveRequestedServiceId);
 
-                fillDirectoryUpdateServiceListFromUpdateMsgServices(_directoryUpdateCopy, _directoryUpdate.serviceList());
+                fillDirectoryUpdateServiceListFromUpdateMsgServices(_directoryUpdateCopy, wlRequest,
+                        requestedServiceIdBeforeUpdate,
+                        effectiveRequestedServiceId,
+                        _directoryUpdate.serviceList());
 
-        		// fanout only if we have a service in the directoryUpdate
-        		if (_directoryUpdateCopy.serviceList().size() > 0)
-        		{
-                    // update filter in message to resulting filter
+                applyActualServiceListFilter(_directoryUpdateCopy);
 
-                    int returnFilter = getResultingFilter(_directoryUpdateCopy.filter(), _directoryUpdate.filter());
-                    _directoryUpdateCopy.filter(returnFilter);
-            		
-                    _tempUpdateMsg.clear();
-                    _watchlist.convertRDMToCodecMsg(_directoryUpdateCopy, _tempUpdateMsg);
+                _tempUpdateMsg.clear();
+                _watchlist.convertRDMToCodecMsg(_directoryUpdateCopy, _tempUpdateMsg);
 
-                    // callback user
-                    _tempWlInteger.value(_tempUpdateMsg.streamId());
-                    if ((ret = callbackUser("WlDirectoryHandler.readUpdateMsg", _tempUpdateMsg, _directoryUpdateCopy, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-                     {
-                        // put Directory Update services back into pool since we are finished with them
-                        for (int j = 0; j < _directoryUpdateCopy.serviceList().size(); ++j)
-                        {
-                        	_servicePool.add(_directoryUpdateCopy.serviceList().get(j));
-                        }
-
-                        // break out of loop for error
-                        return ret;
-                    }
-        		}
+                // callback user
+                _tempWlInteger.value(_tempUpdateMsg.streamId());
+                ret = callbackUser("WlDirectoryHandler.readUpdateMsg", _tempUpdateMsg, _directoryUpdateCopy, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
 
                 // put Directory Update services back into pool since we are finished with them
-                for (int j = 0; j < _directoryUpdateCopy.serviceList().size(); ++j)
+                _servicePool.addAll(_directoryUpdateCopy.serviceList());
+
+                if (ret < ReactorCallbackReturnCodes.SUCCESS)
                 {
-                	_servicePool.add(_directoryUpdateCopy.serviceList().get(j));
+                    // break out of loop for error
+                    break;
                 }
             }
         }
 
         return ret;
     }
-    
+
     /* Reads an generic message. */
     int readGenericMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
     {
@@ -1180,12 +1161,10 @@ class WlDirectoryHandler implements WlHandler
         if (!_serviceCache._serviceList.isEmpty())
         {
 	        DirectoryRefresh newDirectoryRefresh = null;
-	        
-            // fanout refresh message to user requests associated with the stream
-            for (int i = 0; i < _stream.userRequestList().size(); i++)
-            {
-                WlRequest wlRequest = _stream.userRequestList().get(i);
 
+            // fanout refresh message to user requests associated with the stream
+            for (WlRequest wlRequest : _stream.userRequestList())
+            {
 	            // only fanout to those whose state is PENDING_REFRESH
                 if (wlRequest.state() == WlRequest.State.PENDING_REFRESH)
 	            {
@@ -1200,44 +1179,32 @@ class WlDirectoryHandler implements WlHandler
         	        {
         	        	newDirectoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
         	        }
-	
+
                     newDirectoryRefresh.clear();
-                    fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
-	                	
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
-	                	
+                    fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest, requestedServiceId(wlRequest));
+
+                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName,
+                            serviceList(), false);
+
+                    applyActualServiceListFilter(newDirectoryRefresh);
+
                     _tempRefreshMsg.clear();
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
                     
-                    // use filter from user request
-                    int returnFilter = getResultingFilter(wlRequest.requestMsg().msgKey().filter(), newDirectoryRefresh.filter());
-                    if (_tempRefreshMsg.checkHasMsgKey())
-                    	_tempRefreshMsg.msgKey().filter(returnFilter);
-                    newDirectoryRefresh.filter(returnFilter);
                     // callback user
                     _tempWlInteger.value(_tempRefreshMsg.streamId());
-                    if ((ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
-                    {
-	                        // put Directory Refresh services back into pool since we are finished with them
-	                        for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-	                        {
-	                        	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
-	                        }
-	                        
-	                    	_directoryRefreshPool.add(newDirectoryRefresh);
-	                    	
-	                    	return ret;
-	                }
-                    
+                    ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
+
                     // put Directory Refresh services back into pool since we are finished with them
-    	            for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
-    	            {
-    	            	_servicePool.add(newDirectoryRefresh.serviceList().get(j));
-    	            }
-    	            
-    	        	_directoryRefreshPool.add(newDirectoryRefresh);
+                    _servicePool.addAll(newDirectoryRefresh.serviceList());
+                    _directoryRefreshPool.add(newDirectoryRefresh);
+
+                    if (ret < ReactorCallbackReturnCodes.SUCCESS)
+                    {
+                        return ret;
+	                }
 	            }
-	            
+
 	        	_requestDispatchFlag = false;
 	        }
         }
@@ -1319,10 +1286,8 @@ class WlDirectoryHandler implements WlHandler
             
             // close stream if login stream is closed
             else if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED)
-            {                
-            	// clear service cache
-                _serviceCache.clearCache(false);
-
+            {
+                _watchlist.directoryHandler().deleteAllServices(false);
                 closeDirectoryStream();
             }
         }

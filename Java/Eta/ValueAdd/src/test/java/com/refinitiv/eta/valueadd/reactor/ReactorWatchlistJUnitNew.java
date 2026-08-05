@@ -27,6 +27,7 @@ import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.codec.Map;
 import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,12 +49,6 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefreshFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryUpdate;
-import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
@@ -67,7 +62,6 @@ import org.junit.rules.TestName;
 public class ReactorWatchlistJUnitNew
 {
    DataDictionary dictionary;
-   
    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 21000;
 
     @Rule
@@ -142,7 +136,7 @@ public class ReactorWatchlistJUnitNew
     private void itemMultipartRefreshTimeout(boolean isWebsocket, String protocolList) {
 
         /* Test a simple request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -152,7 +146,7 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
@@ -291,7 +285,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void directoryUserRequestTest_Socket() {
 
@@ -313,14 +307,14 @@ public class ReactorWatchlistJUnitNew
     private void directoryUserRequest(boolean isWebsocket, String protocolList) {
 
         /* Test the user calling the initial directory SubmitRequest with no default directory request */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -333,7 +327,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -543,7 +537,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void itemServiceUpdatedTest_Socket() {
 
@@ -561,7 +555,7 @@ public class ReactorWatchlistJUnitNew
     private void itemServiceUpdated(boolean isWebsocket, String protocolList) {
 
         /* Test a simple request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -572,11 +566,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -590,7 +584,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -729,7 +723,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             DirectoryUpdate receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -747,13 +741,13 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void itemServiceUpdated_WithGroupIdTest_Socket() {
 
     	itemServiceUpdated_WithGroupId(false, null);
     }
-    
+
     @Test
     public void itemServiceUpdated_WithGroupIdTest_WebSocket_Rwf() {
 
@@ -764,9 +758,9 @@ public class ReactorWatchlistJUnitNew
 
     private void itemServiceUpdated_WithGroupId(boolean isWebsocket, String protocolList) {
 
-        /* Test a request/refresh exchange with the watchlist enabled. 
+        /* Test a request/refresh exchange with the watchlist enabled.
          * Send a Service Update containing the Group filter and setting a Group ID*/
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -777,7 +771,7 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
@@ -795,7 +789,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -945,7 +939,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             DirectoryUpdate receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.GROUP, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -963,7 +957,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void itemServiceUpDownMultipleItemsTest_Socket() {
 
@@ -985,7 +979,7 @@ public class ReactorWatchlistJUnitNew
     private void itemServiceUpDownMultipleItems(boolean isWebsocket, String protocolList) {
 
         /* Test a simple request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -997,11 +991,11 @@ public class ReactorWatchlistJUnitNew
         UpdateMsg receivedUpdateMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1015,7 +1009,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -1286,7 +1280,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void itemGroupUpdatedTest_Socket() {
 
@@ -1301,7 +1295,7 @@ public class ReactorWatchlistJUnitNew
 
     private void itemGroupUpdated(boolean isWebsocket, String protocolList) {
         /* Test a simple request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -1312,11 +1306,11 @@ public class ReactorWatchlistJUnitNew
         StatusMsg receivedStatusMsg;
         RDMDirectoryMsgEvent directoryMsgEvent;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1330,7 +1324,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -1474,7 +1468,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             DirectoryUpdate receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1542,7 +1536,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1591,7 +1585,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1643,7 +1637,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1710,7 +1704,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1778,7 +1772,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -1796,16 +1790,16 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     /* Used by privateStreamOpenCallbackSubmitTest and privateStreamOpenCallbackSubmitReSubmitTest. */
     class SendItemsFromOpenCallbackConsumer extends Consumer
     {
         boolean _privateStream;
-        
+
         public SendItemsFromOpenCallbackConsumer(TestReactor testReactor, boolean privateStream)
         {
             super(testReactor);
-            
+
             _privateStream = privateStream;
         }
 
@@ -1815,11 +1809,11 @@ public class ReactorWatchlistJUnitNew
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             Msg msg = CodecFactory.createMsg();
             RequestMsg requestMsg = (RequestMsg)msg;
-            
+
             if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
             {
                 super.reactorChannelEventCallback(event);
-                
+
                 /* Consumer sends private stream request. */
                 requestMsg.clear();
                 requestMsg.msgClass(MsgClasses.REQUEST);
@@ -1840,7 +1834,7 @@ public class ReactorWatchlistJUnitNew
             {
                 return super.reactorChannelEventCallback(event);
             }
-            
+
             return ReactorReturnCodes.SUCCESS;
         }
     }
@@ -1869,11 +1863,11 @@ public class ReactorWatchlistJUnitNew
         ReactorChannelEvent chnlEvent;
         ReactorMsgEvent msgEvent;
         StatusMsg receivedStatusMsg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new SendItemsFromOpenCallbackConsumer(consumerReactor, true);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1886,7 +1880,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -1968,13 +1962,13 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         DirectoryRequest _directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
         DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
-       
+
         int providerStreamId;
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -1988,8 +1982,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-       
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -2317,14 +2311,14 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
-        UpdateMsg receivedUpdateMsg;        
-       
+        UpdateMsg receivedUpdateMsg;
+
         int providerStreamId;
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -2338,7 +2332,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -2521,11 +2515,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new SendItemsFromOpenCallbackConsumer(consumerReactor, true);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -2538,7 +2532,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -2668,11 +2662,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -2685,7 +2679,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -2825,11 +2819,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -2842,7 +2836,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -3034,7 +3028,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void privateStreamAggregationTest_Socket() {
 
@@ -3061,7 +3055,7 @@ public class ReactorWatchlistJUnitNew
         Msg msg = CodecFactory.createMsg();
         RequestMsg requestMsg = (RequestMsg)msg;
         RequestMsg receivedRequestMsg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
@@ -3078,7 +3072,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -3173,7 +3167,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void privateStreamNonPrivateStreamAggregationTest_Socket() {
 
@@ -3200,11 +3194,11 @@ public class ReactorWatchlistJUnitNew
         Msg msg = CodecFactory.createMsg();
         RequestMsg requestMsg = (RequestMsg)msg;
         RequestMsg receivedRequestMsg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -3217,7 +3211,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -3309,7 +3303,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void privateStreamRecoveryTest_Socket() {
 
@@ -3341,11 +3335,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         StatusMsg receivedStatusMsg;
         ReactorChannelEvent chnlEvent;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -3358,7 +3352,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -3505,7 +3499,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestTest_Socket() {
 
@@ -3527,7 +3521,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequest(boolean isWebsocket, String protocolList) {
 
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -3538,11 +3532,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -3556,7 +3550,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -3716,7 +3710,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestNormalRequestBeforeTest_Socket() {
 
@@ -3738,7 +3732,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestNormalRequestBefore(boolean isWebsocket, String protocolList) {
 
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -3749,11 +3743,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -3767,7 +3761,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4007,7 +4001,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestNormalRequestAfterTest_Socket() {
 
@@ -4029,7 +4023,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestNormalRequestAfter(boolean isWebsocket, String protocolList) {
 
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -4040,11 +4034,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -4058,7 +4052,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4304,7 +4298,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestOutOfOrderTest_Socket() {
 
@@ -4327,7 +4321,7 @@ public class ReactorWatchlistJUnitNew
 
         /* Test a batch request/refresh exchange with the watchlist enabled, where two requests are sent
          * before both are received. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -4342,11 +4336,11 @@ public class ReactorWatchlistJUnitNew
         testUserSpecObjOne.value(997);
         WlInteger testUserSpecObjTwo = ReactorFactory.createWlInteger();
         testUserSpecObjTwo.value(998);
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -4360,7 +4354,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4612,7 +4606,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestOverlappingStreamsTes_Socket() {
 
@@ -4634,7 +4628,7 @@ public class ReactorWatchlistJUnitNew
     void batchRequestOverlappingStreams(boolean isWebsocket, String protocolList) {
 
         /* Test a batch request where a stream we would create overlaps an already created stream, and fails. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -4644,11 +4638,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -4662,7 +4656,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4769,7 +4763,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestServiceIdAndServiceNameTest_Socket() {
 
@@ -4791,15 +4785,15 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestServiceIdAndServiceName(boolean isWebsocket, String protocolList) {
 
         /* Test a batch request where we set the serviceId on the request, as well as serviceName in watchlist, to fail. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         Msg msg = CodecFactory.createMsg();
         RequestMsg requestMsg = (RequestMsg)msg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -4813,7 +4807,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4863,7 +4857,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestMsgKeyItemNameTest_Socket() {
 
@@ -4885,15 +4879,15 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestMsgKeyItemName(boolean isWebsocket, String protocolList) {
 
         /* Test a batch request where MsgKey ItemName is set on the request, which should fail */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         Msg msg = CodecFactory.createMsg();
         RequestMsg requestMsg = (RequestMsg)msg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -4907,7 +4901,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -4959,7 +4953,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestSymbolListTest_Socket() {
 
@@ -4981,7 +4975,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestSymbolList(boolean isWebsocket, String protocolList) {
 
         /* Test a batch request/refresh exchange that has a symbolList, with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -4992,11 +4986,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -5010,7 +5004,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -5172,7 +5166,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestSymbolListTestNoBehaviors_Socket() {
 
@@ -5194,7 +5188,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestSymbolListNoBehaviors(boolean isWebsocket, String protocolList) {
 
         /* Test a batch request/refresh exchange that has a symbolList, with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -5205,11 +5199,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -5223,7 +5217,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -5387,7 +5381,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void batchRequestWithViewTest_Socket() {
 
@@ -5409,7 +5403,7 @@ public class ReactorWatchlistJUnitNew
     private void batchRequestWithView(boolean isWebsocket, String protocolList) {
 
         /* Test a simple batch view request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -5419,11 +5413,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -5437,7 +5431,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -5660,21 +5654,21 @@ public class ReactorWatchlistJUnitNew
         assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeComplete(encodeIter, true));
 
         assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
-        
+
         if (fieldIdList != null)
         {
         	UInt tempUInt = CodecFactory.createUInt();
         	Int tempInt = CodecFactory.createInt();
-        	
+
         	// encode view request
         	eEntry.clear();
         	eEntry.name(ElementNames.VIEW_TYPE);
         	eEntry.dataType(DataTypes.UINT);
 
      		tempUInt.value(ViewTypes.FIELD_ID_LIST);
-      
+
              assertEquals(CodecReturnCodes.SUCCESS, eEntry.encode(encodeIter, tempUInt));
-     		
+
              eEntry.clear();
              eEntry.name(ElementNames.VIEW_DATA);
              eEntry.dataType(DataTypes.ARRAY);
@@ -5694,12 +5688,12 @@ public class ReactorWatchlistJUnitNew
              assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeComplete(encodeIter, true));
              assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
         }
-        
+
         assertEquals(CodecReturnCodes.SUCCESS, eList.encodeComplete(encodeIter, true));
 
         msg.encodedDataBody(buf);
 	}
-	
+
 	private void decodeViewDataForFieldId(ReactorChannel reactorChannel, Msg msg, List<Integer> viewFieldIdList)
 	{
 		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
@@ -5711,22 +5705,22 @@ public class ReactorWatchlistJUnitNew
 		ArrayEntry viewEntry = CodecFactory.createArrayEntry();
 		Buffer viewData = CodecFactory.createBuffer();
 		int ret;
-		
+
 		viewFieldIdList.clear();
 		assertEquals(DataTypes.ELEMENT_LIST, msg.containerType());
-		
+
 		decodeIt.clear();
 		decodeIt.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
-	
+
 		elementList.clear();
 		assertTrue((ret = elementList.decode(decodeIt, null)) == CodecReturnCodes.SUCCESS);
-		
+
 		elementEntry.clear();
 		// Decoding the list of Field IDs
 		while ((ret = elementEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
 		{
 			assertFalse(ret < CodecReturnCodes.SUCCESS);
-			
+
 			if (elementEntry.name().equals(ElementNames.VIEW_TYPE) || elementEntry.name().equals(ElementNames.VIEW_DATA))
 			{
 				switch(elementEntry.dataType())
@@ -5744,27 +5738,27 @@ public class ReactorWatchlistJUnitNew
 				}
 			}
 		}
-		
+
 		decodeIt.clear();
-		decodeIt.setBufferAndRWFVersion(viewData, reactorChannel.majorVersion(), 
+		decodeIt.setBufferAndRWFVersion(viewData, reactorChannel.majorVersion(),
 				reactorChannel.minorVersion());
-		
+
 		// Support only as a list of Field IDs
 		assertTrue(viewType.toBigInteger().intValue() == ViewTypes.FIELD_ID_LIST);
 	    viewArray.clear();
 		assertTrue(viewArray.decode(decodeIt) == CodecReturnCodes.SUCCESS);
-	    assertTrue(viewArray.primitiveType() == DataTypes.INT);						
+	    assertTrue(viewArray.primitiveType() == DataTypes.INT);
 		while ((ret = viewEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
 		{
-		    assertFalse(ret < CodecReturnCodes.SUCCESS);							
+		    assertFalse(ret < CodecReturnCodes.SUCCESS);
 			if ((ret = fieldId.decode(decodeIt)) == CodecReturnCodes.SUCCESS)
 			{
 			    assertFalse(fieldId.toLong() < Short.MIN_VALUE || fieldId.toLong() > Short.MAX_VALUE);
 			    viewFieldIdList.add((int)fieldId.toLong());
-			}					
+			}
 		}// while
 	}
-	
+
 	// Support encoding for Real data type of the 6, 12, 13, 19, 21, 22, 25, 30, 31 and 1465 fids.
 	private void encodeViewDataForFieldId(ReactorChannel reactorChannel, Msg msg, List<Integer> viewFieldIdList)
 	{
@@ -5773,21 +5767,21 @@ public class ReactorWatchlistJUnitNew
         FieldEntry fieldEntry = CodecFactory.createFieldEntry();
         Buffer buffer = CodecFactory.createBuffer();
         Real real = CodecFactory.createReal();
-        
+
         if(viewFieldIdList.size() > 0)
         {
         	ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
         	buffer.data(byteBuffer);
         	encodeIt.clear();
-        	assertTrue(encodeIt.setBufferAndRWFVersion(buffer, reactorChannel.majorVersion(), 
+        	assertTrue(encodeIt.setBufferAndRWFVersion(buffer, reactorChannel.majorVersion(),
         			reactorChannel.minorVersion()) == CodecReturnCodes.SUCCESS);
-        	
+
         	fieldList.clear();
         	fieldList.applyHasStandardData();
         	int ret = fieldList.encodeInit(encodeIt, null, 0);
-        	
+
         	assertFalse(ret < CodecReturnCodes.SUCCESS);
-        	
+
         	Iterator<Integer> it = viewFieldIdList.iterator();
         	while(it.hasNext())
         	{
@@ -5817,7 +5811,7 @@ public class ReactorWatchlistJUnitNew
         				assertFalse(true); // Support only the above fields
         		}
         	}
-        	
+
         	assertTrue(fieldList.encodeComplete(encodeIt, true) == CodecReturnCodes.SUCCESS);
         	msg.containerType(DataTypes.FIELD_LIST);
         	msg.encodedDataBody(buffer);
@@ -5831,7 +5825,7 @@ public class ReactorWatchlistJUnitNew
 
         /* clear encode iterator */
         encodeIter.clear();
-        
+
         /* encode message */
         encodeIter.setBufferAndRWFVersion(buf, rc.majorVersion(), rc.minorVersion());
 
@@ -5862,26 +5856,26 @@ public class ReactorWatchlistJUnitNew
         assertEquals(CodecReturnCodes.SUCCESS, ae.encode(encodeIter, itemName));
 
         assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeComplete(encodeIter, true));
-        
+
         assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
-        
+
         if(hasBehaviors)
         {
         	ElementList behaviorList = CodecFactory.createElementList();
-        	ElementEntry dataStreamEntry = CodecFactory.createElementEntry();	
+        	ElementEntry dataStreamEntry = CodecFactory.createElementEntry();
         	UInt tempUInt = CodecFactory.createUInt();
-		
+
         	eEntry.clear();
         	eEntry.name().data(":SymbolListBehaviors");
         	eEntry.dataType(DataTypes.ELEMENT_LIST);
-		
+
         	assertEquals(ReactorReturnCodes.SUCCESS, eEntry.encodeInit(encodeIter, 0));
 
         	behaviorList.clear();
         	behaviorList.applyHasStandardData();
 
         	assertEquals(ReactorReturnCodes.SUCCESS, behaviorList.encodeInit(encodeIter, null, 0));
-	       
+
         	dataStreamEntry.clear();
         	dataStreamEntry.name().data(":DataStreams");
         	dataStreamEntry.dataType(DataTypes.UINT);
@@ -5894,7 +5888,7 @@ public class ReactorWatchlistJUnitNew
         }
 
         assertEquals(CodecReturnCodes.SUCCESS, eList.encodeComplete(encodeIter, true));
-       
+
         msg.encodedDataBody(buf);
 	}
 
@@ -5904,13 +5898,13 @@ public class ReactorWatchlistJUnitNew
         int ret;
 		ElementList behaviorList = CodecFactory.createElementList();
 		ElementEntry elementEntry = CodecFactory.createElementEntry();
-		ElementEntry dataStreamEntry = CodecFactory.createElementEntry();	
+		ElementEntry dataStreamEntry = CodecFactory.createElementEntry();
 		UInt tempUInt = CodecFactory.createUInt();
-		
+
 		elementEntry.clear();
 		elementEntry.name().data(":SymbolListBehaviors");
 		elementEntry.dataType(DataTypes.ELEMENT_LIST);
-		
+
 		ret = elementEntry.encodeInit(encIter, 0);
 		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
 
@@ -5918,17 +5912,17 @@ public class ReactorWatchlistJUnitNew
 		behaviorList.applyHasStandardData();
 		ret = behaviorList.encodeInit(encIter, null, 0);
 		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
-	       
+
 		dataStreamEntry.clear();
 		dataStreamEntry.name().data(":DataStreams");
 		dataStreamEntry.dataType(DataTypes.UINT);
 		tempUInt.value(dataStreamFlags);
-	    ret = dataStreamEntry.encode(encIter, tempUInt); 
+	    ret = dataStreamEntry.encode(encIter, tempUInt);
 	    assertTrue(ret >= ReactorReturnCodes.SUCCESS);
 		ret = behaviorList.encodeComplete(encIter, true);
-		assertTrue(ret >= ReactorReturnCodes.SUCCESS);		
+		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
 		ret = elementEntry.encodeComplete(encIter, true);
-		assertTrue(ret >= ReactorReturnCodes.SUCCESS);		
+		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
     }
 
     @Test
@@ -5952,7 +5946,7 @@ public class ReactorWatchlistJUnitNew
     private void symbolListDataStream(boolean isWebsocket, String protocolList) {
 
         /* Test a symbolList data stream request/refresh exchange with the watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -5962,11 +5956,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -5980,7 +5974,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -6184,7 +6178,7 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }    
+    }
 
     @Test
     public void symbolListDataSnapshotTest_Socket() {
@@ -6637,7 +6631,7 @@ public class ReactorWatchlistJUnitNew
          * 2) Establish symbol list and item streams
          * 3) Kill/restart connection
          * 4) Re-establish symbol list and item streams */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -6648,11 +6642,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -6666,7 +6660,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -7139,7 +7133,7 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }    
+    }
 
     @Test
     public void symbolListDataStreamUpdateSymbolListTest_Socket() {
@@ -7168,7 +7162,7 @@ public class ReactorWatchlistJUnitNew
          * - Close the fourth item from the consumer.
          * - Send an update to add the same fourth item yet again. Since it is not open, it will be automatically requested. Refresh it.
          * - Send an update to add the same fourth item yet again. This time, the item is still open, so it shouldn't be requested again.
-         */ 
+         */
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -7750,7 +7744,7 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }    
+    }
 
     @Test
     public void symbolListDataStreamTest_MsgKey_Socket() {
@@ -7787,13 +7781,13 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
 
         int streamStates[] = new int[] { StreamStates.OPEN, StreamStates.CLOSED, StreamStates.CLOSED_RECOVER};
-                
+
         for (int i = 0; i < streamStates.length; ++i)
         {
             /* Create reactors. */
             TestReactor consumerReactor = new TestReactor();
             TestReactor providerReactor = new TestReactor();
-        
+
             /* Create consumer. */
             Consumer consumer = new Consumer(consumerReactor);
             ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -8124,7 +8118,7 @@ public class ReactorWatchlistJUnitNew
                 tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
             }
         }
-    }    
+    }
 
    /* Used by symbolListDataStreamTest_FromCallback. */
    class SymbolListRequestFromCallbackConsumer extends Consumer
@@ -8138,14 +8132,14 @@ public class ReactorWatchlistJUnitNew
        public int reactorChannelEventCallback(ReactorChannelEvent event)
        {
            super.reactorChannelEventCallback(event);
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
                RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
 
                /* Consumer sends symbol list request, which requests data streams. */
-               Buffer payload = CodecFactory.createBuffer(); 
+               Buffer payload = CodecFactory.createBuffer();
                payload.data(ByteBuffer.allocate(1024));
 
                EncodeIterator encIter = CodecFactory.createEncodeIterator();
@@ -8156,14 +8150,14 @@ public class ReactorWatchlistJUnitNew
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
                requestMsg.streamId(5);
-               requestMsg.domainType(DomainTypes.SYMBOL_LIST);	       
-               requestMsg.containerType(DataTypes.ELEMENT_LIST);	       
+               requestMsg.domainType(DomainTypes.SYMBOL_LIST);
+               requestMsg.containerType(DataTypes.ELEMENT_LIST);
                requestMsg.applyHasQos();
                requestMsg.qos().rate(QosRates.TICK_BY_TICK);
                requestMsg.qos().timeliness(QosTimeliness.REALTIME);
                requestMsg.applyHasPriority();
                requestMsg.priority().priorityClass(1);
-               requestMsg.priority().count(1);	      
+               requestMsg.priority().count(1);
                requestMsg.applyStreaming();
                requestMsg.msgKey().applyHasName();
                requestMsg.msgKey().name().data("SYM_LIST");
@@ -8177,13 +8171,13 @@ public class ReactorWatchlistJUnitNew
                encodeSymbolListBehaviorsElement(encIter, SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
                ret = elementList.encodeComplete(encIter, true);
                assertTrue(ret >= ReactorReturnCodes.SUCCESS);
-               requestMsg.encodedDataBody(payload);        
+               requestMsg.encodedDataBody(payload);
                submitOptions.clear();
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -8476,11 +8470,11 @@ public class ReactorWatchlistJUnitNew
    private void singleOpenZeroOpenCallbackSubmitRecover(boolean isWebsocket, String protocolList) {
 
        TestReactorEvent event;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer with SingleOpen and AllowSuspect of 0. */
        Consumer consumer = new SendItemsFromOpenCallbackConsumer(consumerReactor, false);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -8497,7 +8491,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.defaultMsgCallback(consumer);
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -8531,7 +8525,7 @@ public class ReactorWatchlistJUnitNew
            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
    }
-   
+
    @Test
    public void itemPauseResumeTest_Socket() {
 
@@ -8562,11 +8556,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)msg;
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -8579,7 +8573,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.defaultMsgCallback(consumer);
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -8777,7 +8771,7 @@ public class ReactorWatchlistJUnitNew
            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
     }
-    
+
     @Test
     public void loginPauseResumeTest_Socket() {
 
@@ -8807,11 +8801,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)msg;
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -8824,7 +8818,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.defaultMsgCallback(consumer);
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -9137,7 +9131,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
- 
+
     @Test
     public void loginPauseResumeTokenTest_Socket() {
 
@@ -9169,11 +9163,11 @@ public class ReactorWatchlistJUnitNew
        int providerStreamId;
        String authenticationToken1 = "authenticationToken1";
        String authenticationToken2 = "authenticationToken2";
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -9186,7 +9180,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.defaultMsgCallback(consumer);
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -9195,7 +9189,7 @@ public class ReactorWatchlistJUnitNew
        providerRole.directoryMsgCallback(provider);
        providerRole.dictionaryMsgCallback(provider);
        providerRole.defaultMsgCallback(provider);
-       
+
        /* add authToken to login request */
        consumerRole.rdmLoginRequest().userNameType(Login.UserIdTypes.AUTHN_TOKEN);
        Buffer authTokenBuffer = CodecFactory.createBuffer();
@@ -9368,7 +9362,7 @@ public class ReactorWatchlistJUnitNew
            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
     }
- 
+
     @Test
     public void itemDoubleCloseTest_Socket() {
 
@@ -9390,7 +9384,7 @@ public class ReactorWatchlistJUnitNew
     private void itemDoubleClose(boolean isWebsocket, String protocolList) {
 
        /* Test a simple request/refresh exchange with the watchlist enabled. */
-       
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -9401,11 +9395,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg receivedRefreshMsg;
        CloseMsg closeMsg = (CloseMsg)msg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -9419,7 +9413,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -9532,7 +9526,7 @@ public class ReactorWatchlistJUnitNew
            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
     }
-   
+
     /* Used by serviceDownCloseItemRecoverTest. */
     class CloseUserRequestFromDirectoryCallbackConsumer extends Consumer
     {
@@ -9545,14 +9539,14 @@ public class ReactorWatchlistJUnitNew
        public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
        {
            super.rdmDirectoryMsgCallback(event);
-           
+
            // close user stream 7
            CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
            closeMsg.clear();
            closeMsg.msgClass(MsgClasses.CLOSE);
            closeMsg.streamId(7);
            closeMsg.domainType(DomainTypes.MARKET_PRICE);
-           closeMsg.containerType(DataTypes.NO_DATA); 
+           closeMsg.containerType(DataTypes.NO_DATA);
 
            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
            ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -9560,7 +9554,7 @@ public class ReactorWatchlistJUnitNew
            {
                assertTrue("rdmDirectoryMsgCallback() submit close failed", false);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -9586,7 +9580,7 @@ public class ReactorWatchlistJUnitNew
     private void serviceDownCloseItemRecover(boolean isWebsocket, String protocolList) {
 
        /* Test a simple request/refresh exchange with the watchlist enabled. */
-       
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -9600,11 +9594,11 @@ public class ReactorWatchlistJUnitNew
        int providerStreamId;
        WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
        testUserSpecObj.value(997);
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new CloseUserRequestFromDirectoryCallbackConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -9618,7 +9612,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -10085,7 +10079,7 @@ public class ReactorWatchlistJUnitNew
     private void serviceDownOpenItemRecover(boolean isWebsocket, String protocolList) {
 
        /* Test a simple request/refresh exchange with the watchlist enabled. */
-       
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -10097,11 +10091,11 @@ public class ReactorWatchlistJUnitNew
        int providerStreamId;
        WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
        testUserSpecObj.value(997);
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -10115,7 +10109,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -10834,7 +10828,7 @@ public class ReactorWatchlistJUnitNew
            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
    }
-   
+
    /* Used by submitPostOnItemRefeshTest. */
     class PostFromDefaultMsgCallbackConsumer extends Consumer
     {
@@ -10847,9 +10841,9 @@ public class ReactorWatchlistJUnitNew
        public int defaultMsgCallback(ReactorMsgEvent event)
        {
            super.defaultMsgCallback(event);
-           
+
            Msg msg = event.msg();
-           
+
            switch (msg.msgClass())
            {
                case MsgClasses.REFRESH:
@@ -10859,7 +10853,7 @@ public class ReactorWatchlistJUnitNew
                    postMsg.msgClass(MsgClasses.POST);
                    postMsg.streamId(msg.streamId());
                    postMsg.domainType(msg.domainType());
-                   postMsg.containerType(DataTypes.NO_DATA); 
+                   postMsg.containerType(DataTypes.NO_DATA);
 
                    ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
                    ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -10871,7 +10865,7 @@ public class ReactorWatchlistJUnitNew
                default:
                    break;
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -10905,11 +10899,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)msg;
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new PostFromDefaultMsgCallbackConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -10923,7 +10917,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -11041,9 +11035,9 @@ public class ReactorWatchlistJUnitNew
        public int defaultMsgCallback(ReactorMsgEvent event)
        {
            super.defaultMsgCallback(event);
-           
+
            Msg msg = event.msg();
-           
+
            switch (msg.msgClass())
            {
                case MsgClasses.REFRESH:
@@ -11068,9 +11062,9 @@ public class ReactorWatchlistJUnitNew
                        postMsg.msgKey().serviceId(msg.msgKey().serviceId());
                        postMsg.msgKey().nameType(1);
                        postMsg.msgKey().name(msg.msgKey().name());
-                       
+
                        msg.flags(msg.flags() & ~RefreshMsgFlags.SOLICITED);
-                       
+
                        EncodeIterator eIter = CodecFactory.createEncodeIterator();
                        Buffer buffer = CodecFactory.createBuffer();
                        buffer.data(ByteBuffer.allocate(1024));
@@ -11080,7 +11074,7 @@ public class ReactorWatchlistJUnitNew
                        msg.streamId(0);
                        msg.encode(eIter);
                        postMsg.encodedDataBody(buffer);
-    
+
                        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
                        ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
                        if ((event.reactorChannel().submit(postMsg, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS)
@@ -11092,7 +11086,7 @@ public class ReactorWatchlistJUnitNew
                default:
                    break;
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -11126,11 +11120,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)msg;
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new OffPostFromDefaultMsgCallbackConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -11144,7 +11138,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -11344,7 +11338,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotOnStreamingAggregationTest(boolean dispatchBetweenItemRequests, boolean isWebsocket, String protocolList)
     {
 		/* Test aggregation of a snapshot request onto a streaming request. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -11357,11 +11351,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -11374,8 +11368,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -11652,7 +11646,7 @@ public class ReactorWatchlistJUnitNew
     public void streamingAggregationTest(boolean dispatchBetweenItemRequests)
     {
 		/* Test aggregation of two streaming items. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -11665,11 +11659,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -11682,7 +11676,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -11883,7 +11877,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void streamingSnapshotBeforeChannelReadyTest_Socket() {
 
@@ -11905,7 +11899,7 @@ public class ReactorWatchlistJUnitNew
     private void streamingSnapshotBeforeChannelReady(boolean isWebsocket, String protocolList) {
 
         /* Test aggregation of streaming then Snapshot requests before channel ready */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -11917,11 +11911,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new streamingSnapshotBeforeChannelReady(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -11934,8 +11928,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -12067,7 +12061,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void snapshotStreamingBeforeChannelReadyTest_Socket() {
 
@@ -12089,7 +12083,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotStreamingBeforeChannelReady(boolean isWebsocket, String protocolList) {
 
         /* Test aggregation of streaming then Snapshot requests before channel ready */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -12101,11 +12095,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new snapshotStreamingBeforeChannelReady(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -12118,8 +12112,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -12250,7 +12244,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void snapshotStreamingViewMixAggregationBeforeChannelReadyTest_Socket() {
 
@@ -12272,7 +12266,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotStreamingViewMixAggregationBeforeChannelReady(boolean isWebsocket, String protocolList) {
 
         /* Test aggregation of 4 requests, Snapshot, Snapshot-View, Streaming, and Streaming-View */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -12284,12 +12278,12 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor.enableReactorXmlTracing();
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new snapshotStreamingViewMixAggregationBeforeChannelReady(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -12302,7 +12296,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -12490,7 +12484,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-   
+
     @Test
     public void snapshotAggregationOnClosedStreamTest_Socket() {
 
@@ -12512,7 +12506,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotAggregationOnClosedStream(boolean isWebsocket, String protocolList) {
 
         /* Test aggregation of a snapshot request, using a previously closed stream. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -12523,11 +12517,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -12540,8 +12534,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -12809,7 +12803,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void streamingAggregationCloseReuseStreamTest_Socket() {
 
@@ -12831,7 +12825,7 @@ public class ReactorWatchlistJUnitNew
     private void streamingAggregationCloseReuseStream(boolean isWebsocket, String protocolList) {
 
         /* Test aggregation of a streaming request, using a previously closed stream. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -12842,11 +12836,11 @@ public class ReactorWatchlistJUnitNew
         int providerStreamId;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -12859,8 +12853,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -13053,7 +13047,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void snapshotBeforeStreamingRequest_Socket() {
 
@@ -13075,7 +13069,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotBeforeStreamingRequest(boolean isWebsocket, String protocolList) {
 
 		/* Test aggregation of a snapshot request onto a streaming request. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -13086,11 +13080,11 @@ public class ReactorWatchlistJUnitNew
         UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
         UpdateMsg receivedUpdateMsg;
         int providerStreamId;
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -13103,8 +13097,8 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
-        
+
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -13289,20 +13283,20 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void loginClosedRecoverTest_SingleOpenOn()
    {
        loginClosedRecoverTest(true);
    }
-   
+
     @Test
     public void loginClosedRecoverTest_SingleOpenOff()
    {
        loginClosedRecoverTest(false);
    }
-   
-   
+
+
     public void loginClosedRecoverTest(boolean singleOpen)
     {
        /* Tests behavior in response to receiving login closed/recover.
@@ -13313,7 +13307,7 @@ public class ReactorWatchlistJUnitNew
         * - Tests include:
         *   - Provider sending ClosedRecover login StatusMsg/RefreshMsg in response to request.
         *   - As above, but after sending an Open/Ok login refresh first.  */
-       
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -13328,15 +13322,15 @@ public class ReactorWatchlistJUnitNew
        StatusMsg recvStatusMsg;
        ReactorChannelEvent channelEvent;
        LoginRequest recvLoginRequest;
-       
+
        final int reconnectMinDelay = 1000, reconnectMaxDelay = 3000;
        long expectedReconnectDelayTimeMs = reconnectMinDelay;
        long startTimeNano, deviationTimeMs;
-                             
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new Consumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -13353,7 +13347,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.rdmLoginRequest().applyHasAttrib();
        consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
        consumerRole.rdmLoginRequest().attrib().singleOpen(singleOpen ? 1 : 0);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -13884,7 +13878,7 @@ public class ReactorWatchlistJUnitNew
            submitOptions.clear();
            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
            assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -13920,11 +13914,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)msg;
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new PriorityChangeFromCallbackConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -13938,7 +13932,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -14111,11 +14105,11 @@ public class ReactorWatchlistJUnitNew
            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
            Msg msg = CodecFactory.createMsg();
            RequestMsg requestMsg = (RequestMsg)msg;
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                super.reactorChannelEventCallback(event);
-               
+
                /* Consumer sends first snapshot request. */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14126,7 +14120,7 @@ public class ReactorWatchlistJUnitNew
                submitOptions.clear();
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-               
+
                /* Consumer sends second aggregated snapshot request. */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14142,7 +14136,7 @@ public class ReactorWatchlistJUnitNew
            {
                return super.reactorChannelEventCallback(event);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -14162,11 +14156,11 @@ public class ReactorWatchlistJUnitNew
            Msg msg = CodecFactory.createMsg();
            RequestMsg requestMsg = (RequestMsg)msg;
            List<Integer> viewFieldList = new ArrayList<Integer>();
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                super.reactorChannelEventCallback(event);
-               
+
             // submit request view streaming message
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14182,20 +14176,20 @@ public class ReactorWatchlistJUnitNew
                viewFieldList.add(0);
                viewFieldList.add(130);
                viewFieldList.add(1131);
-               viewFieldList.add(1025);                
+               viewFieldList.add(1025);
                encodeViewFieldIdList(reactorChannel(), viewFieldList, requestMsg);
 
                submitOptions.clear();
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-               
+
                // submit request non-view snapshot message
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
                requestMsg.streamId(6);
                requestMsg.domainType(DomainTypes.MARKET_PRICE);
                requestMsg.msgKey().applyHasName();
-               requestMsg.msgKey().name().data("VRX");         
+               requestMsg.msgKey().name().data("VRX");
 
                submitOptions.clear();
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -14205,11 +14199,11 @@ public class ReactorWatchlistJUnitNew
            {
                return super.reactorChannelEventCallback(event);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
-   
+
     /* Used by snapshotStreamingViewMixAggregationBeforeChannelReadyTest Test. */
     class snapshotStreamingViewMixAggregationBeforeChannelReady extends Consumer
     {
@@ -14227,11 +14221,11 @@ public class ReactorWatchlistJUnitNew
            List<Integer> viewFieldList = new ArrayList<Integer>();
            WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
            testUserSpecObj.value(997);
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                super.reactorChannelEventCallback(event);
-               
+
                /* Consumer sends streaming request. */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14256,9 +14250,9 @@ public class ReactorWatchlistJUnitNew
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-               
+
                /* Consumer sends streaming request for same item with view. */
-               
+
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
                requestMsg.streamId(7);
@@ -14273,7 +14267,7 @@ public class ReactorWatchlistJUnitNew
                viewFieldList.add(0);
                viewFieldList.add(130);
                viewFieldList.add(1131);
-               viewFieldList.add(1025);                
+               viewFieldList.add(1025);
                encodeViewFieldIdList(reactorChannel(), viewFieldList, requestMsg);
 
                submitOptions.clear();
@@ -14295,7 +14289,7 @@ public class ReactorWatchlistJUnitNew
                viewFieldList.add(0);
                viewFieldList.add(130);
                viewFieldList.add(1131);
-               viewFieldList.add(1025);                
+               viewFieldList.add(1025);
                encodeViewFieldIdList(reactorChannel(), viewFieldList, requestMsg);
 
                submitOptions.clear();
@@ -14307,11 +14301,11 @@ public class ReactorWatchlistJUnitNew
            {
                return super.reactorChannelEventCallback(event);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
-   
+
     /* Used by streamingSnapshotBeforeChannelReadyTest Test. */
     class streamingSnapshotBeforeChannelReady extends Consumer
     {
@@ -14328,11 +14322,11 @@ public class ReactorWatchlistJUnitNew
            RequestMsg requestMsg = (RequestMsg)msg;
            WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
            testUserSpecObj.value(997);
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                super.reactorChannelEventCallback(event);
-               
+
                /* Consumer sends streaming request. */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14362,11 +14356,11 @@ public class ReactorWatchlistJUnitNew
            {
                return super.reactorChannelEventCallback(event);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
-   
+
     /* Used by snapshotStreamingBeforeChannelReadyTest Test. */
     class snapshotStreamingBeforeChannelReady extends Consumer
     {
@@ -14383,11 +14377,11 @@ public class ReactorWatchlistJUnitNew
            RequestMsg requestMsg = (RequestMsg)msg;
            WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
            testUserSpecObj.value(997);
-           
+
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
            {
                super.reactorChannelEventCallback(event);
-               
+
                /* Consumer sends snapshot request (does not apply streaming flag). */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14399,7 +14393,7 @@ public class ReactorWatchlistJUnitNew
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-               
+
                /* Consumer sends streaming request for same request. */
                requestMsg.clear();
                requestMsg.msgClass(MsgClasses.REQUEST);
@@ -14417,11 +14411,11 @@ public class ReactorWatchlistJUnitNew
            {
                return super.reactorChannelEventCallback(event);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
-   
+
     @Test
     public void snapshotAggregationBeforeChannelReadyTest_Socket() {
 
@@ -14443,7 +14437,7 @@ public class ReactorWatchlistJUnitNew
     private void snapshotAggregationBeforeChannelReady(boolean isWebsocket, String protocolList) {
 
 		/* Test aggregation of a snapshot request onto a streaming request. */
-       
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -14451,11 +14445,11 @@ public class ReactorWatchlistJUnitNew
        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
        RefreshMsg receivedRefreshMsg;
        int providerStreamId;
-       
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-	       
+
 		/* Create consumer. */
 		Consumer consumer = new sendMultipleSnapshotsBeforeChannelReady(consumerReactor);
 		ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -14468,7 +14462,7 @@ public class ReactorWatchlistJUnitNew
 		consumerRole.defaultMsgCallback(consumer);
 		consumerRole.watchlistOptions().enableWatchlist(true);
 		consumerRole.watchlistOptions().channelOpenCallback(consumer);
-		
+
 		/* Create provider. */
 		Provider provider = new Provider(providerReactor);
 		ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -14608,9 +14602,9 @@ public class ReactorWatchlistJUnitNew
                submitOptions.clear();
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-               
+
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -14635,7 +14629,7 @@ public class ReactorWatchlistJUnitNew
 
     private void itemCloseAndReopen(boolean isWebsocket, String protocolList) {
 
-       /* Test closing and reopening an item inside and outside the msg callback 
+       /* Test closing and reopening an item inside and outside the msg callback
         * (the former reproduced ETA-2163). */
 
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -14650,11 +14644,11 @@ public class ReactorWatchlistJUnitNew
        CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
        CloseMsg receivedCloseMsg;
        int providerStreamId;
-       
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new ItemCloseAndReopenConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -14668,7 +14662,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -14976,7 +14970,7 @@ public class ReactorWatchlistJUnitNew
                submitOptions.clear();
                assertTrue(submit(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -15001,7 +14995,7 @@ public class ReactorWatchlistJUnitNew
 
     private void itemCloseFromCallback_Update(boolean isWebsocket, String protocolList) {
 
-       /* Opening two streams for an item and closing both within the callback. 
+       /* Opening two streams for an item and closing both within the callback.
         * Tested in response to an update message as well as a group status. */
 
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -15017,11 +15011,11 @@ public class ReactorWatchlistJUnitNew
        CloseMsg receivedCloseMsg;
        RDMDirectoryMsgEvent directoryMsgEvent;
        int providerStreamId;
-               
+
        /* Create reactors. */
        TestReactor consumerReactor = new TestReactor();
        TestReactor providerReactor = new TestReactor();
-               
+
        /* Create consumer. */
        Consumer consumer = new CloseFromCallbackConsumer(consumerReactor);
        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -15035,7 +15029,7 @@ public class ReactorWatchlistJUnitNew
        consumerRole.watchlistOptions().enableWatchlist(true);
        consumerRole.watchlistOptions().channelOpenCallback(consumer);
        consumerRole.watchlistOptions().requestTimeout(3000);
-       
+
        /* Create provider. */
        Provider provider = new Provider(providerReactor);
        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -15558,7 +15552,7 @@ public class ReactorWatchlistJUnitNew
            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
            Msg msg = CodecFactory.createMsg();
            RequestMsg requestMsg = (RequestMsg)msg;
-           
+
            super.reactorChannelEventCallback(event);
 
            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_OPENED)
@@ -15575,7 +15569,7 @@ public class ReactorWatchlistJUnitNew
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
            }
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
 
@@ -15584,7 +15578,7 @@ public class ReactorWatchlistJUnitNew
        {
            CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-           
+
            super.rdmLoginMsgCallback(event);
 
            assertEquals(LoginMsgType.STATUS, event.rdmLoginMsg().rdmMsgType());
@@ -15594,7 +15588,7 @@ public class ReactorWatchlistJUnitNew
            closeMsg.domainType(DomainTypes.LOGIN);
            submitOptions.clear();
            assertTrue(submit(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-           
+
            return ReactorReturnCodes.SUCCESS;
        }
    }
@@ -15614,7 +15608,7 @@ public class ReactorWatchlistJUnitNew
            RDMLoginMsgEvent loginMsgEvent;
            LoginStatus receivedLoginStatus;
            int provLoginStreamId;
-           
+
            /* Create reactors. */
            TestReactor consumerReactor = new TestReactor();
            TestReactor providerReactor = new TestReactor();
@@ -15725,9 +15719,9 @@ public class ReactorWatchlistJUnitNew
 
     private void redirected(boolean isWebsocket, String protocolList) {
 
-		/* Test receiving a StatusMsg or RefreshMsg with a REDIRECTED stream state for an item. 
+		/* Test receiving a StatusMsg or RefreshMsg with a REDIRECTED stream state for an item.
          * Tests with and without RequestMsg.applyMsgKeyInUpdates(). */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -15738,7 +15732,7 @@ public class ReactorWatchlistJUnitNew
         StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();
         StatusMsg receivedStatusMsg;
         int providerStreamId;
-                
+
         for (int i = 0 ; i < 2; ++i)
         {
             /* Create reactors. */
@@ -15952,7 +15946,7 @@ public class ReactorWatchlistJUnitNew
          * and that the WL adds keys to Refresh/Update/Status/Generic/AckMsgs if it is requested.
          * Tests with and without RequestMsg.applyMsgKeyInUpdates().
          * Tests requesting both by service name and service ID. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -16532,7 +16526,7 @@ public class ReactorWatchlistJUnitNew
             }
         }
     }
-    
+
     @Test
     public void itemViewAggregateStreamingTest_Socket() {
 
@@ -16564,11 +16558,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
         List<Integer> viewFieldList = new ArrayList<Integer>();
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -16581,7 +16575,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -16863,9 +16857,9 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }   
-    
-    
+    }
+
+
     @Test
     public void itemViewAggregateSnapshotBeforeChannelReadyTest_Socket() {
 
@@ -16894,11 +16888,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new itemViewAggregateSnapshotBeforeChannelReadyTest(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -16911,7 +16905,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -17051,32 +17045,32 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }   
-    
+    }
+
  	private void encodeViewFieldIdList(ReactorChannel rc, List<Integer> fieldIdList, RequestMsg msg)
  	{
  		Buffer buf = CodecFactory.createBuffer();
- 		buf.data(ByteBuffer.allocate(1024));	
+ 		buf.data(ByteBuffer.allocate(1024));
  		Int tempInt = CodecFactory.createInt();
  		UInt tempUInt = CodecFactory.createUInt();
  		Array viewArray = CodecFactory.createArray();
  		EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
  		encodeIter.setBufferAndRWFVersion(buf, rc.majorVersion(), rc.minorVersion());
  		ElementList elementList = CodecFactory.createElementList();
- 		ElementEntry elementEntry = CodecFactory.createElementEntry();		
+ 		ElementEntry elementEntry = CodecFactory.createElementEntry();
  		ArrayEntry arrayEntry = CodecFactory.createArrayEntry();
 
  		elementList.applyHasStandardData();
  		assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(encodeIter, null, 0));
- 	       
+
  		elementEntry.clear();
  		elementEntry.name(ElementNames.VIEW_TYPE);
  		elementEntry.dataType(DataTypes.UINT);
 
  		tempUInt.value(ViewTypes.FIELD_ID_LIST);
-  
+
          assertEquals(CodecReturnCodes.SUCCESS, elementEntry.encode(encodeIter, tempUInt));
- 		
+
          elementEntry.clear();
          elementEntry.name(ElementNames.VIEW_DATA);
          elementEntry.dataType(DataTypes.ARRAY);
@@ -17094,13 +17088,13 @@ public class ReactorWatchlistJUnitNew
          }
          assertEquals(CodecReturnCodes.SUCCESS, viewArray.encodeComplete(encodeIter, true));
          assertEquals(CodecReturnCodes.SUCCESS, elementEntry.encodeComplete(encodeIter, true));
-         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeComplete(encodeIter, true));	
- 		
+         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeComplete(encodeIter, true));
+
          msg.containerType(DataTypes.ELEMENT_LIST);
-         msg.encodedDataBody(buf);		
- 	
+         msg.encodedDataBody(buf);
+
  	}
-    
+
     @Test
     public void itemRequestMultipleTimeoutTestWithServiceUpdate_Socket() {
 
@@ -17122,18 +17116,18 @@ public class ReactorWatchlistJUnitNew
     private void itemRequestMultipleTimeoutTestWithServiceUpdate(boolean isWebsocket, String protocolList) {
 
         /* Test multiple request timeouts with a service update and make sure item fanout happens only once. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
         Msg msg = CodecFactory.createMsg();
         RequestMsg requestMsg = (RequestMsg)msg;
         RequestMsg receivedRequestMsg;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -17147,7 +17141,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -17310,7 +17304,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             DirectoryUpdate receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
         }
         finally
         {
@@ -17339,12 +17333,12 @@ public class ReactorWatchlistJUnitNew
         TestReactorEvent event;
         RDMLoginMsgEvent loginMsgEvent;
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-        
+
         LoginRequest[] consRequest = { null, null };
         LoginRefresh[] consRefresh = { null, null };
         LoginRequest[] provRequest = { null, null };
         LoginRefresh[] provRefresh = { null, null };
-        
+
         // Data arrays - index [0] is used for the initial request and refresh, the other indices are for the subsequent reissue requests and refreshes.
         String[] userNames = { "userName_0", "userName_1" };
         String[] authenticationTokens = { "authenticationToken_0", "authenticationToken_1" };
@@ -17356,13 +17350,13 @@ public class ReactorWatchlistJUnitNew
         for (int userNameType : userNameTypes)
         {
             System.out.println(test + " loop: userNameType = " + userNameType);
-            
+
             // Create reactors
             TestReactor consumerReactor = new TestReactor();
             TestReactor providerReactor = new TestReactor();
             consumerReactor._reactor._reactorOptions.enableXmlTracing();
             providerReactor._reactor._reactorOptions.enableXmlTracing();
-     
+
             // Create consumer and the initial login request message with data using index [0]
             Consumer consumer = new Consumer(consumerReactor);
             ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -17374,7 +17368,7 @@ public class ReactorWatchlistJUnitNew
             loginStreamId = consRequest[0].streamId();
             consRequest[0].applyHasUserNameType();
             consRequest[0].userNameType(userNameType);
-            
+
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
             {
                 consRequest[0].userName().data(authenticationTokens[0]);
@@ -17383,7 +17377,7 @@ public class ReactorWatchlistJUnitNew
             }
             else
                 consRequest[0].userName().data(userNames[0]);
-            
+
             consumerRole.channelEventCallback(consumer);
             consumerRole.loginMsgCallback(consumer);
             consumerRole.directoryMsgCallback(consumer);
@@ -17609,7 +17603,7 @@ public class ReactorWatchlistJUnitNew
         }
         System.out.println(test + " Done\n");
     }
-        
+
     @Test
     public void loginReissue_Scenario_B_Test()
     {
@@ -17630,12 +17624,12 @@ public class ReactorWatchlistJUnitNew
         TestReactorEvent event;
         RDMLoginMsgEvent loginMsgEvent;
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-        
+
         LoginRequest[] consRequest = { null, null, null };
         LoginRefresh[] consRefresh = { null, null, null };
         LoginRequest[] provRequest = { null, null, null };
         LoginRefresh[] provRefresh = { null, null, null };
-        
+
         // Data arrays - index [0] is used for the initial request and refresh, the other indices are for the subsequent reissue requests and refreshes.
         String[] userNames = { "userName_0", "userName_1", "userName_2" };
         String[] authenticationTokens = { "authenticationToken_0", "authenticationToken_1", "authenticationToken_2" };
@@ -17647,13 +17641,13 @@ public class ReactorWatchlistJUnitNew
         for (int userNameType : userNameTypes)
         {
             System.out.println(test + " loop: userNameType = " + userNameType);
-            
+
             // Create reactors
             TestReactor consumerReactor = new TestReactor();
             TestReactor providerReactor = new TestReactor();
             consumerReactor._reactor._reactorOptions.enableXmlTracing();
             providerReactor._reactor._reactorOptions.enableXmlTracing();
-     
+
             // Create consumer and the initial login request message with data using index [0]
             Consumer consumer = new Consumer(consumerReactor);
             ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -17665,7 +17659,7 @@ public class ReactorWatchlistJUnitNew
             loginStreamId = consRequest[0].streamId();
             consRequest[0].applyHasUserNameType();
             consRequest[0].userNameType(userNameType);
-            
+
             if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
             {
                 consRequest[0].userName().data(authenticationTokens[0]);
@@ -17674,7 +17668,7 @@ public class ReactorWatchlistJUnitNew
             }
             else
                 consRequest[0].userName().data(userNames[0]);
-            
+
             consumerRole.channelEventCallback(consumer);
             consumerRole.loginMsgCallback(consumer);
             consumerRole.directoryMsgCallback(consumer);
@@ -17926,7 +17920,7 @@ public class ReactorWatchlistJUnitNew
         }
         System.out.println(test + " Done\n");
     }
-        
+
     @Test
     public void loginReissue_Scenario_C_Test()
     {
@@ -17937,7 +17931,7 @@ public class ReactorWatchlistJUnitNew
         RDMLoginMsgEvent loginMsgEvent;
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-        
+
         LoginRequest[] consRequest = { null, null, null, null };
         LoginRefresh[] consRefresh = { null, null, null, null };
         LoginRequest[] provRequest = { null, null, null, null };
@@ -17962,13 +17956,13 @@ public class ReactorWatchlistJUnitNew
             TestReactor providerReactor = new TestReactor();
             consumerReactor._reactor._reactorOptions.enableXmlTracing();
             providerReactor._reactor._reactorOptions.enableXmlTracing();
-     
+
             // Create consumer.
             Consumer consumer = new Consumer(consumerReactor);
             ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
             consumerRole.initDefaultRDMLoginRequest();
             consumerRole.initDefaultRDMDirectoryRequest();
-            
+
             System.out.println(test + " 1) Consumer creating login request[0]");
             consRequest[0] = consumerRole.rdmLoginRequest();
             consRequest[0].applyHasUserNameType();
@@ -18298,7 +18292,7 @@ public class ReactorWatchlistJUnitNew
         }
         System.out.println(test + " Done\n");
     }
-    
+
     /* Used by privateStreamOpenCallbackSubmitTest and privateStreamOpenCallbackSubmitReSubmitTest. */
     class SendItemsFromDefaultMsgCallbackConsumer extends Consumer
     {
@@ -18326,7 +18320,7 @@ public class ReactorWatchlistJUnitNew
                  submitOptions.clear();
                  submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                  assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-                 
+
                //sending realtime request
                  requestMsg.clear();
                  requestMsg.msgClass(MsgClasses.REQUEST);
@@ -18339,11 +18333,11 @@ public class ReactorWatchlistJUnitNew
                  submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                  assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
              }
-                        
+
             return ReactorReturnCodes.SUCCESS;
         }
     }
-        
+
     @Test
     public void SendItemsFromDefaultMsgCallbackConsumerTest_Socket() {
 
@@ -18364,9 +18358,9 @@ public class ReactorWatchlistJUnitNew
 
     private void SendItemsFromDefaultMsgCallbackConsumer(boolean isWebsocket, String protocolList) {
 
-    	/* Opening two items, one snapshot, another one realtime, 
+    	/* Opening two items, one snapshot, another one realtime,
     	 * and resend one same item, one diff item during the callback. */
-    	
+
     	  ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
           TestReactorEvent event;
           ReactorMsgEvent msgEvent;
@@ -18374,11 +18368,11 @@ public class ReactorWatchlistJUnitNew
           RequestMsg receivedRequestMsg;
           RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
           RefreshMsg receivedRefreshMsg;
-                  
+
           /* Create reactors. */
           TestReactor consumerReactor = new TestReactor();
           TestReactor providerReactor = new TestReactor();
-                  
+
           /* Create consumer. */
           Consumer consumer = new SendItemsFromDefaultMsgCallbackConsumer(consumerReactor);
           ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -18392,7 +18386,7 @@ public class ReactorWatchlistJUnitNew
           consumerRole.watchlistOptions().enableWatchlist(true);
           consumerRole.watchlistOptions().channelOpenCallback(consumer);
           consumerRole.watchlistOptions().requestTimeout(3000);
-          
+
           /* Create provider. */
           Provider provider = new Provider(providerReactor);
           ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -18725,11 +18719,11 @@ public class ReactorWatchlistJUnitNew
                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
              }
-                        
+
             return ReactorReturnCodes.SUCCESS;
         }
     }
-    
+
     @Test
     public void SendItemsFromDefaultMsgCallbackConsumer1Test_Socket() {
 
@@ -18750,9 +18744,9 @@ public class ReactorWatchlistJUnitNew
 
     private void SendItemsFromDefaultMsgCallbackConsumer1(boolean isWebsocket, String protocolList) {
 
-    	/* Opening two items, one snapshot, another one realtime, 
+    	/* Opening two items, one snapshot, another one realtime,
     	 * and resend one same item which is waiting for refresh msg in watchlist. */
-    	
+
     	  ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
           TestReactorEvent event;
           ReactorMsgEvent msgEvent;
@@ -18760,11 +18754,11 @@ public class ReactorWatchlistJUnitNew
           RequestMsg receivedRequestMsg;
           RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
           RefreshMsg receivedRefreshMsg;
-                  
+
           /* Create reactors. */
           TestReactor consumerReactor = new TestReactor();
           TestReactor providerReactor = new TestReactor();
-                  
+
           /* Create consumer. */
           Consumer consumer = new SendItemsFromDefaultMsgCallbackConsumer1(consumerReactor);
           ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -18778,7 +18772,7 @@ public class ReactorWatchlistJUnitNew
           consumerRole.watchlistOptions().enableWatchlist(true);
           consumerRole.watchlistOptions().channelOpenCallback(consumer);
           consumerRole.watchlistOptions().requestTimeout(3000);
-          
+
           /* Create provider. */
           Provider provider = new Provider(providerReactor);
           ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -18974,7 +18968,7 @@ public class ReactorWatchlistJUnitNew
               tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
           }
       }
-    
+
     @Test
     public void changeViewByReissueRequestWhilePendingRefreshTest_Socket() {
 
@@ -19004,7 +18998,7 @@ public class ReactorWatchlistJUnitNew
     	 * receive refresh on "TRI"
     	 * no refresh fanout to consumer
     	 */
-    	
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -19016,11 +19010,11 @@ public class ReactorWatchlistJUnitNew
 
         int providerStreamId;
         List<Integer> viewFieldList = new ArrayList<Integer>();
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -19033,7 +19027,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -19277,7 +19271,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void changeViewByPartialReissueRequestWhilePendingRefreshTest_Socket() {
 
@@ -19307,7 +19301,7 @@ public class ReactorWatchlistJUnitNew
     	 * receive refresh from provider
     	 * will fanout to two users
     	 */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -19319,11 +19313,11 @@ public class ReactorWatchlistJUnitNew
 
         int providerStreamId;
         List<Integer> viewFieldList = new ArrayList<Integer>();
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -19336,7 +19330,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -19597,7 +19591,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     private boolean checkHasCorrectView( Provider provider, RequestMsg requestMsg, List<Integer> viewFieldList)
     {
     	ElementList elementList = CodecFactory.createElementList();
@@ -19612,15 +19606,15 @@ public class ReactorWatchlistJUnitNew
 		int ret;
 		int majorVersion =  provider.reactorChannel().majorVersion();
 		int minorVersion =  provider.reactorChannel().minorVersion();
-		
+
 		dIter.setBufferAndRWFVersion(requestMsg.encodedDataBody(), majorVersion, minorVersion);
-				
+
 		if (requestMsg.containerType() != DataTypes.ELEMENT_LIST)
-			return false;	
-     
+			return false;
+
     	if ( elementList.decode(dIter, null) != CodecReturnCodes.SUCCESS )
     		return false;
-    	
+
     	boolean viewDataFound = false;
     	boolean hasViewType = false;
 		while ((ret = elementEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
@@ -19630,21 +19624,21 @@ public class ReactorWatchlistJUnitNew
 			else
 			{
 				if (elementEntry.name().equals(ElementNames.VIEW_TYPE) &&
-						elementEntry.dataType() == DataTypes.UINT) 
+						elementEntry.dataType() == DataTypes.UINT)
 				{
 					hasViewType = true;
 				}
-				
+
 				if (elementEntry.name().equals(ElementNames.VIEW_DATA) &&
-					elementEntry.dataType() == DataTypes.ARRAY) 
+					elementEntry.dataType() == DataTypes.ARRAY)
 				{
 					viewDataElement = elementEntry.encodedData();
 					viewDataFound = true;
 				}
 			}
 		} // while
-					
-	    
+
+
 		if (!viewDataFound || !hasViewType)
 		{
 			return false;
@@ -19653,23 +19647,23 @@ public class ReactorWatchlistJUnitNew
 		{
 			dIter.clear();
 			dIter.setBufferAndRWFVersion(viewDataElement, majorVersion, minorVersion);
-			
+
 			Array _viewArray = CodecFactory.createArray();
 			ArrayEntry _viewArrayEntry = CodecFactory.createArrayEntry();
 			_viewArray.clear();
 			Int _fieldId = CodecFactory.createInt();
-			
+
 			if ((ret = _viewArray.decode(dIter)) == CodecReturnCodes.SUCCESS)
 			{
 				if (_viewArray.primitiveType() != DataTypes.INT)
-					return false;		
+					return false;
 
 				while ((ret = _viewArrayEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
-				{								
+				{
 					if (ret < CodecReturnCodes.SUCCESS)
-						return false;		
+						return false;
 					else
-					{								
+					{
 						if ((ret = _fieldId.decode(dIter)) == CodecReturnCodes.SUCCESS)
 						{
 							if (!viewFieldList.contains(Integer.valueOf((int)_fieldId.toLong())))
@@ -19677,17 +19671,17 @@ public class ReactorWatchlistJUnitNew
 							numOfFields++;
 						}
 						else
-							return false;		
-					}								
+							return false;
+					}
 				}// while
 			}
 			else
-				return false;		
+				return false;
 		}
-    	
+
 		if (numOfFields > viewFieldList.size())
 			return false;
-		
+
     	return true;
     }
 
@@ -19705,10 +19699,10 @@ public class ReactorWatchlistJUnitNew
 
     private void groupMergeAndStatusFanout(boolean isWebsocket, String protocolList) {
 
-        /* Test updating an item group via item-specific message and group status. 
+        /* Test updating an item group via item-specific message and group status.
          * - Open an item (and another item)
          * - Change the first item's group via item message. Send a group close on the original group to make sure it moved.
-         * - Change the first item's group again via group status. Send a group close to close it. Send a group close on the 
+         * - Change the first item's group again via group status. Send a group close to close it. Send a group close on the
          *   previous group to make sure nothing happens.
          */
 
@@ -19729,13 +19723,13 @@ public class ReactorWatchlistJUnitNew
 
         Buffer groupId1 = CodecFactory.createBuffer();
         groupId1.data("ONE");
-        
+
         Buffer groupId2 = CodecFactory.createBuffer();
         groupId2.data("TWO");
-        
+
         Buffer groupId3 = CodecFactory.createBuffer();
         groupId3.data("TREE");
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
@@ -19918,7 +19912,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -19955,7 +19949,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -20079,7 +20073,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -20111,7 +20105,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(MsgClasses.UPDATE, directoryMsgEvent.msg().msgClass());
             receivedUpdateMsg = (DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg();
             assertTrue(receivedUpdateMsg.checkHasFilter());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
+            assertEquals(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
             assertTrue(receivedUpdateMsg.serviceList().size() == 1);
             assertTrue(receivedUpdateMsg.serviceList().get(0).checkHasState());
             assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasInfo());
@@ -20127,7 +20121,7 @@ public class ReactorWatchlistJUnitNew
         }
     }
 
-    /* Used by StreamReopenTest. 
+    /* Used by StreamReopenTest.
      * Receives a close for TRI, then opens IBM on the same stream. */
     class StreamReopenConsumer extends Consumer
     {
@@ -20770,7 +20764,7 @@ public class ReactorWatchlistJUnitNew
 
     public void openWindowReconnectTest(boolean singleOpen)
     {
-        /* Test that an item waiting on the OpenWindow is recovered after a disconnect. 
+        /* Test that an item waiting on the OpenWindow is recovered after a disconnect.
          * - Start a session where the Provider's Service's OpenWindow is 1.
          * - Send a request for two items. The second item is left waiting on the open window.
          * - Disconnect the provider and ensure both items receive status messages.
@@ -20787,11 +20781,11 @@ public class ReactorWatchlistJUnitNew
         StatusMsg receivedStatusMsg;
 
         int providerStreamId;
-        
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -20812,7 +20806,7 @@ public class ReactorWatchlistJUnitNew
             consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
             consumerRole.rdmLoginRequest().attrib().allowSuspectData(0);
         }
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -20829,7 +20823,7 @@ public class ReactorWatchlistJUnitNew
         opts.reconnectAttemptLimit(-1);
         opts.openWindow(1);
 
-        
+
         opts.setProtocolList("rssl.rwf");
         opts.connectionType(ConnectionTypes.WEBSOCKET);
         provider.bind(opts);
@@ -21537,7 +21531,7 @@ public class ReactorWatchlistJUnitNew
             assertTrue(provider.submitAndDispatch(loginStatus, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
             /* Consumer receives closed/suspect login status. */
-            consumerReactor.dispatch(2);
+            consumerReactor.dispatch(3);
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
             loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -21564,6 +21558,16 @@ public class ReactorWatchlistJUnitNew
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+            assertNotNull(directoryMsgEvent);
+            DirectoryUpdate receivedDirectoryUpdate = (DirectoryUpdate)directoryMsgEvent._directoryMsg;
+            assertEquals(2, receivedDirectoryUpdate.streamId());
+            assertEquals(1, receivedDirectoryUpdate.serviceList().size());
+            assertEquals(1, receivedDirectoryUpdate.serviceList().get(0).serviceId());
+            assertEquals(MapEntryActions.DELETE, receivedDirectoryUpdate.serviceList().get(0).action());
 
             /* Provider sends an update for TRI. */
             updateMsg.clear();
@@ -21596,7 +21600,7 @@ public class ReactorWatchlistJUnitNew
     }
 
     /* Consumer that reissues TRI on stream 5 with priority to 1,2 (this priority will be used
-     * for the item when the watchlist recovers it). 
+     * for the item when the watchlist recovers it).
      * Also submits a PostMsg and GenericMsg on stream 5, which will fail because there is no longer a stream to the provider. */
     class SubmitOnDisconnectConsumer extends Consumer
     {
@@ -21605,7 +21609,7 @@ public class ReactorWatchlistJUnitNew
         GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-        
+
         public SubmitOnDisconnectConsumer(TestReactor testReactor)
         {
             super(testReactor);
@@ -21635,7 +21639,7 @@ public class ReactorWatchlistJUnitNew
                 postMsg.msgClass(MsgClasses.POST);
                 postMsg.streamId(5);
                 postMsg.domainType(DomainTypes.MARKET_PRICE);
-                postMsg.containerType(DataTypes.NO_DATA); 
+                postMsg.containerType(DataTypes.NO_DATA);
                 postMsg.applyPostComplete();
                 submitOptions.clear();
                 submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -21863,7 +21867,7 @@ public class ReactorWatchlistJUnitNew
             TestReactorComponent.closeSession(consumer, provider);
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
-    }    
+    }
 
     @Test
     public void dictionaryRecoveryTest_Socket() {
@@ -21892,9 +21896,9 @@ public class ReactorWatchlistJUnitNew
     	com.refinitiv.eta.transport.Error error = TransportFactory.createError();
     	ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
     	EncodeIterator eIter = CodecFactory.createEncodeIterator();
-    	
+
         assertEquals(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary("../../etc/RDMFieldDictionary", error));
-    	
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         RDMDictionaryMsgEvent dictionaryMsgEvent;
@@ -22118,7 +22122,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     //@Test
     public void downloadDictionaryCompressionTest_ZLIB_Socket() {
 
@@ -22130,12 +22134,12 @@ public class ReactorWatchlistJUnitNew
 
     	downloadDataDictionaryCompressionTest(true, "rssl.rwf", CompressionTypes.ZLIB);
     }
-    
+
     private void downloadDataDictionaryCompressionTest(boolean isWebsocket, String protocolList, int compressionType)
     {
     	ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
     	EncodeIterator eIter = CodecFactory.createEncodeIterator();
-    	
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         RDMDictionaryMsgEvent dictionaryMsgEvent;
@@ -22280,12 +22284,12 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     private void checkDictionaryResponseMessages(TestReactor consumerReactor, int numOfMessages, int streamId, String itemName)
     {
     	/* Consumer receives refresh. */
         consumerReactor.dispatch(numOfMessages);
-        
+
         TestReactorEvent event;
         RDMDictionaryMsgEvent dictionaryMsgEvent;
         DictionaryRefresh receivedDictionaryRefresh;
@@ -22293,13 +22297,13 @@ public class ReactorWatchlistJUnitNew
         for(int i = 1; i <= numOfMessages; ++i)
         {
         	event = consumerReactor.pollEvent();
-	        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());        
+	        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
 	        dictionaryMsgEvent = (RDMDictionaryMsgEvent) event.reactorEvent();
 	        assertEquals(DictionaryMsgType.REFRESH, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
-	
+
 	        receivedDictionaryRefresh = (DictionaryRefresh)dictionaryMsgEvent.rdmDictionaryMsg();
 	        assertEquals(streamId, receivedDictionaryRefresh.streamId());
-	        assertTrue(receivedDictionaryRefresh.checkSolicited()); 
+	        assertTrue(receivedDictionaryRefresh.checkSolicited());
 	        assertEquals(itemName, receivedDictionaryRefresh.dictionaryName().toString());
 	        assertEquals(StreamStates.OPEN, receivedDictionaryRefresh.state().streamState());
 	        assertEquals(DataStates.OK, receivedDictionaryRefresh.state().dataState());
@@ -22307,7 +22311,7 @@ public class ReactorWatchlistJUnitNew
 	        assertNotNull(dictionaryMsgEvent.streamInfo());
 	        assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
 	        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-	        
+
 	        if(i == numOfMessages)
 	        {
 	        	assertTrue(receivedDictionaryRefresh.checkRefreshComplete());
@@ -22317,14 +22321,14 @@ public class ReactorWatchlistJUnitNew
 	        	if( i == 1)
 	        	{
 	        		/* Checks clear cache flag for the first message. */
-	        		assertTrue(receivedDictionaryRefresh.checkClearCache()); 
+	        		assertTrue(receivedDictionaryRefresh.checkClearCache());
 	        	}
-	        	
+
 	        	assertFalse(receivedDictionaryRefresh.checkRefreshComplete());
 	        }
         }
     }
-    
+
     @Test
     public void dualRequestWithDifferentServiceTest_Socket() {
 
@@ -22346,7 +22350,7 @@ public class ReactorWatchlistJUnitNew
     private void dualRequestWithDifferentService(boolean isWebsocket, String protocolList) {
 
         /* Test sending two requests with different services and watchlist enabled. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -22356,11 +22360,11 @@ public class ReactorWatchlistJUnitNew
         RefreshMsg refreshMsg = (RefreshMsg)msg;
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -22374,7 +22378,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -22523,7 +22527,7 @@ public class ReactorWatchlistJUnitNew
             tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
-    
+
     @Test
     public void serviceDownWithMulipleDirectoryRequestsTest_Socket() {
 
@@ -22544,16 +22548,17 @@ public class ReactorWatchlistJUnitNew
 
     private void serviceDownWithMulipleDirectoryRequests(boolean isWebsocket, String protocolList) {
 
-        /* Test two directory request with filter 0 and make sure call backs for responses have filter 0.
+        /* Test two directory request with filter 0 and make sure filter reflects actual payload for
+         * a zero-filter request.
          * Test a third directory request with INFO filter only and make sure no response received by user
          * when only STATE filter is sent by provider.
          * Test a fourth directory request with STATE filter only and make sure response received by user
          * with only STATE filter.
-         * Test a fifth directory request with LOAD filter only and make sure response received by user
-         * with only LOAD filter.
-         * Test a sixth directory request with STATE and LOAD filter and make sure response received by user
-         * with only STATE and LOAD filter. */
-        
+         * Test a fifth directory request with LOAD filter only and make sure missing LOAD content is
+         * dropped from the callback filter.
+         * Test a sixth directory request with STATE and LOAD filter and make sure only available STATE
+         * content is reflected in the callback filter. */
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -22561,11 +22566,11 @@ public class ReactorWatchlistJUnitNew
         UpdateMsg receivedUpdateMsg;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -22574,7 +22579,7 @@ public class ReactorWatchlistJUnitNew
         directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
         directoryRequest.streamId(2);
         directoryRequest.filter(0);
-        
+
         directoryRequest.applyStreaming();
         assertNotNull(directoryRequest);
         consumerRole.rdmDirectoryRequest(directoryRequest);
@@ -22586,7 +22591,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -22664,7 +22669,7 @@ public class ReactorWatchlistJUnitNew
             assertTrue(receivedRefreshMsg.checkHasMsgKey());
             assertEquals(DomainTypes.SOURCE, receivedRefreshMsg.domainType());
             assertEquals(DataTypes.MAP, receivedRefreshMsg.containerType());
-            assertEquals(0, receivedRefreshMsg.msgKey().filter()); // make sure filter is 0
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedRefreshMsg.msgKey().filter()); // make sure filter reflects actual payload for a zero-filter request
 
             /* Consumer receives directory refresh with stream id 10. */
             event = consumerReactor.pollEvent();
@@ -22703,7 +22708,7 @@ public class ReactorWatchlistJUnitNew
             assertTrue(receivedRefreshMsg.checkHasMsgKey());
             assertEquals(DomainTypes.SOURCE, receivedRefreshMsg.domainType());
             assertEquals(DataTypes.MAP, receivedRefreshMsg.containerType());
-            assertEquals(Directory.ServiceFilterFlags.LOAD, receivedRefreshMsg.msgKey().filter()); // make sure filter is LOAD
+            assertEquals(0, receivedRefreshMsg.msgKey().filter()); // make sure missing LOAD content is dropped from the callback filter
 
             /* Consumer receives directory refresh with stream id 25. */
             event = consumerReactor.pollEvent();
@@ -22716,7 +22721,7 @@ public class ReactorWatchlistJUnitNew
             assertTrue(receivedRefreshMsg.checkHasMsgKey());
             assertEquals(DomainTypes.SOURCE, receivedRefreshMsg.domainType());
             assertEquals(DataTypes.MAP, receivedRefreshMsg.containerType());
-            assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedRefreshMsg.msgKey().filter()); // make sure filter is STATE and LOAD
+            assertEquals(Directory.ServiceFilterFlags.STATE, receivedRefreshMsg.msgKey().filter()); // make sure only available STATE content is reflected in the callback filter
 
             /* Provider sends service update to bring service down.*/
             DirectoryUpdate directoryUpdateMsg = (DirectoryUpdate)DirectoryMsgFactory.createMsg();
@@ -22747,9 +22752,8 @@ public class ReactorWatchlistJUnitNew
 
             assertTrue(provider.submitAndDispatch(directoryUpdateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
-            /* Consumer receives directory update for streams 2, 5, 15, 20 and 25. */
-            /* Consumer does not receive directory update for stream 10 because update does not have INFO. */
-            consumerReactor.dispatch(5);
+            /* Consumer receives directory update for streams 2, 5, 10, 15, 20 and 25. */
+            consumerReactor.dispatch(6);
 
             // Stream 2
             event = consumerReactor.pollEvent();
@@ -22775,6 +22779,18 @@ public class ReactorWatchlistJUnitNew
             assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
             assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
             assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is 10 (Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD) since filter 0 is functionaly equivalent to 63 (ALL FILTERS except SEQ_MCAST)
+
+            // Stream 10
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
+            receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
+            assertEquals(10, receivedUpdateMsg.streamId());
+            assertTrue(receivedUpdateMsg.checkHasMsgKey());
+            assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
+            assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
+            assertEquals(0, receivedUpdateMsg.msgKey().filter()); // make sure filter is 0
 
             // Stream 15
             event = consumerReactor.pollEvent();
@@ -22818,11 +22834,10 @@ public class ReactorWatchlistJUnitNew
             wlService.rdmService().state().serviceState(1);
             assertTrue(provider.submitAndDispatch(directoryUpdateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
-            /* Consumer receives directory update for streams 2, 5, 15, 20 and 25. */
-            /* Consumer does not receive directory update for stream 10 because update does not have INFO. */
+            /* Consumer receives directory update for streams 2, 5, 10, 15, 20 and 25. */
 
             // Stream 2
-            consumerReactor.dispatch(5);
+            consumerReactor.dispatch(6);
             event = consumerReactor.pollEvent();
             assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
             msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -22847,6 +22862,18 @@ public class ReactorWatchlistJUnitNew
             assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
 
             assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is 10 (Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD) since filter 0 is functionaly equivalent to 63 (ALL FILTERS except SEQ_MCAST)
+
+            // Stream 10
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
+            receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
+            assertEquals(10, receivedUpdateMsg.streamId());
+            assertTrue(receivedUpdateMsg.checkHasMsgKey());
+            assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
+            assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
+            assertEquals(0, receivedUpdateMsg.msgKey().filter()); // make sure filter is 0
 
             // Stream 15
             event = consumerReactor.pollEvent();
@@ -22913,18 +22940,18 @@ public class ReactorWatchlistJUnitNew
     private void serviceDownThenUpDirectoryRequest(boolean isWebsocket, String protocolList) {
 
         /* Test directory request and get first response not found and then get directory update with service. */
-        
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
         UpdateMsg receivedUpdateMsg;
         WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
         testUserSpecObj.value(997);
-                
+
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -22946,7 +22973,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-        
+
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
         ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -23151,29 +23178,29 @@ public class ReactorWatchlistJUnitNew
             }
         }
     }
-    
+
     class AppClient
 	{
 		private volatile int handle;
 		private String Item;
-		
+
 		public AppClient(String item)
 		{
 			Item = item;
 			handle = 0;
 		}
-		
+
 		public int getHandle()
 		{
 			return handle;
 		}
-		
+
 		public void setHandle(int handle)
 		{
 			this.handle = handle;
 		}
 	}
-    
+
     class MultithreadedOmmConsumer extends Consumer implements Runnable
     {
     	class ItemSubscriber
@@ -23184,39 +23211,39 @@ public class ReactorWatchlistJUnitNew
     		private CloseMsg _closeMsg = (CloseMsg)_msg;
     		private ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
     		private Consumer _consumer;
-			
+
     		ItemSubscriber(Consumer consumer, int streamID)
     		{
         		_consumer = consumer;
         		_streamID = streamID;
         	}
-    		
+
     		void openRequest(String serviceName, String itemName, int domainType, boolean streaming, List<Integer> viewFids)
     		{
 				_requestMsg.clear();
 				_requestMsg.msgClass(MsgClasses.REQUEST);
 				_requestMsg.streamId(_streamID);
 				_requestMsg.domainType(domainType);
-				
+
 				if(streaming)
 					_requestMsg.applyStreaming();
-				
+
 				_requestMsg.msgKey().applyHasName();
 				_requestMsg.msgKey().name().data(itemName);
-				
+
 				if(viewFids != null)
 				{
 					_requestMsg.applyHasView();
 					encodeViewFieldIdList(_consumer.reactorChannel(), viewFids, _requestMsg);
 				}
-				
+
 				_submitOptions.clear();
 				_submitOptions.serviceName(serviceName);
 				_submitOptions.requestMsgOptions().userSpecObj(itemName);
-			
+
 				assertTrue(_consumer.submit(_requestMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
     		}
-    		
+
     		void closeRequest()
     		{
     			_closeMsg.clear();
@@ -23224,11 +23251,11 @@ public class ReactorWatchlistJUnitNew
     			_closeMsg.containerType(DataTypes.NO_DATA);
     			_closeMsg.streamId(_streamID);
     			_submitOptions.clear();
-    			
+
     			assertTrue(_consumer.submit(_closeMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
     		}
     	}
-    	
+
 		private ExecutorService _executor = Executors.newSingleThreadExecutor();
 		private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
 		private HashMap<Int, ItemSubscriber> _itemHashTable;
@@ -23241,14 +23268,14 @@ public class ReactorWatchlistJUnitNew
 		private List<Integer> _viewFids;
 		private int _numRefreshMessage = 0;
 		private int _numRefreshCompleteMessage = 0;
-    	
+
     	public MultithreadedOmmConsumer(TestReactor testReactor)
     	{
     		super(testReactor);
     		_itemHashTable = new HashMap<Int, ItemSubscriber>();
     		_userLock = new java.util.concurrent.locks.ReentrantLock();
     	}
-    	
+
     	public void UnsubAndSub(AppClient appClient, String serviceName, int domainType, boolean streaming, List<Integer> viewFids)
 		{
     		_viewFids = viewFids;
@@ -23256,21 +23283,21 @@ public class ReactorWatchlistJUnitNew
 			{
 				unsubscribe(appClient.getHandle());
 			}
-			
+
 			int handle = subscribe(serviceName, appClient.Item, domainType, streaming, _viewFids);
 			appClient.setHandle(handle);
 		}
-		
+
 		public int subscribe(String serviceName, String itemName, int domainType, boolean streaming, List<Integer> viewFids)
 		{
 			_viewFids = viewFids;
 			_userLock.lock();
-			
+
 			int streamId = _intValue.getAndIncrement();
 			ItemSubscriber item = new ItemSubscriber(this, streamId);
-			
+
 			intValue.value(streamId);
-			
+
 			try
 			{
 				item.openRequest(serviceName, itemName, domainType, streaming, _viewFids);
@@ -23280,20 +23307,20 @@ public class ReactorWatchlistJUnitNew
 			{
 				_userLock.unlock();
 			}
-			
+
 			return streamId;
 		}
-		
+
 		public void unsubscribe(int handle)
 		{
 			_userLock.lock();
-			
+
 			intValue.value(handle);
-			
+
 			try
 			{
 				ItemSubscriber item = _itemHashTable.get(intValue);
-				
+
 				if ( item != null)
 				{
 					item.closeRequest();
@@ -23305,23 +23332,23 @@ public class ReactorWatchlistJUnitNew
 				_userLock.unlock();
 			}
 		}
-    	
+
     	@Override
 		public int defaultMsgCallback(ReactorMsgEvent event) {
-			
+
 			String closure = (String)event.streamInfo().userSpecObject();
-			
+
 			assertTrue(event.msg().msgClass() == MsgClasses.REFRESH);
 			RefreshMsg refreshMsg = (RefreshMsg)event.msg();
-			
+
 			++_numRefreshMessage;
-			
+
 			if(refreshMsg.checkRefreshComplete())
 				++_numRefreshCompleteMessage;
-			
+
 			/* Checks the requested and received item name must be the same */
 			assertTrue(closure.equals(refreshMsg.msgKey().name().toString()));
-			
+
 			if(_viewFids != null)
 			{
 				_fieldList.clear();
@@ -23330,51 +23357,51 @@ public class ReactorWatchlistJUnitNew
 				assertTrue(refreshMsg.containerType() == DataTypes.FIELD_LIST );
 				assertTrue(refreshMsg.encodedDataBody() != null);
 				assertTrue(refreshMsg.encodedDataBody().data() != null);
-				
+
 				int ret;
 				int fieldCount = 0;
-				
+
 				assertTrue(_decodeIt.setBufferAndRWFVersion(refreshMsg.encodedDataBody(),
 						event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion())
 						== CodecReturnCodes.SUCCESS);
-				
+
 				assertTrue(_fieldList.decode(_decodeIt, null) == CodecReturnCodes.SUCCESS);
-				
+
 				while ((ret = _fieldEntry.decode(_decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
 				{
 					assertTrue(ret == CodecReturnCodes.SUCCESS);
-					
+
 					assertTrue(_viewFids.contains(_fieldEntry.fieldId()));
-					
+
 					++fieldCount;
 				}
-				
+
 				assertTrue(fieldCount == _viewFids.size());
 			}
 			else
 			{
 				assertTrue(refreshMsg.containerType() == DataTypes.NO_DATA);
 			}
-			
+
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
-    	
+
     	public int getNumRefreshMessage()
     	{
     		return _numRefreshMessage;
     	}
-    	
+
     	public int getNumRefreshCompleteMessage()
     	{
     		return _numRefreshCompleteMessage;
     	}
-    	
+
 		public void start()
 		{
 			_dispatching = true;
 			_executor.execute(this);
 		}
-		
+
 		public void stop()
 		{
 			_dispatching = false;
@@ -23394,13 +23421,13 @@ public class ReactorWatchlistJUnitNew
 				do
 				{
 					_testReactor.dispatch(-1, 100);
-					
+
 				} while(_dispatching);
 
 			} catch (Exception e) {}
 		}
     }
-    
+
     class ViewRequestProvider extends Provider implements Runnable
     {
     	private ExecutorService _executor = Executors.newSingleThreadExecutor();
@@ -23425,34 +23452,34 @@ public class ReactorWatchlistJUnitNew
 		private int _refreshCompleteMessage = 0;
 		private int _numRequestMessage = 0;
 		private int _numRefreshMessage = 0;
-    	
+
 		public ViewRequestProvider(TestReactor testReactor, boolean multipart)
 		{
 			super(testReactor);
 			_multipart = multipart;
 		}
-		
+
 		public int getNumRefreshMessage()
 		{
 			return _numRefreshMessage;
 		}
-		
+
 		public int getRefreshCompleteMessage()
 		{
 			return _refreshCompleteMessage;
 		}
-		
+
 		public int getNumRequestMessage()
 		{
 			return _numRequestMessage;
 		}
-		
+
 		public void start()
 		{
 			_dispatching = true;
 			_executor.execute(this);
 		}
-		
+
 		public void stop()
 		{
 			_dispatching = false;
@@ -23465,10 +23492,10 @@ public class ReactorWatchlistJUnitNew
 				e.printStackTrace();
 			}
 		}
-		
+
 		@Override
 		public int defaultMsgCallback(ReactorMsgEvent event)
-		{	
+		{
 			int ret;
 			_dIter.clear();
 			_elementList.clear();
@@ -23479,22 +23506,22 @@ public class ReactorWatchlistJUnitNew
 			_viewArrayEntry.clear();
 			_fieldId.clear();
 			_viewFieldIdList.clear();
-			
+
 			if ( event.msg().msgClass() == MsgClasses.REQUEST )
 			{
 				++_numRequestMessage;
 				RequestMsg requestMsg = (RequestMsg)event.msg();
-				
+
 				if (requestMsg.checkHasView())
 					decodeViewDataForFieldId(event.reactorChannel(), requestMsg, _viewFieldIdList);
-				
+
 				boolean applyRefreshComplete = _multipart ? false : true;
-				
+
 				do
 				{
 				   	_refreshMsg.clear();
 				   	_submitOptions.clear();
-			        _refreshMsg.msgClass(MsgClasses.REFRESH);			       
+			        _refreshMsg.msgClass(MsgClasses.REFRESH);
 			        _refreshMsg.applySolicited();
 			        _refreshMsg.applyClearCache();
 			        _refreshMsg.domainType(DomainTypes.MARKET_PRICE);
@@ -23504,7 +23531,7 @@ public class ReactorWatchlistJUnitNew
 			        _refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
 			        _refreshMsg.msgKey().applyHasName();
 			        _refreshMsg.msgKey().name().data(event.msg().msgKey().name().toString());
-			        
+
 			        if (requestMsg.checkStreaming())
 			        {
 			        	_refreshMsg.state().streamState(StreamStates.OPEN);
@@ -23515,7 +23542,7 @@ public class ReactorWatchlistJUnitNew
 			        	_refreshMsg.state().streamState(StreamStates.NON_STREAMING);
 			        	_refreshMsg.state().dataState(DataStates.SUSPECT);
 			        }
-			        
+
 			        _encodeIt.clear();
 			        _fieldList.clear();
 			        _fieldEntry.clear();
@@ -23525,15 +23552,15 @@ public class ReactorWatchlistJUnitNew
 			        	ByteBuffer byteBuffer = ByteBuffer.allocate(8192);
 			        	_buffer.data(byteBuffer);
 			        	_encodeIt.clear();
-			        	assertTrue(_encodeIt.setBufferAndRWFVersion(_buffer, event.reactorChannel().majorVersion(), 
+			        	assertTrue(_encodeIt.setBufferAndRWFVersion(_buffer, event.reactorChannel().majorVersion(),
 			        			event.reactorChannel().minorVersion()) == CodecReturnCodes.SUCCESS);
-			        	
+
 			        	_fieldList.clear();
 			        	_fieldList.applyHasStandardData();
 			        	ret = _fieldList.encodeInit(_encodeIt, null, 0);
-			        	
+
 			        	assertFalse(ret < CodecReturnCodes.SUCCESS);
-			        	
+
 			        	Iterator<Integer> it = _viewFieldIdList.iterator();
 			        	while(it.hasNext())
 			        	{
@@ -23563,7 +23590,7 @@ public class ReactorWatchlistJUnitNew
 			        				assertFalse(true); // Support only the above fields
 			        		}
 			        	}
-			        	
+
 			        	assertTrue(_fieldList.encodeComplete(_encodeIt, true) == CodecReturnCodes.SUCCESS);
 			        	_refreshMsg.containerType(DataTypes.FIELD_LIST);
 			        	_refreshMsg.encodedDataBody(_buffer);
@@ -23572,50 +23599,50 @@ public class ReactorWatchlistJUnitNew
 			        {
 			        	_refreshMsg.containerType(DataTypes.NO_DATA);
 			        }
-			        
-			        
+
+
 			        try {
 						Thread.sleep(10);
 					} catch (Exception e){}
-			        
+
 			        if (applyRefreshComplete)
 			        {
 			        	++_refreshCompleteMessage;
 			        	_refreshMsg.applyRefreshComplete();
 			        }
-			        
+
 			        ++_numRefreshMessage;
 			        assertTrue(submit(_refreshMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
-			        
+
 			        if(applyRefreshComplete)
 			        	break;
 			        else
 			        	applyRefreshComplete = true;
-			        
+
 				}while(_multipart);
 			}
-			
+
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
-    
+
 		@Override
 		public void run() {
 			try {
 				do
 				{
 					_testReactor.dispatch(-1, 100);
-					
+
 				} while(_dispatching);
 
 			} catch (Exception e) {}
 		}
     }
-    
+
     interface TestWithMultithreadedOmmConsumer
     {
     	void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName, int domainType, boolean streaming, List<Integer> viewFids);
     }
-    
+
     public MultithreadedOmmConsumer multithreadedSubscriptionTest(final boolean streaming, String stockList, final List<Integer> viewFieldList, final int numIteration, boolean multipart, final TestWithMultithreadedOmmConsumer test)
     {
 		/* Create consumer. */
@@ -23631,7 +23658,7 @@ public class ReactorWatchlistJUnitNew
 		consumerRole.watchlistOptions().enableWatchlist(true);
 		consumerRole.watchlistOptions().channelOpenCallback(consumer);
 		consumerRole.watchlistOptions().requestTimeout(3000);
-		
+
 		/* Create provider. */
 		final ViewRequestProvider provider = new ViewRequestProvider(new TestReactor(), multipart);
 		ProviderRole providerRole = (ProviderRole)provider.reactorRole();
@@ -23640,29 +23667,29 @@ public class ReactorWatchlistJUnitNew
 		providerRole.directoryMsgCallback(provider);
 		providerRole.dictionaryMsgCallback(provider);
 		providerRole.defaultMsgCallback(provider);
-		
+
 		/* Connect the consumer and provider. Setup login & directory streams automatically. */
 		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 		opts.setupDefaultLoginStream(true);
 		opts.setupDefaultDirectoryStream(true);
 		provider.bind(opts);
 		TestReactor.openSession(consumer, provider, opts);
-		
+
 		provider.start();
 		consumer.start();
-		
+
 		/* Consumer sends request. */
 		String[] stocks = stockList.split(",");
 		for (final String stock : stocks) {
-			
+
 			final AppClient appClient = new AppClient(stock);
 			new Thread() {
 				public void run() {
 					for (int i = 0; i < numIteration; i++) {
-						
+
 						test.runTest(consumer, appClient, Provider.defaultService().info().serviceName().toString(),
 								DomainTypes.MARKET_PRICE, streaming, viewFieldList);
-						
+
 						try {
 							Thread.sleep(5);
 						} catch (Exception e){
@@ -23671,55 +23698,55 @@ public class ReactorWatchlistJUnitNew
 				}
 			}.start();
 		}
-        
+
         try {
-        	
+
 			Thread.sleep(JUnitConfigVariables.VA_MULTITHREADED_SLEEP_TIME * 1000); // Wait VA_MULTITHREADED_SLEEP_TIME seconds to complete all requests
-			
+
 			consumer.stop();
 			provider.stop();
-			
+
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        
+
         return consumer;
     }
-    
+
     class MultithreadedUnsubAndSubTheSameItemListTest implements TestWithMultithreadedOmmConsumer
 	{
 
 		@Override
 		public void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName,
 				int domainType, boolean streaming, List<Integer> viewFids) {
-			
+
 			consumer.UnsubAndSub(appClient, serviceName, domainType, streaming, viewFids);
-			
+
 		}
 	}
-    
+
     @Test
     public void multithreadedUnsubAndSubTheSameItemList_StreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedUnsubAndSubTheSameItemList_NonStreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
-    
+
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedUnsubAndSubTheSameItemListWithView_StreamingTest()
     {
@@ -23734,15 +23761,15 @@ public class ReactorWatchlistJUnitNew
 		viewFieldList.add(30);
 		viewFieldList.add(31);
 		viewFieldList.add(1465);
-		
+
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedUnsubAndSubTheSameItemListWithView_NonStreamingTest()
     {
@@ -23757,75 +23784,75 @@ public class ReactorWatchlistJUnitNew
 		viewFieldList.add(30);
 		viewFieldList.add(31);
 		viewFieldList.add(1465);
-		
+
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
         consumer = null;
         viewFieldList.clear();
         viewFieldList = null;
     }
-    
+
     class MultithreadedSubTheSameItemListTest implements TestWithMultithreadedOmmConsumer
 	{
 
 		@Override
 		public void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName,
 				int domainType, boolean streaming, List<Integer> viewFids) {
-			
-			consumer.subscribe(serviceName, appClient.Item, domainType, streaming, viewFids);	
+
+			consumer.subscribe(serviceName, appClient.Item, domainType, streaming, viewFids);
 		}
 	}
-    
+
     @Test
     public void multithreadedSubTheSameItemList_StreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30 ) );
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedSubTheSameItemList_MultiPartStreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
 
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, true, new MultithreadedSubTheSameItemListTest());
 
 		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30 ) );
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2) );
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedSubTheSameItemList_NonStreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedSubTheSameItemList_MultipartNonStreamingTest()
-    {		
+    {
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, true, new MultithreadedSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30));
 		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2));
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedSubTheSameItemListWithView_StreamingTest()
     {
@@ -23840,16 +23867,16 @@ public class ReactorWatchlistJUnitNew
 		viewFieldList.add(30);
 		viewFieldList.add(31);
 		viewFieldList.add(1465);
-		
+
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, viewFieldList, 4, false, new MultithreadedSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == ( stockList.split(",").length + (stockList.split(",").length * 2) + (stockList.split(",").length *3)
 				+ (stockList.split(",").length *4)));
         consumer = null;
     }
-    
+
     @Test
     public void multithreadedSubTheSameItemListWithView_NonStreamingTest()
     {
@@ -23864,11 +23891,11 @@ public class ReactorWatchlistJUnitNew
 		viewFieldList.add(30);
 		viewFieldList.add(31);
 		viewFieldList.add(1465);
-		
+
 		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
-		
+
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedSubTheSameItemListTest());
-		
+
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
         consumer = null;
     }

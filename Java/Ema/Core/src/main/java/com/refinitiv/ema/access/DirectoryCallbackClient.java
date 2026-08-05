@@ -1227,10 +1227,12 @@ class DirectoryItem<T> extends SingleItem<T> implements TimeoutClient
 	boolean submit(RequestMsg rsslRequestMsg, String serviceName)
 	{	
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		rsslSubmitOptions.serviceName(null);
-		
-		int rsslFlags = rsslRequestMsg.msgKey().flags();
-		rsslRequestMsg.msgKey().flags(rsslFlags & ~MsgKeyFlags.HAS_SERVICE_ID);
+
+        if (serviceName != null)
+        {
+            int rsslFlags = rsslRequestMsg.msgKey().flags();
+            rsslRequestMsg.msgKey().flags(rsslFlags & ~MsgKeyFlags.HAS_SERVICE_ID);
+        }
 
 		if (!rsslRequestMsg.checkHasQos())
 		{

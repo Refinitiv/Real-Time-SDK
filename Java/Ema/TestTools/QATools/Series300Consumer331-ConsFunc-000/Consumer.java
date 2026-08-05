@@ -169,6 +169,14 @@ class AppClient implements OmmConsumerClient
                 case DataTypes.ERROR :
                     System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
                     break;
+				//API QA
+				case DataTypes.STATE :
+						System.out.println(elementEntry.state().toString());
+						break;
+				case DataTypes.BUFFER :
+						System.out.println(elementEntry.buffer().toString());
+						break;
+				//END API QA
                 default :
                     System.out.println();
                     break;
@@ -225,21 +233,43 @@ class AppClient implements OmmConsumerClient
     }
     
     void decode(Map map)
-    {
-        for(MapEntry mapEntry : map)
-        {
-            //APIQA
-            System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().uintValue());
-            switch (mapEntry.loadType())
-            {
-            case DataTypes.FILTER_LIST :
-                decode(mapEntry.filterList());
-                break;
-            default:
-                System.out.println();
-                break;
-            }
-        }
+    {		
+		for(MapEntry mapEntry : map)
+		{
+			switch (mapEntry.key().dataType())
+                        {
+                                case DataTypes.BUFFER :
+                                        System.out.println("Action = " + mapEntry.mapActionAsString() + 
+							", key = " + mapEntry.key().buffer().toString() + "\n");
+                                        break;
+                                case DataTypes.ASCII :
+                                        System.out.println("Action: " + mapEntry.mapActionAsString() + 
+							", key = " + mapEntry.key().ascii().toString() + "\n");
+                                        break;
+                                case DataTypes.RMTES :
+                                        System.out.println("Action: " + mapEntry.mapActionAsString() + 
+							", key = " + mapEntry.key().rmtes().toString() + "\n");
+                                        break;
+                                default:
+                                		//APIQA
+            							System.out.println("Action = " + mapEntry.mapActionAsString() + 
+            							", key = " + mapEntry.key().uintValue());			
+                                        break;
+                        }
+
+			switch (mapEntry.loadType())
+			{
+				case DataTypes.FILTER_LIST :
+					decode(mapEntry.filterList());
+					break;
+				case DataTypes.ELEMENT_LIST :
+					decode(mapEntry.elementList());
+					break;
+				default:
+					System.out.println();
+					break;
+			}
+		}
     }
 
     void decode(FilterList filterList)

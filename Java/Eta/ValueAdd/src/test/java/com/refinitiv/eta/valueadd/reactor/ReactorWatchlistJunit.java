@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -7247,7 +7247,7 @@ public class ReactorWatchlistJunit
             
             // Check RDM message contents
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnDirectoryRefresh.filter());
             for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
             {
             	assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasData());
@@ -7265,7 +7265,7 @@ public class ReactorWatchlistJunit
             
             // Check Codec message contents
             assertEquals(2, returnRefreshMsg.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnRefreshMsg.msgKey().filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnRefreshMsg.msgKey().filter());
             assertEquals(0, returnRefreshMsg.msgKey().serviceId());
             
             
@@ -7471,7 +7471,7 @@ public class ReactorWatchlistJunit
             
             // Check RDM message contents
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnDirectoryRefresh.filter());
             assertEquals(0, returnDirectoryRefresh.serviceId());
             assertEquals("IDN_RDF", returnDirectoryRefresh.serviceList().get(0).info().serviceName().toString());
             assertEquals("ELEKTRON_DD", returnDirectoryRefresh.serviceList().get(1).info().serviceName().toString());
@@ -7481,7 +7481,7 @@ public class ReactorWatchlistJunit
             
             // Check Codec message contents
             assertEquals(2, returnRefreshMsg.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnRefreshMsg.msgKey().filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnRefreshMsg.msgKey().filter());
             assertEquals(0, returnRefreshMsg.msgKey().serviceId());
             
             
@@ -7697,7 +7697,7 @@ public class ReactorWatchlistJunit
             
             // Check RDM message contents
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+            assertEquals(0, returnDirectoryRefresh.filter());
             for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
             {
             	assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasData());
@@ -7710,7 +7710,7 @@ public class ReactorWatchlistJunit
             
             // Check Codec message contents
             assertEquals(2, returnRefreshMsg.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnRefreshMsg.msgKey().filter());
+            assertEquals(0, returnRefreshMsg.msgKey().filter());
             assertEquals(0, returnRefreshMsg.msgKey().serviceId());
             
             // Send Normal Directory Request Reissue to succeed
@@ -7745,7 +7745,7 @@ public class ReactorWatchlistJunit
             
             // Check RDM message contents
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.DATA, returnDirectoryRefresh.filter());
+            assertEquals(0, returnDirectoryRefresh.filter());
             for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
             {
             	assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasData());
@@ -7758,7 +7758,7 @@ public class ReactorWatchlistJunit
             
             // Check Codec message contents
             assertEquals(2, returnRefreshMsg.streamId());
-            assertEquals(Directory.ServiceFilterFlags.DATA, returnRefreshMsg.msgKey().filter());
+            assertEquals(0, returnRefreshMsg.msgKey().filter());
             assertEquals(0, returnRefreshMsg.msgKey().serviceId());
             
             
@@ -7990,7 +7990,7 @@ public class ReactorWatchlistJunit
             
             // Check RDM message contents
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.DATA, returnDirectoryRefresh.filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnDirectoryRefresh.filter());
             for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
             {
             	assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasData());
@@ -8009,7 +8009,7 @@ public class ReactorWatchlistJunit
             
             // Check Codec message contents
             assertEquals(2, returnRefreshMsg.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.DATA, returnRefreshMsg.msgKey().filter());
+            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnRefreshMsg.msgKey().filter());
             assertEquals(0, returnRefreshMsg.msgKey().serviceId());
             
             
@@ -8224,7 +8224,7 @@ public class ReactorWatchlistJunit
             assertTrue(directoryMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             DirectoryRefresh returnDirectoryRefresh = (DirectoryRefresh)directoryMsgEvent._directoryMsg;
             assertEquals(2, returnDirectoryRefresh.streamId());
-            assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+            assertEquals(0, returnDirectoryRefresh.filter());
             assertEquals(0, returnDirectoryRefresh.serviceId());
             
             // Send failing directory request because of changing Service Name
@@ -8678,7 +8678,7 @@ public class ReactorWatchlistJunit
 
     		// Check RDM message contents
     		assertEquals(2, returnDirectoryRefresh.streamId());
-    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnDirectoryRefresh.filter());
     		assertEquals(returnDirectoryRefresh.serviceList().size(), 1);
     		for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
     		{
@@ -8688,13 +8688,18 @@ public class ReactorWatchlistJunit
     			assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasLoad());
     			assertTrue(returnDirectoryRefresh.serviceList().get(i).checkHasState());
     		}
-    		assertEquals(0, returnDirectoryRefresh.serviceId());
+            int expectedServiceId = directoryMsgEvent
+                    .reactorChannel()
+                    .watchlist()
+                    .directoryHandler()
+                    .serviceId("NI_PUB");
+    		assertEquals(expectedServiceId, returnDirectoryRefresh.serviceId());
     		assertEquals("NI_PUB", returnDirectoryRefresh.serviceList().get(0).info().serviceName().toString());
    
     		// Check Codec message contents
     		assertEquals(2, returnRefreshMsg.streamId());
-    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnRefreshMsg.msgKey().filter());
-    		assertEquals(0, returnRefreshMsg.msgKey().serviceId());
+    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, returnRefreshMsg.msgKey().filter());
+    		assertEquals(expectedServiceId, returnRefreshMsg.msgKey().serviceId());
 
 
     		// reset the msgReturnCode to SUCCESS.
