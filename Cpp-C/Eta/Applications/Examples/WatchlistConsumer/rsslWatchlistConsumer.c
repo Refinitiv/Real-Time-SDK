@@ -1500,10 +1500,10 @@ static void clearConnection(RsslReactorChannel *pReactorChannel)
 	{
 		RsslUInt32 index;
 
-		for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+		for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 		{
-			FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-			FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+			FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+			FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 		}
 	}
 }
@@ -1541,10 +1541,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
 			}
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
@@ -1597,16 +1597,16 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->oldSocketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->oldSocketIdCount; index++)
 				{
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &readFds);
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->oldSocketIdList[index], &exceptFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->oldSocketIdList[index], &readFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->oldSocketIdList[index], &exceptFds);
 				}
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
 			}
 
@@ -1637,10 +1637,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
 			}
 
@@ -1684,10 +1684,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			{
 				RsslUInt32 index;
 
-				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_CLR(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_CLR(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 				}
 			}
 
