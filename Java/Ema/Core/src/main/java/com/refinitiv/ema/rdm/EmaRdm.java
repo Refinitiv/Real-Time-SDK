@@ -604,6 +604,7 @@ public class EmaRdm
 	//Well known source directory names.
 	  public static final String ENAME_NAME = "Name";
 	  public static final String ENAME_SERVICE_ID = "ServiceID";
+	  public static final String ENAME_SERVICE_NAME = "ServiceName";
 	  public static final String ENAME_VENDOR = "Vendor";
 	  public static final String ENAME_IS_SOURCE = "IsSource";
 	  public static final String ENAME_CAPABILITIES = "Capabilities";
@@ -712,4 +713,187 @@ public class EmaRdm
 	  public static final long RDM_UPDATE_TYPE_FILTER_MULTIPLE = 0x400;
 	  /*!< (0x800) Fields may have changed */
 	  public static final long RDM_UPDATE_TYPE_FILTER_VERIFY = 0x800;
+
+    // Well known source domain names.
+    /**
+     * Indicates how the downstream component is using the service.
+     */
+    public static class SourceMirroringMode
+    {
+        // SourceMirroringMode class cannot be instantiated
+        private SourceMirroringMode()
+        {
+            throw new AssertionError();
+        }
+
+        /**
+         * The downstream device is using the data from this service, and is not
+         * receiving it from any other service.
+         */
+        public static final int ACTIVE_NO_STANDBY = 0;
+
+        /**
+         * The downstream device is using the data from this service, but is also
+         * getting it from another service.
+         */
+        public static final int ACTIVE_WITH_STANDBY = 1;
+
+        /**
+         * The downstream device is getting data from this service, but is actually
+         * using data from another service.
+         */
+        public static final int STANDBY = 2;
+
+        /**
+         * Returns the string representation of the specified source mirroring mode.
+         *
+         * @param mode the source mirroring mode value
+         * @return the corresponding constant name for a known mode, or the numeric
+         *         value as a string if the mode is not recognized
+         */
+        public static String asString(int mode)
+        {
+            switch (mode)
+            {
+                case ACTIVE_NO_STANDBY:
+                    return "ACTIVE_NO_STANDBY";
+                case ACTIVE_WITH_STANDBY:
+                    return "ACTIVE_WITH_STANDBY";
+                case STANDBY:
+                    return "STANDBY";
+                default:
+                    return Integer.toString(mode);
+            }
+        }
+    }
+
+    /**
+     *  Indicates the warm standby service type
+     */
+    public static class WarmStandbyDirectoryServiceTypes
+    {
+        // WarmStandbyDirectoryServiceTypes class cannot be instantiated
+        private WarmStandbyDirectoryServiceTypes()
+        {
+            throw new AssertionError();
+        }
+
+        /**
+         * Indicates that the provider for this service is the active server.
+         */
+        public static final int ACTIVE = 0;
+
+        /**
+         * Indicates that the provider for this service is the standby server.
+         */
+        public static final int STANDBY = 1;
+
+        /**
+         * Returns the string representation of the specified warm standby directory
+         * service type.
+         *
+         * @param type the warm standby directory service type value
+         * @return the corresponding constant name for a known type, or the numeric
+         *         value as a string if the type is not recognized
+         */
+        public static String asString(int type)
+        {
+            switch (type)
+            {
+                case ACTIVE:
+                    return "ACTIVE";
+                case STANDBY:
+                    return "STANDBY";
+                default:
+                    return Integer.toString(type);
+            }
+        }
+    }
+
+    /**
+     * Explains the content of the Data.
+     */
+    public static class DataTypes
+    {
+        // DataTypes class cannot be instantiated
+        private DataTypes()
+        {
+            throw new AssertionError();
+        }
+
+        /** None */
+        public static final int NONE = 0;
+        /** Time */
+        public static final int TIME = 1;
+        /** Alert */
+        public static final int ALERT = 2;
+        /** Headline */
+        public static final int HEADLINE = 3;
+        /** Status */
+        public static final int STATUS = 4;
+
+        /**
+         * Returns the string representation of the specified data type.
+         *
+         * @param type the data type value
+         * @return the corresponding constant name for a known type, or the numeric
+         *         value as a string if the type is not recognized
+         */
+        public static String asString(int type)
+        {
+            switch (type)
+            {
+                case NONE:
+                    return "NONE";
+                case TIME:
+                    return "TIME";
+                case ALERT:
+                    return "ALERT";
+                case HEADLINE:
+                    return "HEADLINE";
+                case STATUS:
+                    return "STATUS";
+                default:
+                    return Integer.toString(type);
+            }
+        }
+    }
+
+    /**
+     * Indicates whether the upstream source that provides data to a service is up
+     * or down.
+     */
+    public static class LinkStates
+    {
+        // LinkStates class cannot be instantiated
+        private LinkStates()
+        {
+            throw new AssertionError();
+        }
+
+        /** Down */
+        public static final int DOWN = 0;
+        /** Up */
+        public static final int UP = 1;
+
+        /**
+         * Returns the string representation of the link state
+         *
+         * @param state the link state value
+         * @return the corresponding constant name for a known state, or the numeric
+         *         value as a string if the state is not recognized
+         */
+        public static String asString(int state)
+        {
+            switch (state)
+            {
+                case DOWN:
+                    return "DOWN";
+                case UP:
+                    return "UP";
+                default:
+                    return Integer.toString(state);
+            }
+        }
+    }
 }

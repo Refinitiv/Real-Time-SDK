@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,13 +10,10 @@ package com.refinitiv.ema.examples.training.iprovider.series200.ex250_GroupStatu
 
 import java.nio.ByteBuffer;
 
-import com.refinitiv.ema.access.ElementList;
 import com.refinitiv.ema.access.EmaFactory;
 import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.FilterEntry;
-import com.refinitiv.ema.access.FilterList;
 import com.refinitiv.ema.access.GenericMsg;
-import com.refinitiv.ema.access.Map;
 import com.refinitiv.ema.access.MapEntry;
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.OmmException;
@@ -30,11 +27,15 @@ import com.refinitiv.ema.access.PostMsg;
 import com.refinitiv.ema.access.RefreshMsg;
 import com.refinitiv.ema.access.ReqMsg;
 import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.domain.directory.*;
 import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {
-	public long itemHandle = 0;
+    private final DirectoryUpdate directoryUpdate =  EmaFactory.Domain.createDirectoryUpdate();
+    private final DirectoryService directoryService = EmaFactory.Domain.createDirectoryService();
+    private final DirectoryServiceGroup directoryServiceGroup = EmaFactory.Domain.createDirectoryServiceGroup();
+    public long itemHandle = 0;
 	public ByteBuffer groupId = ByteBuffer.wrap("10".getBytes());
 
 	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent event)
@@ -70,21 +71,24 @@ class AppClient implements OmmProviderClient
 	}
 	
 	void processUpdateGroupStatus( OmmProvider provider)
-	{		
-		ElementList serviceGroupId = EmaFactory.createElementList();
-		serviceGroupId.add( EmaFactory.createElementEntry().buffer( EmaRdm.ENAME_GROUP, groupId ));
-		serviceGroupId.add( EmaFactory.createElementEntry().state( EmaRdm.ENAME_STATUS, 
-				OmmState.StreamState.CLOSED_RECOVER, OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "Group Status Msg" ) );
-				
-		FilterList filterList = EmaFactory.createFilterList();
-		filterList.add( EmaFactory.createFilterEntry().elementList( EmaRdm.SERVICE_GROUP_ID, FilterEntry.FilterAction.SET, serviceGroupId ) );
-      
-		Map map = EmaFactory.createMap();
-		map.add( EmaFactory.createMapEntry().keyUInt(1, MapEntry.MapAction.UPDATE, filterList));
-      
-		provider.submit( EmaFactory.createUpdateMsg().domainType( EmaRdm.MMT_DIRECTORY ).
-				filter( EmaRdm.SERVICE_GROUP_FILTER ).
-				payload( map ), 0);	// use 0 item handle to fanout to all subscribers	
+	{
+        directoryUpdate.clear();
+        directoryService.clear();
+        directoryServiceGroup.clear();
+
+        directoryServiceGroup.status(OmmState.StreamState.CLOSED_RECOVER, OmmState.DataState.SUSPECT,
+                OmmState.StatusCode.NONE, "Group Status Msg");
+        directoryServiceGroup.group(groupId);
+        directoryServiceGroup.action(FilterEntry.FilterAction.SET);
+
+        directoryService.serviceId(1);
+        directoryService.action(MapEntry.MapAction.UPDATE);
+        directoryService.groupStateList().add(directoryServiceGroup);
+
+        directoryUpdate.serviceList().add(directoryService);
+        directoryUpdate.filter(EmaRdm.SERVICE_GROUP_FILTER);
+
+        provider.submit(directoryUpdate.message(), 0);	// use 0 item handle to fanout to all subscribers
 	}
 	
 	void processMarketPriceRequest(ReqMsg reqMsg, OmmProviderEvent event)

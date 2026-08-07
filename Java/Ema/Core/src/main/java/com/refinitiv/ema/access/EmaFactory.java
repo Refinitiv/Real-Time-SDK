@@ -9,6 +9,7 @@
 package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.access.OmmProviderConfig.ProviderRole;
+import com.refinitiv.ema.domain.directory.*;
 import com.refinitiv.ema.domain.login.Login.LoginRefresh;
 import com.refinitiv.ema.domain.login.Login.LoginReq;
 import com.refinitiv.ema.domain.login.Login.LoginStatus;
@@ -935,8 +936,10 @@ public class EmaFactory
 	    {
 	        throw new AssertionError();
 	    }
-	    
-	    /**
+
+		// Login domain factory methods
+
+		/**
 	     * Creates a {@link com.refinitiv.ema.domain.login.Login.LoginReq}.
 	     * @return {@link com.refinitiv.ema.domain.login.Login.LoginReq}
 	     */
@@ -992,6 +995,143 @@ public class EmaFactory
 	    {
 	        return new LoginStatusImpl(statusMsg);
 	    }
+
+		// Directory domain factory methods
+
+		/**
+		 * Creates a {@link DirectoryRefresh}.
+		 * @return {@link DirectoryRefresh}
+		 */
+		public static DirectoryRefresh createDirectoryRefresh()
+		{
+			return new DirectoryRefreshImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryRequest}.
+		 * @return {@link DirectoryRequest}
+		 */
+		public static DirectoryRequest createDirectoryRequest()
+		{
+			return new DirectoryRequestImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryStatus}.
+		 * @return {@link DirectoryStatus}
+		 */
+		public static DirectoryStatus createDirectoryStatus()
+		{
+			return new DirectoryStatusImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryUpdate}.
+		 * @return {@link DirectoryUpdate}
+		 */
+		public static DirectoryUpdate createDirectoryUpdate()
+		{
+			return new DirectoryUpdateImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryConsumerStatus}.
+		 * @return {@link DirectoryConsumerStatus}
+		 */
+		public static DirectoryConsumerStatus createDirectoryConsumerStatus()
+		{
+			return new DirectoryConsumerStatusImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryService}.
+		 * @return {@link DirectoryService}
+		 */
+		public static DirectoryService createDirectoryService()
+		{
+			return new DirectoryServiceImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryConsumerStatusService}.
+		 * @return {@link DirectoryConsumerStatusService}
+		 */
+		public static DirectoryConsumerStatusService createDirectoryConsumerStatusService()
+		{
+			return new DirectoryConsumerStatusServiceImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceData}.
+		 * @return {@link DirectoryServiceData}
+		 */
+		public static DirectoryServiceData createDirectoryServiceData()
+		{
+			return new DirectoryServiceDataImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceGroup}.
+		 * @return {@link DirectoryServiceGroup}
+		 */
+		public static DirectoryServiceGroup createDirectoryServiceGroup()
+		{
+			return new DirectoryServiceGroupImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceInfo}.
+		 * @return {@link DirectoryServiceInfo}
+		 */
+		public static DirectoryServiceInfo createDirectoryServiceInfo()
+		{
+			return new DirectoryServiceInfoImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryQos}.
+		 * @return {@link DirectoryQos}
+		 */
+		public static com.refinitiv.ema.domain.directory.DirectoryQos createDirectoryQos()
+		{
+			return new DirectoryQosImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceLink}.
+		 * @return {@link DirectoryServiceLink}
+		 */
+		public static DirectoryServiceLink createDirectoryServiceLink()
+		{
+			return new DirectoryServiceLinkImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceLinkInfo}.
+		 * @return {@link DirectoryServiceLinkInfo}
+		 */
+		public static DirectoryServiceLinkInfo createDirectoryServiceLinkInfo()
+		{
+			return new DirectoryServiceLinkInfoImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceLoad}.
+		 * @return {@link DirectoryServiceLoad}
+		 */
+		public static DirectoryServiceLoad createDirectoryServiceLoad()
+		{
+			return new DirectoryServiceLoadImpl();
+		}
+
+		/**
+		 * Creates a {@link DirectoryServiceState}.
+		 * @return {@link DirectoryServiceState}
+		 */
+		public static DirectoryServiceState createDirectoryServiceState()
+		{
+			return new DirectoryServiceStateImpl();
+		}
 	}
 	
 	/**

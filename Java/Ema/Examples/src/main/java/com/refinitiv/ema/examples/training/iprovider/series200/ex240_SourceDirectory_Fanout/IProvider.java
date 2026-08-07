@@ -2,37 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.training.iprovider.series200.ex240_SourceDirectory_Fanout;
 
-import com.refinitiv.ema.access.ElementList;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.FieldList;
-import com.refinitiv.ema.access.FilterEntry;
-import com.refinitiv.ema.access.FilterList;
-import com.refinitiv.ema.access.GenericMsg;
-import com.refinitiv.ema.access.Map;
-import com.refinitiv.ema.access.MapEntry;
-import com.refinitiv.ema.access.Msg;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.OmmIProviderConfig;
-import com.refinitiv.ema.access.OmmProvider;
-import com.refinitiv.ema.access.OmmProviderClient;
-import com.refinitiv.ema.access.OmmProviderEvent;
-import com.refinitiv.ema.access.OmmReal;
-import com.refinitiv.ema.access.OmmState;
-import com.refinitiv.ema.access.PostMsg;
-import com.refinitiv.ema.access.RefreshMsg;
-import com.refinitiv.ema.access.ReqMsg;
-import com.refinitiv.ema.access.StatusMsg;
+import com.refinitiv.ema.access.*;
+import com.refinitiv.ema.domain.directory.DirectoryRefresh;
+import com.refinitiv.ema.domain.directory.DirectoryService;
+import com.refinitiv.ema.domain.directory.DirectoryServiceState;
 import com.refinitiv.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {
-	public long itemHandle = 0;
+    private final DirectoryRefresh directoryRefresh =  EmaFactory.Domain.createDirectoryRefresh();
+    private final DirectoryService directoryService = EmaFactory.Domain.createDirectoryService();
+    private final DirectoryServiceState directoryServiceState = EmaFactory.Domain.createDirectoryServiceState();
+    public long itemHandle = 0;
 
 	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent event)
 	{
@@ -68,19 +55,22 @@ class AppClient implements OmmProviderClient
 	
 	void processUpdateServiceStatus( OmmProvider provider)
 	{
-		ElementList serviceState = EmaFactory.createElementList();
-		serviceState.add( EmaFactory.createElementEntry().uintValue( EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_DOWN ));
-				
-		FilterList filterList = EmaFactory.createFilterList();
-		filterList.add( EmaFactory.createFilterEntry().elementList( EmaRdm.SERVICE_STATE_ID, FilterEntry.FilterAction.UPDATE, serviceState ) );
-      
-		Map map = EmaFactory.createMap();
-		map.add( EmaFactory.createMapEntry().keyUInt( 1, MapEntry.MapAction.UPDATE, filterList ));
-      
-		RefreshMsg refreshMsg = EmaFactory.createRefreshMsg();
-		provider.submit( refreshMsg.domainType( EmaRdm.MMT_DIRECTORY ).
-				filter( EmaRdm.SERVICE_STATE_FILTER ).
-				payload( map ).complete( true ), 0);	// use 0 item handle to fanout to all subscribers			
+        directoryRefresh.clear();
+        directoryService.clear();
+        directoryServiceState.clear();
+
+        directoryServiceState.serviceState(EmaRdm.SERVICE_DOWN);
+        directoryServiceState.action(FilterEntry.FilterAction.UPDATE);
+
+        directoryService.serviceId(1);
+        directoryService.action(MapEntry.MapAction.UPDATE);
+        directoryService.state(directoryServiceState);
+
+        directoryRefresh.serviceList().add(directoryService);
+        directoryRefresh.filter(EmaRdm.SERVICE_STATE_FILTER);
+        directoryRefresh.complete(true);
+
+        provider.submit(directoryRefresh.message(), 0);	// use 0 item handle to fanout to all subscribers
 	}
 	
 	void processMarketPriceRequest(ReqMsg reqMsg, OmmProviderEvent event)
