@@ -9,6 +9,7 @@
 namespace LSEG.Ema.Example.Traning.NIProvider;
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 using System;
 using System.Text;
@@ -27,32 +28,28 @@ public class NIProvider
             long sourceDirectoryHandle = 1;
             long aaoHandle = 5;
 
-            OmmArray capablities = new OmmArray();
-            capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
-            capablities.AddUInt(EmaRdm.MMT_MARKET_BY_ORDER);
-
-            OmmArray dictionaryUsed = new OmmArray();
-            dictionaryUsed.AddAscii("RWFFld");
-            dictionaryUsed.AddAscii("RWFEnum");
-
-            ElementList serviceInfoId = new ElementList();
-
-            serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "TEST_NI_PUB");
-            serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities.Complete());
-            serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed.Complete());
-
-            ElementList serviceStateId = new ElementList();
-            serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-
-            FilterList filterList = new FilterList();
-            filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId.Complete());
-            filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId.Complete());
-
-            Map map = new Map();
-            map.AddKeyUInt(1, MapAction.ADD, filterList.Complete());
-
-            provider.Submit(new RefreshMsg().DomainType(EmaRdm.MMT_DIRECTORY).ClearCache(true).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-                .Payload(map.Complete()).Complete(true), sourceDirectoryHandle);
+            provider.Submit(
+                new DirectoryRefreshMsg()
+                    .ClearCache(true)
+                    .Filter(DirectoryFilters.SERVICE_INFO_FILTER | DirectoryFilters.SERVICE_STATE_FILTER)
+                    .Complete(true)
+                    .ServiceList(sl => sl
+                        .Add(new DirectoryService()
+                            .ServiceId(1)
+                            .Action(DirectoryMapAction.ADD)
+                            .Info(i => i
+                                .Action(DirectoryFilterAction.SET)
+                                .ServiceName("TEST_NI_PUB")
+                                .CapabilitiesList(cl => cl
+                                    .Add(EmaRdm.MMT_MARKET_PRICE)
+                                    .Add(EmaRdm.MMT_MARKET_BY_ORDER))
+                                .DictionariesUsedList(dul => dul
+                                    .Add("RWFFld")
+                                    .Add("RWFEnum")))
+                            .State(s => s
+                                .Action(DirectoryFilterAction.SET)
+                                .IsServiceUp(true)))),
+                sourceDirectoryHandle);
 
             FieldList summary = new FieldList();
             FieldList entryLoad = new FieldList();
@@ -62,7 +59,7 @@ public class NIProvider
             summary.AddEnumValue(3423, 1);
             summary.AddEnumValue(1709, 2);
 
-            map.Clear();
+            Map map = new Map();
 
             map.SummaryData(summary.Complete());
 

@@ -156,20 +156,220 @@ internal class AppClient : IOmmConsumerClient
 }
 
 public class Consumer
+
 {
-    public static void Main()
+		//APIQA
+	public static int _OPTION = 0;
+	public static int _FILTER = -1;
+	public static int _SLEEPTIME = 0;
+	public static String _SERVICE = "DIRECT_FEED";
+	public static String _ITEM = "IBM.N";
+	public static String _HOST = "localhost";
+	public static String _PORT = "14002";
+
+
+	public static void PrintHelp()
+	{
+		Console.WriteLine("\nOptions:\n" +
+			"  -?\t\t\tShows this usage\n\n" +
+			"  -f <source directory filter in decimal; default = no filter is specified>\n" +
+			"     Possible values for filter, valid range = 0-63:\n" +
+			"     0 :  No Filter \n" +
+			"     1 :  SERVICE_INFO_FILTER 0x01 \n" +
+			"     2 :  SERVICE_STATE_FILTER 0x02 \n" +
+			"     4 :  SERVICE_GROUP_FILTER 0x04 \n" +
+			"     8 :  SERVICE_LOAD_FILTER 0x08 \n" +
+			"    16 :  SERVICE_DATA_FILTER 0x10 \n" +
+			"    32 :  SERVICE_LINK_FILTER 0x20 \n" +
+			"    ?? :  Mix of above values upto 63 \n\n" +
+			"    -service :  Service name \n\n" +
+            "    -host : Host address \n\n" +
+            "    -p : Port \n\n" +
+            "    -item : item \n\n" +
+			"  -m <option>; default = option 0\n" +
+			"     Possible values for option, valid range = 0-4:\n" +
+			"     0 :  Request source directory without serviceName or serviceId\n" +
+			"     1 :  Request source directory with serviceName\n" +
+			"     2 :  Request source directory with serviceName; Request item on that service\n" +
+			"     3 :  Request source directory with serviceId\n" +
+			"     4 :  Request source directory with serviceId; Request item on that service\n\n" +
+			"  -s <amount of time to wait before requesting an item in seconds; default = no wait>\n" +
+			"     This option only applies to -m 2 or -m 4\n" +
+			" \n");
+	}
+
+	public static bool ReadCommandlineArgs(String[] argv)
+	{
+		int count = argv.Length;
+		int idx = 0;
+
+		while (idx < count)
+		{
+			if (0 == argv[idx].CompareTo("-?"))
+			{
+				PrintHelp();
+				return false;
+			}
+			else if (0 == argv[idx].CompareTo("-f"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._FILTER = int.Parse(argv[idx]);
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-m"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._OPTION = int.Parse(argv[idx]);
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-s"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._SLEEPTIME = int.Parse(argv[idx]);
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-service"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._SERVICE = argv[idx];
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-host"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._HOST = argv[idx];
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-p"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._PORT = argv[idx];
+				++idx;
+			}
+			else if (0 == argv[idx].CompareTo("-item"))
+			{
+				if (++idx >= count)
+				{
+					PrintHelp();
+					return false;
+				}
+				Consumer._ITEM = argv[idx];
+				++idx;
+			}
+			else
+			{
+				PrintHelp();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//END APIQA
+
+    public static void Main(String[] args)
     {
+		OmmConsumer? consumer = null;
         try
         {
+			//APIQA
+			if (!ReadCommandlineArgs(args)) return;
+			//END APIQA
             AppClient appClient = new();
 
-            using OmmConsumer consumer = new(new OmmConsumerConfig().Host("localhost:14002").UserName("user"));
+            consumer = new(new OmmConsumerConfig().Host(Consumer._HOST + ":" + Consumer._PORT).UserName("user"));
 
             RequestMsg reqMsg = new();
+			DirectoryRequestMsg dirReqMsg = new();
 
-            consumer.RegisterClient(new DirectoryRequestMsg().ServiceName("DIRECT_FEED"), appClient);
 
-            consumer.RegisterClient(reqMsg.Clear().ServiceName("DIRECT_FEED").Name("IBM.N"), appClient);
+           			//APIQA
+			switch (Consumer._OPTION)
+			{
+				default:
+				case 0:
+				case 5:
+					if (Consumer._FILTER >= 0)
+					{
+						Console.WriteLine("********APIQA: Requesting directory without service name, service id, and filter=" + Consumer._FILTER + "\n\n");
+						consumer.RegisterClient(dirReqMsg.Filter((DirectoryFilters)Consumer._FILTER), appClient);
+					}
+					else
+					{
+						Console.WriteLine("********APIQA: Requesting directory without service name, service id\n\n");
+						consumer.RegisterClient(dirReqMsg, appClient);
+					}
+					break;
+				case 1:
+				case 2:
+					if (Consumer._FILTER >= 0)
+					{
+						Console.WriteLine("********APIQA: Requesting directory with service=" + Consumer._SERVICE + " and filter=" + Consumer._FILTER + "\n\n");
+						consumer.RegisterClient(dirReqMsg.ServiceName(Consumer._SERVICE).Filter((DirectoryFilters)Consumer._FILTER), appClient);
+					}
+					else
+					{
+						Console.WriteLine("********APIQA: Requesting directory with service=" + Consumer._SERVICE + "\n\n");
+						consumer.RegisterClient(dirReqMsg.ServiceName(Consumer._SERVICE), appClient);
+					}
+					break;
+				case 3:
+				case 4:
+					if (Consumer._FILTER >= 0)
+					{
+						Console.WriteLine("********APIQA: Requesting directory with service=serviceID and filter=" + Consumer._FILTER + "\n\n");
+						consumer.RegisterClient(dirReqMsg.ServiceId(8090).Filter((DirectoryFilters)Consumer._FILTER), appClient);
+					}
+					else
+					{
+						Console.WriteLine("********APIQA: Requesting directory with service=serviceID\n\n");
+						consumer.RegisterClient(dirReqMsg.ServiceId(8090), appClient);
+					}
+					break;
+			}
+			if ((Consumer._OPTION == 2) || (Consumer._OPTION == 4) || (Consumer._OPTION == 5))
+			{
+				if (Consumer._SLEEPTIME > 0)
+				{
+					Console.WriteLine("********APIQA: Sleeping (in seconds): " + Consumer._SLEEPTIME + "\n");
+					Thread.Sleep(Consumer._SLEEPTIME * 1000);            // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+				}
+				if ((Consumer._OPTION == 2) || (Consumer._OPTION == 5))
+				{
+					Console.WriteLine("********APIQA: Requesting item wth service=" + Consumer._SERVICE + "\n\n");
+					consumer.RegisterClient(reqMsg.Clear().ServiceName(Consumer._SERVICE).Name(Consumer._ITEM), appClient);
+				}
+				else
+				{
+					Console.WriteLine("********APIQA: Requesting item wth service=serviceID\n\n");
+					consumer.RegisterClient(reqMsg.Clear().ServiceId(8090).Name(Consumer._ITEM), appClient);
+				}
+			}
+			//END APIQA
 
             Thread.Sleep(60000);            // API calls OnRefreshMsg(), OnUpdateMsg() and OnStatusMsg()
         }
@@ -177,5 +377,9 @@ public class Consumer
         {
             Console.WriteLine(ommException.Message);
         }
+		 finally 
+		{
+			consumer?.Uninitialize();
+		}
     }
 }

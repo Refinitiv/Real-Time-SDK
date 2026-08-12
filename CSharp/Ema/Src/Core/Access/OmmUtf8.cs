@@ -90,6 +90,7 @@ public sealed class OmmUtf8 : Data
         ReturnToPoolInternal = () => m_objectManager.ReturnToPool(this);
         DecodePrimitiveType = DecodeOmmUtf8;
         m_dataType = Access.DataType.DataTypes.UTF8;
+        m_bodyBuffer = m_Buffer;
     }
 
     internal CodecReturnCode DecodeOmmUtf8(DecodeIterator dIter)

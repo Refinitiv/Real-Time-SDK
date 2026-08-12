@@ -9,6 +9,7 @@
 namespace LSEG.Ema.Example.Traning.NIProvider;
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 using System;
 using System.Threading;
@@ -26,32 +27,24 @@ public class NIProvider
 
             long sourceDirectoryHandle = 1;
 
-            OmmArray capablities = new OmmArray();
-            capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
-            capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-            OmmArray dictionaryUsed = new OmmArray();
-            dictionaryUsed.AddAscii("RWFFld");
-            dictionaryUsed.AddAscii("RWFEnum");
+            var directoryRefreshMsg = new DirectoryRefreshMsg()
+                .Filter(DirectoryFilters.SERVICE_INFO_FILTER | DirectoryFilters.SERVICE_STATE_FILTER)
+                .ServiceList(sl => sl
+                    .Add(new DirectoryService()
+                        .Action(DirectoryMapAction.ADD)
+                        .ServiceId(2)
+                        .State(s => s
+                            .IsServiceUp(true))
+                        .Info(i => i
+                            .ServiceName("NI_PUB")
+                            .CapabilitiesList(cl => cl
+                                .Add(EmaRdm.MMT_MARKET_PRICE)
+                                .Add(EmaRdm.MMT_MARKET_BY_PRICE))
+                            .DictionariesUsedList(dul => dul
+                                .Add("RWFFld")
+                                .Add("RWFEnum")))));
 
-            ElementList serviceInfoId = new ElementList();
-
-            serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "NI_PUB");
-            serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities.Complete());
-            serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed.Complete());
-
-            ElementList serviceStateId = new ElementList();
-            serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-
-            FilterList filterList = new FilterList();
-            filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId.Complete());
-            filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId.Complete());
-
-            Map map = new Map();
-            map.AddKeyUInt(2, MapAction.ADD, filterList.Complete());
-
-            RefreshMsg refreshMsg = new RefreshMsg();
-            provider.Submit(refreshMsg.DomainType(EmaRdm.MMT_DIRECTORY).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER).Payload(map.Complete()), 
-                sourceDirectoryHandle);
+            provider.Submit(directoryRefreshMsg, sourceDirectoryHandle);
 
             long itemHandle = 5;
 

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 
 namespace LSEG.Ema.Example.Traning.IProvider;
@@ -46,19 +47,18 @@ class AppClient : IOmmProviderClient
 
     public void ProcessUpdateGroupStatus(OmmProvider provider)
     {
-        ElementList serviceGroupId = new ElementList();
-        serviceGroupId.AddBuffer(EmaRdm.ENAME_GROUP, groupId);
-        serviceGroupId.AddState(EmaRdm.ENAME_STATUS,
-                OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Group Status Msg");
-
-        FilterList filterList = new FilterList();
-        filterList.AddEntry(EmaRdm.SERVICE_GROUP_ID, FilterAction.SET, serviceGroupId.Complete());
-
-        Map map = new Map();
-        map.AddKeyUInt(1, MapAction.UPDATE, filterList.Complete());
-
-        provider.Submit(new UpdateMsg().DomainType(EmaRdm.MMT_DIRECTORY)
-            .Filter(EmaRdm.SERVICE_GROUP_FILTER).Payload(map.Complete()),
+        provider.Submit(
+            new DirectoryUpdateMsg()
+                .Filter(DirectoryFilters.SERVICE_GROUP_FILTER)
+                .ServiceList(sl => sl
+                    .Add(new DirectoryService()
+                        .Action(DirectoryMapAction.UPDATE)
+                        .ServiceId(1)
+                        .GroupStateList(gsl => gsl
+                            .Add(new DirectoryServiceGroup()
+                                .Action(DirectoryFilterAction.SET)
+                                .Group(groupId)
+                                .Status(OmmState.StreamStates.CLOSED_RECOVER, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "Group Status Msg"))))),
             0);	// use 0 item handle to fanout to all subscribers
     }
 

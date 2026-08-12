@@ -247,6 +247,15 @@ public sealed class OmmQos : Data
         }
     }
 
+    internal void Copy(OmmQos dest)
+    {
+        dest.m_Qos.Rate(m_Qos.Rate());
+        dest.m_Qos.Timeliness(m_Qos.Timeliness());
+        dest.m_Qos.IsDynamic = m_Qos.IsDynamic;
+        dest.m_Qos.TimeInfo(m_Qos.TimeInfo());
+        dest.m_Qos.RateInfo(m_Qos.RateInfo());
+    }
+
     internal override string ToString(int indent)
     {
         return ToString();

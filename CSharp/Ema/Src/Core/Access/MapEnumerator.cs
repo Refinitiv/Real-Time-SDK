@@ -126,15 +126,15 @@ namespace LSEG.Ema.Access
                         m_localDb);
                     return true;
                 case CodecReturnCode.INCOMPLETE_DATA:
-                    m_mapEntry.Load!.Clear_Decode();
+                    m_mapEntry.Load?.Clear_Decode();
                     m_mapEntry.Load = SetError(ErrorCodes.INCOMPLETE_DATA);
                     return false;
                 case CodecReturnCode.UNSUPPORTED_DATA_TYPE:
-                    m_mapEntry.Load!.Clear_Decode();
+                    m_mapEntry.Load?.Clear_Decode();
                     m_mapEntry.Load = SetError(ErrorCodes.UNSUPPORTED_DATA_TYPE);
                     return false;
                 default:
-                    m_mapEntry.Load!.Clear_Decode();
+                    m_mapEntry.Load?.Clear_Decode();
                     m_mapEntry.Load = SetError(ErrorCodes.UNKNOWN_ERROR);
                     return false;
             }

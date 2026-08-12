@@ -7,6 +7,7 @@
  */
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 using System;
 using static LSEG.Ema.Access.DataType;
@@ -115,10 +116,10 @@ public class Consumer
 			elementList.Complete();
 			
             using OmmConsumer consumer = new(new OmmConsumerConfig().OperationModel(OmmConsumerConfig.OperationModelMode.USER_DISPATCH)
-					.AddAdminMsg(reqMsg.DomainType(EmaRdm.MMT_LOGIN).Name("user").NameType(EmaRdm.USER_NAME).Attrib(elementList))
-					.AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DIRECTORY).Filter(EmaRdm.SERVICE_INFO_FILTER  | EmaRdm.SERVICE_STATE_FILTER | EmaRdm.SERVICE_GROUP_FILTER))
-					.AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFFld").ServiceId(1))
-					.AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFEnum").ServiceId(1)));
+                    .AddAdminMsg(reqMsg.DomainType(EmaRdm.MMT_LOGIN).Name("user").NameType(EmaRdm.USER_NAME).Attrib(elementList))
+                    .AddAdminMsg(new DirectoryRequestMsg().Filter(DirectoryFilters.SERVICE_INFO_FILTER | DirectoryFilters.SERVICE_STATE_FILTER | DirectoryFilters.SERVICE_GROUP_FILTER))
+                    .AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFFld").ServiceId(1))
+                    .AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFEnum").ServiceId(1)));
 		
 			consumer.RegisterClient(reqMsg.Clear().ServiceName("DIRECT_FEED").Name("IBM.N"), appClient, null);
 

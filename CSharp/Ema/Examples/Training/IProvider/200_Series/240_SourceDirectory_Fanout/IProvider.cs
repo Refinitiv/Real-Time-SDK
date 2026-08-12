@@ -10,6 +10,7 @@ using System;
 using System.Threading;
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 
 namespace LSEG.Ema.Example.Traning.IProvider;
@@ -44,18 +45,17 @@ class AppClient : IOmmProviderClient
 
     public void ProcessUpdateServiceStatus(OmmProvider provider)
     {
-        ElementList serviceState = new ElementList();
-        serviceState.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_DOWN);
-
-        FilterList filterList = new FilterList();
-        filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.UPDATE, serviceState.Complete());
-
-        Map map = new Map();
-        map.AddKeyUInt(1, MapAction.UPDATE, filterList.Complete());
-
-        RefreshMsg refreshMsg = new RefreshMsg();
-        provider.Submit(refreshMsg.DomainType(EmaRdm.MMT_DIRECTORY)
-            .Filter(EmaRdm.SERVICE_STATE_FILTER).Payload(map.Complete()).Complete(true),
+        provider.Submit(
+            new DirectoryRefreshMsg()
+                .Filter(DirectoryFilters.SERVICE_STATE_FILTER)
+                .Complete(true)
+                .ServiceList(sl => sl
+                    .Add(new DirectoryService()
+                        .Action(DirectoryMapAction.UPDATE)
+                        .ServiceId(1)
+                        .State(ss => ss
+                            .Action(DirectoryFilterAction.UPDATE)
+                            .IsServiceUp(false)))),
             0);    // use 0 item handle to fanout to all subscribers
     }
 

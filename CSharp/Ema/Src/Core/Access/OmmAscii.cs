@@ -77,6 +77,7 @@ public sealed class OmmAscii : Data
         ReturnToPoolInternal = () => m_objectManager.ReturnToPool(this);
         DecodePrimitiveType = DecodeAscii;
         m_dataType = Access.DataType.DataTypes.ASCII;
+        m_bodyBuffer = m_Ascii;
     }
 
     internal CodecReturnCode DecodeAscii(DecodeIterator dIter)

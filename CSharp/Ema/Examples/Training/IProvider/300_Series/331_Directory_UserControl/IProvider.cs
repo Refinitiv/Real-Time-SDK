@@ -10,6 +10,7 @@ using System;
 using System.Threading;
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Rdm;
 
 namespace LSEG.Ema.Example.Traning.IProvider;
@@ -47,33 +48,27 @@ class AppClient : IOmmProviderClient
 
     void ProcessDirectoryRequest(RequestMsg reqMsg, IOmmProviderEvent providerEvent)
     {
-        OmmArray capablities = new OmmArray();
-        capablities.AddUInt(EmaRdm.MMT_MARKET_PRICE);
-        capablities.AddUInt(EmaRdm.MMT_MARKET_BY_PRICE);
-
-        OmmArray dictionaryUsed = new OmmArray();
-        dictionaryUsed.AddAscii("RWFFld");
-        dictionaryUsed.AddAscii("RWFEnum");
-
-        ElementList serviceInfoId = new ElementList();
-        serviceInfoId.AddAscii(EmaRdm.ENAME_NAME, "DIRECT_FEED");
-        serviceInfoId.AddArray(EmaRdm.ENAME_CAPABILITIES, capablities.Complete());
-        serviceInfoId.AddArray(EmaRdm.ENAME_DICTIONARYS_USED, dictionaryUsed.Complete());
-
-        ElementList serviceStateId = new ElementList();
-        serviceStateId.AddUInt(EmaRdm.ENAME_SVC_STATE, EmaRdm.SERVICE_UP);
-
-        FilterList filterList = new FilterList();
-        filterList.AddEntry(EmaRdm.SERVICE_INFO_ID, FilterAction.SET, serviceInfoId.Complete());
-        filterList.AddEntry(EmaRdm.SERVICE_STATE_ID, FilterAction.SET, serviceStateId.Complete());
-
-        Map map = new Map();
-        map.AddKeyUInt(2, MapAction.ADD, filterList.Complete());
-
-        RefreshMsg refreshMsg = new RefreshMsg();
-        providerEvent.Provider.Submit(refreshMsg.DomainType(EmaRdm.MMT_DIRECTORY).ClearCache(true)
-            .Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER)
-            .Payload(map.Complete()).Solicited(true).Complete(true),
+        providerEvent.Provider.Submit(
+            new DirectoryRefreshMsg()
+                .Filter(DirectoryFilters.SERVICE_INFO_FILTER | DirectoryFilters.SERVICE_STATE_FILTER)
+                .ClearCache(true)
+                .Solicited(true)
+                .Complete(true)
+                .ServiceList(sl => sl
+                    .Add(new DirectoryService()
+                        .Action(DirectoryMapAction.ADD)
+                        .ServiceId(2)
+                        .State(s => s
+                            .Action(DirectoryFilterAction.SET)
+                            .IsServiceUp(true))
+                        .Info(i => i
+                            .ServiceName("DIRECT_FEED")
+                            .CapabilitiesList(cl => cl
+                                .Add(EmaRdm.MMT_MARKET_PRICE)
+                                .Add(EmaRdm.MMT_MARKET_BY_PRICE))
+                            .DictionariesUsedList(dul => dul
+                                .Add("RWFFld")
+                                .Add("RWFEnum"))))),
             providerEvent.Handle);
     }
 

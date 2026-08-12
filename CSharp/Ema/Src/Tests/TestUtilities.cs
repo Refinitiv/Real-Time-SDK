@@ -7,6 +7,9 @@
  */
 
 using LSEG.Eta.Codec;
+using System;
+using System.Linq;
+using System.Numerics;
 
 namespace LSEG.Ema.Access.Tests;
 
@@ -93,4 +96,20 @@ internal class TestUtilities
     {
         dataDictionary.LoadFieldDictionary("RDMFieldDictionary");
     }
+
+    public static void AssertEqualBy<T, TInner>(T expected, T actual, Func<T, TInner> selector) =>
+        Assert.Equal(selector(expected), selector(actual));
+
+    public static TEnum GetInvalidEnumValue<TEnum, TUnderlyingType>()
+        where TEnum : struct, System.Enum
+        where TUnderlyingType : struct, IAdditionOperators<TUnderlyingType, TUnderlyingType, TUnderlyingType>
+    {
+        var max = System.Enum.GetValues(typeof(TEnum)).Cast<TUnderlyingType>().Max();
+        var one = (TUnderlyingType)Convert.ChangeType(1, typeof(TUnderlyingType));
+        return (TEnum)(object)(max + one);
+    }
+
+    public static TEnum GetInvalidEnumValue<TEnum>()
+        where TEnum : struct, System.Enum
+        => GetInvalidEnumValue<TEnum, int>();
 }

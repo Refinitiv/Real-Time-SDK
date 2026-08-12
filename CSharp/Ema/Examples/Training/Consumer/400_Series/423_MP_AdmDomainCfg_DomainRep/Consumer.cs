@@ -7,6 +7,7 @@
  */
 
 using LSEG.Ema.Access;
+using LSEG.Ema.Domain.Directory;
 using LSEG.Ema.Domain.Login;
 using LSEG.Ema.Rdm;
 using System;
@@ -128,7 +129,7 @@ public class Consumer
                         .AllowSuspectData(true)
                         .UpdateTypeFilter(EmaRdm.RDM_UPDATE_FILTER_TYPE_QUOTE | EmaRdm.RDM_UPDATE_FILTER_TYPE_TRADE | EmaRdm.RDM_UPDATE_FILTER_TYPE_VERIFY)
                         .Message())
-                    .AddAdminMsg(reqMsg.DomainType(EmaRdm.MMT_DIRECTORY).Filter(EmaRdm.SERVICE_INFO_FILTER | EmaRdm.SERVICE_STATE_FILTER | EmaRdm.SERVICE_GROUP_FILTER))
+                    .AddAdminMsg(new DirectoryRequestMsg().Filter(DirectoryFilters.SERVICE_INFO_FILTER | DirectoryFilters.SERVICE_STATE_FILTER | DirectoryFilters.SERVICE_GROUP_FILTER))
                     .AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFFld").ServiceId(1))
                     .AddAdminMsg(reqMsg.Clear().DomainType(EmaRdm.MMT_DICTIONARY).Filter(EmaRdm.DICTIONARY_VERBOSE).Name("RWFEnum").ServiceId(1)));
 
