@@ -46,12 +46,12 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 {
 	private static final String CLIENT_NAME = "DirectoryCallbackClient";
 	
-	private Map<Integer, Directory<T>>					_serviceById;
-	private Map<String, Directory<T>>					_serviceByName;
-	private OmmBaseImpl<T>							_ommBaseImpl;
+	private final Map<Integer, Directory<T>>    _serviceById;
+	private final Map<String, Directory<T>>     _serviceByName;
+	private final OmmBaseImpl<T>                _ommBaseImpl;
 	
 	// This is used only for request routing to fan out source directory aggregation 
-	private List<DirectoryItem<T>>				    _directoryItemList;
+	private final List<DirectoryItem<T>>        _directoryItemList;
 
 	DirectoryCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
@@ -60,10 +60,10 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		_ommBaseImpl = baseImpl;
 		 
 		int initialHashSize =  (int)(_ommBaseImpl.activeConfig().serviceCountHint/ 0.75 + 1);
-		_serviceById = new HashMap<Integer, Directory<T>>(initialHashSize);
-		_serviceByName = new HashMap<String, Directory<T>>(initialHashSize);
+		_serviceById = new HashMap<>(initialHashSize);
+		_serviceByName = new HashMap<>(initialHashSize);
 		
-		_directoryItemList = new ArrayList<DirectoryItem<T>>();
+		_directoryItemList = new ArrayList<>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,7 +128,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
 			        	temp.append("RDMDirectory stream was closed with refresh message ").append(OmmLoggerClient.CR)
-			        		.append("State: ").append(state.toString());
+			        		.append("State: ").append(state);
 	
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
@@ -154,7 +154,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
 			        	temp.append("RDMDirectory stream state was changed to suspect with refresh message ").append(OmmLoggerClient.CR)
-			        		.append("State: ").append(state.toString());
+			        		.append("State: ").append(state);
 	
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
@@ -205,7 +205,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
 			        	temp.append("RDMDirectory stream state was open with refresh message ").append(OmmLoggerClient.CR)
-			        		.append("State: ").append(state.toString());
+			        		.append("State: ").append(state);
 		
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
@@ -235,7 +235,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	{
 				        	StringBuilder temp = _baseImpl.strBuilder();
 				        	temp.append("RDMDirectory stream was closed with status message ").append(OmmLoggerClient.CR)
-				        		.append("State: ").append(state.toString());
+				        		.append("State: ").append(state);
 	
 				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
@@ -248,7 +248,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	{
 				        	StringBuilder temp = _baseImpl.strBuilder();
 				        	temp.append("RDMDirectory stream state was changed to suspect with status message ").append(OmmLoggerClient.CR)
-				        		.append("State: ").append(state.toString());
+				        		.append("State: ").append(state);
 	
 				        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 			        	}
@@ -275,7 +275,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	StringBuilder temp = _baseImpl.strBuilder();
 						
 			        	temp.append("RDMDirectory stream was open with status message ").append(OmmLoggerClient.CR)
-			        		.append("State: ").append(state.toString());
+			        		.append("State: ").append(state);
 	
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
@@ -389,7 +389,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 
 		            Service existService = null;
 		            Directory<T> existDirectory = null;
-		            if (_serviceByName.size() > 0)
+		            if (!_serviceByName.isEmpty())
 		            {
 		            	existDirectory = _serviceByName.get(serviceName);
 		            	existService = existDirectory != null ? existDirectory.service() : null;
@@ -414,7 +414,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            	Service newService = DirectoryMsgFactory.createService();
 		            	oneService.copy(newService);
 		            	
-		            	Directory<T> directory = new Directory<T>(newService); 
+		            	Directory<T> directory = new Directory<>(newService);
 		            	directory.channelInfo(chnlInfo);
 		            	directory.serviceName(serviceName);
 		            	
@@ -433,7 +433,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				{
 					Service existService = null;
 					Directory<T> existDirectory = null; 
-			        if (_serviceById.size() > 0 && _serviceById.containsKey(oneService.serviceId()))
+			        if (!_serviceById.isEmpty() && _serviceById.containsKey(oneService.serviceId()))
 			        {
 			        	existDirectory = _serviceById.get(oneService.serviceId());
 			        	existService = existDirectory.service();
@@ -506,7 +506,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				case MapEntryActions.DELETE :
 				{
 					Service existService = null;
-			        if (_serviceById.size() > 0 && _serviceById.containsKey(oneService.serviceId()))
+			        if (!_serviceById.isEmpty() && _serviceById.containsKey(oneService.serviceId()))
 					{
 						existService = _serviceById.get(oneService.serviceId()).service();
 					}
@@ -562,6 +562,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			case REFRESH:
 				{
 					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), channelInfo.rsslDictionary());
+					if (_refreshMsg.hasServiceId())
+						specifyServiceNameFromId(_refreshMsg, item);
 					_eventImpl._item = item;
 					
 					notifyOnAllMsg(_refreshMsg);
@@ -586,7 +588,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					
 					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
 							channelInfo.rsslDictionary());
-	
+					if (_updateMsg.hasServiceId())
+						specifyServiceNameFromId(_updateMsg, item);
 					_eventImpl._item = item;
 					
 					notifyOnAllMsg(_updateMsg);
@@ -665,7 +668,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				{
 					_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(CLIENT_NAME,
 													"Configured source directory request message contains no filter. Will request all filters",
-													Severity.WARNING).toString());
+													Severity.WARNING));
 				}
 				
 				_ommBaseImpl.activeConfig().rsslDirectoryRequest.filter(
@@ -681,7 +684,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			{
 				_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(CLIENT_NAME, 
 						                  		"Configured source directory request message contains no streaming flag. Will request streaming",
-												Severity.WARNING).toString());
+												Severity.WARNING));
 				
 				_ommBaseImpl.activeConfig().rsslDirectoryRequest.applyStreaming();
 			}
@@ -732,8 +735,36 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	{
 		return _serviceById.get(serviceId);
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	// Relies on the initialized source directory cache to resolve service names from service IDs.
+	private void specifyServiceNameFromId(MsgImpl msgImpl, SingleItem<T> item)
+    {
+        String serviceName = null;
+        int serviceId = msgImpl._rsslMsg.msgKey().serviceId();
+
+        if (item instanceof DirectoryItem)
+        {
+            String itemServiceName = ((DirectoryItem<T>)item).serviceName();
+            if (itemServiceName != null && !itemServiceName.isEmpty())
+                serviceName = itemServiceName;
+        }
+
+        Directory<T> directory = directory(serviceId);
+
+        if (serviceName == null && directory != null)
+            serviceName = directory.serviceName();
+
+        if (serviceName != null)
+        {
+            if (item instanceof DirectoryItem)
+                ((DirectoryItem<T>)item).serviceName(serviceName);
+
+            msgImpl.service(serviceName);
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
 	DirectoryItem<T> directoryItem(ConsumerSession<T> consumerSession, ReqMsg reqMsg, T client, Object closure)
 	{		
 		if(_updateMsg == null)
@@ -742,7 +773,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		DirectoryItem<T> item;
 		if( (item = (DirectoryItem<T>)_ommBaseImpl.objManager()._directoryItemPool.poll()) == null)
 		{
-			item = new DirectoryItem<T>(_ommBaseImpl, client, closure);
+			item = new DirectoryItem<>(_ommBaseImpl, client, closure);
 			_ommBaseImpl.objManager()._directoryItemPool.updatePool(item);
 		}
 		else
