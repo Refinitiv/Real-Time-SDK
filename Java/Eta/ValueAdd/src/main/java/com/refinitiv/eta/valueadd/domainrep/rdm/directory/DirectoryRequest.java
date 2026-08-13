@@ -40,7 +40,7 @@ public interface DirectoryRequest extends DirectoryMsg
      * The RDM Directory request flags. Populated by
      * {@link DirectoryRequestFlags}.
      *
-     * @param flags the flags
+     * @param flags the request flags to set
      */
     public void flags(int flags);
 
@@ -88,7 +88,7 @@ public interface DirectoryRequest extends DirectoryMsg
      * A filter indicating which filters of information the Consumer is
      * interested in. Populated by {@link com.refinitiv.eta.rdm.Directory.ServiceFilterFlags}.
      *
-     * @param filter the filter
+     * @param filter the service filter flags
      */
     public void filter(long filter);
 

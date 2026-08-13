@@ -57,9 +57,11 @@ public interface DataDictionary
      * {@link DataDictionary} to load additional dictionaries (provided the
      * fields do not conflict).
      *
-     * @param filename the filename
-     * @param error the error
-     * @return the int
+     * @param filename the path to the field dictionary file to load
+     * @param error error information, populated in event of failure
+     *
+     * @return {@link CodecReturnCodes#SUCCESS} if successful,
+     *         or a failure code from {@link CodecReturnCodes}
      */
     public int loadFieldDictionary(String filename, Error error);
 
@@ -69,9 +71,11 @@ public interface DataDictionary
      * same {@link DataDictionary} to load additional dictionaries (provided
      * that there are no duplicate table references for any field).
      *
-     * @param filename the filename
-     * @param error the error
-     * @return the int
+     * @param filename the path to the enum type dictionary file to load
+     * @param error error information, populated in event of failure
+     *
+     * @return {@link CodecReturnCodes#SUCCESS} if successful,
+     *         or a failure code from {@link CodecReturnCodes}
      */
     public int loadEnumTypeDictionary(String filename, Error error);
 
@@ -325,7 +329,22 @@ public interface DataDictionary
      */
     public String toString();
 
+    /**
+     * Checks whether an entry exists in the dictionary for the given field name.
+     *
+     * @param fieldName the name of the field to check
+     *
+     * @return true if an entry exists for the field name, false otherwise
+     */
     public boolean hasEntry(String fieldName);
 
+    /**
+     * Returns the entry in the dictionary corresponding to the given field name,
+     * if the entry exists.
+     *
+     * @param fieldName the name of the field to get the dictionary entry for
+     *
+     * @return the dictionary entry if it exists, null otherwise
+     */
     public DictionaryEntry entry(String fieldName);
 }

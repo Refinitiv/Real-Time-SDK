@@ -22,7 +22,7 @@ public interface DirectoryUpdate extends DirectoryMsg
     /**
      * The RDM Directory Update flags.
      *
-     * @param flags the flags
+     * @param flags the update flags to set
      * @see DirectoryUpdateFlags
      */
     public void flags(int flags);
@@ -76,7 +76,7 @@ public interface DirectoryUpdate extends DirectoryMsg
      * 
      * {@link com.refinitiv.eta.rdm.Directory.ServiceFilterFlags}.
      *
-     * @param filter the filter
+     * @param filter the service filter flags
      */
     public void filter(long filter);
 

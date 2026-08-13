@@ -48,10 +48,12 @@ public interface GlobalElementSetDefDb extends ElementSetDefDb
      * Encode Element List set definitions database.
      *
      * @param iter encode iterator
-     * @param currentSetDef the current set def
-     * @param verbosity the verbosity
-     * @param error the error
+     * @param currentSetDef tracks which set definitions have been encoded in case of multi-part encoding
+     * @param verbosity the desired verbosity to encode
+     * @param error error information, populated in event of failure
+     * 
      * @return {@link CodecReturnCodes}
+     * 
      * @see EncodeIterator
      */
     public int encode(EncodeIterator iter, Int currentSetDef, int verbosity, Error error);
@@ -60,7 +62,8 @@ public interface GlobalElementSetDefDb extends ElementSetDefDb
      * Deep copies the given set definition into the database.
      *
      * @param setDef    Set Defininition to be copied in.
-     * @param error the error
+     * @param error error information, populated in event of failure
+     * 
      * @return {@link CodecReturnCodes}
      */
     public int addSetDef(ElementSetDef setDef, Error error);

@@ -36,7 +36,7 @@ public interface MsgBase
     /**
      * Returns the domain type of the RDM message.
      *
-     * @return the int
+     * @return the domain type value
      */
     public int domainType();
 
@@ -53,7 +53,8 @@ public interface MsgBase
      * Decode a ETA message into an RDM message.
      *
      * @param dIter The Decode Iterator
-     * @param msg the msg
+     * @param msg the ETA message to decode from
+     * 
      * @return ETA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);

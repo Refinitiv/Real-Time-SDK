@@ -21,7 +21,7 @@ public interface DictionaryStatus extends DictionaryMsg
     /**
      * The RDM Dictionary status flags. Populated by {@link DictionaryStatusFlags}.
      *
-     * @param flags the flags
+     * @param flags the status flags to set
      */
     public void flags(int flags);
 
@@ -58,7 +58,7 @@ public interface DictionaryStatus extends DictionaryMsg
     /**
      * Sets the state field for the dictionary status message.
      *
-     * @param state the state
+     * @param state the state to set
      */
     public void state(State state);
 

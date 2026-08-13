@@ -23,7 +23,7 @@ public interface DirectoryStatus extends DirectoryMsg
     /**
      * The RDM Directory Status flags.
      *
-     * @param flags the flags
+     * @param flags the status flags to set
      * @see DirectoryStatusFlags
      */
     public void flags(int flags);
@@ -51,7 +51,7 @@ public interface DirectoryStatus extends DirectoryMsg
      * 
      * {@link com.refinitiv.eta.rdm.Directory.ServiceFilterFlags}.
      *
-     * @param filter the filter
+     * @param filter the service filter flags
      */
     public void filter(long filter);
 
@@ -88,7 +88,7 @@ public interface DirectoryStatus extends DirectoryMsg
      * stream(if not present, all services should be provided). Should match the
      * Consumer's request if possible.
      *
-     * @param serviceId the service id
+     * @param serviceId the service identifier
      */
     public void serviceId(int serviceId);
 
@@ -118,7 +118,7 @@ public interface DirectoryStatus extends DirectoryMsg
     /**
      * Sets state for the directory status message.
      *
-     * @param state the state
+     * @param state the current state to set
      */
     public void state(State state);
 

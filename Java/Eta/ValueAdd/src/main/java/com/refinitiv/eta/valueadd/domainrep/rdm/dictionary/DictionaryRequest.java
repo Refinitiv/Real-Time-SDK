@@ -59,7 +59,7 @@ public interface DictionaryRequest extends DictionaryMsg
      * verbosity - The verbosity of information desired. Populated by
      * {@link com.refinitiv.eta.rdm.Dictionary.VerbosityValues}.
      *
-     * @param verbosity the verbosity
+     * @param verbosity the desired verbosity level
      */
     public void verbosity(int verbosity);
     
@@ -87,7 +87,7 @@ public interface DictionaryRequest extends DictionaryMsg
     /**
      * The RDM Dictionary request flags. Populated by {@link DictionaryRequestFlags}.
      *
-     * @param flags the flags
+     * @param flags the request flags to set
      */
     public void flags(int flags);
     

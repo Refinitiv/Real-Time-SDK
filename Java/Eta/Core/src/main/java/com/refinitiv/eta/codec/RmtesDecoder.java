@@ -63,5 +63,20 @@ public interface RmtesDecoder
      */
     public int RMTESApplyToCache(Buffer inBuffer, RmtesCacheBuffer cacheBuffer);
 
+    /**
+     * Converts the given cache to UTF-8 encoded string.
+     *
+     * Typical use:<BR>
+     * 1. Allocate memory for the cache buffer.<BR>
+     * 2. After decoding the payload buffer, call RMTESApplyToCache to copy the
+     * data to the RmtesCacheBuffer.<BR>
+     * 3. Allocate memory for the UTF-8 string.<BR>
+     * 4. Call RMTESToUTF8 to convert the RMTES data for display or parsing.<BR>
+     *
+     * @param rmtesBuffer Buffer used to store decoded RMTES data as UTF-8
+     * @param cacheBuffer Buffer containing encoded RMTES data
+     *
+     * @return {@link CodecReturnCodes}
+     */
     public int RMTESToUTF8(RmtesBuffer rmtesBuffer, RmtesCacheBuffer cacheBuffer);
 }

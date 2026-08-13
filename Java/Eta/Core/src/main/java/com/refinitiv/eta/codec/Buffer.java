@@ -112,7 +112,7 @@ public interface Buffer
      * Buffer's length, into the destBuffer.
      *
      * @param destBuffer A byte[] large enough to hold the contents of this Buffer.
-     * @param destOffset the dest offset
+     * @param destOffset the starting position in the destination buffer where data should be copied
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destBuffer is
      *         null, or {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the

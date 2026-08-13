@@ -100,7 +100,7 @@ public interface DictionaryRefresh extends DictionaryMsg
      * encDictionary - When encoding the message, this points to the dictionary object that is
      * being encoded. When decoding, this is not used.
      *
-     * @param encDictionary the enc dictionary
+     * @param encDictionary the data dictionary object to encode
      */
     public void dictionary(DataDictionary encDictionary);
 
@@ -131,7 +131,7 @@ public interface DictionaryRefresh extends DictionaryMsg
     /**
      * sequenceNumber - The sequence number of this message.
      *
-     * @param sequenceNumber the sequence number
+     * @param sequenceNumber the message sequence number to set
      */
     public void sequenceNumber(long sequenceNumber);
 
@@ -175,7 +175,7 @@ public interface DictionaryRefresh extends DictionaryMsg
     /**
      * Sets the state field for the dictionary refresh message.
      *
-     * @param state the state
+     * @param state the stream state to set
      */
     public void state(State state);
 
