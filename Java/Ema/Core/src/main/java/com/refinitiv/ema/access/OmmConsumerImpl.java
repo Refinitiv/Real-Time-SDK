@@ -711,7 +711,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		if (hasErrorClient()) {
 			_consumerErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
 		} else {
-			if (userLock().isLocked()) {
+			if (userLock().getHoldCount() > 0) {
 				userLock().unlock();
 			}
 			if (_activeConfig.userDispatch != OperationModel.API_DISPATCH) {

@@ -512,7 +512,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				throw exception;
 	    } finally
 	    {
-	    	if (_userLock.isLocked())
+	    	if (_userLock.getHoldCount() > 0)
 	    		_userLock.unlock();
 	    }
 	}
@@ -571,7 +571,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				throw exception;
 		} finally
 		{
-			if (_userLock.isLocked())
+			if (_userLock.getHoldCount() > 0)
 				_userLock.unlock();
 		}
 	}
@@ -1226,7 +1226,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		if (hasErrorClient()) {
 			_ommProviderErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
 		} else {
-			if (userLock().isLocked()) {
+			if (userLock().getHoldCount() > 0) {
 				userLock().unlock();
 			}
 			if (_activeServerConfig.userDispatch != OperationModel.API_DISPATCH) {
@@ -1449,7 +1449,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 										ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
 									}
 									finally{
-										if(_userLock.isLocked())
+										if(_userLock.getHoldCount() > 0)
 										{
 											_userLock.unlock();
 										}
@@ -1474,7 +1474,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 							ret = _rsslReactor != null ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
 						}
 						finally {
-							if(_userLock.isLocked())
+							if(_userLock.getHoldCount() > 0)
 							{
 								_userLock.unlock();
 							}

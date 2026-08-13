@@ -456,7 +456,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				throw exception;
 		} finally
 		{
-			if (_userLock.isLocked())
+			if (_userLock.getHoldCount() > 0)
 				_userLock.unlock();
 		}
 	}
@@ -513,7 +513,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				throw exception;
 		} finally
 		{
-			if (_userLock.isLocked())
+			if (_userLock.getHoldCount() > 0)
 				_userLock.unlock();
 		}
 	}
