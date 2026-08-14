@@ -245,6 +245,8 @@ class RsslSocketChannel extends EtaNode implements Channel
     int _highWaterMark;
     int _totalBytesQueued = 0;
 
+    final static int _writeRetryCount = 100;
+
     // RIPC handshake manager
     IpcProtocolManager _ipcProtocolManager = new IpcProtocolManager();
 
@@ -407,8 +409,21 @@ class RsslSocketChannel extends EtaNode implements Channel
     protected int connectionType = ConnectionTypes.SOCKET;
     protected int initConnectionType = ConnectionTypes.SOCKET;
 
-
     private boolean isWebSocketConnection;
+
+    class WsResponseHelper
+    {
+        int index;
+        int totalBytesRead;
+
+        void clear()
+        {
+            index = 0;
+            totalBytesRead = 0;
+        }
+    }
+
+    WsResponseHelper _wsReadResponseHelper = new WsResponseHelper();
 
     // initialize channel states
     class InitChnlState
@@ -485,6 +500,53 @@ class RsslSocketChannel extends EtaNode implements Channel
     RsslSocketChannel(SocketProtocol transport, Pool channelPool)
     {
         this(transport, channelPool, ConnectionTypes.SOCKET, false);
+    }
+
+    static int singleWriteToSocketChannel(RsslSocketChannel channel, SocketHelper helper, ByteBuffer writeBuffer, Error error, String location)
+    {
+        int retryCount = 0;
+        try
+        {
+            while (retryCount++ < _writeRetryCount && writeBuffer.hasRemaining())
+            {
+                helper.write(writeBuffer);
+            }
+        }
+        catch (Exception e)
+        {
+            if (error != null)
+            {
+                error.channel(channel);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text(location + ": Failed to write client buffer to network: " + e.getLocalizedMessage());
+            }
+            return TransportReturnCodes.FAILURE;
+        }
+
+        if (writeBuffer.hasRemaining())
+        {
+            if (error != null)
+            {
+                error.channel(channel);
+                error.errorId(TransportReturnCodes.FAILURE);
+                error.sysError(0);
+                error.text(location + ": Failed to write the whole client buffer to network.");
+            }
+            return TransportReturnCodes.FAILURE;
+        }
+
+        return TransportReturnCodes.SUCCESS;
+    }
+
+    static int singleWriteToSocketChannel(RsslSocketChannel channel, ByteBuffer writeBuffer, Error error, String location)
+    {
+        return singleWriteToSocketChannel(channel, channel._scktChannel, writeBuffer, error, location);
+    }
+
+    int singleWriteToSocketChannel(ByteBuffer writeBuffer, Error error, String location)
+    {
+        return singleWriteToSocketChannel(this, writeBuffer, error, location);
     }
 
     protected void initializeWebSocketConnection() {
@@ -646,6 +708,10 @@ class RsslSocketChannel extends EtaNode implements Channel
         _port = null;
         _portIntValue = 0;
         _encryptionProtocol = -1;
+        _initChnlReadBuffer.clear();
+        _initChnlWriteBuffer.clear();
+        _initChnlReadClientKeyBuffer.clear();
+        _wsReadResponseHelper.clear();
     }
 
     /* This method is used for dependency injection of the read lock in unit tests
@@ -2959,6 +3025,11 @@ class RsslSocketChannel extends EtaNode implements Channel
     {
         int ret = TransportReturnCodes.SUCCESS;
 
+        _initChnlReadBuffer.clear();
+        _initChnlWriteBuffer.clear();
+        _initChnlReadClientKeyBuffer.clear();
+        _wsReadResponseHelper.clear();
+
         /* if re-connecting, don't block and call channel.init() until channel is active, since this case is a recursive call. */
         boolean blockUntilActive = _initChnlState != InitChnlState.RECONNECTING;
 
@@ -3549,7 +3620,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                     break;
                 case InitChnlState.CLIENT_WAIT_PROXY_ACK:
                     retVal = initChnlWaitProxyAck(inProg, error); // may throw a ProxyAuthenticationException
-                    if(retVal == TransportReturnCodes.FAILURE)
+                    if (retVal == TransportReturnCodes.FAILURE)
                     {
                         _needCloseSocket = true;
                         return TransportReturnCodes.FAILURE;
@@ -3583,6 +3654,11 @@ class RsslSocketChannel extends EtaNode implements Channel
         }
         catch (IOException | ProxyAuthenticationException e)
         {
+            _initChnlReadBuffer.clear();
+            _initChnlWriteBuffer.clear();
+            _initChnlReadClientKeyBuffer.clear();
+            _wsReadResponseHelper.clear();
+
             error.channel(this);
             error.errorId(TransportReturnCodes.FAILURE);
             error.sysError(0);
@@ -3596,6 +3672,11 @@ class RsslSocketChannel extends EtaNode implements Channel
         }
         if ((retVal < TransportReturnCodes.SUCCESS) && (error.errorId() != TransportReturnCodes.SUCCESS))
         {
+            _initChnlReadBuffer.clear();
+            _initChnlWriteBuffer.clear();
+            _initChnlReadClientKeyBuffer.clear();
+            _wsReadResponseHelper.clear();
+
             error.channel(this);
             error.errorId(retVal);
             error.sysError(0);
@@ -3616,20 +3697,75 @@ class RsslSocketChannel extends EtaNode implements Channel
             initChnlRejectSession(error);
             return TransportReturnCodes.FAILURE;
         }
-        _scktChannel.write(_initChnlWriteBuffer);
+
+        if (singleWriteToSocketChannel(_initChnlWriteBuffer, error, "RsslSocketChannel.initChnlSendWebSocketHandshakeRequest") < TransportReturnCodes.SUCCESS)
+        {
+            return error.errorId();
+        }
+
         _initChnlState = InitChnlState.WAIT_WS_RESPONSE_HANDSHAKE;
         return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
     }
 
-    protected int initChnlReadWebSocketHandshakeResponse(InProgInfo inProg, Error error) throws IOException {
-        _initChnlReadBuffer.clear();
-        final int dataLength = getProtocolFunctions().initChnlReadFromChannel(_initChnlReadBuffer, error);
-        if (dataLength < 0) {
+    int readWsResponse(ByteBuffer dst) throws IOException
+    {
+        /*
+            WS Response contains just headers,
+            the end of the message is the sequence 0D 0A 0D 0A
+        */
+
+        int bytesRead = read(dst);
+
+        if (bytesRead > 0)
+        {
+            _wsReadResponseHelper.totalBytesRead += bytesRead;
+            while (_wsReadResponseHelper.index < _wsReadResponseHelper.totalBytesRead)
+            {
+                if (_wsReadResponseHelper.index + 3 < _wsReadResponseHelper.totalBytesRead &&
+                        dst.get(_wsReadResponseHelper.index) == (byte)'\r'
+                        && dst.get(_wsReadResponseHelper.index + 1) == (byte)'\n'
+                        && dst.get(_wsReadResponseHelper.index + 2) == (byte)'\r'
+                        && dst.get(_wsReadResponseHelper.index + 3) == (byte)'\n')
+                {
+                    int totalBytesRead = _wsReadResponseHelper.totalBytesRead;
+                    _wsReadResponseHelper.clear();
+                    return totalBytesRead;
+                }
+                else if (_wsReadResponseHelper.index + 3 >= _wsReadResponseHelper.totalBytesRead)
+                {
+                    break;
+                }
+                _wsReadResponseHelper.index++;
+            }
+        }
+        else if (bytesRead == -1)
+        {
+            // The connection was closed by far end (server). Need to try another protocol.
+            _initChnlState = RsslSocketChannel.InitChnlState.RECONNECTING;
+            return -1;
+        }
+
+        // we don't have a complete message, or no bytes were read.
+        return 0;
+    }
+
+    protected int initChnlReadWebSocketHandshakeResponse(InProgInfo inProg, Error error) throws IOException
+    {
+        final int dataLength = readWsResponse(_initChnlReadBuffer);
+
+        if (dataLength < 0)
+        {
+            _initChnlReadBuffer.clear();
             return TransportReturnCodes.FAILURE;
-        } else if (dataLength == 0) {
+        }
+        else if (dataLength == 0)
+        {
             return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
         }
-        if (webSocketHandler.readResponseHandshake(_initChnlReadBuffer, dataLength, 0, error) < TransportReturnCodes.SUCCESS) {
+
+        if (webSocketHandler.readResponseHandshake(_initChnlReadBuffer, dataLength, 0, error) < TransportReturnCodes.SUCCESS)
+        {
+            _initChnlReadBuffer.clear();
             _totalBytesRead += dataLength;
             initChnlRejectSession(error);
             return TransportReturnCodes.FAILURE;
@@ -3654,7 +3790,14 @@ class RsslSocketChannel extends EtaNode implements Channel
                 returnCode = TransportReturnCodes.FAILURE;
             }
         }
-        _scktChannel.write(_initChnlWriteBuffer);
+
+        if (singleWriteToSocketChannel(_initChnlWriteBuffer, error, "handleWebSocketRequest") < TransportReturnCodes.SUCCESS)
+        {
+            _initChnlReadBuffer.clear();
+            _initChnlWriteBuffer.clear();
+            return error.errorId();
+        }
+
         _initChnlReadBuffer.clear();
         _initChnlWriteBuffer.clear();
         if (returnCode >= TransportReturnCodes.SUCCESS) {
@@ -3739,14 +3882,18 @@ class RsslSocketChannel extends EtaNode implements Channel
                     _compressor.maxCompressionLength(_internalMaxFragmentSize);
                 }
             }
+
             wsProtocolFunctions.initializeBufferAndFrameData();
             _initChnlState = InitChnlState.ACTIVE;
             _state = ChannelState.ACTIVE;
             returnCode = TransportReturnCodes.SUCCESS;
-        } else if (getWsSession().isClient && Objects.equals(Codec.RWF_PROTOCOL_TYPE, _protocolType)) {
+        }
+        else if (getWsSession().isClient && Objects.equals(Codec.RWF_PROTOCOL_TYPE, _protocolType))
+        {
             _initChnlState = InitChnlState.CONNECTING;
             return initChnlSendConnectReq(inProg, error);
         }
+        _initChnlReadBuffer.clear();
 
         return returnCode;
     }
@@ -3804,7 +3951,12 @@ class RsslSocketChannel extends EtaNode implements Channel
         _ipcProtocol.encodeConnectionReq(_initChnlWriteBuffer);
         final ByteBuffer bufferToWrite = getInitChnlBuffer(_initChnlWriteBuffer);
         getProtocolFunctions().prependInitChnlHdr(_initChnlWriteBuffer, bufferToWrite);
-        _scktChannel.write(bufferToWrite);
+
+        if (singleWriteToSocketChannel(bufferToWrite, error, "RsslSocketChannel.initChnlSendConnectReq") < TransportReturnCodes.SUCCESS)
+        {
+            _initChnlReadBuffer.clear();
+            return error.errorId();
+        }
 
         // clear _initChnlBuffer prior to reading.
         _initChnlReadBuffer.clear();
@@ -3948,6 +4100,8 @@ class RsslSocketChannel extends EtaNode implements Channel
                 _readIoBuffer.buffer().put(tempBuf);
             }
 
+            _initChnlReadBuffer.clear();
+
             /* If we are doing Key exchange, send the client ack here */
             if (protocolOptions._keyExchange == true)
             {
@@ -3977,7 +4131,10 @@ class RsslSocketChannel extends EtaNode implements Channel
         ByteBuffer prependedBuffer = getInitChnlBuffer(_initChnlWriteBuffer);
         _protocolFunctions.prependInitChnlHdr(_initChnlWriteBuffer, prependedBuffer);
 
-        _scktChannel.write(prependedBuffer);
+        if (singleWriteToSocketChannel(prependedBuffer, error, "RsslSocketChannel.initChnlSendClientAck") < TransportReturnCodes.SUCCESS)
+        {
+            return TransportReturnCodes.FAILURE;
+        }
 
         _initChnlState = InitChnlState.ACTIVE;
         _state = ChannelState.ACTIVE;
@@ -3997,7 +4154,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         {
             cc = getProtocolFunctions().initChnlReadFromChannelProvider(_initChnlReadBuffer, error);
 
-            if(!isWebSocketConnection && webSocketHandler.recognizeWebSocketHandshake(_initChnlReadBuffer, cc, 0, error))
+            if (!isWebSocketConnection && webSocketHandler.recognizeWebSocketHandshake(_initChnlReadBuffer, cc, 0, error))
             {
                 isWebSocketConnection = true;
                 connectionType = ConnectionTypes.WEBSOCKET;
@@ -4129,7 +4286,9 @@ class RsslSocketChannel extends EtaNode implements Channel
         if (_providerHelper != null && _providerHelper._ripcMsgPending)
         {
             pos = _initChnlReadBuffer.position();
-        } else if (isWebSocketConnection && getWsSession().isHandshakeFinished()) {
+        }
+        else if (isWebSocketConnection && getWsSession().isHandshakeFinished())
+        {
             pos = getWsSession().wsFrameHdr.payloadIndex;
         }
 
@@ -4315,7 +4474,11 @@ class RsslSocketChannel extends EtaNode implements Channel
                 _ipcProtocol.encodeConnectionAck(_initChnlWriteBuffer, error);
                 ByteBuffer prependedBuffer = getInitChnlBuffer(_initChnlWriteBuffer);
                 _protocolFunctions.prependInitChnlHdr(_initChnlWriteBuffer, prependedBuffer);
-                _scktChannel.write(prependedBuffer);
+
+                if (singleWriteToSocketChannel(prependedBuffer, error, "RsslSocketChannel.initChnlFinishSess") < TransportReturnCodes.SUCCESS)
+                {
+                    return error.errorId();
+                }
             }
 
             /* If we don't have to wait for the key to come back to us, we are active */
@@ -4340,7 +4503,12 @@ class RsslSocketChannel extends EtaNode implements Channel
         final ByteBuffer bufferToWrite = Objects.equals(ConnectionTypes.WEBSOCKET, connectionType)
                 ? _initChnlWriteBuffer
                 : _ipcProtocol.encodeConnectionNak(_initChnlWriteBuffer);
-        _scktChannel.write(bufferToWrite);
+
+        if (singleWriteToSocketChannel(bufferToWrite, error, "RsslSocketChannel.initChnlRejectSession") < TransportReturnCodes.SUCCESS)
+        {
+            return error.errorId();
+        }
+
         error.channel(this);
         error.errorId(TransportReturnCodes.FAILURE);
         error.sysError(0);
@@ -4596,8 +4764,16 @@ class RsslSocketChannel extends EtaNode implements Channel
         String connectRequest = buildHttpConnectRequest();
         if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
             System.out.println(connectRequest);
+
         /* Perform a direct write here, because we will not have any encryption setup at this point */
-        _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+        ByteBuffer writeBuf = ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING));
+        int retryCount = 0;
+        while (retryCount++ < _writeRetryCount && writeBuf.hasRemaining())
+        {
+            _scktChannel._socket.write(writeBuf);
+        }
+
+        if (writeBuf.hasRemaining()) return TransportReturnCodes.FAILURE;
 
         _initChnlState = InitChnlState.CLIENT_WAIT_PROXY_ACK;
 
@@ -4669,9 +4845,10 @@ class RsslSocketChannel extends EtaNode implements Channel
 
         _totalBytesRead += cc;
 
-        // do authentication handling
-        readHttpConnectResponse(_initChnlReadBuffer, inProg, error);
-        _initChnlReadBuffer.clear();
+        readHttpConnectResponse(_initChnlReadBuffer, inProg, error); // this method checks whether we've reached the end of the message
+        _initChnlReadBuffer.clear(); // the contents of the buffer already appended to internal object, buffer can be cleared
+
+        if (error.errorId() == TransportReturnCodes.FAILURE) return TransportReturnCodes.FAILURE;
 
         return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
     }
@@ -4749,7 +4926,19 @@ class RsslSocketChannel extends EtaNode implements Channel
                         if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                             System.out.println(connectRequest);
                         /* Write directly to the socket instead of the channel to avoid encryption */
-                        _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+                        int retryCount = 0;
+                        ByteBuffer writeBuffer = ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING));
+                        while (retryCount++ < _writeRetryCount && writeBuffer.hasRemaining())
+                        {
+                            _scktChannel._socket.write(writeBuffer);
+                        }
+                        if (writeBuffer.hasRemaining())
+                        {
+                            error.channel(this);
+                            error.errorId(TransportReturnCodes.FAILURE);
+                            error.sysError(0);
+                            error.text("RsslSocketChannel.readHttpConnectResponse: Failed to write buffer to network.");
+                        }
                     }
                 }
 
@@ -4775,7 +4964,8 @@ class RsslSocketChannel extends EtaNode implements Channel
     /* Read a response from the Proxy Server into BytBuffer dst. */
     protected int initProxyChnlReadFromChannel(ByteBuffer dst, Error error) throws IOException
     {
-        dst.clear(); // needed for recovery through a proxy
+        // needed for recovery through a proxy
+
         /* Proxy interactions are not encrypted, so we will just do a direct read on the _socket */
         int bytesRead = _scktChannel._socket.read(dst);
         // System.out.println("RsslHttpSocketChannel::initProxyChnlReadFromChannel(ByteBuffer dst, Error error)    bytesRead=="+bytesRead);
@@ -4783,16 +4973,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         if (bytesRead > 0)
         {
             // note that we could cache the msgLen, but normally we should be reading an entire ConnectAck/ConnectNak here.
-
-            if (dst.position() > 2)
-            {
-                int messageLength = (dst.getShort(0) & 0xFF);
-                if (dst.position() >= messageLength)
-                {
-                    // we have at least one complete message
-                    return dst.position();
-                }
-            }
+            return dst.position();
         }
         else if (bytesRead == -1)
         {

@@ -89,7 +89,8 @@ class RipcProtocolFunctions implements ProtocolFunctions
 		}
 
 		if (bytesRead > 0) {
-			if (dst.position() > (rsslSocketChannel.HTTP_HEADER4 + 2)) {
+			if (dst.position() > (rsslSocketChannel.HTTP_HEADER4 + 2))
+			{
 				if (rsslSocketChannel.checkIsProviderHTTP(dst)) {
 					rsslSocketChannel._isProviderHTTP = true;
 				}
@@ -103,7 +104,9 @@ class RipcProtocolFunctions implements ProtocolFunctions
 				} else {
 					return dst.position();
 				}
-			} else {
+			}
+			else
+			{
 				if (RsslHttpSocketChannelProvider.debugPrint)
 					System.out.println("bufferPos = " + dst.position());
 			}

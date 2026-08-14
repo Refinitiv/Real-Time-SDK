@@ -260,19 +260,26 @@ class WSProtocolFunctions implements ProtocolFunctions {
 	@Override
 	public int initChnlReadFromChannel(ByteBuffer dest, Error error) throws IOException {
 		int bytesRead = _rsslSocketChannel.read(dest);
-		if (bytesRead > 0) {
+		if (bytesRead > 0)
+		{
 			final WebSocketFrameHdr frameHdr = _webSocketSession.wsFrameHdr;
 			frameHdr.clear();
 			//TODO continue parse
-			boolean partitialFrame = WebSocketFrameParser.decode(_webSocketSession.wsFrameHdr, dest, 0, dest.position());
-			if (!partitialFrame && _webSocketSession.wsFrameHdr.maskSet) {
+			boolean partialFrame = WebSocketFrameParser.decode(_webSocketSession.wsFrameHdr, dest, 0, dest.position());
+			int totalBytesRead = dest.position();
+			if (!partialFrame && _webSocketSession.wsFrameHdr.maskSet) {
 				WebSocketFrameParser.setMaskKey(maskArray, frameHdr.maskVal);
 
 				/* Unmask the payload data */
 				dest.position(_webSocketSession.wsFrameHdr.hdrLen);
 				WebSocketFrameParser.maskDataBlock(maskArray, dest, dest.position(), (int) frameHdr.payloadLen);
+				return totalBytesRead;
 			}
-			return bytesRead;
+			else
+			{
+				return partialFrame ? 0 : totalBytesRead;
+			}
+
 		}
 		return bytesRead;
 	}
@@ -305,7 +312,9 @@ class WSProtocolFunctions implements ProtocolFunctions {
 				WebSocketFrameParser.maskDataBlock(maskArray, dest, dest.position(), dataLength);
 			}
 			return bytesRead;
-		} else if (bytesRead == -1) {
+		}
+		else if (bytesRead == -1)
+		{
 			_rsslSocketChannel._initChnlState = RsslSocketChannel.InitChnlState.RECONNECTING;
 			return -1;
 		}
