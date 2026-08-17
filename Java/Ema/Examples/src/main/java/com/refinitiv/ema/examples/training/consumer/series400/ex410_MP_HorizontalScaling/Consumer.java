@@ -28,6 +28,7 @@ import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.OmmConsumer;
 import com.refinitiv.ema.access.OmmConsumerClient;
 import com.refinitiv.ema.access.OmmConsumerEvent;
+import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
 import com.refinitiv.ema.access.OmmException;
 
 
@@ -120,6 +121,8 @@ class AppClient implements OmmConsumerClient
 
 class ConsumerInstance implements Runnable
 {
+	private static final long RUN_TIME_MS = 60000;
+
 	AppClient _appClient;
 	OmmConsumer _consumer;
 	ReqMsg _reqMsg;
@@ -130,7 +133,9 @@ class ConsumerInstance implements Runnable
 		_appClient = new AppClient();
 		_reqMsg = EmaFactory.createReqMsg();
 		
-		_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host(host).username(username));
+		_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig()
+                .operationModel(OperationModel.USER_DISPATCH)
+                .host(host).username(username));
 		
 		_executor = Executors.newSingleThreadExecutor();
 		
@@ -143,22 +148,30 @@ class ConsumerInstance implements Runnable
 		
 		_consumer.registerClient(_reqMsg, _appClient);
 	}
+
+	public void awaitCompletion() throws InterruptedException
+	{
+		_executor.awaitTermination(RUN_TIME_MS + 5000, TimeUnit.MILLISECONDS);
+	}
 	
 	public void run()
 	{
+		long endTime = System.currentTimeMillis() + RUN_TIME_MS;
 		try
 		{
-			Thread.sleep(60000);
-
-			_executor.shutdown();
-			_consumer.uninitialize();
-			_executor.awaitTermination(5, TimeUnit.SECONDS);
+			while (System.currentTimeMillis() < endTime)
+				_consumer.dispatch(10); // calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
 		}
-		catch (InterruptedException excp)
+		catch (OmmException excp)
 		{
 			System.out.println(excp.getMessage());
-		}	
-	}	
+		}
+		finally
+		{
+			_consumer.uninitialize();
+			_executor.shutdown();
+		}
+	}
 }
 
 public class Consumer 
@@ -172,8 +185,9 @@ public class Consumer
 			
 			consumer1.openItem("IBM.N", "DIRECT_FEED");
 			consumer2.openItem("TRI.N",  "DIRECT_FEED");
-			
-			Thread.sleep(60000);
+
+			consumer1.awaitCompletion();
+			consumer2.awaitCompletion();
 		}
 		catch (InterruptedException | OmmException excp)
 		{

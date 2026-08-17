@@ -8,9 +8,9 @@
 
 using LSEG.Ema.Access;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using static LSEG.Ema.Access.DataType;
+using static LSEG.Ema.Access.OmmConsumerConfig;
 
 namespace LSEG.Ema.Example.Traning.Consumer;
 
@@ -116,13 +116,20 @@ internal class ConsumerInstance
     {
         _appClient = new();
         _reqMsg = new();
-        _consumer = new(new OmmConsumerConfig().Host(host).UserName(username));
+        _consumer = new(new OmmConsumerConfig().OperationModel(OperationModelMode.USER_DISPATCH).Host(host).UserName(username));
     }
 
     public void OpenItem(string item, string serviceName)
     {
         _reqMsg.Clear().Name(item).ServiceName(serviceName);
         _consumer.RegisterClient(_reqMsg, _appClient);
+    }
+
+    public void DispatchFor(int durationInMs)
+    {
+        var endTime = DateTime.Now + TimeSpan.FromMilliseconds(durationInMs);
+        while (DateTime.Now < endTime)
+            _consumer.Dispatch(10);
     }
 
     public void Uninitialize() => _consumer.Uninitialize();
@@ -140,7 +147,7 @@ public class Consumer
                 {
                     instance = new("localhost:14002", "user1");
                     instance.OpenItem("IBM.N", "DIRECT_FEED");
-                    Thread.Sleep(60000);
+                    instance.DispatchFor(60000);
                 }
                 catch (OmmException ex)
                 {
@@ -158,8 +165,7 @@ public class Consumer
                 {
                     instance = new("localhost:14002", "user2");
                     instance.OpenItem("TRI.N", "DIRECT_FEED");
-                    Thread.Sleep(60000);
-                    instance.Uninitialize();
+                    instance.DispatchFor(60000);
                 }
                 catch (OmmException ex)
                 {
