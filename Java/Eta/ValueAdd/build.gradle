@@ -147,13 +147,13 @@ eclipse.classpath.file.whenMerged {
 }
 
 dependencies {
-    api group: 'org.json', name: 'json', version: '20251224'
+    api group: 'org.json', name: 'json', version: '20260719'
     api group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.2'
-    implementation('org.apache.httpcomponents.client5:httpclient5:5.6') {
+    implementation('org.apache.httpcomponents.client5:httpclient5:5.6.4') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
-    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.17'
-    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.17'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.18'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.18'
 	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.6'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
