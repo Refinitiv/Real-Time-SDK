@@ -358,15 +358,15 @@ public class WatchlistConsumer : IConsumerCallback
 
         mergedPreferredHostOptions.EnablePreferredHostOptions = m_WatchlistConsumerConfig.IoctlEnablePH
             ?? m_WatchlistConsumerConfig.Config?.PreferredHost?.EnablePH 
-            ?? m_WatchlistConsumerConfig.IoctlConnectListIndex.HasValue || m_WatchlistConsumerConfig?.IoctlDetectionTimeSchedule is not null;
+            ?? m_WatchlistConsumerConfig.IoctlConnectListIndex.HasValue || m_WatchlistConsumerConfig.IoctlDetectionTimeSchedule is not null;
 
-        mergedPreferredHostOptions.ConnectionListIndex = m_WatchlistConsumerConfig?.IoctlConnectListIndex
+        mergedPreferredHostOptions.ConnectionListIndex = m_WatchlistConsumerConfig.IoctlConnectListIndex
             ?? jsonPreferredHostOptions?.ConnectListIndex ?? 0;
 
-        mergedPreferredHostOptions.DetectionTimeInterval = (uint)(m_WatchlistConsumerConfig?.IoctlDetectionTimeInterval
+        mergedPreferredHostOptions.DetectionTimeInterval = (uint)(m_WatchlistConsumerConfig.IoctlDetectionTimeInterval
             ?? jsonPreferredHostOptions?.DetectionTimeInterval ?? 0);
 
-        mergedPreferredHostOptions.DetectionTimeSchedule = m_WatchlistConsumerConfig?.IoctlDetectionTimeSchedule
+        mergedPreferredHostOptions.DetectionTimeSchedule = m_WatchlistConsumerConfig.IoctlDetectionTimeSchedule
             ?? jsonPreferredHostOptions?.DetectionTimeSchedule ?? string.Empty;
 
         if (reactorChannel.IOCtl(ReactorChannelIOCtlCode.PREFERRED_HOST_OPTIONS, mergedPreferredHostOptions, out var errorInfo) != ReactorReturnCode.SUCCESS)

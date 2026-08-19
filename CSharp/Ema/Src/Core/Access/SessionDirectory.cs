@@ -108,7 +108,7 @@ namespace LSEG.Ema.Access
                     }
 
                     singleItem = m_TempRemoveSingleItems.Count > 0 ? m_TempRemoveSingleItems.Dequeue() : null;
-                    while (singleItem != null && hashSet != null)
+                    while (singleItem != null)
                     {
                         /* Removes the SingleItem from the recovery queue */
                         hashSet.Remove(singleItem);
@@ -295,7 +295,7 @@ namespace LSEG.Ema.Access
                     } // End while loop
 
                     singleItem =  m_TempRemoveSingleItems.Count > 0 ? m_TempRemoveSingleItems.Dequeue() : null;
-                    while(singleItem != null && hashSet != null)
+                    while(singleItem != null)
                     {
                         /* Removes the SingleItem from the recovery queue */
                         hashSet.Remove(singleItem);

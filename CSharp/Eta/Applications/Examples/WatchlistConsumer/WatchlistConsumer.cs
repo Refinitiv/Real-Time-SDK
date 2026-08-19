@@ -1187,8 +1187,8 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
                 if (info.LocationList.Count >= 2 && m_WatchlistConsumerConfig.Location != null &&
                         info.LocationList[0].StartsWith(m_WatchlistConsumerConfig.Location)) // Get an endpoint that provides auto failover for the specified location
                 {
-                    endPoint = info?.EndPoint;
-                    port = info?.Port;
+                    endPoint = info.EndPoint;
+                    port = info.Port;
                     break;
                 }
                 // Try to get backups and keep looking for main case. Keep only the first item met.
@@ -1606,7 +1606,7 @@ public class WatchlistConsumer : IConsumerCallback, IReactorServiceEndpointEvent
 
             if (m_Reactor!.QueryServiceDiscovery(m_ReactorServiceDiscoveryOptions, out var errorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Error: {errorInfo?.Code} Text: " + errorInfo!.Error.Text);
+                Console.WriteLine($"Error: {errorInfo?.Code} Text: {errorInfo?.Error?.Text}");
                 return;
             }
         }

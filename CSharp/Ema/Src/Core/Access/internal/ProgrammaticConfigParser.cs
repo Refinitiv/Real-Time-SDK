@@ -1782,7 +1782,7 @@ namespace LSEG.Ema.Access
                                         {
                                             throw new OmmInvalidConfigurationException("Invalid entry payload type for Server element CipherSuite. This element entry must contain an ASCII string and cannot be blank");
                                         }
-                                        tmpConfig.BindOptions.BindEncryptionOpts.TlsCipherSuites = ServerConfig.StringToCipherList(serverEntry.OmmAsciiValue().ToString(), errorList!);
+                                        tmpConfig.BindOptions.BindEncryptionOpts.TlsCipherSuites = ServerConfig.StringToCipherList(serverEntry.OmmAsciiValue().ToString(), errorList);
                                         break;
                                     // AuthenticationTimeout uint
                                     case "AuthenticationTimeout":

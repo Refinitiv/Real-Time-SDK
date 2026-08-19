@@ -87,6 +87,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     m_ClientHandler.AutomaticDecompression = System.Net.DecompressionMethods.All;
                     m_ClientHandler.AllowAutoRedirect = false;
                     m_ClientHandler.Proxy = proxy;
+                    m_ClientHandler.CheckCertificateRevocationList = true;
                     httpClient = new HttpClient(m_ClientHandler);
 
                     httpClient.Timeout = TimeSpan.FromMilliseconds(m_Reactor.m_ReactorOptions.GetRestRequestTimeout());

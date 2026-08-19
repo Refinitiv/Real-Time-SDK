@@ -176,7 +176,12 @@ namespace LSEG.Ema.Access
             if (!m_containerInitialized)
             {
                 Encoder? encoder = summary.Encoder;
-                if (encoder != null && encoder.m_encodeIterator != null && encoder.OwnsIterator())
+                if (encoder == null)
+                {
+                    throw new OmmInvalidUsageException("Attempt to set SummaryData() with a ComplexType while its Encoder is null.",
+                        OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+                }
+                if (encoder.m_encodeIterator != null && encoder.OwnsIterator())
                 {
                     if (!encoder.IsComplete)
                         throw new OmmInvalidUsageException("Attempt to set SummaryData() with a ComplexType while Complete() was not called on this ComplexType.",
@@ -260,7 +265,13 @@ namespace LSEG.Ema.Access
 
             if (dataType != DataType.DataTypes.MSG)
             {
-                if (encoder != null && encoder.m_encodeIterator != null && encoder.OwnsIterator())
+                if (encoder == null)
+                {
+                    throw new OmmInvalidUsageException("Attempt to add a ComplexType while its Encoder is null.",
+                            OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+                }
+
+                if (encoder.m_encodeIterator != null && encoder.OwnsIterator())
                 {
                     if (!encoder.IsComplete)
                         throw new OmmInvalidUsageException("Attempt to add a ComplexType while Complete() was not called on this ComplexType.",

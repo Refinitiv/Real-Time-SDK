@@ -461,7 +461,7 @@ namespace LSEG.Ema.Access
 
                     decodeIter = new DecodeIterator();
 
-                    decodeIter.SetBufferAndRWFVersion(requestMsg.m_requestMsgEncoder?.m_encodeIterator?.Buffer(), Codec.MajorVersion(), Codec.MinorVersion());
+                    decodeIter.SetBufferAndRWFVersion(requestMsg.m_requestMsgEncoder!.m_encodeIterator!.Buffer(), Codec.MajorVersion(), Codec.MinorVersion());
 
                     msg = new Eta.Codec.Msg();
 

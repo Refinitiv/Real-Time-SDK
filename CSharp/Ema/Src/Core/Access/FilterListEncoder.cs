@@ -168,7 +168,12 @@ namespace LSEG.Ema.Access
 
             if (dataType != DataTypes.MSG)
             {
-                if (encoder != null && encoder.m_encodeIterator != null && encoder.OwnsIterator())
+                if (encoder == null)
+                {
+                    throw new OmmInvalidUsageException("Attempt to Add() a ComplexType while its Encoder is null.",
+                        OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
+                }
+                if (encoder.m_encodeIterator != null && encoder.OwnsIterator())
                 {
                     if (!encoder.IsComplete)
                         throw new OmmInvalidUsageException("Attempt to Add() a ComplexType while Complete() was not called on this ComplexType.",

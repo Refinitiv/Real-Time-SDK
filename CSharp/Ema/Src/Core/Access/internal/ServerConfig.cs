@@ -85,7 +85,7 @@ namespace LSEG.Ema.Access
         }
 
         // This method converts a comma separated string of either cipher names or numbers into a List of TlsCipherSuite enums. 
-        static internal List<TlsCipherSuite> StringToCipherList(string cipherString, ConfigErrorList error)
+        static internal List<TlsCipherSuite> StringToCipherList(string cipherString, ConfigErrorList? error)
         {
             List<TlsCipherSuite> cipherList = new List<TlsCipherSuite>();
 
@@ -101,7 +101,7 @@ namespace LSEG.Ema.Access
                 }
                 else
                 {
-                    error.Add($"Unknown cipher suite string: {cipher.Trim()}", LoggerLevel.ERROR);
+                    error?.Add($"Unknown cipher suite string: {cipher.Trim()}", LoggerLevel.ERROR);
                 }
             }
 
