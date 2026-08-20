@@ -72,9 +72,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.10.0.1.jar         ema3.10.0.L2
+    ema-3.10.0.2.jar         ema3.10.0.G1
 
-    NOTE: ema-3.10.0.1-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
+    NOTE: ema-3.10.0.2-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
 
 # EMA Java Issues and Workarounds
  
@@ -107,7 +107,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.73_RealTimeDistributionSystem_26.61 for RWF and Marketfeed Record Templates
 
 # Security
 
