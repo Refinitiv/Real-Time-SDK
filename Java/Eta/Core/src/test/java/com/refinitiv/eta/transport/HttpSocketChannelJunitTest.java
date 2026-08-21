@@ -210,7 +210,89 @@ public class HttpSocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }  
+    }
+
+    /*
+     * GIVEN a file containing a single, complete message,
+     * WHEN we invoke RsslHttpSocketChannel.read(ByteBuffer)
+     * and then invoke it again
+     * THEN the first call to read returns the expected message
+     * AND the first call to read returns exactly SUCCESS
+     * AND the second call to return returns null
+     * AND the second call to read returns WOULD_BLOCK
+     */
+    @Test
+    public void multipleReadsForInitAndSingleCompleteMessage()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/020http_single_complete_message.txt";
+            final String inputFile = BASE_TEST_DATA_DIR_NAME + "/020http_httpOk_in_parts_and_complete_message_" + i + ".txt";
+
+            System.out.println("Iteration " + i + ": using input file " + inputFile);
+            NetworkReplay replay = null;
+
+            try
+            {
+                initTransport(false); // initialize RSSL
+
+                // the messages we expect from calls to RsslHttpSocketChannel.read() (does not include RIPC headers)
+                final byte[][] expectedMessages = parseExpectedMessages(expectedFile);
+
+
+                // load the messages to replay
+                replay = parseReplayFile(inputFile);
+
+                replay.startListener(DEFAULT_LISTEN_PORT);
+
+                // allocate a channel that reads from our NetworkReplay
+                RsslSocketChannel consumerChannel = createReplayHttpSocketChannel(replay);
+
+                connectChannel(consumerChannel, DEFAULT_LISTEN_PORT); // connect to the NetworkReplay
+                waitForChannelActive(consumerChannel); // wait for the channel to become active
+
+                // initialize variables required for reading from a channel
+                final ReadArgs readArgs = TransportFactory.createReadArgs();
+                final Error error = TransportFactory.createError();
+                TransportBuffer msgBuf = null;
+
+                // read from the channel
+                assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
+                assertEquals(TransportReturnCodes.SUCCESS + (HTTP_HEADER6 + CHUNKEND_SIZE), readArgs.readRetVal());
+
+                assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
+
+                final byte[] msg = getBytesFromBuffer(msgBuf);
+                printMessage(msg, consumerChannel);
+                assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
+
+                /*
+                 * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
+                 * Expected file does not contain the Transport headers, so add it
+                 * back on for the comparison.
+                 */
+                assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER + HTTP_HEADER6 + CHUNKEND_SIZE, readArgs.bytesRead());
+                assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER + HTTP_HEADER6 + CHUNKEND_SIZE, readArgs.uncompressedBytesRead());
+
+                readArgs.clear();
+                assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
+                assertTrue(readArgs.readRetVal() == TransportReturnCodes.READ_WOULD_BLOCK); // no more data
+            }
+            catch (IOException e)
+            {
+                fail(e.getLocalizedMessage());
+            }
+            finally
+            {
+                if (replay != null)
+                {
+                    replay.stopListener();
+                }
+
+                assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+            }
+        }
+    }
 
     /*
      * GIVEN a newly-connected socket channel 

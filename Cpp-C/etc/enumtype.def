@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.72
-!tag Build_RDMD  4.20.72
-!tag DT_Version  26.31
-!tag Date        20-Apr-2026
+!tag RT_Version  4.20.73
+!tag Build_RDMD  4.20.73
+!tag DT_Version  26.61
+!tag Date        3-Aug-2026
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -31,7 +31,7 @@ RDN_EXCHID     4
       0        "   "   undefined
       1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
-      3        "BOS"   Boston Stock Exchange
+      3        "BOS"   Nasdaq Texas, LLC
       4        "CIN"   NYSE National Exchange (formerly National Stock Exchange)
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
@@ -7085,6 +7085,7 @@ CLR_CTRY   13580
    2004        "EUT"   EU-25
    2005        "EUF"   EU-15
    2006        "WOL"   World
+   2007        "EUN"   European Union
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7146,7 +7147,7 @@ ODD_B_EXID 13647
       0        "   "   undefined
       1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
-      3        "BOS"   Boston Stock Exchange
+      3        "BOS"   Nasdaq Texas, LLC
       4        "CIN"   NYSE National Exchange (formerly National Stock Exchange)
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
@@ -7695,7 +7696,7 @@ ODD_B_EXID 13647
     549        "ADC"   NASD Alternative Display Facility for NYSE/AMEX Issues
     550        "IMQ"   US Intermarket Level 2
     551        "LCA"   NYSE American when trading NASDAQ Global Market
-    552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
+    552        "LCB"   Nasdaq Texas for Nasdaq Large Cap
     553        "LCC"   NYSE National Exchange for Nasdaq Large Cap
     554        "LCM"   NYSE Texas When Trading Nasdaq Global Market
     555        "LCN"   New York Stock Exchange for Nasdaq Large Cap
@@ -7705,7 +7706,7 @@ ODD_B_EXID 13647
     559        "NAQ"   Nasdaq Stock Exchange Consolidated Capital Market
     560        "NMQ"   NASDAQ Stock Market Exchange Consolidated Large Cap
     561        "SCA"   NYSE American when trading NASDAQ Global Market
-    562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
+    562        "SCB"   Nasdaq Texas for Nasdaq Capital Market
     563        "SCC"   NYSE National Exchange for Nasdaq Capital Market
     564        "SCM"   NYSE Texas When Trading Nasdaq Capital Market
     565        "SCN"   New York Stock Exchange for Nasdaq Capital Market
@@ -7792,7 +7793,7 @@ ODD_B_EXID 13647
     646        "NSQ"   Consolidated Issue Listed on Nasdaq Global Select Market
     647        "GSN"   NYSE when trading Nasdaq Global Select Market
     648        "GSA"   NYSE American when trading NASDAQ Global Select Market
-    649        "GSB"   Boston SE when trading Nasdaq Global Select Market
+    649        "GSB"   Nasdaq Texas when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
     651        "GSM"   NYSE Texas When Trading Nasdaq Global Select Market
     652        "GSC"   NYSE National Exchange when trading Nasdaq Global Select Market
@@ -8977,6 +8978,14 @@ ODD_B_EXID 13647
    1831        "MLL"   MX2 LLC
    1832        "GMP"   Glimpse Markets Ltd
    1833        "ABE"   Abaxx Exchange Pte Ltd
+   1834        "BBG"   Bloomberg Indices
+   1835        "IIX"   ICE Data Indices
+   1836        "SNX"   StoneX Group Inc.
+   1837        "CXA"   CIX Trading - ASPEN
+   1838        "CXV"   CIX Trading - ASPEN VERT
+   1839        "CXM"   CIX Trading - ASPEN MIDPOINT
+   1840        "GNA"   GRANARIA S.A.
+   1841        "LPM"   Limpid Markets Ltd
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12441,6 +12450,7 @@ SEVER_LVL   5696
       1      "High "   High Level of Severity
       2      "Med  "   Medium Level of Severity
       3      "Low  "   Low Level of Severity
+      4      "Sever"   Severe Level of Severity
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12688,6 +12698,7 @@ SPS_FD_STS  6474
       7       "UDPS"   Some UDP Channel pairs down
       8       "UDPD"   All UDP Channel pairs down
       9       "UNMO"   Unmonitored
+     10       "RCNK"   TCP recovery Not OK
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13022,6 +13033,7 @@ OFFBK_H_RN 14142
      81         "EC"   ETF Component Prices Not Available (Regulatory)
      82         "NE"   New Security Offering (Regulatory)
      83         "SF"   System Failover
+     84         "EM"   Exceptional Market Condition
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13157,6 +13169,10 @@ UNDLY_TYPE  8925
      45     "CusIdx"   Customized Index
      46     "Versus"   Underlying / Reference asset price derived from more than one securities
      47     "FOPT  "   Flex Option(s)
+     48     "DepRec"   Depositary Receipt
+     49     "Div   "   Dividend
+     50     "Credit"   Credit
+     51     "Wrnt  "   Warrant
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13361,6 +13377,8 @@ LIMIT_INDQ  8937
      37        "SUS"   Suspended during trading halt or trading pause
      38        "RPN"   Re-opening Update
      39        "OPB"   Outside price band rules
+     40        "EOI"   Extended Operational Hours - Initial/Update Value
+     41        "EOZ"   Extended Operational Hours - Zeroing Value
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13589,6 +13607,7 @@ REFPRC_TP4 13491
      72   "NEG IMB "   Negative Imbalance Price
      73   "PJ CLSPR"   Projected Closing Price
      74   "UTRDPRC "   Last traded price of the underlying asset.
+     75   "IND CLPR"   Indicative Closing Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15393,6 +15412,16 @@ SENIOR_CD   9014
      17   "   UN   "   Unsecured
      18   "1STLIEN "   First Lien
      19   "2NDLIEN "   Second Lien
+     20   "MEZZSEC "   Mezzanine Secured
+     21   "PREF1   "   Preferred Tier 1
+     22   "SRPREF  "   Senior Preferred
+     23   "SRNONPR "   Senior Non-Preferred
+     24   "SRSEC   "   Senior Secured
+     25   "SRSUPSEC"   Super Senior Secured
+     26   "JRSEC2  "   Junior Secured
+     27   "JR      "   Junior Unsecured
+     28   "JRSUBSEC"   Junior Subordinated Secured
+     29   "JRSUB2  "   Junior Subordinated Unsecured
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17249,6 +17278,8 @@ BOND_GRCAT 12965
       3   "GOVT    "   Government
       4   "HYLD    "   High Yield
       5   "INVG    "   Investment Grade
+      6   "SPLT    "   Split
+      7   "UNRT    "   Unrated
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17489,6 +17520,7 @@ ROUTE_INDX 12977
     133   "TD30    "   15K Dirty - UK (Immingham) to ARA
     134   "TD31    "   15K Dirty - Port Jerome to ARA
     135   "TD33    "   Dirty 145k US Gulf to ARA
+    136   "TD34    "   270K Gulf of Oman to China
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18725,8 +18757,39 @@ LEVG_IND   13130
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET430 13131
-PRE_1ET431 13132
+MRKLIQ_FLG 13131
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   Is most relevant
+      2   "N       "   Is not most relevant
+!
+! ACRONYM    FID
+! -------    ---
+!
+PAYF_DIR   13132
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "R       "   Rising prices
+      2   "F       "   Falling prices
+!
+! ACRONYM    FID
+! -------    ---
+!
+SECMK_ELGB 13133
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   Eligible for trading on Secondary Market
+      2   "N       "   Not eligible for trading on Secondary Market
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET433 13134
 PRE_1ET434 13135
 PRE_1ET435 13136
@@ -19001,17 +19064,6 @@ PRE_1ET700 13401
       0   "        "   Undefined
       1   "N       "   Anonymous-Setting Disabled
       2   "Y       "   Anonymous-Setting Enabled
-!
-! ACRONYM    FID
-! -------    ---
-!
-SECMK_ELGB 13133
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
-      1   "Y       "   Eligible for trading on Secondary Market
-      2   "N       "   Not eligible for trading on Secondary Market
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19435,6 +19487,7 @@ MET_TYP26  13638
     283   "YCT_YTM "   Yield curve tenor yield to maturity
     284   "UPTK VAL"   Uptick Value
     285   "UPTK VOL"   Uptick Volume
+    286   "FUT VAL "   Future Value
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20016,6 +20069,7 @@ CNTR_SZ_UT 13611
     450      "C/dmt"   kg CO2 equivalent/dmt
     451      "RTFC "   Renewable transport fuel certificate
     452      "AKI  "   Anti-Knock Index
+    453      "CK/ER"   kg CO2 equivalent/Euro Cents
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20092,6 +20146,8 @@ CAN_TRTFLG 13489
      19      "TX   "   On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
      20      "TO   "   OTC On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
      21      "TS   "   SI On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
+     22      "MC   "   Market at Close Trades (Trading at Last)
+     23      "AD   "   Auction Volume Discovery Trades
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22126,6 +22182,7 @@ ORGN_PORT  13579
     787   "TR BPS  "   Bosphorus
     788   "BR SEP  "   Sepetiba
     789   "BR REC  "   Recife
+    790   "SA DHU  "   Port of NEOM
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23053,6 +23110,7 @@ DELIV_METH 13606
      18   "Cln Tnk "   Clean tanker
      19   "Dty Tnk "   Dirty tanker
      20   "LPG Tnk "   LPG Tanker/Carrier
+     21   "Cnt Ship"   Container ship
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23452,6 +23510,7 @@ CMD_TYPE   13618
    1903   "ETHANOL "   Ethanol
    1904   "UCO     "   Used Cooking Oil
    1905   "UCOME   "   Used Cooking Oil Methyl Ester
+   1906   "SOLAREGY"   Solar Energy
    2000   "BAROM   "   Barometric Pressure
    2001   "CLOUD   "   Cloud
    2002   "CLOUDCOV"   Cloud Cover
@@ -23915,7 +23974,15 @@ ASC_RATE   13641
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET327 13648
+CTRY_INCP  13648
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET328 13649
 PRE_2ET329 13650
 PRE_2ET330 13651

@@ -17,25 +17,25 @@ External modules used by this version of RTSDK Java:
 
     Dependency                Version
     ----------                -------
-    commons-configuration2    2.14.0
+    commons-configuration2    2.15.1
     commons-collections4      4.5.0    
     commons-lang3             3.20.0
-    commons-logging           1.3.6
-    commons-text              1.14.0
-    Conscrypt OpenJDK Uber    2.5.2
-    jackson-annotations       2.21
-    jackson-core              2.21.2
-    jackson-databind          2.21.2
+    commons-logging           1.4.0
+    commons-text              1.15.0
+    Conscrypt OpenJDK Uber    2.6.1
+    jackson-annotations       2.22
+    jackson-core              2.22.1
+    jackson-databind          2.22.1
     Jakarta XML Binding API   4.0.4
     Jakarta Activation API    2.1.4
     jose4j                    0.9.6
-    json                      20251224
-    httpclient5               5.6
-    httpclient5-cache         5.6
-    httpcore5                 5.4
-    lz4-java                  1.10.4
-    slf4j-api                 2.0.17
-    slf4j-jdk14               2.0.17
+    json                      20260719
+    httpclient5               5.6.4
+    httpclient5-cache         5.6.4
+    httpcore5                 5.4.3
+    lz4-java                  1.11.2
+    slf4j-api                 2.0.18
+    slf4j-jdk14               2.0.18
     quartz                    2.5.2
     xpp3                      1.1.4c
 

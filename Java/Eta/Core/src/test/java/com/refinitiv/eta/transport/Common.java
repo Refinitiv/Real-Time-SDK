@@ -22,7 +22,7 @@ public class Common {
 
     static int executeHandshake(Selector selector, RsslSocketChannel channel, Error error, InProgInfo inProgInfo)
             throws InterruptedException {
-        final int MAX_ATTEMPTS = 10;
+        final int MAX_ATTEMPTS = 20;
         boolean client = channel._initChnlState != RsslSocketChannel.InitChnlState.READ_HDR;
         if (client) {
             initChannel(channel, error, inProgInfo);

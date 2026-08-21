@@ -251,6 +251,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     {
         int ret = TransportReturnCodes.SUCCESS;
 
+        _initChnlReadClientKeyBuffer.clear();
+        _initChnlReadBuffer.clear();
+        _initChnlWriteBuffer.clear();
+        _postHttpParseHelper.clear();
+
         /* if re-connecting, don't block and call channel.init() until channel is active, since this case is a recursive call. */
         boolean blockUntilActive = _initChnlState != InitChnlState.RECONNECTING;
 
@@ -621,7 +626,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     retVal = initChnlReadHdr(inProg, error);
                     break;
                 case InitChnlState.HTTP_CONNECTING:
-                    retVal = initChnlHttpConnecting();
+                    retVal = initChnlHttpConnecting(error);
                     break;
                 case InitChnlState.PROXY_CONNECTING:
                     retVal = initChnlProxyConnecting();
@@ -643,13 +648,10 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                         if (_httpPOSTwriteBuffer == null)
                             return TransportReturnCodes.FAILURE;
 
-                        try
+                        if (singleWriteToSocketChannel(_httpPOSTwriteBuffer, error, "RsslHttpSocketChannel.init") < TransportReturnCodes.SUCCESS)
                         {
-                            _scktChannel.write(_httpPOSTwriteBuffer);
-                        }
-                        catch (Exception e)
-                        {
-                            return TransportReturnCodes.FAILURE;
+                            _initChnlWriteBuffer.clear();
+                            return error.errorId();
                         }
 
                         _initChnlWriteBuffer.clear();
@@ -664,12 +666,20 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     else if (retVal == 0)
                         return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
                     break;
+                case InitChnlState.WAIT_CLIENT_KEY:
+                    retVal = initChnlReadClientKey(inProg, error);
+                    break;
                 default:
                     break;
             }
         }
         catch (IOException | ProxyAuthenticationException e)
         {
+            _initChnlReadBuffer.clear();
+            _initChnlWriteBuffer.clear();
+            _initChnlReadClientKeyBuffer.clear();
+            _postHttpParseHelper.clear();
+
             error.channel(this);
             error.errorId(TransportReturnCodes.FAILURE);
             error.sysError(0);
@@ -681,6 +691,13 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             unlockReadWriteLocks();
         }
 
+        if (retVal < TransportReturnCodes.SUCCESS)
+        {
+            _initChnlReadBuffer.clear();
+            _initChnlWriteBuffer.clear();
+            _initChnlReadClientKeyBuffer.clear();
+            _postHttpParseHelper.clear();
+        }
         return retVal;
     }
 
@@ -768,33 +785,46 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     /* Read "HTTP OK" response to "POST HTTP" into ByteBuffer dst. */
     private int initChnlReadFromChannelHTTPok(ByteBuffer dst, Error error) throws IOException
     {
-        dst.clear();
         int bytesRead = read(dst);
         // System.out.println(Transport.toHexString(dst, 0, dst.position()));
 
         if (bytesRead > 0)
         {
-            // note that we could cache the msgLen, but normally we should be reading an entire HTTP OK here.
+            int ret = hasFullPOSTHttpResponse(dst, bytesRead, _postHttpParseHelper, error);
 
-            httpOKsize = HTTP_OK_FROM_SERVER.length + CHUNKEND_SIZE + HTTP_TransferEncoding.length + CHUNKEND_SIZE + HTTP_ContentType.length
-                         + HTTP_HEADER_END_SIZE;
-            firstHTTPchunkHeader_size = HTTP_HEADER3 + firstHTTPchunk_size + CHUNKEND_SIZE; // e.g. 0x37 0x0D 0x0a 00 07 00 00 00 00 01 0x0D 0x0A
-            // (in this example chunk size is 07 and http session ID is 01)
-            if (dst.position() >= (httpOKsize + firstHTTPchunkHeader_size))
+            switch (ret)
             {
-                int retVal = parsePOSThttpResponse(dst);
-                if (retVal == TransportReturnCodes.FAILURE)
+                case TransportReturnCodes.SUCCESS:
                 {
-                    dst.clear();
-                    throw new IOException("Unable to tunnel through " + _host + ":" + _port);
-                }
+                    // note that we could cache the msgLen, but normally we should be reading an entire HTTP OK here.
 
-                // we have at least one complete message
-                return dst.position();
+                    httpOKsize = HTTP_OK_FROM_SERVER.length + CHUNKEND_SIZE + HTTP_TransferEncoding.length + CHUNKEND_SIZE + HTTP_ContentType.length
+                            + HTTP_HEADER_END_SIZE;
+                    firstHTTPchunkHeader_size = HTTP_HEADER3 + firstHTTPchunk_size + CHUNKEND_SIZE; // e.g. 0x37 0x0D 0x0a 00 07 00 00 00 00 01 0x0D 0x0A
+                    // (in this example chunk size is 07 and http session ID is 01)
+                    int retVal = parsePOSThttpResponse(dst, bytesRead, _postHttpParseHelper);
+                    _postHttpParseHelper.clear();
+                    if (retVal == TransportReturnCodes.FAILURE)
+                    {
+                        dst.clear();
+                        throw new IOException("Unable to tunnel through " + _host + ":" + _port);
+                    }
+
+                    // we have at least one complete message
+                    return dst.position();
+                }
+                case TransportReturnCodes.FAILURE:
+                {
+                    return -1;
+                }
+                case TransportReturnCodes.CHAN_INIT_IN_PROGRESS:
+                default:
+                    break;
             }
         }
         else if (bytesRead == -1)
         {
+            _postHttpParseHelper.clear();
             if (_readIoBuffer != null)
                 _readIoBuffer.buffer().clear();
             if (_httpProxy)
@@ -812,44 +842,131 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         return 0;
     }
 
+    POSTHttpParseHelper _postHttpParseHelper = new POSTHttpParseHelper();
+
+    class POSTHttpParseHelper
+    {
+        int bytesRead = 0;
+
+        int chunkLength = -1;
+        int headersEnd = -1;
+        int chunkSizeStart = -1;
+        int chunkSizeEnd = -1;
+
+        int index = 0;
+        int length = -1;
+
+        void clear()
+        {
+            bytesRead = 0;
+            chunkLength = -1;
+            headersEnd = -1;
+            chunkSizeStart = -1;
+            chunkSizeEnd = -1;
+            index = 0;
+            length = -1;
+        }
+    }
+
+    int hasFullPOSTHttpResponse(ByteBuffer reader, int bytesRead, POSTHttpParseHelper helper, Error error)
+    {
+        helper.bytesRead += bytesRead;
+        if (helper.headersEnd == -1) //headersEnd is the beginning id the 0D 0A 0D 0A sequence
+        {
+            while (helper.index < helper.bytesRead)
+            {
+                if (helper.index + 3 < helper.bytesRead &&
+                        reader.get(helper.index) == (byte)'\r'
+                        && reader.get(helper.index + 1) == (byte)'\n'
+                        && reader.get(helper.index + 2) == (byte)'\r'
+                        && reader.get(helper.index + 3) == (byte)'\n')
+                {
+                    helper.headersEnd = helper.index;
+                    break;
+                }
+                else if (helper.index + 3 >= helper.bytesRead) break; // cannot accommodate for additional \n\r\n even if current symbol is \r
+                else helper.index++;
+            }
+        }
+
+        if (helper.headersEnd != -1)
+        {
+            if ((helper.headersEnd + 4) < helper.bytesRead)
+            {
+                helper.chunkSizeStart = helper.headersEnd + 4;
+                helper.index = helper.chunkSizeStart;
+                while (helper.index < helper.bytesRead)
+                {
+                    if (reader.get(helper.index) != '\r') helper.index++;
+                    else
+                    {
+
+                        helper.chunkSizeEnd = helper.index;
+                        int chunkLen = 0;
+
+                        boolean validHex = false;
+                        for (int i = helper.chunkSizeStart; i < helper.chunkSizeEnd; i++)
+                        {
+                            int digit = Character.digit(reader.get(i) & 0xFF, 16);
+                            if (digit < 0)
+                            {
+                                error.channel(this);
+                                error.errorId(TransportReturnCodes.FAILURE);
+                                error.text("Failed to parse POST Http response chunk size: not hexadecimal number - " + reader.get(i));
+                                return TransportReturnCodes.FAILURE;
+                            }
+                            chunkLen = (chunkLen << 4) | digit;
+                            validHex = true;
+                        }
+
+                        helper.chunkLength = validHex ? chunkLen : -1;
+                        break;
+                    }
+                }
+
+                if (helper.chunkLength != -1)
+                {
+                    if (helper.headersEnd + 4 + (helper.chunkSizeEnd - helper.chunkSizeStart) + 2 + helper.chunkLength + 2 <= helper.bytesRead)
+                    {
+                        helper.length = helper.headersEnd + 4 + (helper.chunkSizeEnd - helper.chunkSizeStart) + 2 + helper.chunkLength + 2;
+                        return TransportReturnCodes.SUCCESS;
+                    }
+                }
+            }
+        }
+
+        reader.position(helper.bytesRead);
+        return TransportReturnCodes.CHAN_INIT_IN_PROGRESS;
+    }
+
     /* Parse "HTTP OK" response to "POST HTTP" */
-    private int parsePOSThttpResponse(ByteBuffer reader)
+    private int parsePOSThttpResponse(ByteBuffer reader, int bytesRead, POSTHttpParseHelper helper)
     {
         int bufferIndex = 0;
         reader.position(bufferIndex);
 
-        reader.get(HTTP_OK_FROM_SERVER, 0, 15);
+        if (helper.headersEnd > HTTP_OK_FROM_SERVER.length)
+        {
+            reader.get(HTTP_OK_FROM_SERVER, 0, HTTP_OK_FROM_SERVER.length);
 
-        bufferIndex += 15; // skip "HTTP/1.1 200 OK"
-        String startHTTP_OK_FROM_SERVER = new String(HTTP_OK_FROM_SERVER);
-        if (!(startHTTP_OK_FROM_SERVER.contains("200") || startHTTP_OK_FROM_SERVER.contains("OK")))
+            String startHTTP_OK_FROM_SERVER = new String(HTTP_OK_FROM_SERVER);
+            if (!(startHTTP_OK_FROM_SERVER.contains("200") || startHTTP_OK_FROM_SERVER.contains("OK")))
+            {
+                if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                    System.out.println("Unable to tunnel through " + _host + ":" + _port +
+                            ".  HTTP POST response starts with \"" + startHTTP_OK_FROM_SERVER + "\"");
+                return TransportReturnCodes.FAILURE;
+            }
+        }
+        else
         {
             if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                 System.out.println("Unable to tunnel through " + _host + ":" + _port +
-                                   ".  HTTP POST response starts with \"" + startHTTP_OK_FROM_SERVER + "\"");
+                        ".  HTTP POST response starts with \"" + new String(HTTP_OK_FROM_SERVER) + "\"");
             return TransportReturnCodes.FAILURE;
         }
 
-        bufferIndex += 2; // skip /r/n
-
-        reader.position(bufferIndex);
-        reader.get(HTTP_TransferEncoding, 0, 26);
-        bufferIndex += 26; // skip "Transfer-Encoding: chunked"
-
-        bufferIndex += 2; // skip /r/n
-
-        reader.position(bufferIndex);
-        reader.get(HTTP_ContentType, 0, 38);
-        bufferIndex += 38; // skip "Content-Type: application/octet-stream"
-
-        // HTTP headers should end in 0x0D0x0A0x0D0x0A (/r/n/r/n)
-        bufferIndex += 4; // skip /r/n/r/n
-
-        bufferIndex += 3; // skip first data chunk header + /r/n (chunkSize + 0x0D + 0x0A)
-
-        bufferIndex += 2; // skip FirstDataChunkSize
-
-        bufferIndex++; // skip outFlags
+        bufferIndex = helper.length - 6; // we are now interested only in sessionId, which has 4 bytes, and 2 bytes are the chunk end
 
         _httpSessionID = reader.getInt(bufferIndex); // HTTP Session ID for possible http reconnect
 
@@ -1177,7 +1294,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     }
 
     /* Write POST message. Called when in the init state HTTP_CONNECTING. */
-    int initChnlHttpConnecting() throws IOException
+    int initChnlHttpConnecting(Error error) throws IOException
     {
         httpOKretry = 0; // needed for recovery through a proxy
 
@@ -1185,13 +1302,10 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
         if (_httpPOSTwriteBuffer == null)
             return TransportReturnCodes.FAILURE;
-        try
+
+        if (singleWriteToSocketChannel(_httpPOSTwriteBuffer, error, "RsslHttpSocketChannel.initChnlHttpConnecting") < TransportReturnCodes.SUCCESS)
         {
-            _scktChannel.write(_httpPOSTwriteBuffer);
-        }
-        catch (Exception e)
-        {
-            return TransportReturnCodes.FAILURE;
+            return error.errorId();
         }
 
         _initChnlState = InitChnlState.CLIENT_WAIT_HTTP_ACK;
@@ -1370,7 +1484,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
             while (!_httpReconnectProxyActive)
             {
-                _initChnlReadBuffer.clear();
                 cc = initProxyChnlReadFromChannel(_initChnlReadBuffer, error);
                 // System.out.println(Transport.toHexString(_initChnlReadBuffer, 0, _initChnlReadBuffer.position()));
 
@@ -1388,6 +1501,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 if (cc != 0)
                 {
                     readHttpConnectResponseReconnectState(_initChnlReadBuffer, error);
+                    _initChnlReadBuffer.clear();
                 }
             }
         }
@@ -1404,7 +1518,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     protected int writeHttpConnectRequest_noCredentialsReconnectState() throws IOException
     {
         String connectRequest = buildHttpConnectRequest();
-        _scktChannel.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+
+        if (singleWriteToSocketChannel(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)), null, null) < TransportReturnCodes.SUCCESS)
+        {
+            return TransportReturnCodes.FAILURE;
+        }
 
         return TransportReturnCodes.SUCCESS;
     }
@@ -1502,8 +1620,25 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     String connectRequest = buildHttpConnectRequest();
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println(connectRequest);
+
                     /* Direct write to channel to avoid calling encryption */
-                    _scktChannel._socket.write(ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING)));
+                    ByteBuffer writeBuffer = ByteBuffer.wrap((connectRequest.toString()).getBytes(CHAR_ENCODING));
+                    int retryCount = 0;
+                    while (retryCount++ < _writeRetryCount && writeBuffer.hasRemaining())
+                    {
+                        _scktChannel._socket.write(writeBuffer);
+                    }
+
+                    if (writeBuffer.hasRemaining())
+                    {
+                        if (error != null)
+                        {
+                            error.channel(this);
+                            error.errorId(TransportReturnCodes.FAILURE);
+                            error.sysError(0);
+                            error.text("RsslHttpSocketchannel.readHttpConnectResponseReconnectState" + ": Failed to write client buffer to network.");
+                        }
+                    }
                 }
 
                 _proxyConnectResponse.setLength(0); // we are done with the current response from the proxy
@@ -1655,7 +1790,10 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             {
                 connected = true;
                 // send ClientPOSThttpRequest in ReconnectState
-                _scktChannel.write(_initChnlWriteBuffer);
+                if (singleWriteToSocketChannel(_initChnlWriteBuffer, error, "") < TransportReturnCodes.SUCCESS)
+                {
+                    return;
+                }
             }
         }
 

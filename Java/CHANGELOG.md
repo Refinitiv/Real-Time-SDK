@@ -9,27 +9,36 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.4.0.L2 aka EMA/ETA 3.10.0.L2 aka 3.10.0.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.4.0.G1 aka EMA/ETA 3.10.0.G1 aka 3.10.0.2
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release for RTSDK Java with support for JDK 1.25 (Temurin OpenJDK) and Ubuntu 24.04. Support for JNI libraries using Visual Studio 2015 were dropped. This release includes several customer issue fixes and minor features and fixes. 
+This is a maintenace release for RTSDK Java with customer issue fixes. 
 
 Customer Issues Resolved
 ------------------------
-- [GitHub #322] - [RTSDK-10368] - Introduces configurable limits on object pools sizes 
-- [GitHub #325] - [RTSDK-10382] - Real.value returns SUCCESS code while failing to encode certain values
-- [GitHub #326] - [RTSDK-10387] - ETA/ETA ValueAdd Java examples doesn't call releaseBuffer on errors
-- [GitHub #328] - [RTSDK-10469] - MaxDispatchCountUserThread does not work
-- [GitHub #339] - [RTSDK-10414] -  Update to Java dependencies: jackson-core, jackson-annotations, jackson-databind, commons-configuration2, commons-lang3, commons-text-1, json, lz4, httpclient5, httpcore5, quartz (2.5.2)
-- [Case Number: 15826127] - [RTSDK-10620] - RTViewerDesktop fat jar uses incorrect Main-Class in createRTViewerFatJar manifest
+- [GitHub #345] - [RTSDK-10732] - Update to Java dependencies 
+- [Case Number: 16228717] - [RTSDK-10928] - Fix to Invalid IPC Mount error code caused due to fragmented HTTP tunneling message and resulting in failure to connect to server 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.4.0.G1 (Aug 20, 2026)
+--------------------------------------------
+
+This is a maintenace release for RTSDK Java with customer issue fixes. 
+
+Both ETA Java and EMA Java 3.10.0.G1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-10732] - Update to Java dependencies [GitHub #345]
+- [RTSDK-10928] - Fix to Invalid IPC Mount error code caused due to fragmented HTTP tunneling message and resulting in failure to connect to server [Case Number: 16228717]
+
+--------------------------------------------
 RTSDK Java Release 2.4.0.L2 (May 6, 2026)
 --------------------------------------------
+
+This is a maintenance release for RTSDK Java with support for JDK 1.25 (Temurin OpenJDK) and Ubuntu 24.04. Support for JNI libraries using Visual Studio 2015 were dropped. This release includes several customer issue fixes and minor features and fixes. 
 
 EMA Java 3.10.0.L2 Issues Resolved
 ---------------------------------

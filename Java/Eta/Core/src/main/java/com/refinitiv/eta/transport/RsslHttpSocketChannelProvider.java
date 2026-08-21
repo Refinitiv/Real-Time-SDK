@@ -183,7 +183,11 @@ class RsslHttpSocketChannelProvider
                 }
                 try
                 {
-                    rsslSocketChannel._scktChannel.write(writeBuffer);
+                    if (rsslSocketChannel.singleWriteToSocketChannel(writeBuffer, error, "RsslHttpSocketChannelProvider.initChnlHandlePost") < TransportReturnCodes.SUCCESS)
+                    {
+                        return error.errorId();
+                    }
+
                     if (debugPrint)
                         System.out.println(" Send POST ack back to Consumer");
                 }
@@ -238,7 +242,11 @@ class RsslHttpSocketChannelProvider
 
                 try
                 {
-                    rsslSocketChannel._scktChannel.write(writeBuffer);
+                    if (rsslSocketChannel.singleWriteToSocketChannel(writeBuffer, error, "RsslHttpSocketChannelProvider.initChnlHandlePost") < TransportReturnCodes.SUCCESS)
+                    {
+                        return error.errorId();
+                    }
+
                     if (debugPrint)
                         System.out.println(" Reconnect, wrote the POST ACK back to Consumer");
                 }
@@ -276,7 +284,12 @@ class RsslHttpSocketChannelProvider
                         System.out.println(" new Control ACK on new Streaming socket = " + newStreamingChannel.toString());
 
                     if (newStreamingChannel != null)
-                        newStreamingChannel.write(writeBuffer);
+                    {
+                        if (RsslSocketChannel.singleWriteToSocketChannel(rsslSocketChannel, newStreamingChannel, writeBuffer, error, "RsslHttpSocketChannelProvider.initChnlHandlePost") < TransportReturnCodes.SUCCESS)
+                        {
+                            return error.errorId();
+                        }
+                    }
                     else
                     {
                         error.channel(rsslSocketChannel);
@@ -1420,7 +1433,10 @@ class RsslHttpSocketChannelProvider
 
             if (streamSocket != null)
             {
-                streamSocket.write(rsslSocketChannel._ipcProtocol.encodeHTTPConnectionAck(rsslSocketChannel._initChnlWriteBuffer, error));
+                if (RsslSocketChannel.singleWriteToSocketChannel(rsslSocketChannel, streamSocket, rsslSocketChannel._ipcProtocol.encodeHTTPConnectionAck(rsslSocketChannel._initChnlWriteBuffer, error), error, "RsslHttpSocketChannelProvider.initChnlFinishSess") < TransportReturnCodes.SUCCESS)
+                {
+                    return error.errorId();
+                }
             }
             else
             {
@@ -1435,7 +1451,10 @@ class RsslHttpSocketChannelProvider
         }
         else
         {
-            rsslSocketChannel._scktChannel.write(rsslSocketChannel._ipcProtocol.encodeHTTPConnectionAck(rsslSocketChannel._initChnlWriteBuffer, error));
+            if (rsslSocketChannel.singleWriteToSocketChannel(rsslSocketChannel, rsslSocketChannel._ipcProtocol.encodeHTTPConnectionAck(rsslSocketChannel._initChnlWriteBuffer, error), error, "RsslHttpSocketChannelProvider.initChnlFinishSess") < TransportReturnCodes.SUCCESS)
+            {
+                return error.errorId();
+            }
         }
 
         return TransportReturnCodes.SUCCESS;
