@@ -26,6 +26,7 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
 	final static int POS_EXP_MAX = 7;
 	final static int NEG_EXP_MIN = 1;
 	final static int NEG_EXP_MAX = 14;
+	final static int LONG_DIGIT_NUM = 19;
 
     JsonRealConverter(JsonAbstractConverter converter) {
         super(converter);
@@ -115,7 +116,7 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
     	int posExp = 0;
     	boolean foundNegative = false;
     	
-    	for(int index = 0; index < strValue.length(); index++)
+    	for (int index = 0; index < strValue.length(); index++)
     	{
     		char ch = strValue.charAt(index);
     		
@@ -175,13 +176,13 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
 	    		}
 	    		
 	    		/* Checks negative exponential */
-	    		if(strValue.charAt(expoIndex + 1) == '-')
+	    		if (strValue.charAt(expoIndex + 1) == '-')
 	    		{
 	    			expVal = Integer.parseInt(strValue.substring(expoIndex + 2, strValue.length()));
 	    			
 	    			expVal += posExp; 
 	    			
-	    			if(expVal >= NEG_EXP_MIN && expVal <= NEG_EXP_MAX)
+	    			if (expVal >= NEG_EXP_MIN && expVal <= NEG_EXP_MAX)
 	    			{
 	    				hint = _negExponentTable[expVal];
 	    			}
@@ -195,7 +196,7 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
 	    			expVal = Integer.parseInt(strValue.substring(expoIndex + 1, strValue.length()));
 	    		
 	    			/* Found decimal */
-	    			if(decimalIndex != -1)
+	    			if (decimalIndex != -1)
 	    			{
 	    				if(posExp > expVal)
 	    				{
@@ -215,14 +216,21 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
 	    			
 	    			expVal -= posExp;
 	    			
-	    			if(expVal >= POS_EXP_MIN && expVal <= POS_EXP_MAX)
+	    			if (expVal >= POS_EXP_MIN && expVal <= POS_EXP_MAX)
 	    			{
 	    				hint = _posExponentTable[expVal];
 	    			}
-	    			else
-	    			{
-	    				return FAILURE;
-	    			}
+					else
+					{
+						int lengthRemaining = LONG_DIGIT_NUM - (decimalIndex + posExp);
+						if (lengthRemaining > 0 && (expVal - lengthRemaining <= POS_EXP_MAX))
+						{
+							int newExpVal = Math.max(expVal - lengthRemaining, 0);
+							hint = _posExponentTable[newExpVal];
+							value = value * (long)Math.pow(10, lengthRemaining > expVal ? expVal : lengthRemaining);
+						}
+	    				else return FAILURE;
+					}
 	    		}
 	    		
 	    		result = realValue.value(value, hint);

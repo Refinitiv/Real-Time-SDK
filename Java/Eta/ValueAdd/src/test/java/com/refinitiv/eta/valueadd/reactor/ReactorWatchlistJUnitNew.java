@@ -24704,6 +24704,205 @@ public class ReactorWatchlistJUnitNew
         System.out.println(test + " Done\n");
     }
 
+    @Test
+    public void realInRefreshTestNoException_WebSocket_Json() {
+
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+        RefreshMsg receivedRefreshMsg;
+
+        int providerStreamId;
+
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        try
+        {
+            /* Connect the consumer and provider. Setup login & directory streams automatically. */
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+
+            setupWebsocket(true, "tr_json2", consumer, provider, opts);
+            provider.bind(opts);
+
+            TestReactor.openSession(consumer, provider, opts);
+
+            /* Consumer sends request. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+
+            /* Provider receives request. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertFalse(receivedRequestMsg.checkNoRefresh());
+            assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+            assertTrue(receivedRequestMsg.msgKey().checkHasName());
+            assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+
+            providerStreamId = receivedRequestMsg.streamId();
+
+            /* Provider sends refresh .*/
+            refreshMsg.clear();
+            refreshMsg.msgClass(MsgClasses.REFRESH);
+            refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+            refreshMsg.streamId(providerStreamId);
+            refreshMsg.containerType(DataTypes.FIELD_LIST);
+            refreshMsg.applyHasMsgKey();
+            refreshMsg.msgKey().applyHasServiceId();
+            refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+            refreshMsg.msgKey().applyHasName();
+            refreshMsg.msgKey().name().data("TRI.N");
+            refreshMsg.applyRefreshComplete();
+            refreshMsg.state().streamState(StreamStates.OPEN);
+            refreshMsg.state().dataState(DataStates.OK);
+            refreshMsg.applySolicited();
+
+            Buffer buf = CodecFactory.createBuffer();
+            buf.data(ByteBuffer.allocate(1024));
+            EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
+
+            /* clear encode iterator */
+            encodeIter.clear();
+
+            /* encode message */
+            encodeIter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+
+            FieldList fieldList = CodecFactory.createFieldList();
+            FieldEntry fieldEntry = CodecFactory.createFieldEntry();
+
+            fieldList.applyHasStandardData();
+            fieldList.encodeInit(encodeIter, null, 0);
+
+            Real real = CodecFactory.createReal();
+
+            java.lang.Double[] doubleValues = {
+                    76900000000000.00,
+                    769000000000.00,
+                    7690000000000000.00,
+                    10000000000.0,
+                    0.1234567,
+                    1.5e9,
+                    1.76e12,
+                    1.76e13,
+                    9223372036854775807.00,
+                    -9223372036854775808.0,
+                    922337.2036854775807,
+                    92233720368547.75807,
+                    -9223372036854775.808,
+                    1.5e-9
+            };
+
+            int[] hints = {
+                    RealHints.EXPONENT_2,
+                    RealHints.EXPONENT_2,
+                    RealHints.EXPONENT_2,
+                    RealHints.EXPONENT_1,
+                    RealHints.EXPONENT_7,
+                    RealHints.EXPONENT0,
+                    RealHints.EXPONENT6,
+                    RealHints.EXPONENT_2,
+                    RealHints.EXPONENT0,
+                    RealHints.EXPONENT0,
+                    RealHints.EXPONENT_13,
+                    RealHints.EXPONENT_5,
+                    RealHints.EXPONENT_3,
+                    RealHints.EXPONENT_10
+            };
+
+            int[] fids = { 32742, 32741, 32693, 32681, 32682, 32683, 32684, 32685, 32686, 32652, 32653, 32654, 32655, 32656 };
+
+            for (int i = 0; i < doubleValues.length; i++)
+            {
+                fieldEntry.clear();
+                fieldEntry.dataType(DataTypes.REAL);
+                fieldEntry.fieldId(fids[i]);
+
+                real.clear();
+                real.value(doubleValues[i], hints[i]);
+                fieldEntry.encode(encodeIter, real);
+            }
+
+            fieldList.encodeComplete(encodeIter, true);
+
+            refreshMsg.encodedDataBody(buf);
+
+            assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+            /* Consumer receives first refresh. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+            receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+            assertTrue(receivedRefreshMsg.checkHasMsgKey());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+            assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+            assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+            assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+            assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+            assertEquals(DataTypes.FIELD_LIST, receivedRefreshMsg.containerType());
+            assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+            assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+            assertNotNull(msgEvent.streamInfo());
+            assertNotNull(msgEvent.streamInfo().serviceName());
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+
+
     private void tearDownConsumerAndProvider(TestReactor consumerReactor, TestReactor providerReactor, Consumer consumer, Provider provider) {
         consumerReactor.close();
         providerReactor.close();

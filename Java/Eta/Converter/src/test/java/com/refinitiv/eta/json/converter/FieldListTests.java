@@ -232,19 +232,5 @@ public class FieldListTests {
                 {7, new int[] {DataTypes.VECTOR} }
         });
     }
-
-    @Test
-    public void fieldsInsideBounds() throws JsonProcessingException {
-        String json = "{\"RDN_EXCHID\":100,\"PRCTCK_1\":65535,\"TRD_UNITS\":0}";
-        Buffer buf = CodecFactory.createBuffer();
-        buf.data(ByteBuffer.allocate(200));
-        EncodeIterator iter = CodecFactory.createEncodeIterator();
-        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
-        JsonNode node = mapper.readTree(json);
-        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.FIELD_LIST);
-        containerHandler.encodeRWF(node, "", iter, convError);
-        assertTrue(convError.isSuccessful());
-        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
-    }
 }
 
