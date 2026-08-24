@@ -2028,10 +2028,8 @@ class ProgrammaticConfigure
 
 		if(activeConfig != null)
 		{
-			if (setByFnCalled == ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
+			if ((setByFnCalled & (ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL | ActiveConfig.SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL)) != 0) {
 				channelType = ConnectionTypes.SOCKET;
-				channelSet.clear();
-			} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
 				channelSet.clear();
 			}
 		}
@@ -2071,12 +2069,12 @@ class ProgrammaticConfigure
 			else if (fileCfgSocket != null)
 				socketChannelConfig.directWrite = fileCfgSocket.directWrite;
 
-			if ((flags & ChannelEntryFlag.HOST_FLAG) != 0 && setByFnCalled == 0)
+			if ((flags & ChannelEntryFlag.HOST_FLAG) != 0 && (setByFnCalled & ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) == 0)
 				socketChannelConfig.hostName = host;
 			else if (fileCfgSocket != null)
 				socketChannelConfig.hostName = fileCfgSocket.hostName;
 
-			if ((flags & ChannelEntryFlag.PORT_FLAG) != 0 && setByFnCalled == 0)
+			if ((flags & ChannelEntryFlag.PORT_FLAG) != 0 && (setByFnCalled & ActiveConfig.SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL) == 0)
 				socketChannelConfig.serviceName = port;
 			else if (fileCfgSocket != null)
 				socketChannelConfig.serviceName = fileCfgSocket.serviceName;

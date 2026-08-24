@@ -1317,17 +1317,17 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 					int chanConfigByFuncCall = 0;
 					if (config.getUserSpecifiedHostname() != null && config.getUserSpecifiedHostname().length() > 0)
-						chanConfigByFuncCall = ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-					else
-					{
-						HttpChannelConfig tunnelingConfig = config.tunnelingChannelCfg();
-						if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
-						if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
-						if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
-					}
+						chanConfigByFuncCall |= ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+					if(config.getUserSpecifiedPort() != null && config.getUserSpecifiedPort().length() > 0)
+						chanConfigByFuncCall |= ActiveConfig.SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+					
+					HttpChannelConfig tunnelingConfig = config.tunnelingChannelCfg();
+					if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+					if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+					if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
 					
 					pc.retrieveChannelConfig( pieces[i].trim(), _activeConfig, _activeConfig.channelConfigSet, chanConfigByFuncCall, fileChannelConfig );
 					if ( _activeConfig.channelConfigSet.size() == i )
@@ -1636,17 +1636,17 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 					int chanConfigByFuncCall = 0;
 					if (configImpl.getUserSpecifiedHostname() != null && configImpl.getUserSpecifiedHostname().length() > 0)
-						chanConfigByFuncCall = ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-					else
-					{
-						HttpChannelConfig tunnelingConfig = configImpl.tunnelingChannelCfg();
-						if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
-						if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
-						if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
-							chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
-					}
+						chanConfigByFuncCall |= ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+					if(configImpl.getUserSpecifiedPort() != null && configImpl.getUserSpecifiedPort().length() > 0)
+						chanConfigByFuncCall |= ActiveConfig.SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+					
+					HttpChannelConfig tunnelingConfig = configImpl.tunnelingChannelCfg();
+					if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+					if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+					if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
+						chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
 					
 					pc.retrieveChannelConfig( pieces[i].trim(), _activeConfig, _activeConfig.channelConfigSet, chanConfigByFuncCall, fileChannelConfig );
 					if ( _activeConfig.channelConfigSet.size() == i )

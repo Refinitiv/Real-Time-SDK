@@ -8941,4 +8941,205 @@ public class OmmConsumerTests extends TestCase
 			ommprovider_2.uninitialize();
 		}
 	}
+	
+	@Test
+	public void testSingleItemProgrammaticSetTunnelObjectNameInConfigMethod()
+	{
+		TestUtilities.printTestHead("testSingleItemProgrammaticSetTunnelObjectNameInConfigMethod","");
+
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+
+		
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+		
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		
+		ProviderTestClient providerClient1 = new ProviderTestClient(providerTestOptions);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider = EmaFactory.createOmmProvider(config.port("19001").providerName("Provider_1"), providerClient1);
+		
+		assertNotNull(ommprovider);
+		
+		ProviderTestOptions providerTestOptions2 = new ProviderTestOptions();
+		ProviderTestClient providerClient2 = new ProviderTestClient(providerTestOptions2);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider2 = EmaFactory.createOmmProvider(config.port("19002").providerName("Provider_1"), providerClient2);
+		
+		assertNotNull(ommprovider2);
+		
+		ProviderTestOptions providerTestOptions3 = new ProviderTestOptions();
+		ProviderTestClient providerClient3 = new ProviderTestClient(providerTestOptions3);
+		
+		// Provider_1 provides the DIRECT_FEED service name
+		OmmProvider ommprovider3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_1"), providerClient3);
+		
+		assertNotNull(ommprovider3);
+		
+		OmmConsumer consumer = null;
+		ConsumerTestClient consumerClient = new ConsumerTestClient();
+		
+		// Setup the programmatic config
+		Map innerMap = EmaFactory.createMap();
+		Map configMap = EmaFactory.createMap();
+		ElementList elementList = EmaFactory.createElementList();
+		ElementList innerElementList = EmaFactory.createElementList();
+		
+		elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1" ));
+
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "WatchlistObjectsPoolLimit", 200 ));
+		configMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
+
+		innerElementList.clear();
+
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "ChannelSet", "Channel_1, Channel_2, Channel_3" ));
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "Dictionary", "Dictionary_1" ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ItemCountHint", 5000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ServiceCountHint", 5000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ObeyOpenWindow", 0 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "PostAckTimeout", 5000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "RequestTimeout", 5000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "MaxOutstandingPosts", 5000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "DispatchTimeoutApiThread", 1 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "MaxDispatchCountApiThread", 500 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "MaxDispatchCountUserThread", 500 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "PipePort", 4001 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectAttemptLimit", 10 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMinDelay", 2000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMaxDelay", 6000 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceToStdout", 0 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceWrite", 1 ));
+        innerElementList.add(EmaFactory.createElementEntry().intValue( "XmlTraceRead", 1 ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "MsgKeyInUpdates", 1 ));
+
+		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		elementList.add(EmaFactory.createElementEntry().map( "ConsumerList", innerMap ));
+		innerMap.clear();
+
+		configMap.add(EmaFactory.createMapEntry().keyAscii( "ConsumerGroup", MapEntry.MapAction.ADD, elementList ));
+		elementList.clear();
+
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "ChannelType", "ChannelType::RSSL_HTTP" ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "GuaranteedOutputBuffers", 5000));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ConnectionPingTimeout", 50000));
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "19001"));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "TcpNodelay", 0));
+
+		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "ChannelType", "ChannelType::RSSL_HTTP" ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "GuaranteedOutputBuffers", 5000));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ConnectionPingTimeout", 50000));
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "19002"));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "TcpNodelay", 0));
+
+		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_2", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "ChannelType", "ChannelType::RSSL_HTTP" ));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "GuaranteedOutputBuffers", 5000));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "ConnectionPingTimeout", 50000));
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "19003"));
+		innerElementList.add(EmaFactory.createElementEntry().intValue( "TcpNodelay", 0));
+
+		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_3", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+				
+		elementList.add(EmaFactory.createElementEntry().map( "ChannelList", innerMap ));
+		innerMap.clear();
+
+		configMap.add(EmaFactory.createMapEntry().keyAscii("ChannelGroup", MapEntry.MapAction.ADD, elementList ));
+		elementList.clear();
+
+		innerElementList.add(EmaFactory.createElementEntry().ascii( "DictionaryType", "DictionaryType::ChannelDictionary"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii( "Dictionary_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		elementList.add(EmaFactory.createElementEntry().map( "DictionaryList", innerMap ));
+		innerMap.clear();
+		
+		configMap.add(EmaFactory.createMapEntry().keyAscii( "DictionaryGroup", MapEntry.MapAction.ADD, elementList ));
+		elementList.clear();
+		
+		try
+		{
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().config(configMap).consumerName("Consumer_1"));
+			
+			ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			long itemHandle1 = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("LSEG.O"), consumerClient);
+			
+			Thread.sleep(3000);
+			
+			/* Other Providers do not receive anything */
+			assertEquals(0, providerClient2.queueSize());
+			assertEquals(0, providerClient3.queueSize());
+			// Make sure only one channel is connected
+			ArrayList<ChannelInformation> chnlList = new ArrayList<ChannelInformation>();
+			ommprovider.connectedClientChannelInfo(chnlList);	
+			assertEquals(1, chnlList.size());
+			
+			chnlList.clear();
+			ommprovider2.connectedClientChannelInfo(chnlList);	
+			assertEquals(0, chnlList.size());
+			
+			chnlList.clear();
+			ommprovider3.connectedClientChannelInfo(chnlList);	
+			assertEquals(0, chnlList.size());
+			
+			/* Ensure that the provider receives a request message */
+			assertEquals(1, providerClient1.queueSize());
+			
+			Msg message = providerClient1.popMessage();
+			ReqMsg recvReqMsg = (ReqMsg)message;
+			
+			assertEquals(5, recvReqMsg.streamId());
+			assertEquals(1, recvReqMsg.serviceId());
+			assertEquals("DIRECT_FEED", recvReqMsg.serviceName());
+			assertEquals("LSEG.O", recvReqMsg.name());
+			
+			assertEquals(1, consumerClient.queueSize());
+			
+			/* Receives the first refresh message  */
+			message = consumerClient.popMessage();
+			
+			RefreshMsg refreshMsg = (RefreshMsg)message;
+			
+			assertEquals("DIRECT_FEED", refreshMsg.serviceName());
+			assertEquals("LSEG.O", refreshMsg.name());
+			assertEquals(1, refreshMsg.serviceId());
+			assertEquals(OmmState.StreamState.OPEN, refreshMsg.state().streamState());
+			assertEquals(OmmState.DataState.OK, refreshMsg.state().dataState());
+			assertEquals(OmmState.StatusCode.NONE, refreshMsg.state().code());
+			assertTrue(refreshMsg.solicited());
+			assertTrue(refreshMsg.complete());
+
+			consumer.unregister(itemHandle1);
+			assertNotNull(consumer);
+			
+		}
+		catch(OmmException excep)
+		{
+			excep.printStackTrace();
+			assertFalse(true);
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		finally {
+			System.out.println("Uninitializing...");
+
+			consumer.uninitialize();
+			ommprovider.uninitialize();
+			ommprovider2.uninitialize();
+			ommprovider3.uninitialize();
+		}
+	}
 }
