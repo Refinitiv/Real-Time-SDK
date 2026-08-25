@@ -3441,7 +3441,9 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 	if(parameters.multiLoginMsg == RSSL_FALSE)
+	{
 		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+	}
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
@@ -3571,7 +3573,9 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 	if (parameters.multiLoginMsg == RSSL_FALSE)
+	{
 		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+	}
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
@@ -4016,7 +4020,9 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 	if (parameters.multiLoginMsg == RSSL_FALSE)
+	{
 		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+	}
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service1.action);
@@ -4065,7 +4071,9 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		}
 
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service2.action);
@@ -4113,7 +4121,9 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		}
 
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
@@ -4140,7 +4150,9 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 		
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		}
 
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[1].serviceId);
@@ -4169,7 +4181,9 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		}
 
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
@@ -4598,7 +4612,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenSt
 	ASSERT_TRUE(wtfGetProviderLoginStream() == pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId);
 
 	if (parameters.multiLoginMsg == RSSL_TRUE)
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+	}
 
 	/* Provider sends login response. */
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
@@ -4616,7 +4632,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenSt
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
 		if(parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 	else
 	{
@@ -4625,7 +4643,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenSt
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 
 	/* Provider receives a generic message on the login domain to indicate warm standby mode. */
@@ -4850,7 +4870,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenSt
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 
 	if (parameters.multiLoginMsg == RSSL_TRUE)
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &standbyUserName));
+	}
 
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
 	rsslClearReactorSubmitMsgOptions(&submitOpts);
@@ -5383,7 +5405,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenA
 	ASSERT_TRUE(wtfGetProviderLoginStream() == pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId);
 
 	if (parameters.multiLoginMsg == RSSL_TRUE)
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+	}
 
 	/* Provider sends login response. */
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
@@ -5401,7 +5425,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenA
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 	else
 	{
@@ -5410,7 +5436,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenA
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
 		if (parameters.multiLoginMsg == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 
 	/* Provider receives a generic message on the login domain to indicate warm standby mode. */
@@ -5635,7 +5663,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenA
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 
 	if (parameters.multiLoginMsg == RSSL_TRUE)
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &standbyUserName));
+	}
 
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
 	rsslClearReactorSubmitMsgOptions(&submitOpts);

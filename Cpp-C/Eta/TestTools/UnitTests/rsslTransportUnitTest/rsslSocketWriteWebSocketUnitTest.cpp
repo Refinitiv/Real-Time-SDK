@@ -67,7 +67,10 @@ struct WsFakeServerArg
     int               expectedMsgCount;
 
     /* Store the last error */
-    char              errText[256];
+    /* Holds a full RsslError.text (MAX_RSSL_ERROR_TEXT); +64 leaves room for the
+       snprintf literal prefix (e.g. "rsslAccept(compressed) failed: ") + NUL so
+       the formatted result can never be truncated (-Wformat-truncation).       */
+    char              errText[MAX_RSSL_ERROR_TEXT + 64];
 
     /* Compression settings negotiated during the RIPC handshake.
      * Leave as RSSL_COMP_NONE (0) for no compression.             */

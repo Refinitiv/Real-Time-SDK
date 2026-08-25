@@ -94,7 +94,7 @@ RTR_C_INLINE RsslMsg *wlBufferedMsgGetRsslMsg(WlBufferedMsg *pBufferedMsg)
 RTR_C_INLINE void wlMsgReorderQueueDiscardUntil(WlMsgReorderQueue *pQueue, RsslUInt32 seqNum)
 {
 	WlBufferedMsg *pMsg;
-	while (pMsg = wlMsgReorderQueuePopUntil(pQueue, seqNum))
+	while ((pMsg = wlMsgReorderQueuePopUntil(pQueue, seqNum)))
 		wlBufferedMsgDestroy(pMsg);
 }
 

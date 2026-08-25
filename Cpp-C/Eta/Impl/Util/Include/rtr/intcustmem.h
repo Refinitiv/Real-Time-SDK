@@ -38,7 +38,7 @@ typedef rtrUInt32 rtrUIntPtr;
 /* Internal helper functions, do not use */
 RTR_C_ALWAYS_INLINE void *doSimpleMemCopy(void *dest, const void *src, size_t size)
 {
-	register int cnt=-1;
+	int cnt=-1;
 	while (++cnt < (long) size)
 		((char*)dest)[cnt] = ((char*)src)[cnt];
 	return(dest);
@@ -73,8 +73,8 @@ static size_t align8bytes[8] = { 0, 7, 6, 5, 4, 3, 2, 1 };
 
 RTR_C_ALWAYS_INLINE void *doQuadAlignMemCopy4(void *dest, const void *src, size_t size)
 {
-	register int cnt=-1;
-	register int allreadydone;
+	int cnt=-1;
+	int allreadydone;
 
 	while (++cnt < (((long) size)>>2))
 		((rtrUInt32*)dest)[cnt] = ((rtrUInt32*)src)[cnt];
@@ -94,7 +94,7 @@ RTR_C_ALWAYS_INLINE void *doQuadAlignMemCopy4(void *dest, const void *src, size_
 /* should return same as memcpy (original value of dest) */
 RTR_C_ALWAYS_INLINE void *doNonQuadAlignMemCopy4(void *dest, const void *src, size_t size)
 {
-	register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+	size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
 	if ((ALIGN4BYTE(dest) == ALIGN4BYTE(src)) &&
 		(size >= 4+bytestoalign))
 	{
@@ -131,8 +131,8 @@ RTR_C_ALWAYS_INLINE void *doNonSimpleMemCopy4(void *dest, const void *src, size_
 
 RTR_C_ALWAYS_INLINE void *doQuadAlignMemCopy8(void *dest, const void *src, size_t size)
 {
-	register int cnt=-1;
-	register int allreadydone = 0;
+	int cnt=-1;
+	int allreadydone = 0;
 
 	while (++cnt < (((long) size)>>3))
 	{
@@ -159,11 +159,11 @@ RTR_C_ALWAYS_INLINE void *doQuadAlignMemCopy8(void *dest, const void *src, size_
 /* should return same as memcpy would (original value of dest) */
 RTR_C_ALWAYS_INLINE void *doNonQuadAlignMemCopy8(void *dest, const void *src, size_t size)
 {
-	register size_t remainder = align8bytes[((size_t)dest & 0x07)];
+	size_t remainder = align8bytes[((size_t)dest & 0x07)];
 	if ((ALIGN8BYTE(dest) == ALIGN8BYTE(src)) &&
 		(size >= 8+remainder))
 	{
-		register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+		size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
 
 		/* first copy up to 4 (possibly 8) byte alignment */
 		doLess4Copy(dest, src, bytestoalign);
@@ -198,7 +198,7 @@ RTR_C_ALWAYS_INLINE void *doNonSimpleMemCopy8(void *dest, const void *src, size_
 /* Internal helper functions, do not use */
 RTR_C_ALWAYS_INLINE void *doSimpleMemSet(void *dest, int c, size_t size)
 {
-	register int cnt=-1;
+	int cnt=-1;
 	while (++cnt < (long) size)
 		((char*)dest)[cnt] = c;
 	return(dest);
@@ -225,8 +225,8 @@ RTR_C_ALWAYS_INLINE void doLess4Set(void *dest, int c, size_t size)
 
 RTR_C_ALWAYS_INLINE void *doQuadAlignMemSet4(void *dest, int c, size_t size)
 {
-	register int cnt=-1;
-	register unsigned int setIntChar=0;
+	int cnt=-1;
+	unsigned int setIntChar=0;
 
 	if (c != 0)
 	{
@@ -254,7 +254,7 @@ RTR_C_ALWAYS_INLINE void *doNonQuadAlignMemSet4(void *dest, int c, size_t size)
 	}
 	else
 	{
-		register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+		size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
 		doLess4Set(dest, c, bytestoalign);
 
 		doQuadAlignMemSet4((char*)dest+bytestoalign,c,((long)size)-bytestoalign);
@@ -277,8 +277,8 @@ RTR_C_ALWAYS_INLINE void *doNonSimpleMemSet4(void *dest, int c, size_t size)
 
 RTR_C_ALWAYS_INLINE void *doQuadAlignMemSet8(void *dest, int c, size_t size)
 {
-	register int cnt=-1;
-	register rtrUInt64 setIntChar=0;
+	int cnt=-1;
+	rtrUInt64 setIntChar=0;
 
 	if (c != 0)
 	{
@@ -304,8 +304,8 @@ RTR_C_ALWAYS_INLINE void *doQuadAlignMemSet8(void *dest, int c, size_t size)
 
 RTR_C_ALWAYS_INLINE void *doNonQuadAlignMemSet8(void *dest, int c, size_t size)
 {
-	register size_t remainder = align8bytes[((size_t)dest & 0x07)];
-	register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+	size_t remainder = align8bytes[((size_t)dest & 0x07)];
+	size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
 
 	if (size < 8 + remainder)
 	{
@@ -318,7 +318,7 @@ RTR_C_ALWAYS_INLINE void *doNonQuadAlignMemSet8(void *dest, int c, size_t size)
 		/* then, if necessary, set up to 8 byte alignment */
 		if (remainder & 0x04)
 		{
-			register rtrUInt64 setIntChar=0;
+			rtrUInt64 setIntChar=0;
 			if (c != 0)
 			{
 				setIntChar = (unsigned char) c;
@@ -348,7 +348,7 @@ RTR_C_ALWAYS_INLINE void *doNonSimpleMemSet8(void *dest, int c, size_t size)
 /* Internal helper functions, do not use */
 RTR_C_ALWAYS_INLINE int doSimpleMemCmp(void *dest, const void *src, size_t size)
 {
-	register size_t cnt;
+	size_t cnt;
 	for (cnt = 0; cnt < size; ++cnt)
 		if (((char*)dest)[cnt] != ((char*)src)[cnt])
 			return(((char*)dest)[cnt] - ((char*)src)[cnt]);
@@ -379,8 +379,8 @@ RTR_C_ALWAYS_INLINE int doLess4Cmp(void *dest, const void *src, size_t size)
 
 RTR_C_ALWAYS_INLINE int doQuadAlignMemCmp4(void *dest, const void *src, size_t size)
 {
-	register int cnt=-1;
-	register int allreadydone;
+	int cnt=-1;
+	int allreadydone;
 
 	while (++cnt < (((long) size)>>2))
 		if (((rtrUInt32*)dest)[cnt] != ((rtrUInt32*)src)[cnt])
@@ -397,11 +397,11 @@ RTR_C_ALWAYS_INLINE int doQuadAlignMemCmp4(void *dest, const void *src, size_t s
 
 RTR_C_ALWAYS_INLINE int doNonQuadAlignMemCmp4(void *dest, const void *src, size_t size)
 {
-	register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+	size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
 	if ((ALIGN4BYTE(dest) == ALIGN4BYTE(src)) &&
 		(size >= 4+bytestoalign))
 	{
-		register int ret;
+		int ret;
 
 		if ((ret = doLess4Cmp(dest, src, bytestoalign)) != 0)
 			return(ret);
@@ -427,8 +427,8 @@ RTR_C_ALWAYS_INLINE int doNonSimpleMemCmp4(void *dest, const void *src, size_t s
 
 RTR_C_ALWAYS_INLINE int doQuadAlignMemCmp8(void *dest, const void *src, size_t size)
 {
-	register int cnt=-1;
-	register int allreadydone;
+	int cnt=-1;
+	int allreadydone;
 
 	while (++cnt < (((long) size)>>3))
 		if (((rtrUInt64*)dest)[cnt] != ((rtrUInt64*)src)[cnt])
@@ -449,12 +449,12 @@ RTR_C_ALWAYS_INLINE int doQuadAlignMemCmp8(void *dest, const void *src, size_t s
 
 RTR_C_ALWAYS_INLINE int doNonQuadAlignMemCmp8(void *dest, const void *src, size_t size)
 {
-	register size_t remainder = align8bytes[((size_t)dest & 0x07)];
+	size_t remainder = align8bytes[((size_t)dest & 0x07)];
 	if ((ALIGN8BYTE(dest) == ALIGN8BYTE(src)) &&
 		(size >= 8+remainder))
 	{
-		register size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
-		register int ret;
+		size_t bytestoalign = alignbytes[((size_t)dest & 0x03)];
+		int ret;
 
 		if ((ret = doLess4Cmp(dest, src, bytestoalign)) != 0)
 			return(ret);

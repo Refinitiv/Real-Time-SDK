@@ -108,7 +108,7 @@ inline void rwfToJsonSimple::writeStringVar(const char* value, bool comma)
 	else
 		*_pstr++ = _DOUBLE_QUOTE_CHAR;
 
-	while (*_pstr = *value)
+	while ((*_pstr = *value))
 		_pstr++, value++;
 	*_pstr++ = _DOUBLE_QUOTE_CHAR;
 	*_pstr++ = _COLON_CHAR;

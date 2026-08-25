@@ -43,7 +43,7 @@ const EmaString& OmmInvalidConfigurationException::toString() const
 {
 	int length = snprintf( _space + EMASTRING_SIZE, MAX_SIZE_PLUS_PADDING - EMASTRING_SIZE, "Exception Type='%s', Text='%s'",
 		getExceptionTypeAsString().c_str(),
-		_errorText + EMASTRING_SIZE );
+		getText().c_str() );
 
 	reinterpret_cast<EmaStringInt*>(_space)->setInt( _space + EMASTRING_SIZE, length, true );
 

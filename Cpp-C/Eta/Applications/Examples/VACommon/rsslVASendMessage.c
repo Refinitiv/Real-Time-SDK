@@ -47,7 +47,7 @@ RsslRet sendMessage(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslBuffer*
 		{
 			/* rsslWrite failed, release buffer */
 			printf("rsslReactorSubmit() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
-			if (retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			if ((retval = rsslReactorReleaseBuffer(chnl, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS))
 				printf("rsslReactorReleaseBuffer() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
 
 			return RSSL_RET_FAILURE;

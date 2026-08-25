@@ -193,22 +193,22 @@ int qa_encode( pageptr , str, maxstrlen, len, fade_enable, u_list )
 	char 			c_G0, c_G1;
 #ifdef ATTRIBUTES
 	char 			changes;
-	unsigned char		fading;		/* 01/26/87 */
-	unsigned char 		pr_color;	/* prev color 01/07/88 */
-	unsigned char 		pr_f_color;	/* prev fading color 01/07/88 */
+	unsigned char		fading = _PLAIN;		/* 01/26/87 */
+	unsigned char 		pr_color = MONO;	/* prev color 01/07/88 */
+	unsigned char 		pr_f_color = MONO;	/* prev fading color 01/07/88 */
 	unsigned char 		fore;		/* temp foreground color */
 	unsigned char 		back;		/* temp background color */
-	register unsigned char	cur_attr;
-	unsigned char		db_attr;	/*double flag, etc BF 10/92*/
-	int 			db_flag;
-	char			sv_pr_color;	/*saving state for skip space code*/
-	unsigned char		sv_cur_attr;
-	char			sv_fading;
-	char			sv_pr_f_color;
+	register unsigned char	cur_attr = _PLAIN;
+	unsigned char		db_attr = 0;	/*double flag, etc BF 10/92*/
+	int 			db_flag = 0;
+	char			sv_pr_color = 0;	/*saving state for skip space code*/
+	unsigned char		sv_cur_attr = 0;
+	char			sv_fading = 0;
+	char			sv_pr_f_color = 0;
 #endif
-	char			sv_r_gs_flag;
+	char			sv_r_gs_flag = 0;
 	unsigned char		*spc_start;	/*save location where spaces start*/
-	CHARPTR 		chptr_start;
+	CHARPTR 		chptr_start = 0;
 	int			skip_spc;	/*BF 10/92 flag indicating spaces with
 						  no attr or color can be skipped because
 						  the line has been cleared*/
@@ -231,10 +231,6 @@ int qa_encode( pageptr , str, maxstrlen, len, fade_enable, u_list )
 		str[0] = '\0';
 		return(ERROR);
 	}
-#ifdef ATTRIBUTES
-	db_flag = 0;
-	sv_cur_attr = 0;
-#endif
 
 	start_str = str;
 	str += _ansi_addstr(str, ESCCURSOROFF);
@@ -256,12 +252,6 @@ int qa_encode( pageptr , str, maxstrlen, len, fade_enable, u_list )
 	r_gs_flag = '\177';
 
 	/* starting at the current cursor position start encoding */
-#ifdef ATTRIBUTES
-	cur_attr  = _PLAIN;
-	fading = _PLAIN;
-	pr_color = MONO;
-	pr_f_color = MONO;
-#endif
 	stop = FALSE;
 #ifdef TRACE
 if(stderr != NULL)

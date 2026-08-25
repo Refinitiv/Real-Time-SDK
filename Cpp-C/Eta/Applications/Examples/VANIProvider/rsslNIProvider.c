@@ -326,7 +326,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 
 			while(pToken)
 			{
-				RsslNIItemInfo *pItemInfo;
+				RsslNIItemInfo *pItemInfo = NULL;
 				/* domain */
 				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
 				if (!pToken2) { printf("Error: -tcp: Missing item.\n"); printUsageAndExit(argv[0]); }
@@ -419,7 +419,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 
 			while (pToken)
 			{
-				RsslNIItemInfo *pItemInfo;
+				RsslNIItemInfo *pItemInfo = NULL;
 				/* domain */
 				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
 				if (!pToken2) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
@@ -515,7 +515,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 
 			while (pToken)
 			{
-				RsslNIItemInfo *pItemInfo;
+				RsslNIItemInfo *pItemInfo = NULL;
 				/* domain */
 				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
 				if (!pToken2) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
@@ -646,7 +646,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 
 			while(pToken)
 			{
-				RsslNIItemInfo *pItemInfo;
+				RsslNIItemInfo *pItemInfo = NULL;
 				/* domain */
 				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
 				if (!pToken2) { printf("Error: -segmentedMulticast: Missing Items.\n"); printUsageAndExit(argv[0]); }

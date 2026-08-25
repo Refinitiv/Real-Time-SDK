@@ -120,10 +120,11 @@ int readMsg(FILE * file, RsslUInt8 *majorVer, RsslUInt8 *minorVer, RsslBuffer * 
 int writeMsg(FILE * out, RsslBuffer * buffer, RsslUInt8 majorVer, RsslUInt8 minorVer, RsslUInt16 len)
 {
 	RsslUInt32 count;
+	RsslUInt32 len32 = len;
 	RsslRet ret;
 
-	RWF_MOVE_32(&count, &len);
-	ret = (RsslRet)fwrite(&count, 2, 1, out);
+	RWF_MOVE_32(&count, &len32);
+	ret = (RsslRet)fwrite(&count, sizeof(RsslUInt32), 1, out);
 	ret = (RsslRet)fwrite(&majorVer, 1, 1, out);
 	ret = (RsslRet)fwrite(&minorVer, 1, 1, out);
 	ret = (RsslRet)fwrite(buffer->data, 1, len, out);

@@ -118,107 +118,107 @@ RsslCurlJITFuncs* rsslInitCurlApi(char* curlLibName, RsslError *error)
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_init = (CURL* (*)())RSSL_LI_DLSYM(curlHandle, "curl_easy_init");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_init, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_init, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_cleanup = (void (*)(CURL*))RSSL_LI_DLSYM(curlHandle, "curl_easy_cleanup");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_cleanup, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_cleanup, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_setopt = (CURLcode (*)(CURL*, CURLoption, ...))RSSL_LI_DLSYM(curlHandle, "curl_easy_setopt");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_setopt, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_setopt, dlErr)))
 			return curlLoadError(error);
 	
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_perform = (CURLcode (*)(CURL*))RSSL_LI_DLSYM(curlHandle, "curl_easy_perform");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_perform, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_perform, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_global_init = (CURLcode (*)(long))RSSL_LI_DLSYM(curlHandle, "curl_global_init");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_global_init, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_global_init, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_global_cleanup = (void (*)(void))RSSL_LI_DLSYM(curlHandle, "curl_global_cleanup");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_global_cleanup, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_global_cleanup, dlErr)))
 			return curlLoadError(error);
 		
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_getinfo = (CURLcode (*)(CURL*, CURLINFO, ...))RSSL_LI_DLSYM(curlHandle, "curl_easy_getinfo");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_getinfo, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_getinfo, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_easy_strerror = (const char* (*)(CURLcode))RSSL_LI_DLSYM(curlHandle, "curl_easy_strerror");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_strerror, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_easy_strerror, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_slist_append = (struct curl_slist* (*)(struct curl_slist *, const char *))RSSL_LI_DLSYM(curlHandle, "curl_slist_append");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_slist_append, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_slist_append, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_slist_free_all = (void (*)(struct curl_slist *))RSSL_LI_DLSYM(curlHandle, "curl_slist_free_all");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_slist_free_all, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_slist_free_all, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_init = (CURLM* (*)(void))RSSL_LI_DLSYM(curlHandle, "curl_multi_init");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_init, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_init, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_add_handle = (CURLMcode (*)(CURLM *multi_handle, CURL *curl_handle))RSSL_LI_DLSYM(curlHandle, "curl_multi_add_handle");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_add_handle, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_add_handle, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_remove_handle = (CURLMcode (*)(CURLM *multi_handle, CURL *curl_handle))RSSL_LI_DLSYM(curlHandle, "curl_multi_remove_handle");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_remove_handle, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_remove_handle, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_perform = (CURLMcode (*)(CURLM *multi_handle, int *running_handles))RSSL_LI_DLSYM(curlHandle, "curl_multi_perform");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_perform, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_perform, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_poll = (CURLMcode (*)(CURLM *multi_handle, struct curl_waitfd extra_fds[], unsigned int extra_nfds, int timeout_ms, int *numFds))RSSL_LI_DLSYM(curlHandle, "curl_multi_poll");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_poll, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_poll, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_info_read = (CURLMsg* (*)(CURLM *multi_handle, int *msgs_in_queue))RSSL_LI_DLSYM(curlHandle, "curl_multi_info_read");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_info_read, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_info_read, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_cleanup = (CURLMcode (*)(CURLM *multi_handle))RSSL_LI_DLSYM(curlHandle, "curl_multi_cleanup");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_cleanup, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_cleanup, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_strerror = (const char* (*)(CURLMcode))RSSL_LI_DLSYM(curlHandle, "curl_multi_strerror");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_strerror, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_strerror, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_share_init = (CURLSH* (*)())RSSL_LI_DLSYM(curlHandle, "curl_share_init");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_init, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_init, dlErr)))
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_share_setopt = (CURLSHcode (*)(CURLSH*, CURLSHoption, ...))RSSL_LI_DLSYM(curlHandle, "curl_share_setopt");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_setopt, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_setopt, dlErr)))
 			return curlLoadError(error);
 		
 		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_share_cleanup = (CURLSHcode (*)(CURLSH*))RSSL_LI_DLSYM(curlHandle, "curl_share_cleanup");
-		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_cleanup, dlErr))
+		if ((dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_share_cleanup, dlErr)))
 			return curlLoadError(error);
 
         if ((ret = (*(curlJITFuncs.curl_global_init))(CURL_GLOBAL_NOTHING)) != CURLE_OK)

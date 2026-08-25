@@ -257,6 +257,7 @@ public :
 
 	virtual bool submit( RsslRequestMsg* ) = 0;
 	virtual bool submit( RsslCloseMsg*) = 0;
+	using Item::submit; // avoid name hiding of base overloads
 
 	virtual void scheduleItemClosedStatus( const ReqMsgImpl&, const EmaString& ) = 0;
 
@@ -403,6 +404,7 @@ public:
 
 	static NiProviderSingleItem* create( OmmBaseImpl&, OmmProviderClient&, void* , Item* );
 
+	using Item::submit; // avoid name hiding of base overloads
 	bool open( const ReqMsg& );
 	bool submit( const GenericMsg& );
 	bool close();
@@ -447,6 +449,7 @@ public:
 
 	static IProviderSingleItem* create(OmmServerBaseImpl&, OmmProviderClient&, void*, Item*);
 
+	using Item::submit; // avoid name hiding of base overloads
 	bool open(const ReqMsg&);
 	bool submit(const GenericMsg&);
 	bool close();

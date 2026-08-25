@@ -403,7 +403,7 @@ void MessageDataUtil::fillMarketByOrderMapGenericMsg(Map& mapOrders, PerfTimeVal
 bool MessageDataUtil::decodeUpdate(const FieldList& fldList, UInt16 msgtype, TimeTrack& timeTrack, EmaString& errText)
 {
 	Int64		intType;
-	UInt64		uintType;
+	UInt64		uintType = 0;
 	float		floatType;
 	double		doubleType;
 	UInt16		enumType;

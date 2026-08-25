@@ -758,7 +758,7 @@ void watchlistSymbolListTest_BigList(RsslConnectionTypes connectionType)
 			wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_FALSE);
 
 			++providerRequests;
-		} while (pEvent = wtfGetEvent());
+		} while ((pEvent = wtfGetEvent()));
 
 		wtfDispatch(WTF_TC_PROVIDER, 200);
 		ASSERT_TRUE(!wtfGetEvent());

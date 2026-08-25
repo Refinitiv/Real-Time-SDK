@@ -79,7 +79,7 @@ endif()
 
 macro(rcdev_set_flags _flags _xtra_flags)
 
-	rcdev_add_if_not_set(_rcdev_output ${${_flags}} ${${_xtra_flags}})
+	rcdev_add_if_not_set(_rcdev_output "${${_flags}}" "${${_xtra_flags}}")
 
 	if (NOT ("x${_rcdev_output}x" STREQUAL "xx"))
 		set(${_flags} "${_rcdev_output}" CACHE STRING "" FORCE)
@@ -100,38 +100,49 @@ if( UNIX )
         set ( CMAKE_SANITIZER_FLAGS "-fsanitize=address,undefined,leak -fno-sanitize=alignment" )
     endif()
 
-    if( UNIX AND (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7) )
+	if (RCDEV_HOST_SYSTEM_FLAVOR_REL LESS_EQUAL 7)
+		# Minimal flags
         set ( CMAKE_C_WARNINGS_FLAGS "-Wcomment" )
+		set ( CMAKE_CXX_WARNINGS_FLAGS "${CMAKE_C_WARNINGS_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated" )
     else()
-        set ( CMAKE_C_WARNINGS_FLAGS "-Wcomment -Wlogical-not-parentheses -Wtautological-compare" )
-    endif()
+        # Common warning flags
+        set ( CMAKE_C_WARNINGS_FLAGS "-Wcomment -Wlogical-not-parentheses -Warray-bounds -Wmissing-braces -Wparentheses -Wtautological-compare" )
+        set ( CMAKE_CXX_WARNINGS_FLAGS "${CMAKE_C_WARNINGS_FLAGS} -Woverloaded-virtual -Wregister -Wno-ctor-dtor-privacy -Wno-deprecated" )
+	endif()
 
-	# flags for C
-    set( RCDEV_C_FLAGS_INIT "${_compilerBitFlags} -D_DEFAULT_SOURCE=1  -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -pthread -D_iso_stdcpp_ -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_C_WARNINGS_FLAGS}" CACHE STRING "" FORCE )
-
-    # Suppress Clang formatting warnings only
+    # Compiler-specific flags
     if ( CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
+		# Suppress Clang formatting warnings only
         set ( CMAKE_FLAGS_CLANG "-fno-omit-frame-pointer -Wno-format -Wno-format-security -Wno-parentheses -Wno-empty-body -Wno-unused-value -Wno-comment -Wno-logical-op-parentheses -Wno-dangling-else -Wno-constant-logical-operand -Wno-macro-redefined  -Wno-pointer-sign -Wno-constant-conversion -Wno-switch -Wno-enum-conversion -Wno-sizeof-pointer-memaccess -Wno-null-dereference -Wno-fortify-source -Wno-undefined-bool-conversion" CACHE STRING ""  FORCE )
+	else()
+		# GCC
+		set ( _gccOnlyWarnings "-Wmaybe-uninitialized -Wstringop-truncation -Wrestrict" )
+		set ( CMAKE_C_WARNINGS_FLAGS "${CMAKE_C_WARNINGS_FLAGS} ${_gccOnlyWarnings}" )
+		set ( CMAKE_CXX_WARNINGS_FLAGS "${CMAKE_CXX_WARNINGS_FLAGS} ${_gccOnlyWarnings}" )
+
+		# -finline-limit is a GCC-only optimization flag; Clang warns that it is unsupported
+        set ( CMAKE_C_INLINE_LIMIT_FLAG "-finline-limit=700" )
     endif()
 
     if( BUILD_CODE_COVERAGE )
         set ( CMAKE_CODE_COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage -O0 -g" )
     endif()
 
+	# flags for C
+    set( RCDEV_C_FLAGS_INIT "${_compilerBitFlags} -D_DEFAULT_SOURCE=1 -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -pthread -D_iso_stdcpp_ -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_C_WARNINGS_FLAGS}" CACHE STRING "" FORCE )
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 -finline-limit=700 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -DNDEBUG -O3 ${CMAKE_C_INLINE_LIMIT_FLAG} -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 ${CMAKE_FLAGS_CLANG} ${CMAKE_CODE_COVERAGE_FLAGS}" CACHE STRING "" FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "OptimizedDebug" )
-		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -finline-limit=700 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
+		set ( CMAKE_C_FLAGS "${RCDEV_C_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 ${CMAKE_C_INLINE_LIMIT_FLAG} -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING "" FORCE)
 	endif()
-
 	if (RCDEV_C_EXTRA_FLAGS)
 		rcdev_set_flags(CMAKE_C_FLAGS RCDEV_C_EXTRA_FLAGS)
 	endif()
 
 	# flags for C++
-    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++11 -pthread  -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_C_WARNINGS_FLAGS}"  CACHE STRING "" FORCE)
+    set( RCDEV_CXX_FLAGS_INIT "${_compilerBitFlags} -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=${RCDEV_HOST_SYSTEM_FLAVOR_REL} -std=c++11 -pthread -D_iso_stdcpp_ -D_DEFAULT_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_GNU_SOURCE ${CMAKE_SANITIZER_FLAGS} ${CMAKE_CXX_WARNINGS_FLAGS}"  CACHE STRING "" FORCE)
 	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Optimized" )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}" CACHE STRING ""  FORCE)
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
@@ -139,7 +150,6 @@ if( UNIX )
 	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "OptimizedDebug" )
 		set ( CMAKE_CXX_FLAGS "${RCDEV_CXX_FLAGS_INIT} -ggdb3 -DNDEBUG -O3 -fbuiltin ${CMAKE_FLAGS_CLANG}"  CACHE STRING "" FORCE)
 	endif()
-
 	if (RCDEV_CXX_EXTRA_FLAGS)
 		rcdev_set_flags(CMAKE_CXX_FLAGS RCDEV_CXX_EXTRA_FLAGS)
 	endif()

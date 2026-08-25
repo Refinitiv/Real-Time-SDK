@@ -4563,7 +4563,9 @@ static void cleanupReactors(RsslBool sameReactor)
 {
 	ASSERT_TRUE(rsslDestroyReactor(pConsMon->pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	if (!sameReactor)
+	{
 		ASSERT_TRUE(rsslDestroyReactor(pProvMon->pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	}
 }
 
 
@@ -6727,8 +6729,8 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 {
 	int i;
 	int numConnections = 100; /* The number of connections must be set according to the performance of testing machine. */
-	MyReactorChannel myConsumerChannels[100] = {0};
-	MyReactorChannel myProviderChannels[100] = {0};
+	MyReactorChannel myConsumerChannels[100] = { {0} };
+	MyReactorChannel myProviderChannels[100] = { {0} };
 	RsslRet rsslRet;
 	int index = (connectionType == RSSL_CONN_TYPE_WEBSOCKET) ? 1 : 0;
 

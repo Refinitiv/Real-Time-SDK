@@ -75,7 +75,7 @@ RTR_C_INLINE RsslRet rsslMemoryPoolInit(RsslMemoryPool *pPool, int blockSize, in
 RTR_C_INLINE void rsslMemoryPoolCleanup(RsslMemoryPool *pPool)
 {
 	RsslQueueLink *pLink;
-	while (pLink = rsslQueueRemoveFirstLink(&pPool->blocks))
+	while ((pLink = rsslQueueRemoveFirstLink(&pPool->blocks)) != NULL)
 		free(RSSL_QUEUE_LINK_TO_OBJECT(RsslMemoryBlock, qlPool, pLink));
 }
 
@@ -83,7 +83,7 @@ RTR_C_INLINE void *rsslMemoryPoolGet(RsslMemoryPool *pPool, RsslErrorInfo *pErro
 {
 	RsslQueueLink *pLink;
 
-	if (pLink = rsslQueueRemoveFirstLink(&pPool->blocks))
+	if ((pLink = rsslQueueRemoveFirstLink(&pPool->blocks)) != NULL)
 		return (void*)RSSL_QUEUE_LINK_TO_OBJECT(RsslMemoryBlock, qlPool, pLink);
 	else
 	{

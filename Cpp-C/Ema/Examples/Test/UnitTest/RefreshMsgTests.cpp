@@ -1682,7 +1682,7 @@ TEST(RefreshMsgTests, testRefreshMsgCloneMsgKeyPermissionData)
 	rsslDeleteDataDictionary(&dictionary);
 }
 
-static constexpr std::array<char, 1> DefaultGroupId { '3' };
+static constexpr std::array<char, 1> DefaultGroupId {{ '3' }};
 
 // holds the memory (buffers, dictionary, etc.) needed to encode and decode a message
 // releases all resources upon destruction

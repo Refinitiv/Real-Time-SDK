@@ -263,7 +263,9 @@ static RsslReactorCallbackRet msgCallback(RsslReactor* pReactor,
 
 	/* Buffer is not modified by the watchlist, and so should not be forwarded. */
 	if (component == WTF_TC_CONSUMER)
+	{
 	  EXPECT_EQ(NULL, pEvent->pRsslMsgBuffer);
+	}
 
 	/* Copy message. */
 	pRsslMsgEvent = &wtf.eventList[wtf.eventCount].rsslMsg;
@@ -839,7 +841,8 @@ void wtfBindServer(RsslConnectionTypes connectionType, char* serverPort)
 
 	// Copy the connection information here.  Serverport is a pre-allocated 10 byte char array.
 	pTestServer->connType = connectionType;
-	strncpy(pTestServer->serverPort, serverPort, sizeof(pTestServer->serverPort));
+	strncpy(pTestServer->serverPort, serverPort, sizeof(pTestServer->serverPort) - 1);
+	pTestServer->serverPort[sizeof(pTestServer->serverPort) - 1] = '\0';
 
 	pTestServer->pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError);
 	bindOpts.pingTimeout = bindOpts.minPingTimeout = 30;
@@ -2355,7 +2358,9 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
 
 		if(multiLogin == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		}
 
 		ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE));
@@ -2527,7 +2532,9 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 			ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 
 			if(multiLogin == RSSL_FALSE)
+			{
 				ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+			}
 
 			ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 			ASSERT_TRUE(pDirectoryUpdate->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE));
@@ -2769,7 +2776,9 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 	wtf.providerLoginStreamId = pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId;
 
 	if (multiLogin == RSSL_TRUE)
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+	}
 
 	if (!pOpts->provideLoginRefresh)
 		return;
@@ -2791,7 +2800,9 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
 		if(multiLogin == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 	else
 	{
@@ -2800,7 +2811,9 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
 		if (multiLogin == RSSL_FALSE)
+		{
 			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 
 	wtfDispatch(WTF_TC_CONSUMER, 200);
@@ -2965,7 +2978,7 @@ void wtfProviderTestView(RsslRequestMsg *pRequestMsg, void *elemList,
 				{
 					ASSERT_TRUE(ret == RSSL_RET_SUCCESS);
 
-					if (!elemList) ASSERT_TRUE(0); /* Field found but list is expected to be empty. */
+					if (!elemList) { ASSERT_TRUE(0); } /* Field found but list is expected to be empty. */
 
 					ASSERT_TRUE((ret = rsslDecodeInt(&dIter, &fieldId)) == RSSL_RET_SUCCESS);
 					ASSERT_TRUE(fieldId == ((RsslInt*)elemList)[elemPos]);
@@ -2983,7 +2996,7 @@ void wtfProviderTestView(RsslRequestMsg *pRequestMsg, void *elemList,
 				{
 					ASSERT_TRUE(ret == RSSL_RET_SUCCESS);
 
-					if (!elemList) ASSERT_TRUE(0); /* Field found but list is expected to be empty. */
+					if (!elemList) { ASSERT_TRUE(0); } /* Field found but list is expected to be empty. */
 
 					ASSERT_TRUE((ret = rsslDecodeBuffer(&dIter, &name)) == RSSL_RET_SUCCESS);
 					ASSERT_TRUE(rsslBufferIsEqual(&name, &((RsslBuffer*)elemList)[elemPos]));

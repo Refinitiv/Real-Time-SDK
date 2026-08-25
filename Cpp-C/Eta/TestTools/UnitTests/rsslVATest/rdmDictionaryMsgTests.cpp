@@ -262,7 +262,9 @@ void dictionaryRefreshMsgTests()
 			}
 
 			if (pDecRDMMsg->flags & RDM_DC_RFF_HAS_SEQ_NUM)
+			{
 				ASSERT_TRUE(pDecRDMMsg->sequenceNumber == seqNum);
+			}
 				
 			ASSERT_TRUE(pDecRDMMsg->type == RDM_DICTIONARY_ENUM_TABLES);
 			ASSERT_TRUE(pDecRDMMsg->state.streamState == state.streamState);

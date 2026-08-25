@@ -392,7 +392,7 @@ int rwfToJsonSimple::processRefreshMsg(RsslDecodeIterator *iterPtr, RsslMsg &iMs
 {
 	const RsslMsgKey *pKey;
 
-	if ( pKey = rsslGetMsgKey(&iMsg))
+	if ( (pKey = rsslGetMsgKey(&iMsg)))
 	{
 		writeBufVar(&JSON_KEY, true);
 		if (!processMsgKey(pKey, iterPtr, iMsg.msgBase.domainType))

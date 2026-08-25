@@ -214,7 +214,7 @@ static RsslRet initPrimitive(RsslPrimitive *primitive, RsslDataType dataType, xm
 {
 	int scanfRet, scanfLen;
 	char *pXmlAttrib;
-	RsslInt32 stringToEnumRet;
+	RsslInt32 stringToEnumRet = 0;
 	RsslBuffer dataBuffer;
 	size_t stringLength;
 

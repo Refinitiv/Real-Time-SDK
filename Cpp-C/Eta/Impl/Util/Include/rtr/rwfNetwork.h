@@ -55,7 +55,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecU16(char *dptr, rtrUInt16 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU16(rtrUInt16 *dvalptr, char *sptr)
 {
-	register rtrUInt32 tval = *(rtrUInt32*)sptr;
+	rtrUInt32 tval = *(rtrUInt32*)sptr;
 	switch (tval & 0xFF)
 	{
 		case 0:
@@ -75,7 +75,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU16(rtrUInt16 *dvalptr, char *sptr)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU16_Size(rtrUInt16 *dvalptr, char *sptr, rtrUInt16 size)
 {
-	register rtrUInt16 tval = *(rtrUInt16*)sptr;
+	rtrUInt16 tval = *(rtrUInt16*)sptr;
 	switch (size)
 	{
 		case 0:
@@ -104,7 +104,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutOptByteU16(char *dptr, rtrUInt16 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetOptByteU16(rtrUInt16 *dvalptr, char *sptr)
 {
-	register rtrUInt8 temp = (*(rtrUInt8*)sptr);
+	rtrUInt8 temp = (*(rtrUInt8*)sptr);
 	if (temp < 0xFE) {
 		*dvalptr = (rtrUInt16)temp;
 		return 1;
@@ -126,7 +126,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU15(char *dptr, rtrUInt16 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitU15(rtrUInt16 *dvalptr, char *sptr)
 {
-	register rtrUInt8 temp = (*(rtrUInt8*)sptr);
+	rtrUInt8 temp = (*(rtrUInt8*)sptr);
 	if (temp & 0x80) {
 		*dvalptr = __rtr_bswap16(*(rtrUInt16*)sptr) & 0x7FFF;
 		return 2;
@@ -139,7 +139,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitU15(rtrUInt16 *dvalptr, char *sptr)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU22(char *dptr, const rtrUInt32 *sptr)
 {
-	register rtrUInt32 temp = (*(rtrUInt32*)sptr);
+	rtrUInt32 temp = (*(rtrUInt32*)sptr);
 	if (temp < (rtrUInt32)0x80) 
 	{
 		*(rtrUInt8*)dptr = temp;
@@ -166,7 +166,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU22(char *dptr, const rtrUInt32 *sptr)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitU22(rtrUInt32 *dvalptr, const char *sptr)
 {
-	register rtrUInt8 temp = *sptr;
+	rtrUInt8 temp = *sptr;
 	if ((temp & (rtrUInt8)0x80) == 0)
 	{
 		*dvalptr = temp & 0x7F; 
@@ -193,13 +193,13 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU30(char *dptr, const rtrUInt32 *sptr)
 {
 	if (*sptr < (rtrUInt32)0x40) /* 6b */
 	{
-		register rtrUInt8 temp = (*(rtrUInt8*)sptr);
+		rtrUInt8 temp = (*(rtrUInt8*)sptr);
 		rwfPut8(dptr, temp);
 		return 1;
 	}
 	else if (*sptr < (rtrUInt32)0x4000) /* 14 b */
 	{
-		register rtrUInt16 temp = ((*(rtrUInt16*)sptr) | 0x8000);
+		rtrUInt16 temp = ((*(rtrUInt16*)sptr) | 0x8000);
 		rwfPut16(dptr, temp);
 		return 2;
 	}
@@ -226,7 +226,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU30(char *dptr, const rtrUInt32 *sptr)
 /* Used by TRWF and RWF */
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitU30(rtrUInt32 *dvalptr, const char *sptr)
 {
-	register rtrUInt8 temp = *sptr;
+	rtrUInt8 temp = *sptr;
 	
 	switch(temp & 0xC0)
 	{
@@ -282,7 +282,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutResBitU31(char *dptr, const rtrUInt32 *sptr)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitU31(rtrUInt32 *dvalptr, const char *sptr)
 {
-	register rtrUInt8 temp = *sptr;
+	rtrUInt8 temp = *sptr;
 
 	if ((temp & (rtrUInt8)0x80) == 0) /* 23b */
 	{
@@ -387,7 +387,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetResBitI30(rtrInt32 *dvalptr, const char *sptr
 	 */
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetBuffer16(RwfBuffer *buf, char *sptr)
 {
-	register rtrUInt8 temp = (*(rtrUInt8*)sptr);
+	rtrUInt8 temp = (*(rtrUInt8*)sptr);
 	if (temp < (rtrUInt8)0xFE) {
 		buf->length = (rtrInt32)temp;
 		buf->data = sptr + 1;
@@ -406,7 +406,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetBuffer16(RwfBuffer *buf, char *sptr)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetBuffer8(RwfBuffer *buf, char *sptr)
 {
-	register rtrUInt8 temp = (*(rtrUInt8*)sptr);
+	rtrUInt8 temp = (*(rtrUInt8*)sptr);
 	if (temp > 0)
 	{
 		buf->length = (rtrInt32)temp;
@@ -429,7 +429,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetBuffer8(RwfBuffer *buf, char *sptr)
    better than or'ing the length and swapping, due to the need to mask out the type byte */
 RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecI32(char *dptr, rtrInt32 sval)
 {
-	register rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
+	rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
 	if (ckval & 0xFF000000 ) {
 		*((rtrUInt8*)dptr) = 0x80;  // top three bits set to 100
 		*((rtrUInt32*)(dptr+1)) = __rtr_bswap32( (rtrUInt32)sval);
@@ -457,7 +457,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecI64(char *dptr, rtrInt64 sval)
 	if ((sval >= RTR_LL(-2147483648)) && (sval <= RTR_LL(2147483647))) {
 		return trwfPutLenSpecI32(dptr,(rtrInt32)sval);
 	} else {
-		register rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : ((-sval - 1) << 1); // shift once here instead of each if/else if
+		rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : ((-sval - 1) << 1); // shift once here instead of each if/else if
 		if (ckval & RTR_ULL(0xFF00000000000000) ) {
 			*((rtrUInt16*)dptr) = (rtrUInt16)0x081F;  // should give us a first byte of 00011111 (primitive code bailout and second byte of 0x08 telling us 8 bytes follow 
 			*((rtrUInt64*)(dptr+2)) = __rtr_bswap64( (rtrUInt64)sval);
@@ -487,7 +487,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecI64(char *dptr, rtrInt64 sval)
 /* Put functions for LenSpec RWF Int/UInt32s */
 RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecI32(char *dptr, rtrInt32 sval)
 {
-	register rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
+	rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
 	if (ckval & 0xFF000000 ) {
 		*((rtrUInt8*)dptr) = 0x04;
 		*((rtrUInt32*)(dptr+1)) = __rtr_bswap32( (rtrUInt32)sval);
@@ -509,7 +509,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecI32(char *dptr, rtrInt32 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecI32(rtrInt32 *svalptr, char *sptr)
 {
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 		
 	switch (len)
 	{
@@ -556,7 +556,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecI64(char *dptr, rtrInt64 sval)
 	if ((sval >= RTR_LL(-2147483648)) && (sval <= RTR_LL(2147483647))) {
 		return rwfPutLenSpecI32(dptr,(rtrInt32)sval);
 	} else {
-		register rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1); // shift once here instead of each if/else if
+		rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1); // shift once here instead of each if/else if
 		if (ckval & RTR_ULL(0xFF00000000000000) ) {
 			*((rtrUInt8*)dptr) = 0x08;
 			*((rtrUInt64*)(dptr+1)) = __rtr_bswap64( (rtrUInt64)sval);
@@ -581,7 +581,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecI64(char *dptr, rtrInt64 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecI64(rtrInt64 *svalptr, char *sptr)
 {
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 		
 	switch (len)
 	{
@@ -733,7 +733,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecU32(char *dptr, rtrUInt32 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU32(rtrUInt32 *svalptr, char *sptr)
 {
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 		
 	switch (len)
 	{
@@ -787,7 +787,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecU64(char *dptr, rtrUInt64 sval)
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU64(rtrUInt64 *svalptr, char *sptr)
 {
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 		
 	switch (len)
 	{
@@ -896,7 +896,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecU64Size(rtrUInt64 *svalptr, char *sptr
 RTR_C_ALWAYS_INLINE rtrInt32 trwfGetLenSpecI64(rtrInt64 *svalptr, char *sptr)
 {
 	
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 	/* shift length over 5 bits so that it will be 1, 2, .... */
 	switch (len >> 5)
 	{
@@ -1037,7 +1037,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfGetLenSpecI64_Size(rtrInt64 *svalptr, char *spt
 /* Real decoding uses the existing functionality */
 RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecI32NoLength(char *dptr, rtrInt32 sval)
 {
-	register rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
+	rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
 	if (ckval & 0xFF000000 ) {
 		*((rtrUInt32*)(dptr)) = __rtr_bswap32( (rtrUInt32)sval);
 		return 4;
@@ -1081,7 +1081,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecI64NoLength(char *dptr, rtrInt64 sval
 	if ((sval >= RTR_LL(-2147483648)) && (sval <= RTR_LL(2147483647))) {
 		return trwfPutLenSpecI32NoLength(dptr,(rtrInt32)sval);
 	} else {
-		register rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : ((-sval - 1) << 1); // shift once here instead of each if/else if
+		rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : ((-sval - 1) << 1); // shift once here instead of each if/else if
 		if (ckval & RTR_ULL(0xFF00000000000000) ) {
 			*((rtrUInt64*)(dptr)) = __rtr_bswap64( (rtrUInt64)sval);
 			return 8;
@@ -1185,7 +1185,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfPutLenSpecU64(char *dptr, rtrUInt64 sval)
 RTR_C_ALWAYS_INLINE rtrInt32 trwfGetLenSpecU64(rtrUInt64 *svalptr, char *sptr)
 {
 	
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 		
 	switch (len >> 5)
 	{
@@ -1300,7 +1300,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 trwfGetLenSpecU64_Size(rtrUInt64 *svalptr, char *sp
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecReal32(char *dptr, rtrInt32 sval, rtrUInt8 fval)
 {
-	register rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
+	rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
 	if (ckval & 0xFF000000 ) {
 		*((rtrUInt16*)dptr) = ((rtrUInt16)fval << 8 | 0x05);
 		*((rtrUInt32*)(dptr+2)) = __rtr_bswap32( (rtrUInt32)sval);
@@ -1325,7 +1325,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecReal32(char *dptr, rtrInt32 sval, rtrU
 
 RTR_C_ALWAYS_INLINE rtrInt32 rwfPutReal32(char *dptr, rtrInt32 sval, rtrUInt8 fval)
 {
-	register rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
+	rtrUInt32 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift here instead of each if/else if statement
 	if (ckval & 0xFF000000 ) {
 		*((rtrUInt8*)dptr) = fval;
 		*((rtrUInt32*)(dptr+1)) = __rtr_bswap32( (rtrUInt32)sval);
@@ -1351,7 +1351,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutReal32(char *dptr, rtrInt32 sval, rtrUInt8 fv
    (this may take bytes that are not ours in the 2 and 3 byte case */
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecReal32(rtrInt32 *svalptr, rtrUInt8 *fvalptr, char *sptr)
 {
-	register rtrUInt8 len = (rtrUInt8)(*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (rtrUInt8)(*(rtrUInt8*)(sptr));
 	*fvalptr = (rtrUInt8)(*(rtrUInt8*)(sptr+1));
 	
 	switch (len)
@@ -1423,7 +1423,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutLenSpecReal64(char *dptr, rtrInt64 sval, rtrU
 	if ((sval >= RTR_LL(-2147483648)) && (sval <= RTR_LL(2147483647))) {
 		return rwfPutLenSpecReal32(dptr,(rtrInt32)sval,fval);
 	} else {
-		register rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift once here instead of each if/else if
+		rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1);  // shift once here instead of each if/else if
 		if (ckval & RTR_ULL(0xFF00000000000000) ) {
 			*((rtrUInt16*)dptr) = ((rtrUInt16)fval << 8 | 0x09);
 			*((rtrUInt64*)(dptr+2)) = __rtr_bswap64( (rtrUInt64)sval);
@@ -1451,7 +1451,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutReal64(char *dptr, rtrInt64 sval, rtrUInt8 fv
 	if ((sval >= RTR_LL(-2147483648)) && (sval <= RTR_LL(2147483647))) {
 		return rwfPutReal32(dptr,(rtrInt32)sval,fval);
 	} else {
-		register rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1); // shift once here instead of each if/else if
+		rtrUInt64 ckval = (sval >= 0) ? (sval << 1) : (((-sval) - 1) << 1); // shift once here instead of each if/else if
 		if (ckval & RTR_ULL(0xFF00000000000000) ) {
 			*((rtrUInt8*)dptr) = fval;
 			*((rtrUInt64*)(dptr+1)) = __rtr_bswap64( (rtrUInt64)sval);
@@ -1478,7 +1478,7 @@ RTR_C_ALWAYS_INLINE rtrInt32 rwfPutReal64(char *dptr, rtrInt64 sval, rtrUInt8 fv
    (this may take bytes that are not ours in the 2 and 3 byte case */
 RTR_C_ALWAYS_INLINE rtrInt32 rwfGetLenSpecReal64(rtrInt64 *svalptr, rtrUInt8 *fvalptr, char *sptr)
 {
-	register rtrUInt8 len = (*(rtrUInt8*)(sptr));
+	rtrUInt8 len = (*(rtrUInt8*)(sptr));
 	*fvalptr = (rtrUInt8)(*(rtrUInt8*)(sptr+1));
 	
 	switch (len)

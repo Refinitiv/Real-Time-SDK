@@ -431,7 +431,8 @@ protected:
         clearTUServerConfig(&cfg);
         cfg.blocking = RSSL_FALSE;
         cfg.connType = RSSL_CONN_TYPE_SOCKET;
-        strncpy(cfg.portNo, port, sizeof(cfg.portNo));
+        strncpy(cfg.portNo, port, sizeof(cfg.portNo) - 1);
+        cfg.portNo[sizeof(cfg.portNo) - 1] = '\0';
         pServer = bindRsslServer(&cfg);
         return pServer != nullptr;
     }
@@ -876,7 +877,8 @@ protected:
         clearTUServerConfig(&cfg);
         cfg.blocking = RSSL_FALSE;
         cfg.connType = RSSL_CONN_TYPE_SOCKET;
-        strncpy(cfg.portNo, port, sizeof(cfg.portNo));
+        strncpy(cfg.portNo, port, sizeof(cfg.portNo) - 1);
+        cfg.portNo[sizeof(cfg.portNo) - 1] = '\0';
         pServer = bindRsslServer(&cfg);
         if (!pServer) return false;
 

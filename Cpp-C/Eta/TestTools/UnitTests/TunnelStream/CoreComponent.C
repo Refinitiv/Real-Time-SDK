@@ -260,7 +260,7 @@ void CoreComponent::writeBuffer(RsslBuffer* pBuffer)
 	RsslInt ret;
 		
 	ret = rsslWriteEx(_pChannel, pBuffer, &_writeInArgs, &_writeOutArgs, &_error);
-	ASSERT_TRUE(ret >= 0 || ret == RSSL_RET_WRITE_FLUSH_FAILED && _pChannel->state == RSSL_CH_STATE_ACTIVE);
+	ASSERT_TRUE(ret >= 0 || (ret == RSSL_RET_WRITE_FLUSH_FAILED && _pChannel->state == RSSL_CH_STATE_ACTIVE));
 		
 	while (ret > 0)
 	{

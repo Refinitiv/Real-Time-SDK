@@ -173,14 +173,14 @@ RTR_C_ALWAYS_INLINE rtr_atomic_val rtrInterAdd(rtr_atomic_val *var, rtr_atomic_v
 }
 RTR_C_ALWAYS_INLINE rtr_atomic_val rtrInterExchOld(rtr_atomic_val *var, rtr_atomic_val newval)
 {
-	register rtr_atomic_val prev;
+	rtr_atomic_val prev;
 	__asm__ __volatile__ ( "xchgl %0, %1" :
 			"=r"(prev) : "m"(*var), "0"(newval) : "memory");
 	return prev;
 }
 RTR_C_ALWAYS_INLINE rtr_atomic_val rtrInterCompAndSwap(rtr_atomic_val *var, rtr_atomic_val compval, rtr_atomic_val newval)
 {
-	register rtr_atomic_val prev;
+	rtr_atomic_val prev;
 	__asm__ __volatile__ ( "lock cmpxchgl %1, %2" :
 		"=a"(prev) : "r"(newval), "m"(*var), "0"(compval) : "memory" );
 	return prev;
@@ -189,7 +189,7 @@ RTR_C_ALWAYS_INLINE rtr_atomic_val rtrInterCompAndSwap(rtr_atomic_val *var, rtr_
 #ifdef COMPILE_64BITS
 RTR_C_ALWAYS_INLINE void* rtrInterCompAndSwapPtr(void **var, void *compval, void *newval)
 {
-	register void* prev;
+	void* prev;
 	__asm__ __volatile__ ( "lock cmpxchgq %1, %2" :
 		"=a"(prev) : "r"(newval), "m"(*var), "0"(compval) : "memory");
 	return prev;
@@ -197,7 +197,7 @@ RTR_C_ALWAYS_INLINE void* rtrInterCompAndSwapPtr(void **var, void *compval, void
 #else
 RTR_C_ALWAYS_INLINE void* rtrInterCompAndSwapPtr(void **var, void *compval, void *newval)
 {
-	register void* prev;
+	void* prev;
 	__asm__ __volatile__ ( "lock cmpxchgl %1, %2" :
 		"=a"(prev) : "r"(newval), "m"(*var), "0"(compval) : "memory" );
 	return prev;
@@ -226,7 +226,7 @@ RTR_C_ALWAYS_INLINE rtr_atomic_val64 rtrInterAdd64(rtr_atomic_val64 *var, rtr_at
 
 RTR_C_ALWAYS_INLINE rtr_atomic_val64 rtrInterExch64(rtr_atomic_val64 *var, rtr_atomic_val64 newval)
 {
-	register rtr_atomic_val64 prev;
+	rtr_atomic_val64 prev;
 	__asm__ __volatile__ ( "lock xchgq %0, %1" :
 			"=r"(prev) : "m"(*var), "0"(newval) : "cc");
 	return prev;

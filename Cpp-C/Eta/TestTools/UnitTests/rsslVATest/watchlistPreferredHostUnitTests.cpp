@@ -11937,7 +11937,9 @@ void preferredHost_WSBService_FallbackTimer(PreferredHostTestParameters paramete
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING || pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 	if (pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING)
+	{
 		ASSERT_TRUE(pEvent->channelEvent.port == 14013);
+	}
 
 	while (!(pEvent = wtfGetEvent()))
 	{

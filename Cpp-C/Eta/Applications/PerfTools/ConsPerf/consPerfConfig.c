@@ -620,7 +620,7 @@ void initConsPerfConfig(int argc, char **argv)
 
 	if (consPerfConfig.latencyIncludeJSONConversion == RSSL_TRUE
 		&& !(consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET
-			|| consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+			|| (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)))
 	{
 		printf("\nConfig error: -calcRWFJSONConversionLatency enables for WebSocket connection only.\n");
 		exitConfigError(argv);
@@ -628,7 +628,7 @@ void initConsPerfConfig(int argc, char **argv)
 
 	if (consPerfConfig.convertJSON == RSSL_TRUE
 		&& !(consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET
-			|| consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+			|| (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)))
 	{
 		printf("\nConfig error: -addConversionOverhead enables for WebSocket connection only.\n");
 		exitConfigError(argv);

@@ -56,6 +56,7 @@ public :
 
 	void reissue(const ReqMsg&, UInt64);
 
+	using OmmBaseImpl::submit; // avoid name hiding of base overload
 	void submit( const RefreshMsg&, UInt64 );
 
 	void submit( const UpdateMsg&, UInt64 );

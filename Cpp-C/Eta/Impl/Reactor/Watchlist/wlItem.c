@@ -269,8 +269,8 @@ void wlItemRequestEstablishQos(WlItemRequest *pItemRequest, RsslQos *pQos)
 {
 	if (pItemRequest->flags & WL_IRQF_HAS_STATIC_QOS 
 			|| pItemRequest->qos.dynamic
-			|| pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS
-				&& !(pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS))
+			|| (pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS
+				&& !(pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS)))
 		return;
 
 	pItemRequest->staticQos = *pQos;
@@ -527,10 +527,12 @@ RsslRet wlItemGroupAddStream(WlItems *pItems, RsslBuffer *pGroupId, WlItemStream
 	assert(pWlService);
 
 	if (pItemStream->pItemGroup)
+	{
 		if (rsslBufferIsEqual(&pItemStream->pItemGroup->groupId, pGroupId))
 			return RSSL_RET_SUCCESS;
 		else
 			wlItemGroupRemoveStream(pItems, pItemStream->pItemGroup, pItemStream);
+	}
 
 	hashSum = rsslHashBufferSum(pGroupId);
 	pLink = rsslHashTableFind(&pWlService->itemGroupTable, (void*)pGroupId, &hashSum);
@@ -750,12 +752,12 @@ RsslRet wlItemRequestReissue(WlBase *pBase, WlItems *pItems, WlItemRequest *pIte
 	pItemRequest->msgKey.flags = msgKeyFlags;
 
 	/* Match service name. */
-	if (pItemRequest->pRequestedService->flags & WL_RSVC_HAS_NAME
-			&& !pOpts->pServiceName
-			|| !(pItemRequest->pRequestedService->flags & WL_RSVC_HAS_NAME)
-			&& pOpts->pServiceName
-			|| pOpts->pServiceName && !rsslBufferIsEqual(pOpts->pServiceName,
-				&pItemRequest->pRequestedService->serviceName))
+	if ((pItemRequest->pRequestedService->flags & WL_RSVC_HAS_NAME
+			&& !pOpts->pServiceName)
+			|| (!(pItemRequest->pRequestedService->flags & WL_RSVC_HAS_NAME)
+			&& pOpts->pServiceName)
+			|| (pOpts->pServiceName && !rsslBufferIsEqual(pOpts->pServiceName,
+				&pItemRequest->pRequestedService->serviceName)))
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 				"Service name does not match existing request.");
@@ -764,8 +766,8 @@ RsslRet wlItemRequestReissue(WlBase *pBase, WlItems *pItems, WlItemRequest *pIte
 
 	/* Match Qos */
 	if ((pRequestMsg->flags & RSSL_RQMF_HAS_QOS) != (pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS)
-			|| (pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS)
-			&& !rsslQosIsEqual(&pRequestMsg->qos, &pItemRequest->qos))
+			|| ((pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS)
+			&& !rsslQosIsEqual(&pRequestMsg->qos, &pItemRequest->qos)))
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 				"QoS does not match existing request.");
@@ -774,8 +776,8 @@ RsslRet wlItemRequestReissue(WlBase *pBase, WlItems *pItems, WlItemRequest *pIte
 
 	/* Match Worst Qos */
 	if ((pRequestMsg->flags & RSSL_RQMF_HAS_WORST_QOS) != (pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS)
-			|| (pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS)
-			&& !rsslQosIsEqual(&pRequestMsg->worstQos, &pItemRequest->worstQos))
+			|| ((pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS)
+			&& !rsslQosIsEqual(&pRequestMsg->worstQos, &pItemRequest->worstQos)))
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 				"Worst QoS does not match existing request.");
@@ -973,7 +975,7 @@ void wlItemRequestClose(WlBase *pBase, WlItems *pItems, WlItemRequest *pItemRequ
 		wlItemStreamSetMsgPending(pBase, pItemStream, RSSL_FALSE);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts))
+	while ((pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts)))
 	{
 		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
 		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);
@@ -1306,8 +1308,8 @@ RsslRet wlItemStreamAddRequest(WlBase *pBase, WlItems *pItems, WlItemStream *pIt
 					&& pItemStream->flags & WL_IOSF_PENDING_SNAPSHOT)
 
 				/* Need to update/remove view? */
-				|| pItemStream->flags & WL_IOSF_PENDING_VIEW_REFRESH && (!pItemRequest->pView ||
-				!wlAggregateViewContains(pItemStream->pAggregateView, pItemRequest->pView)))
+				|| (pItemStream->flags & WL_IOSF_PENDING_VIEW_REFRESH && (!pItemRequest->pView ||
+				!wlAggregateViewContains(pItemStream->pAggregateView, pItemRequest->pView))))
 		{
 			/* Have to wait for current request to get its refresh . */
 			rsslQueueAddLinkToBack(&pItemStream->requestsRecovering, &pItemRequest->base.qlStateQueue);
@@ -1341,7 +1343,7 @@ RsslRet wlItemRequestFindStream(WlBase *pBase, WlItems *pItems, WlItemRequest *p
 		RsslErrorInfo *pErrorInfo, RsslBool generateStatus)
 {
 	RsslUInt capability;
-	RsslUInt32 hashSum;
+	RsslUInt32 hashSum = 0;
 	RsslHashLink *pHashLink;
 	const RsslQos *pMatchingQos = NULL;
 	WlStreamAttributes streamAttributes;
@@ -1502,8 +1504,8 @@ RsslRet wlItemRequestFindStream(WlBase *pBase, WlItems *pItems, WlItemRequest *p
 		if (pBase->config.singleOpen && !(pItemRequest->flags & WL_IRQF_PRIVATE))
 		{
 			statusMsg.state.streamState = RSSL_STREAM_OPEN;
-			if (ret = wlItemRequestSendMsgEvent(pBase, &msgEvent, pItemRequest, pErrorInfo)
-					!= RSSL_RET_SUCCESS)
+			if ((ret = wlItemRequestSendMsgEvent(pBase, &msgEvent, pItemRequest, pErrorInfo)
+					!= RSSL_RET_SUCCESS))
 				return ret;
 		}
 		else
@@ -1512,8 +1514,8 @@ RsslRet wlItemRequestFindStream(WlBase *pBase, WlItems *pItems, WlItemRequest *p
 
 			wlItemRequestClose(pBase, pItems, pItemRequest);
 
-			if (ret = wlItemRequestSendMsgEvent(pBase, &msgEvent, pItemRequest, pErrorInfo)
-					!= RSSL_RET_SUCCESS)
+			if ((ret = wlItemRequestSendMsgEvent(pBase, &msgEvent, pItemRequest, pErrorInfo)
+					!= RSSL_RET_SUCCESS))
 				return ret;
 
 			if(pBase->pCurrentWlRequestedService != pItemRequest->pRequestedService)
@@ -1874,8 +1876,8 @@ static RsslRet _wlItemRequestSaveExtraInfo(WlItemRequest *pItemRequest, RsslRequ
 		/* Save data body if:
 		   * This is for a qualified stream, OR
 		   * - There's no view, batch, or symbol list behaviors */
-		if ( pRequestMsg->msgBase.containerType != RSSL_DT_NO_DATA
-				&& (pRequestMsg->flags & RSSL_RQMF_QUALIFIED_STREAM)
+		if ( (pRequestMsg->msgBase.containerType != RSSL_DT_NO_DATA
+				&& (pRequestMsg->flags & RSSL_RQMF_QUALIFIED_STREAM))
 				|| (!(pRequestMsg->flags & RSSL_RQMF_HAS_VIEW)
 					&& !(pRequestMsg->flags & RSSL_RQMF_HAS_BATCH)
 					&& (pItemRequest->base.domainType != RSSL_DMT_SYMBOL_LIST

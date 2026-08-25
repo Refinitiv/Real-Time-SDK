@@ -1073,7 +1073,6 @@ static RsslRet redirectToPrivateStream(RsslReactor *pReactor, ChannelCommand *pC
 {
 	RsslErrorInfo rsslErrorInfo;
 	RsslBuffer* msgBuf = 0;
-
 	ItemRequest *pItemRequest;
 
 	/* add item name to private stream list */
@@ -1085,6 +1084,7 @@ static RsslRet redirectToPrivateStream(RsslReactor *pReactor, ChannelCommand *pC
 	else
 	{
 		printf("Number of Private Stream Market By Price items exceeded\n");
+		return RSSL_RET_FAILURE;
 	}
 
 	pItemRequest->streamId = getNextAvailableMarketByPricePrivateStreamId(pCommand);

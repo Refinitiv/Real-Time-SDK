@@ -92,7 +92,7 @@ RSSL_API RsslRet rsslDoubleToReal(RsslReal * oReal, RsslDouble * iValue, RsslUIn
 
 		res = floor((*iValue) * powHintsEx[iHint] + 0.5);
 
-		if (res < LLONG_MIN || LLONG_MAX < res) {
+		if (res < LLONG_MIN || (double)LLONG_MAX < res) {
 			return RSSL_RET_FAILURE;
 		}
 
@@ -151,7 +151,7 @@ RSSL_API RsslRet rsslFloatToReal(RsslReal * oReal, RsslFloat * iValue, RsslUInt8
 
 		res = floorf((*iValue) * (float)powHintsEx[iHint] + 0.5f);
 
-		if (res < LLONG_MIN || LLONG_MAX < res) {
+		if (res < LLONG_MIN || (float)LLONG_MAX < res) {
 			return RSSL_RET_FAILURE;
 		}
 

@@ -319,7 +319,7 @@ static RsslRet sendDirectoryRefresh(RsslReactor *pReactor, RsslReactorChannel* p
 
 		rsslClearReactorSubmitOptions(&submitOpts);
 		/* send source directory response */
-		if (ret = rsslReactorSubmit(pReactor, pReactorChannel, msgBuf, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+		if ((ret = rsslReactorSubmit(pReactor, pReactorChannel, msgBuf, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS))
 		{
 			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
 			printf("\nrsslReactorSubmit() failed: %d: %s\n", ret , rsslErrorInfo.rsslError.text);
@@ -404,7 +404,7 @@ static RsslRet sendDirectoryRequestReject(RsslReactor *pReactor, RsslReactorChan
 			return RSSL_RET_FAILURE;
 		}
 		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
-		if (ret = rsslEncodeRDMDirectoryMsg(&encodeIter, (RsslRDMDirectoryMsg*)&directoryStatus, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		if ((ret = rsslEncodeRDMDirectoryMsg(&encodeIter, (RsslRDMDirectoryMsg*)&directoryStatus, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS))
 		{
 			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
 			printf("\nrsslEncodeRDMDirectoryMsg() failed\n");

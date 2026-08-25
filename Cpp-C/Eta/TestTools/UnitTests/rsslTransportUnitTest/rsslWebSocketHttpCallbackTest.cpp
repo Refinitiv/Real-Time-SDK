@@ -228,7 +228,7 @@ static bool setupJsonV2ChannelPair(
 }
 
 /* -----------------------------------------------------------------------
- * Base test fixture – RSSL_LOCK_GLOBAL, rssl.json.v2 WebSocket channel.
+ * Base test fixture - RSSL_LOCK_GLOBAL, rssl.json.v2 WebSocket channel.
  * --------------------------------------------------------------------- */
 class RsslWebSocketHttpCallbackTests : public ::testing::Test
 {
@@ -586,7 +586,7 @@ TEST_F(RsslWebSocketHttpCallbackTests, HttpCallback_with_client_request_memoryal
     memset(rsslError.text, 0, MAX_RSSL_ERROR_TEXT);
 
     const char* text = "Failed to allocate memory for HTTP headers";
-    strncpy(rsslError.text, text, strlen(text));
+    memcpy(rsslError.text, text, strlen(text));
 
     RsslWebSocketHttpCallbackTests::pHttpCallbackError = &rsslError;
 
@@ -617,7 +617,7 @@ TEST_F(RsslWebSocketHttpCallbackTests, HttpCallback_with_server_response_memorya
     memset(rsslError.text, 0, MAX_RSSL_ERROR_TEXT);
 
     const char* text = "Failed to allocate memory for HTTP headers";
-    strncpy(rsslError.text, text, strlen(text));
+    memcpy(rsslError.text, text, strlen(text));
 
     RsslWebSocketHttpCallbackTests::pHttpCallbackError = &rsslError;
 

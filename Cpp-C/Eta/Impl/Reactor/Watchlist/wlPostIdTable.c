@@ -53,7 +53,7 @@ RsslBool wlPostRecordCompare(void *pKey1, void *pKey2)
 		return RSSL_TRUE;
 
 	if ((pRecord1->flags & RSSL_PSMF_HAS_SEQ_NUM) != (pRecord2->flags & RSSL_PSMF_HAS_SEQ_NUM)
-			|| (pRecord1->flags & RSSL_PSMF_HAS_SEQ_NUM) && pRecord1->seqNum != pRecord2->seqNum)
+			|| ((pRecord1->flags & RSSL_PSMF_HAS_SEQ_NUM) && pRecord1->seqNum != pRecord2->seqNum))
 		return RSSL_FALSE;
 
 	return RSSL_TRUE;
@@ -98,7 +98,7 @@ void wlPostTableCleanup(WlPostTable *pTable)
 {
 	RsslQueueLink *pLink;
 
-	while(pLink = rsslQueueRemoveFirstLink(&pTable->pool))
+	while((pLink = rsslQueueRemoveFirstLink(&pTable->pool)) != NULL)
 	{
 		WlPostRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
 		rsslHeapBufferCleanup(&pRecord->name);

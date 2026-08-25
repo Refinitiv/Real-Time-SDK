@@ -820,7 +820,7 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 		 pProtName = strtok_r(NULL, delim, &savEnd))
 	{
 		char *tpStr = 0;
-		if (tpStr = strstr(pValue->data, pProtName))
+		if ((tpStr = strstr(pValue->data, pProtName)) != NULL)
 		{
 			for (i=0; i < RWS_SP_MAX; i++)
 			{

@@ -1381,7 +1381,7 @@ RsslRet encodeAndSendLoginRTTClient(RsslChannel* chnl, RsslInt32 streamId, RsslU
 		return error.rsslErrorId;
 	}
 
-	if (ret = rsslGetChannelStats(chnl, &stats, &error))
+	if ((ret = rsslGetChannelStats(chnl, &stats, &error)))
 	{
 		printf("rsslGetChannelStats() failed with return code: %d\n", ret);
 		return ret;

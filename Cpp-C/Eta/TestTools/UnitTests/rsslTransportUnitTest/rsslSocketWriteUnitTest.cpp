@@ -203,7 +203,7 @@ RsslConnectionTypes connType   = RSSL_CONN_TYPE_SOCKET)
 }
 
 /* -----------------------------------------------------------------------
- * Base fixture – initialises the transport, establishes one channel pair,
+ * Base fixture - initialises the transport, establishes one channel pair,
  * and tears everything down.
  * --------------------------------------------------------------------- */
 class RsslSocketWriteTests : public ::testing::TestWithParam<RsslConnectionTypes>
@@ -315,7 +315,7 @@ TEST_P(RsslSocketWriteTests, Issue6_NearMaximumWireLength)
     RsslBuffer* pBuf = getClientBuffer(reqSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – acceptable for this size";
+        SUCCEED() << "Buffer allocation failed - acceptable for this size";
         return;
     }
 
@@ -359,7 +359,7 @@ TEST_P(RsslSocketWriteTests, Issue9_WriteOutArgsBytesWrittenPopulatedOnSuccess)
 
     RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
     RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
-    /* Sentinel – if the implementation never writes these fields they stay -1. */
+    /* Sentinel - if the implementation never writes these fields they stay -1. */
     outArgs.bytesWritten             = (RsslUInt32)-1;
     outArgs.uncompressedBytesWritten = (RsslUInt32)-1;
 
@@ -444,7 +444,7 @@ TEST_P(RsslSocketWriteTests, ZeroLengthBufferDoesNotCrash)
 
 /* Write the same buffer pointer twice.  The first write transfers buffer
  * ownership to the internal pool; the second write reuses that stale pointer.
- * Only verifies the process does not crash – any return code is acceptable
+ * Only verifies the process does not crash - any return code is acceptable
  * because behaviour is undefined once the buffer has been consumed.
  * The test name is historical; no failure assertion is made on the second call. */
 TEST_P(RsslSocketWriteTests, DoubleWriteSameBufferFailsSecondCall)
@@ -461,14 +461,14 @@ TEST_P(RsslSocketWriteTests, DoubleWriteSameBufferFailsSecondCall)
     RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
     RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
 
-    /* First write – should succeed or queue. */
+    /* First write - should succeed or queue. */
     RsslRet ret1 = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
     ASSERT_GE(ret1, RSSL_RET_SUCCESS) << "First write failed: " << err.text;
 
     if (ret1 > RSSL_RET_SUCCESS)
         rsslFlush(pClientChnl, &err);
 
-    /* Second write on the same pointer – the internal buffer has been
+    /* Second write on the same pointer - the internal buffer has been
      * returned to the free pool; this must not corrupt the heap.
      * We accept any non-crash result. */
     rsslClearWriteOutArgs(&outArgs);
@@ -518,7 +518,7 @@ TEST_P(RsslSocketWriteTests, FlushAfterWriteFlushFailedDoesNotCrash)
         }
         else if (ret < RSSL_RET_SUCCESS)
         {
-            break;  /* channel closed – stop */
+            break;  /* channel closed - stop */
         }
     }
 
@@ -545,7 +545,7 @@ TEST_P(RsslSocketWriteTests, FragmentedWriteManyFragmentsDoesNotCrash)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – acceptable";
+        SUCCEED() << "Buffer allocation failed - acceptable";
         return;
     }
 
@@ -585,7 +585,7 @@ TEST_P(RsslSocketWriteTests, PackedBufferTwoMessagesWriteSucceeds)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Packed buffer allocation failed – skip";
+        SUCCEED() << "Packed buffer allocation failed - skip";
         return;
     }
 
@@ -596,7 +596,7 @@ TEST_P(RsslSocketWriteTests, PackedBufferTwoMessagesWriteSucceeds)
     RsslBuffer* pNext = rsslPackBuffer(pClientChnl, pBuf, &err);
     if (!pNext || pNext->length == 0)
     {
-        /* No room for second message – just write the first. */
+        /* No room for second message - just write the first. */
         pBuf->length = 0;
     }
     else
@@ -632,7 +632,7 @@ TEST_P(RsslSocketWriteTests, CompressedWriteZlibSucceeds)
     RsslBuffer* pBuf = getClientBuffer(payloadLen, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip compressed test";
+        SUCCEED() << "Buffer allocation failed - skip compressed test";
         return;
     }
 
@@ -663,7 +663,7 @@ TEST_P(RsslSocketWriteTests, CompressedFragmentedWriteDoesNotCrash)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -694,7 +694,7 @@ TEST_P(RsslSocketWriteTests, CompressedWriteLz4Succeeds)
     RsslBuffer* pBuf = getClientBuffer(payloadLen, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip LZ4 test";
+        SUCCEED() << "Buffer allocation failed - skip LZ4 test";
         return;
     }
 
@@ -1022,7 +1022,7 @@ TEST_P(RsslSocketWriteTests, Frag_MinimalPayloadAtFragmentBoundary)
     RsslBuffer* pBuf = getClientBuffer(1, &err);
     if (!pBuf)
     {
-        SUCCEED() << "1-byte buffer allocation failed – skip";
+        SUCCEED() << "1-byte buffer allocation failed - skip";
         return;
     }
 
@@ -1111,7 +1111,7 @@ TEST_P(RsslSocketWriteTests, Frag_WriteExactlyMaxFragmentSize)
     RsslBuffer* pBuf = getClientBuffer(fragSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -1141,7 +1141,7 @@ TEST_P(RsslSocketWriteTests, Frag_WriteOneByteOverMaxFragmentSize)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -1197,12 +1197,12 @@ TEST_P(RsslSocketWriteTests, Frag_FragIdWrapAt255)
  * -- PACKING INVALID SCENARIOS --------------------------------------------
  *
  * rsslBufferImpl fields targeted:
- *   packingOffset – byte offset of the next free slot inside the packed buffer
- *   totalLength   – declared maximum capacity for packing bookkeeping
+ *   packingOffset - byte offset of the next free slot inside the packed buffer
+ *   totalLength   - declared maximum capacity for packing bookkeeping
  *
- * Issue 2  – msgb->length > msgb->maxLength heap corruption
- * Issue 9  – writeOutArgs not updated on bad paths
- * Issue 10 – chunk-header sprintf off-by-one
+ * Issue 2  - msgb->length > msgb->maxLength heap corruption
+ * Issue 9  - writeOutArgs not updated on bad paths
+ * Issue 10 - chunk-header sprintf off-by-one
  * ===================================================================== */
 
 /* Allocate a packed buffer of 256 bytes, then inflate pBuf->length far
@@ -1286,7 +1286,7 @@ TEST_P(RsslSocketWriteTests, Pack_NullDataPointerOnPackedBuffer)
 }
 
 /* Pack one 100-byte message into a 256-byte packed buffer (advancing the
- * internal packing cursor), then shrink pBuf->length to 10 bytes – less
+ * internal packing cursor), then shrink pBuf->length to 10 bytes - less
  * than the space already consumed by the packed content.  ipcWriteSession()
  * will compute a negative remaining-space which wraps to UINT32_MAX when
  * treated as unsigned, producing an unbounded loop (Issue 2). */
@@ -1372,7 +1372,7 @@ TEST_P(RsslSocketWriteTests, Pack_MaxMessagesInOneBuffer)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -1485,11 +1485,11 @@ TEST_P(RsslSocketWriteTests, Pack_ZeroLengthAfterPackingSucceeds)
  * Each test targets a specific crash vector identified in the static
  * analysis of ipcWriteSession() (see rsslSocketWrite_analysis.md).
  *
- *  Issue 2  – msgb->buffer not restored on maxLength break ? heap corruption
- *  Issue 3  – loop continues after fatal chunk-footer write error
- *  Issue 4  – use-after-free of msgb after rtr_dfltcFreeMsg in forced-flush
- *  Issue 6  – RsslUInt16 messageLength overflow near 65535
- *  Issue 7  – compressedmb2->nextMsg stale pointer after pool reuse
+ *  Issue 2  - msgb->buffer not restored on maxLength break ? heap corruption
+ *  Issue 3  - loop continues after fatal chunk-footer write error
+ *  Issue 4  - use-after-free of msgb after rtr_dfltcFreeMsg in forced-flush
+ *  Issue 6  - RsslUInt16 messageLength overflow near 65535
+ *  Issue 7  - compressedmb2->nextMsg stale pointer after pool reuse
  *
  * All tests manipulate only the public RsslBuffer fields (data, length).
  * ===================================================================== */
@@ -1513,7 +1513,7 @@ TEST_P(RsslSocketWriteTests, Frag_DirectSocketWriteFragmentedActiveSocket)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        EXPECT_FALSE(true) << "Buffer allocation failed – skip";
+        EXPECT_FALSE(true) << "Buffer allocation failed - skip";
         return;
     }
 
@@ -1556,7 +1556,7 @@ TEST_P(RsslSocketWriteTests, Frag_DirectSocketWriteFragmentedDeadSocket)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed after remote close – acceptable";
+        SUCCEED() << "Buffer allocation failed after remote close - acceptable";
         return;
     }
 
@@ -1706,7 +1706,7 @@ TEST_P(RsslSocketWriteTests, Frag_NullDataPointerOnFragmentedBuffer)
     fillBuffer(pBuf, msgSize);
     pBuf->length = msgSize;
 
-    /* Null out the data pointer – any memcpy/memmove from it will segfault
+    /* Null out the data pointer - any memcpy/memmove from it will segfault
      * unless ipcWriteSession() guards the data pointer before use. */
     pBuf->data = nullptr;
 
@@ -1788,7 +1788,7 @@ TEST_P(RsslSocketWriteTests, Frag_VerySmallFragSizeExhaustsFragIdCounter)
     RsslError err;
     /* Large enough to create many fragments per message. */
     const RsslUInt32 msgSize = fragSize * 8;
-    /* Send enough messages to wrap fragId at least twice (256 × 2 + margin). */
+    /* Send enough messages to wrap fragId at least twice (256 x 2 + margin). */
     const int iterations = 600;
 
     for (int i = 0; i < iterations; ++i)
@@ -1852,16 +1852,16 @@ TEST_P(RsslSocketWriteTests, Frag_LargeFragmentedWriteOnClosedChannelState)
 /* =======================================================================
  * -- DUPLICATE FRAGMENT ID SCENARIOS -------------------------------------
  *
- * The fragment-ID counter (fragId) is an RsslUInt8 that cycles 1–255
+ * The fragment-ID counter (fragId) is an RsslUInt8 that cycles 1-255
  * (fragIdMax = 255).  After 255 two-or-more-fragment messages the counter
  * wraps back to 1.  If the receiver still has an open assembly buffer
  * for the original fragId=1 message when the new first-fragment with
  * fragId=1 arrives, the receiver's hash table evicts the old entry and
  * frees its buffer, triggering:
  *
- *   rsslSocketRead_analysis Issue 3 – memory leak if rsslHashTableInsertLink
+ *   rsslSocketRead_analysis Issue 3 - memory leak if rsslHashTableInsertLink
  *     fails after eviction of the old assembly buffer.
- *   rsslSocketRead_analysis Issue 9 – double-free when rsslHashTableRemoveLink
+ *   rsslSocketRead_analysis Issue 9 - double-free when rsslHashTableRemoveLink
  *     does not zero buffer.data before _rsslFree(), enabling a second free on
  *     a continuation-fragment path.
  *
@@ -1903,7 +1903,7 @@ static int drainServerChannel(RsslChannel* pChnl, int maxReads)
 }
 
 /* -----------------------------------------------------------------------
- * Duplicate fragId – Scenario 1:
+ * Duplicate fragId - Scenario 1:
  * Write exactly 257 two-fragment messages so that the fragId counter wraps
  * once (255 ? 1).  Message 257 has fragId=1, the same value that was
  * assigned to message 1.  The server then reads ALL messages including the
@@ -1920,7 +1920,7 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_WrapAt256ServerReadsAll)
     RsslError err;
     /* Each message spans exactly 2 fragments to guarantee fragId use. */
     const RsslUInt32 msgSize    = fragSize + 64;
-    /* 257 messages: fragId 1–255 then wrap to 1 on message 256, 2 on 257, … */
+    /* 257 messages: fragId 1-255 then wrap to 1 on message 256, 2 on 257, ... */
     const int        totalMsgs  = 257;
 
     for (int i = 0; i < totalMsgs; ++i)
@@ -1953,7 +1953,7 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_WrapAt256ServerReadsAll)
 }
 
 /* -----------------------------------------------------------------------
- * Duplicate fragId – Scenario 2:
+ * Duplicate fragId - Scenario 2:
  * Fill the client output queue with 260 fragmented messages without ANY
  * intermediate flush so that all 260 messages are present in the queue
  * simultaneously.  Messages 256 and 257 have the same fragId as messages 1
@@ -1987,10 +1987,10 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_AllQueued_ThenFlushedAtOnce)
 
         RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (ret < RSSL_RET_SUCCESS) break;
-        /* Do NOT flush – let duplicate fragIds accumulate in the queue. */
+        /* Do NOT flush - let duplicate fragIds accumulate in the queue. */
     }
 
-    /* Now flush everything; messages 256–260 carry reused fragIds 1–5. */
+    /* Now flush everything; messages 256-260 carry reused fragIds 1-5. */
     RsslRet flushRet = rsslFlush(pClientChnl, &err);
     bool flushOk = (flushRet >= RSSL_RET_SUCCESS);
 
@@ -2005,8 +2005,8 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_AllQueued_ThenFlushedAtOnce)
 }
 
 /* -----------------------------------------------------------------------
- * Duplicate fragId – Scenario 3:
- * Write exactly at the fragId boundary: messages 1–254 (fragId 1–254),
+ * Duplicate fragId - Scenario 3:
+ * Write exactly at the fragId boundary: messages 1-254 (fragId 1-254),
  * message 255 (fragId 255), message 256 (fragId wraps to 1).  After each
  * batch of 50 writes the server reads, simulating a scenario where message 1
  * has been fully assembled and its hash entry cleaned up before fragId 1 is
@@ -2058,7 +2058,7 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_ReadBetweenBatchesBoundaryAt255)
 }
 
 /* -----------------------------------------------------------------------
- * Duplicate fragId – Scenario 4:
+ * Duplicate fragId - Scenario 4:
  * Two writer threads simultaneously send fragmented messages to the same
  * channel.  Without perfect serialization of the fragId counter, thread A
  * and thread B can both read the same value before either increments it,
@@ -2121,7 +2121,7 @@ TEST_P(RsslSocketWriteChannelLockTests, Frag_DupFragId_ConcurrentWritersRaceOnFr
     DupFragIdWriterArg args;
     args.pChnl    = pClientChnl;
     args.fragSize = fragSize;
-    args.msgCount = 130;   /* 2 × 130 = 260 total ? wraps fragId past 255 */
+    args.msgCount = 130;   /* 2 x 130 = 260 total ? wraps fragId past 255 */
 
     RsslThreadId t1, t2;
     RSSL_THREAD_START(&t1, dupFragIdWriterThread, &args);
@@ -2151,11 +2151,11 @@ TEST_P(RsslSocketWriteChannelLockTests, Frag_DupFragId_ConcurrentWritersRaceOnFr
 }
 
 /* -----------------------------------------------------------------------
- * Duplicate fragId – Scenario 5:
+ * Duplicate fragId - Scenario 5:
  * Stress test: write 512 two-fragment messages (fragId wraps twice),
  * with the server reading after every 64 writes.  This ensures the
  * assembly hash table repeatedly evicts-and-inserts entries for the same
- * fragId values (1–255, 1–255, 1–2) across two full wrap cycles.  Any
+ * fragId values (1-255, 1-255, 1-2) across two full wrap cycles.  Any
  * double-free or use-after-free introduced by back-to-back evictions of
  * the same fragId key will manifest here under address-sanitiser or
  * valgrind.
@@ -2218,13 +2218,13 @@ TEST_P(RsslSocketWriteTests, Frag_DupFragId_TwoFullWrapCyclesStressTest)
  * client channel is closed while fragmented messages are partially written
  * or still queued in the output pool.  The crash vectors targeted are:
  *
- *   ipcWriteSession Issue 2  – msgb chain not released when channel closes
+ *   ipcWriteSession Issue 2  - msgb chain not released when channel closes
  *     with unflushed queued fragments ? heap corruption via ipcFreeSession().
- *   ipcWriteSession Issue 3  – loop continues after fatal write error;
+ *   ipcWriteSession Issue 3  - loop continues after fatal write error;
  *     additional fragments queued after the first error are left dangling.
- *   ipcWriteSession Issue 4  – use-after-free of msgb freed by
+ *   ipcWriteSession Issue 4  - use-after-free of msgb freed by
  *     rtr_dfltcFreeMsg while the channel's pool still references the block.
- *   ipcFreeSession            – must walk and release the entire rtr_msgb_t
+ *   ipcFreeSession            - must walk and release the entire rtr_msgb_t
  *     chain in the pending-write queue regardless of fragmentation depth.
  *
  * All five tests close the CLIENT channel mid-write and set pClientChnl to
@@ -2287,9 +2287,9 @@ static RSSL_THREAD_DECLARE(partialFragWriterFn, pArg)
 }
 
 /* -----------------------------------------------------------------------
- * Partial write – Scenario 1:
+ * Partial write - Scenario 1:
  * Write 50 two-fragment messages into the client output queue WITHOUT
- * calling rsslFlush.  All 50 × 2 = 100 rtr_msgb_t chain entries sit in
+ * calling rsslFlush.  All 50 x 2 = 100 rtr_msgb_t chain entries sit in
  * the pending-write queue.  Closing the channel immediately exercises the
  * ipcFreeSession() path that must walk and release every chained msgb
  * without double-freeing or skipping any node.
@@ -2322,7 +2322,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientWithQueuedUnflushedFragment
         RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (ret < RSSL_RET_SUCCESS) break;
         ++queued;
-        /* Deliberately do NOT flush – leave the fragment chains in the queue. */
+        /* Deliberately do NOT flush - leave the fragment chains in the queue. */
     }
 
     /* Close the channel while fragment chains are still queued.
@@ -2336,7 +2336,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientWithQueuedUnflushedFragment
 }
 
 /* -----------------------------------------------------------------------
- * Partial write – Scenario 2:
+ * Partial write - Scenario 2:
  * Flood the client output queue with large (4-fragment) messages until
  * rsslWriteEx returns RSSL_RET_WRITE_FLUSH_FAILED.  At that point the
  * pending queue holds multiple partial fragment chains that were queued
@@ -2374,7 +2374,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientAfterWriteFlushFailed)
             gotFlushFailed = true;
         else if (ret < RSSL_RET_SUCCESS)
             break;
-        /* Do NOT flush – let the queue accumulate inconsistent fragment chains. */
+        /* Do NOT flush - let the queue accumulate inconsistent fragment chains. */
     }
 
     /* Close the channel WITHOUT flushing to leave the partial-flush queue
@@ -2387,7 +2387,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientAfterWriteFlushFailed)
 }
 
 /* -----------------------------------------------------------------------
- * Partial write – Scenario 3:
+ * Partial write - Scenario 3:
  * Write 10 two-fragment messages and flush them all.  Then write 10 more
  * WITHOUT flushing and close the client channel.  The unflushed second
  * batch sits in the output queue; ipcFreeSession() must release it while
@@ -2424,7 +2424,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientMidStreamServerReadsToEof)
             rsslFlush(pClientChnl, &err);
     }
 
-    /* Write second batch WITHOUT flushing – these remain queued. */
+    /* Write second batch WITHOUT flushing - these remain queued. */
     for (int i = 0; i < unflushedN; ++i)
     {
         RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
@@ -2438,7 +2438,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientMidStreamServerReadsToEof)
         /* No flush: queued fragment chains remain in the output pool. */
     }
 
-    /* Close client channel – unflushed batch freed by ipcFreeSession();
+    /* Close client channel - unflushed batch freed by ipcFreeSession();
      * server sees the flushed data followed by EOF/RST. */
     rsslCloseChannel(pClientChnl, &err);
     pClientChnl = nullptr;
@@ -2451,7 +2451,7 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientMidStreamServerReadsToEof)
 }
 
 /* -----------------------------------------------------------------------
- * Partial write – Scenario 4:
+ * Partial write - Scenario 4:
  * Two threads write 3-fragment messages to the client channel concurrently
  * under RSSL_LOCK_GLOBAL_AND_CHANNEL.  The main thread closes the client
  * channel after 40 ms while both writer threads are still running.
@@ -2497,7 +2497,7 @@ TEST_P(RsslSocketWriteChannelLockTests, PartialWrite_ConcurrentFragmentWriteAndC
 }
 
 /* -----------------------------------------------------------------------
- * Partial write – Scenario 5:
+ * Partial write - Scenario 5:
  * Write a single enormous fragmented message whose fragment count is deep
  * enough to stress the ipcFreeSession() chain-walk loop.  With
  * fragSize=100 and msgSize=5500, this produces ~55 rtr_msgb_t nodes in
@@ -2516,13 +2516,13 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientWithDeepQueuedFragmentChain
     ASSERT_TRUE(setupChannelPair("15159", RSSL_COMP_NONE, 0, fragSize));
 
     RsslError err;
-    /* msgSize / fragSize ˜ 55 fragments ? 55 rtr_msgb_t pool nodes. */
+    /* msgSize / fragSize ~ 55 fragments ? 55 rtr_msgb_t pool nodes. */
     const RsslUInt32 msgSize = fragSize * 55;
 
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed for deep-chain test – skip";
+        SUCCEED() << "Buffer allocation failed for deep-chain test - skip";
         /* Still close cleanly. */
         rsslCloseChannel(pClientChnl, &err);
         pClientChnl = nullptr;
@@ -2558,16 +2558,16 @@ TEST_P(RsslSocketWriteTests, PartialWrite_CloseClientWithDeepQueuedFragmentChain
  * These tests target crash vectors in the ipcWriteSession() compression
  * path using both Zlib and LZ4 codecs.  Issues targeted:
  *
- *   Issue 2  – msgb->length > msgb->maxLength break leaves the compressed
+ *   Issue 2  - msgb->length > msgb->maxLength break leaves the compressed
  *     wire buffer in a corrupted state on the error path.
- *   Issue 4  – Use-after-free of compressedmb1 after rtr_dfltcFreeMsg()
+ *   Issue 4  - Use-after-free of compressedmb1 after rtr_dfltcFreeMsg()
  *     in the forceFlush direct-write success path: the code writes
  *     compressedmb1->buffer = 0 and compressedmb1->length = 0 AFTER
  *     the free.  Under pool reuse, a second allocation may receive that
  *     same block before the zeroing, corrupting the new allocation's header.
- *   Issue 6  – RsslUInt16 overflow in (compressedLength + headerLength)
+ *   Issue 6  - RsslUInt16 overflow in (compressedLength + headerLength)
  *     when the compressed output is near 65535 bytes.
- *   Issue 7  – compressedmb2->nextMsg stale pool pointer: the pool does
+ *   Issue 7  - compressedmb2->nextMsg stale pool pointer: the pool does
  *     not zero nextMsg on allocation.  When compressedmb2 is set as the
  *     current msgb, the outer while(msgb) loop reads compressedmb2->nextMsg
  *     at the top of the next iteration.  A stale non-NULL value causes the
@@ -2598,7 +2598,7 @@ static void fillBufferIncompressible(RsslBuffer* pBuf, RsslUInt32 len = 0)
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 1:
+ * Compression crash - Scenario 1:
  * Allocate a buffer on a Zlib channel, fill it, then inflate pBuf->length
  * by exactly 1 byte beyond the allocated capacity.  ipcWriteSession()
  * validates msgb->length > msgb->maxLength at the top of the write loop;
@@ -2634,7 +2634,7 @@ TEST_P(RsslSocketWriteTests, Compress_OversizedLengthOnZlibCompressedBuffer)
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 2:
+ * Compression crash - Scenario 2:
  * Write 30 compressed + fragmented messages to the client output queue
  * WITHOUT flushing, then close the channel.  Each message requires both
  * a compressedmb1 (first compressed wire buffer) and potentially a
@@ -2675,7 +2675,7 @@ TEST_P(RsslSocketWriteTests, Compress_ClosedChannelWithQueuedCompressedFragments
         RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (ret < RSSL_RET_SUCCESS) break;
         ++queued;
-        /* No flush – leave compressedmb1/mb2 chains queued in the pool. */
+        /* No flush - leave compressedmb1/mb2 chains queued in the pool. */
     }
 
     /* Close with compressed fragment chains queued: ipcFreeSession must
@@ -2689,7 +2689,7 @@ TEST_P(RsslSocketWriteTests, Compress_ClosedChannelWithQueuedCompressedFragments
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 3:
+ * Compression crash - Scenario 3:
  * Write 200 compressed messages using LZ4 with INCOMPRESSIBLE data so that
  * the LZ4 output is larger than the input (expansion).  When the output
  * exceeds the single-wire-buffer limit, ipcWriteSession() allocates a
@@ -2708,7 +2708,7 @@ TEST_P(RsslSocketWriteTests, Compress_Lz4IncompressibleDataStressesCompressedMb2
 
     RsslError err;
     /* Use a payload large enough to stress the compression split path.
-     * Incompressible data means LZ4 output ˜ input + 11 byte header. */
+     * Incompressible data means LZ4 output ~ input + 11 byte header. */
     const RsslUInt32 msgSize   = 4000;
     const int        iterations = 200;
 
@@ -2735,7 +2735,7 @@ TEST_P(RsslSocketWriteTests, Compress_Lz4IncompressibleDataStressesCompressedMb2
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 4:
+ * Compression crash - Scenario 4:
  * Write 300 small Zlib-compressed messages, flushing after every write,
  * to rapidly cycle the compressedmb1 pool blocks back to the free list
  * and then reallocate them for subsequent messages.  If the pool does not
@@ -2784,7 +2784,7 @@ TEST_P(RsslSocketWriteTests, Compress_RapidZlibWritesStressCompressedMb1Pool)
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 5:
+ * Compression crash - Scenario 5:
  * Write a large Zlib-compressed fragmented message with the
  * RSSL_WRITE_DIRECT_SOCKET_WRITE flag.  ipcWriteSession() enters the
  * forceFlush path, compresses the message into compressedmb1, and sends it
@@ -2833,7 +2833,7 @@ TEST_P(RsslSocketWriteTests, Compress_DirectSocketWriteZlibFragmentedUseAfterFre
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 6:
+ * Compression crash - Scenario 6:
  * Flood the client output queue with Zlib-compressed 3-fragment messages
  * until rsslWriteEx returns RSSL_RET_WRITE_FLUSH_FAILED.  At that point the
  * queue contains multiple compressedmb1 blocks (and possibly compressedmb2
@@ -2875,7 +2875,7 @@ TEST_P(RsslSocketWriteTests, Compress_ZlibFlushFailedThenChannelClose)
             gotFlushFailed = true;
         else if (ret < RSSL_RET_SUCCESS)
             break;
-        /* No flush – let the partial compressedmb chain accumulate. */
+        /* No flush - let the partial compressedmb chain accumulate. */
     }
 
     /* Close WITHOUT flushing: ipcFreeSession must free every compressedmb1
@@ -2888,7 +2888,7 @@ TEST_P(RsslSocketWriteTests, Compress_ZlibFlushFailedThenChannelClose)
 }
 
 /* -----------------------------------------------------------------------
- * Compression crash – Scenario 7:
+ * Compression crash - Scenario 7:
  * Write a buffer with pBuf->length = 0 on a Zlib-compressed channel.
  * ipcWriteSession() passes the buffer to the compression engine before
  * the zero-length check that exists on the non-compressed path.  A zero-
@@ -2911,7 +2911,7 @@ TEST_P(RsslSocketWriteTests, Compress_ZeroLengthBufferOnZlibChannel)
     ASSERT_NE(pBuf, nullptr);
 
     fillBuffer(pBuf, 32);
-    /* Shrink to zero after allocation – same field-corruption pattern as
+    /* Shrink to zero after allocation - same field-corruption pattern as
      * the non-compressed zero-length test but now on the Zlib code path. */
     pBuf->length = 0;
 
@@ -2945,19 +2945,19 @@ TEST_P(RsslSocketWriteTests, Compress_ZeroLengthBufferOnZlibChannel)
  * the code path can be exercised without a full HTTP handshake.
  *
  * Crash vectors targeted:
- *   Issue 10 – sprintf into the chunk-length string buffer overflows when
+ *   Issue 10 - sprintf into the chunk-length string buffer overflows when
  *     the hex representation of the chunk length exceeds the assumed width.
  *     If the code reserves space for "FFFF\r\n" (6 chars) but
  *     msgb->length >= 0x10000, sprintf writes "10000\r\n" (7 chars),
  *     overwriting the first byte of the IPC header.
- *   Issue 11 – Fragment header placed at a fixed offset that assumes the
+ *   Issue 11 - Fragment header placed at a fixed offset that assumes the
  *     HTTP chunk header is always 6 bytes.  For small messages the chunk
  *     header may be only 3 bytes ("x\r\n"), so the fragment header lands
  *     3 bytes into the payload, corrupting reassembly on the receiver.
- *   Issue 3  – When the chunk-footer ("\r\n") write fails the outer loop
+ *   Issue 3  - When the chunk-footer ("\r\n") write fails the outer loop
  *     continues processing subsequent fragment buffers instead of breaking,
  *     queuing garbage data that corrupts the output queue.
- *   Issue 4  – Use-after-free of msgb in the HTTP forceFlush path: after
+ *   Issue 4  - Use-after-free of msgb in the HTTP forceFlush path: after
  *     rtr_dfltcFreeMsg(msgb), the code writes msgb->buffer = 0 and
  *     msgb->length = 0 into the already-freed block.
  *
@@ -3001,7 +3001,7 @@ static void enableHttpHeaders(RsslChannel* pChnl)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 1:
+ * Http - Scenario 1:
  * Enable httpHeaders = 1 and write a small (non-fragmented) message.
  * ipcWriteSession() prepends the HTTP chunk-length line and appends the
  * chunk footer "\r\n".  The chunk length for a 64-byte message is "40\r\n"
@@ -3010,7 +3010,7 @@ static void enableHttpHeaders(RsslChannel* pChnl)
  * crashing when the chunk-header string is shorter than the reserve.
  *
  * Crash vector: baseline exercising of the HTTP chunk header path
- * (Issues 10 and 11 boundary – small chunk header does not yet overflow).
+ * (Issues 10 and 11 boundary - small chunk header does not yet overflow).
  * --------------------------------------------------------------------- */
 TEST_P(RsslSocketWriteTests, Http_SmallMessageWithHttpHeadersEnabled)
 {
@@ -3037,7 +3037,7 @@ TEST_P(RsslSocketWriteTests, Http_SmallMessageWithHttpHeadersEnabled)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 2:
+ * Http - Scenario 2:
  * Enable httpHeaders = 1 and write a fragmented message (> maxFragSize).
  * ipcWriteSession() must place the IPC fragment header at offset chunkLen
  * inside each fragment's wire buffer.  If chunkLen is computed as a fixed
@@ -3063,7 +3063,7 @@ TEST_P(RsslSocketWriteTests, Http_FragmentedWriteWithHttpHeadersEnabled)
     RsslBuffer* pBuf = getClientBuffer(msgSize, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -3082,7 +3082,7 @@ TEST_P(RsslSocketWriteTests, Http_FragmentedWriteWithHttpHeadersEnabled)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 3:
+ * Http - Scenario 3:
  * Enable httpHeaders = 1 and write a 1-byte payload.  The chunk header
  * for a 1-byte message is "1\r\n" (3 chars).  If the code assumes the
  * chunk header is always 6 chars ("FFFF\r\n"), it places the IPC message
@@ -3102,7 +3102,7 @@ TEST_P(RsslSocketWriteTests, Http_TinyPayloadChunkHeaderShortHexString)
     RsslBuffer* pBuf = getClientBuffer(1, &err);
     if (!pBuf)
     {
-        SUCCEED() << "1-byte buffer allocation failed – skip";
+        SUCCEED() << "1-byte buffer allocation failed - skip";
         return;
     }
 
@@ -3121,7 +3121,7 @@ TEST_P(RsslSocketWriteTests, Http_TinyPayloadChunkHeaderShortHexString)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 5:
+ * Http - Scenario 5:
  * Enable httpHeaders = 1 and write a fragmented-range buffer with
  * pBuf->data = nullptr.  ipcWriteSession() generates the HTTP chunk-length
  * header into msgb->buffer first (no crash yet), then copies user payload
@@ -3163,7 +3163,7 @@ TEST_P(RsslSocketWriteTests, Http_NullDataPointerWithHttpHeadersEnabled)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 6:
+ * Http - Scenario 6:
  * Enable httpHeaders = 1 and flood the output queue with 4-fragment
  * messages until rsslWriteEx returns RSSL_RET_WRITE_FLUSH_FAILED.  At
  * that point the queue holds partially-flushed messages each wrapped in
@@ -3219,12 +3219,12 @@ TEST_P(RsslSocketWriteTests, Http_FloodQueueToFlushFailedWithHttpHeaders)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 7:
+ * Http - Scenario 7:
  * Enable httpHeaders = 1, write 30 two-fragment messages without flushing,
  * then close the client channel.  Each queued message has a chunk-length
  * header prepended to its wire buffer.  ipcFreeSession() must walk and
- * free every rtr_msgb_t node in the queue — including nodes that carry
- * chunk-footer "\r\n" bytes queued as separate pool blocks — without
+ * free every rtr_msgb_t node in the queue - including nodes that carry
+ * chunk-footer "\r\n" bytes queued as separate pool blocks - without
  * double-freeing or running off the end of the chain.
  *
  * Crash vector: Issue 4 (use-after-free of msgb in the HTTP path) + Issue
@@ -3256,7 +3256,7 @@ TEST_P(RsslSocketWriteTests, Http_CloseChannelWithQueuedHttpChunkMessages)
         RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (ret < RSSL_RET_SUCCESS) break;
         ++queued;
-        /* No flush – leave all HTTP chunk-header and chunk-footer pool
+        /* No flush - leave all HTTP chunk-header and chunk-footer pool
          * nodes queued for ipcFreeSession() to release on channel close. */
     }
 
@@ -3269,7 +3269,7 @@ TEST_P(RsslSocketWriteTests, Http_CloseChannelWithQueuedHttpChunkMessages)
 }
 
 /* -----------------------------------------------------------------------
- * Http – Scenario 8:
+ * Http - Scenario 8:
  * Enable httpHeaders = 1 and write a 3-fragment message with the
  * RSSL_WRITE_DIRECT_SOCKET_WRITE flag.  ipcWriteSession() enters the
  * forceFlush path, prepends the HTTP chunk-length header to each fragment,
@@ -3322,22 +3322,22 @@ TEST_P(RsslSocketWriteTests, Http_DirectSocketWriteFragmentedWithHttpHeaders)
  *
  * The tests below cover boundary and invalid-state conditions for the
  * rsslPackBuffer() / rsslWriteEx() packing path that are NOT covered by
- * the existing Pack_* suite (ports 15132–15139).
+ * the existing Pack_* suite (ports 15132-15139).
  *
  * rsslBufferImpl fields relevant to packing:
- *   packingOffset – byte offset of the next free slot inside the buffer
- *   totalLength   – declared maximum capacity for packing bookkeeping
+ *   packingOffset - byte offset of the next free slot inside the buffer
+ *   totalLength   - declared maximum capacity for packing bookkeeping
  *
  * Crash vectors targeted:
- *   Issue 2  – msgb->length > msgb->maxLength break on the packing path
- *   Issue 9  – writeOutArgs not updated on non-success packing return paths
- *   Issue 10 – Chunk-header sprintf off-by-one when packing + httpHeaders
+ *   Issue 2  - msgb->length > msgb->maxLength break on the packing path
+ *   Issue 9  - writeOutArgs not updated on non-success packing return paths
+ *   Issue 10 - Chunk-header sprintf off-by-one when packing + httpHeaders
  *
- * Port assignments: 15200–15219
+ * Port assignments: 15200-15219
  * ===================================================================== */
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 1:
+ * Pack - Scenario 1:
  * Allocate a packed buffer of exactly 1 byte.  rsslPackBuffer() must either
  * refuse the call or return an unusable (zero-length) next slot; it must not
  * write the 2-byte packed-message length prefix into a 1-byte backing store.
@@ -3354,7 +3354,7 @@ TEST_P(RsslSocketWriteTests, Pack_OneBytePackedBufferRefusesOrSucceedsCleanly)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, 1, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "1-byte packed buffer allocation failed – acceptable; skip";
+        SUCCEED() << "1-byte packed buffer allocation failed - acceptable; skip";
         return;
     }
 
@@ -3380,8 +3380,8 @@ TEST_P(RsslSocketWriteTests, Pack_OneBytePackedBufferRefusesOrSucceedsCleanly)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 2:
- * Pack exactly two messages whose combined wire size (2 × (msgLen + 2-byte
+ * Pack - Scenario 2:
+ * Pack exactly two messages whose combined wire size (2 x (msgLen + 2-byte
  * prefix)) equals the backing-store capacity.  This is the tight-fit
  * boundary: one byte less leaves space; one byte more would overflow.
  * Both rsslPackBuffer() calls and the subsequent write must succeed.
@@ -3396,14 +3396,14 @@ TEST_P(RsslSocketWriteTests, Pack_TwoMessagesTightFitBoundarySucceeds)
 
     RsslError err;
     /* Each message consumes (msgLen + 2) bytes: 2 for the packed prefix.
-     * With bufLen = 2 × (msgLen + 2) both messages fit exactly. */
+     * With bufLen = 2 x (msgLen + 2) both messages fit exactly. */
     const RsslUInt32 msgLen = 30;
     const RsslUInt32 bufLen = 2 * (msgLen + 2);
 
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -3416,7 +3416,7 @@ TEST_P(RsslSocketWriteTests, Pack_TwoMessagesTightFitBoundarySucceeds)
     fillBuffer(pNext, msgLen);
     pNext->length = msgLen;
 
-    /* Second pack – should succeed; no room left after this. */
+    /* Second pack - should succeed; no room left after this. */
     RsslBuffer* pEnd = rsslPackBuffer(pClientChnl, pNext, &err);
 
     /* Signal end-of-pack.  pEnd may be NULL (no more space) or valid. */
@@ -3437,7 +3437,7 @@ TEST_P(RsslSocketWriteTests, Pack_TwoMessagesTightFitBoundarySucceeds)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 3:
+ * Pack - Scenario 3:
  * Pack one message, then call rsslReleaseBuffer() instead of rsslWriteEx().
  * The packed buffer's pool block must be returned cleanly without leaking
  * the packing-cursor metadata or corrupting adjacent blocks.
@@ -3462,7 +3462,7 @@ TEST_P(RsslSocketWriteTests, Pack_ReleasePackedBufferInsteadOfWrite)
     /* Advance packing cursor by committing one message. */
     RsslBuffer* pNext = rsslPackBuffer(pClientChnl, pBuf, &err);
 
-    /* Release without writing – pool must survive this. */
+    /* Release without writing - pool must survive this. */
     RsslRet relRet = rsslReleaseBuffer(pBuf, &err);
 
     /* A subsequent allocation from the same pool must succeed and be usable. */
@@ -3490,7 +3490,7 @@ TEST_P(RsslSocketWriteTests, Pack_ReleasePackedBufferInsteadOfWrite)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 4:
+ * Pack - Scenario 4:
  * Allocate a packed buffer, then write it immediately without calling
  * rsslPackBuffer() at all (packingOffset = 0, length = payload).
  * ipcWriteSession() sees the IPC_PACKING flag and tries to advance through
@@ -3523,13 +3523,13 @@ TEST_P(RsslSocketWriteTests, Pack_WritePackedBufferWithoutCallingPackBuffer)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 5:
+ * Pack - Scenario 5:
  * Pack one message, set the second slot's length to UINT16_MAX (0xFFFF).
  * The wire packed-message length prefix is a 16-bit field; writing 0xFFFF
  * into it makes the receiver believe the next packed sub-message is 65535
  * bytes long, causing it to read far past the end of the buffer.
  *
- * Crash vector: Issue 6 – the 16-bit packed-message length prefix overflows
+ * Crash vector: Issue 6 - the 16-bit packed-message length prefix overflows
  * when length = 0xFFFF, producing a wire format that causes the receiver
  * to read 65535 bytes from a small buffer.
  * --------------------------------------------------------------------- */
@@ -3550,7 +3550,7 @@ TEST_P(RsslSocketWriteTests, Pack_UINT16MAXLengthOnSecondPackedMessage)
     RsslBuffer* pNext = rsslPackBuffer(pClientChnl, pBuf, &err);
     if (!pNext)
     {
-        SUCCEED() << "rsslPackBuffer returned NULL – skip";
+        SUCCEED() << "rsslPackBuffer returned NULL - skip";
         return;
     }
 
@@ -3569,7 +3569,7 @@ TEST_P(RsslSocketWriteTests, Pack_UINT16MAXLengthOnSecondPackedMessage)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 6:
+ * Pack - Scenario 6:
  * Pack a zero-length message as the FIRST slot, then pack a normal message
  * as the second slot.  A zero-length first packed sub-message causes the
  * receiver's packing cursor to stall (cursor += 0 ? infinite loop) or to
@@ -3589,17 +3589,17 @@ TEST_P(RsslSocketWriteTests, Pack_ZeroLengthFirstMessageThenNormalMessage)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     ASSERT_NE(pBuf, nullptr);
 
-    /* First message: zero length – commit a 0-byte packed sub-message. */
+    /* First message: zero length - commit a 0-byte packed sub-message. */
     pBuf->length = 0;
     RsslBuffer* pNext = rsslPackBuffer(pClientChnl, pBuf, &err);
     if (!pNext)
     {
-        /* rsslPackBuffer refused the zero-length message – acceptable. */
+        /* rsslPackBuffer refused the zero-length message - acceptable. */
         pBuf->length = 0;
         RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
         RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
         rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
-        SUCCEED() << "rsslPackBuffer refused zero-length first message – acceptable";
+        SUCCEED() << "rsslPackBuffer refused zero-length first message - acceptable";
         return;
     }
 
@@ -3619,7 +3619,7 @@ TEST_P(RsslSocketWriteTests, Pack_ZeroLengthFirstMessageThenNormalMessage)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 7:
+ * Pack - Scenario 7:
  * Pack a single message, then repeatedly call rsslPackBuffer() on the
  * returned next-slot pointer until it returns NULL (no space left).
  * After exhausting the buffer, verify that calling rsslWriteEx() with
@@ -3649,7 +3649,7 @@ TEST_P(RsslSocketWriteTests, Pack_ExhaustPackingSpaceThenWriteCleanly)
         ++packCount;
         if (!pNext || pNext->length < msgLen)
         {
-            /* No room – signal end-of-pack. */
+            /* No room - signal end-of-pack. */
             if (pNext)
                 pNext->length = 0;
             break;
@@ -3671,7 +3671,7 @@ TEST_P(RsslSocketWriteTests, Pack_ExhaustPackingSpaceThenWriteCleanly)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 8:
+ * Pack - Scenario 8:
  * Flood the output queue with packed buffers (each containing 3 messages)
  * until rsslWriteEx returns RSSL_RET_WRITE_FLUSH_FAILED.  Then close the
  * channel WITHOUT flushing.  ipcFreeSession() must walk and release every
@@ -3722,7 +3722,7 @@ TEST_P(RsslSocketWriteTests, Pack_CloseChannelAfterPackedWriteFlushFailed)
             gotFlushFailed = true;
         else if (ret < RSSL_RET_SUCCESS)
             break;
-        /* No flush – accumulate packed blocks in the queue. */
+        /* No flush - accumulate packed blocks in the queue. */
     }
 
     /* Close WITHOUT flushing: ipcFreeSession must free all packed pool blocks. */
@@ -3734,7 +3734,7 @@ TEST_P(RsslSocketWriteTests, Pack_CloseChannelAfterPackedWriteFlushFailed)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 9:
+ * Pack - Scenario 9:
  * Allocate a packed buffer large enough to hold exactly one message plus
  * the 2-byte prefix.  After rsslPackBuffer() commits that message, the
  * returned next slot has length = 0 (no room for more data).  Set
@@ -3758,7 +3758,7 @@ TEST_P(RsslSocketWriteTests, Pack_OnePhantomByteInReturnedSlotCausesOverflow)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -3784,7 +3784,7 @@ TEST_P(RsslSocketWriteTests, Pack_OnePhantomByteInReturnedSlotCausesOverflow)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 10:
+ * Pack - Scenario 10:
  * Pack three messages into a buffer, then write that buffer with the
  * RSSL_WRITE_DIRECT_SOCKET_WRITE flag set.  The forceFlush path in
  * ipcWriteSession() calls send() directly and then frees the msgb via
@@ -3838,7 +3838,7 @@ TEST_P(RsslSocketWriteTests, Pack_DirectSocketWriteOnPackedBuffer)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 11:
+ * Pack - Scenario 11:
  * Allocate two separate packed buffers.  Write the first normally.  Then
  * write the second buffer with pBuf->data pointing into the interior of
  * the first buffer's backing store (aliased pointer).  The packing-cursor
@@ -3858,7 +3858,7 @@ TEST_P(RsslSocketWriteTests, Pack_AliasedDataPointerInPackedBuffer)
     const RsslUInt32 bufLen = 256;
     const RsslUInt32 msgLen = 50;
 
-    /* First packed buffer – written normally. */
+    /* First packed buffer - written normally. */
     RsslBuffer* pBuf1 = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     ASSERT_NE(pBuf1, nullptr);
     fillBuffer(pBuf1, msgLen);
@@ -3872,12 +3872,12 @@ TEST_P(RsslSocketWriteTests, Pack_AliasedDataPointerInPackedBuffer)
     if (ret1 > RSSL_RET_SUCCESS)
         rsslFlush(pClientChnl, &err);
 
-    /* Second packed buffer – aliased data pointer into the first buffer's
+    /* Second packed buffer - aliased data pointer into the first buffer's
      * backing store (which may already be freed and reused). */
     RsslBuffer* pBuf2 = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf2)
     {
-        SUCCEED() << "Second buffer allocation failed – skip";
+        SUCCEED() << "Second buffer allocation failed - skip";
         return;
     }
 
@@ -3902,7 +3902,7 @@ TEST_P(RsslSocketWriteTests, Pack_AliasedDataPointerInPackedBuffer)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 12:
+ * Pack - Scenario 12:
  * Pack messages with alternating maximum and minimum (1-byte) payloads.
  * The packed-message length prefix must encode lengths from 1 to the
  * channel's maxFragmentSize correctly for each alternating slot.  Any
@@ -3923,7 +3923,7 @@ TEST_P(RsslSocketWriteTests, Pack_AlternatingLargeAndSmallMessagesInBuffer)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -3964,7 +3964,7 @@ TEST_P(RsslSocketWriteTests, Pack_AlternatingLargeAndSmallMessagesInBuffer)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 13:
+ * Pack - Scenario 13:
  * Write a packed buffer on a channel whose state has been set to CLOSED
  * before the write (same pattern as the non-packed channel-state guard
  * tests).  The rsslSocketWrite() guard must reject the write before
@@ -4008,7 +4008,7 @@ TEST_P(RsslSocketWriteTests, Pack_WritePackedBufferOnClosedChannelState)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 14:
+ * Pack - Scenario 14:
  * Rapid open-pack-write-close cycling: open a channel, pack 5 messages,
  * write (no flush), close, repeat 15 times.  This exercises the pool
  * reclamation path for packed pool blocks across multiple channel lifetimes
@@ -4055,7 +4055,7 @@ TEST_P(RsslSocketWriteTests, Pack_RapidOpenPackWriteCloseCycles)
             RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
             RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
             rsslWriteEx(pClC, pBuf, &inArgs, &outArgs, &err);
-            /* No flush – leave packed block queued. */
+            /* No flush - leave packed block queued. */
         }
 
         rsslCloseChannel(pSrC, &err);
@@ -4068,13 +4068,13 @@ TEST_P(RsslSocketWriteTests, Pack_RapidOpenPackWriteCloseCycles)
 }
 
 /* -----------------------------------------------------------------------
- * Pack – Scenario 15:
+ * Pack - Scenario 15:
  * Issue 9: verify that writeOutArgs.bytesWritten is populated (not left
- * as the sentinel –1) after writing a packed buffer that contains three
+ * as the sentinel -1) after writing a packed buffer that contains three
  * sub-messages.  The packed write path must update bytesWritten for the
  * complete wire size of all sub-messages, not just the first.
  *
- * Crash vector (logical): writeOutArgs.bytesWritten left at –1 means the
+ * Crash vector (logical): writeOutArgs.bytesWritten left at -1 means the
  * caller cannot determine whether any bytes were sent, breaking flow
  * control calculations and potentially causing unbounded queuing.
  * --------------------------------------------------------------------- */
@@ -4294,15 +4294,15 @@ TEST_P(RsslSocketWriteTests, WriteToInitializingChannelFails)
 
     RsslError err;
     /* Force the channel back to INITIALIZING without altering internal
-     * pool structures – we only modify the public state field. */
+     * pool structures - we only modify the public state field. */
     pClientChnl->state = RSSL_CH_STATE_INITIALIZING;
 
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, 64, RSSL_FALSE, &err);
-    /* Buffer allocation may fail because state is INITIALIZING – that is fine. */
+    /* Buffer allocation may fail because state is INITIALIZING - that is fine. */
     if (!pBuf)
     {
         pClientChnl->state = RSSL_CH_STATE_ACTIVE;
-        SUCCEED() << "Buffer allocation refused on INITIALIZING channel – acceptable";
+        SUCCEED() << "Buffer allocation refused on INITIALIZING channel - acceptable";
         return;
     }
 }
@@ -4325,7 +4325,7 @@ TEST_P(RsslSocketWriteTests, WriteOnServerAcceptedChannelSucceeds)
     RsslBuffer* pBuf = rsslGetBuffer(pServerChnl, 128, RSSL_FALSE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Server channel buffer allocation failed – skip";
+        SUCCEED() << "Server channel buffer allocation failed - skip";
         return;
     }
 
@@ -4385,7 +4385,7 @@ TEST_P(RsslSocketWriteTests, BufferFromWrongChannelDoesNotCrash)
     RsslBuffer* pBuf = rsslGetBuffer(pServerChnl, 64, RSSL_FALSE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Server buffer allocation failed – skip";
+        SUCCEED() << "Server buffer allocation failed - skip";
         return;
     }
 
@@ -4395,7 +4395,7 @@ TEST_P(RsslSocketWriteTests, BufferFromWrongChannelDoesNotCrash)
     RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
     RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
 
-    /* This is an API misuse – we accept any non-crash result. */
+    /* This is an API misuse - we accept any non-crash result. */
     RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
 
     EXPECT_TRUE(ret == RSSL_RET_FAILURE)
@@ -4543,7 +4543,7 @@ TEST_P(RsslSocketWriteTests, CompressedPackedWriteZlibSucceeds)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Packed buffer allocation on Zlib channel failed – skip";
+        SUCCEED() << "Packed buffer allocation on Zlib channel failed - skip";
         return;
     }
 
@@ -4588,7 +4588,7 @@ TEST_P(RsslSocketWriteTests, CompressedPackedWriteLz4IncompressibleData)
     RsslBuffer* pBuf = rsslGetBuffer(pClientChnl, bufLen, RSSL_TRUE, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Packed buffer allocation on LZ4 channel failed – skip";
+        SUCCEED() << "Packed buffer allocation on LZ4 channel failed - skip";
         return;
     }
 
@@ -4646,7 +4646,7 @@ TEST_P(RsslSocketWriteTests, Issue5_OldTunnelStreamFdWithNullNewTransportInfo)
     rsslChannelImpl*   pImpl = reinterpret_cast<rsslChannelImpl*>(pClientChnl);
     if (!pImpl->transportInfo)
     {
-        SUCCEED() << "transportInfo not accessible – skip Issue 5 test";
+        SUCCEED() << "transportInfo not accessible - skip Issue 5 test";
         return;
     }
     RsslSocketChannel* pSock = reinterpret_cast<RsslSocketChannel*>(pImpl->transportInfo);
@@ -4670,7 +4670,7 @@ TEST_P(RsslSocketWriteTests, Issue5_OldTunnelStreamFdWithNullNewTransportInfo)
         /* Restore and skip. */
         pSock->oldTunnelStreamFd    = savedOldFd;
         pSock->newTunnelTransportInfo = savedNewInfo;
-        SUCCEED() << "Buffer allocation failed – skip Issue 5 test";
+        SUCCEED() << "Buffer allocation failed - skip Issue 5 test";
         return;
     }
 
@@ -4729,7 +4729,7 @@ TEST_P(RsslSocketWriteTests, WriteInFlagsAllSetDoesNotCrash)
         rsslFlush(pClientChnl, &err);
 }
 
-/* RSSL_WRITE_NO_COMPRESS on a Zlib channel – forces uncompressed path. */
+/* RSSL_WRITE_NO_COMPRESS on a Zlib channel - forces uncompressed path. */
 TEST_P(RsslSocketWriteTests, WriteNoCompressFlagOnZlibChannelDoesNotCrash)
 {
     ASSERT_TRUE(setupChannelPair("15239", RSSL_COMP_ZLIB, 1));
@@ -4738,7 +4738,7 @@ TEST_P(RsslSocketWriteTests, WriteNoCompressFlagOnZlibChannelDoesNotCrash)
     RsslBuffer* pBuf = getClientBuffer(512, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -4766,7 +4766,7 @@ TEST_P(RsslSocketWriteTests, WriteDoNotCompressFlagOnLz4ChannelDoesNotCrash)
     RsslBuffer* pBuf = getClientBuffer(512, &err);
     if (!pBuf)
     {
-        SUCCEED() << "Buffer allocation failed – skip";
+        SUCCEED() << "Buffer allocation failed - skip";
         return;
     }
 
@@ -4791,17 +4791,17 @@ TEST_P(RsslSocketWriteTests, WriteDoNotCompressFlagOnLz4ChannelDoesNotCrash)
  * Each test below targets one of the five bugs identified by static
  * analysis of ipcFlushSession() in rsslSocketTransportImpl.c:
  *
- *   Flush Bug 1 – Non-writev path: rsslQueueRemoveFirstLink returns NULL
+ *   Flush Bug 1 - Non-writev path: rsslQueueRemoveFirstLink returns NULL
  *                 ? curmsgb unchanged (stale pointer) ? rtr_dfltcFreeMsg
  *                 called on the PREVIOUS curmsgb (double-free) or on NULL
  *                 (crash).  Fixed by: asserting pLink and freeing the
  *                 already-held curmsgb pointer directly.
  *
- *   Flush Bug 2 – Writev path: same RemoveFirstLink NULL-guard missing.
+ *   Flush Bug 2 - Writev path: same RemoveFirstLink NULL-guard missing.
  *                 curmsgb is unset when pLink is NULL, so the next line
  *                 `queueLength -= curmsgb->length` is a NULL dereference.
  *
- *   Flush Bug 3 – Writev full-write path: `queueLength` is decremented by
+ *   Flush Bug 3 - Writev full-write path: `queueLength` is decremented by
  *                 `curmsgb->length` (full original length) instead of
  *                 `RIPC_IOV_GETLEN(&wrtvec[wrtveclen])` (actual bytes in
  *                 the IOV slot for that iteration).  For a buffer that was
@@ -4810,22 +4810,22 @@ TEST_P(RsslSocketWriteTests, WriteDoNotCompressFlagOnLz4ChannelDoesNotCrash)
  *                 incorrectly positive after the flush.  rsslFlush() then
  *                 returns a non-zero value even though the queue is empty.
  *
- *   Flush Bug 4 – Return-value signed overflow: both return sites accumulate
+ *   Flush Bug 4 - Return-value signed overflow: both return sites accumulate
  *                 `queueLength` into a signed `RsslRet` (int32).  With
  *                 many large messages queued the sum can exceed INT32_MAX,
  *                 wrapping to a negative value that callers interpret as
  *                 RSSL_RET_FAILURE.
  *
- *   Flush Bug 5 – Missing `\n` terminator in one of the chunk-footer error
+ *   Flush Bug 5 - Missing `\n` terminator in one of the chunk-footer error
  *                 messages (writev reducedIovLen path).  This is a cosmetic
  *                 issue; tested by checking that error text for the
  *                 equivalent non-writev path IS terminated correctly.
  *
- * Port assignments: 15500 – 15519
+ * Port assignments: 15500 - 15519
  * ===================================================================== */
 
 /* -----------------------------------------------------------------------
- * Flush Bug 4 – signed overflow of flush return value.
+ * Flush Bug 4 - signed overflow of flush return value.
  *
  * Write enough data to make the sum of all priority-queue lengths exceed
  * INT32_MAX if accumulated into a signed int32.  The fixed code uses an
@@ -4842,7 +4842,7 @@ TEST_P(RsslSocketWriteTests, FlushBug4_ReturnValueNeverNegativeUnderLargeQueue)
     ASSERT_TRUE(setupChannelPair("15500"));
 
     RsslError err;
-    /* Write 200 × 4 KB messages to build a large pending queue. */
+    /* Write 200 x 4 KB messages to build a large pending queue. */
     const RsslUInt32 payLen    = 4096;
     const int        writeCount = 200;
 
@@ -4859,7 +4859,7 @@ TEST_P(RsslSocketWriteTests, FlushBug4_ReturnValueNeverNegativeUnderLargeQueue)
 
         RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (ret < RSSL_RET_SUCCESS) break;
-        /* Do NOT flush – accumulate bytes in the priority queues. */
+        /* Do NOT flush - accumulate bytes in the priority queues. */
     }
 
     /* Flush: the accumulated pending bytes must never produce a negative
@@ -4873,7 +4873,7 @@ TEST_P(RsslSocketWriteTests, FlushBug4_ReturnValueNeverNegativeUnderLargeQueue)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 4 (continued) – multiple priority queues summed together.
+ * Flush Bug 4 (continued) - multiple priority queues summed together.
  *
  * Write to all three priority queues (HIGH / MEDIUM / LOW) without
  * flushing, then call rsslFlush.  The return value must be >= 0.  If
@@ -4918,7 +4918,7 @@ done_writing:
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 3 – queueLength over-decremented for partially-advanced buffers
+ * Flush Bug 3 - queueLength over-decremented for partially-advanced buffers
  *               in the writev full-write path.
  *
  * The bug: `queueLength -= curmsgb->length` uses the full original buffer
@@ -4989,7 +4989,7 @@ TEST_P(RsslSocketWriteTests, FlushBug3_QueueLengthCorrectAfterPartialWriteThenFu
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 3 (continued) – queueLength consistency after many small writes
+ * Flush Bug 3 (continued) - queueLength consistency after many small writes
  *                            and a single large flush.
  *
  * Write 100 small messages and let rsslFlush drain all of them.  After
@@ -5034,7 +5034,7 @@ TEST_P(RsslSocketWriteTests, FlushBug3_QueueLengthZeroAfterFullDrain)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 1 & 2 – Non-writev and writev NULL-guard stress test.
+ * Flush Bug 1 & 2 - Non-writev and writev NULL-guard stress test.
  *
  * Rapidly write and flush in tight alternation across 500 iterations.
  * If the queue becomes inconsistent (RemoveFirstLink returns NULL for a
@@ -5064,13 +5064,13 @@ TEST_P(RsslSocketWriteTests, FlushBug1And2_RapidWriteFlushCycleNoCrash)
         RsslRet wRet = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
         if (wRet < RSSL_RET_SUCCESS) break;
 
-        /* Flush immediately after every write – stresses the single-entry
+        /* Flush immediately after every write - stresses the single-entry
          * queue path where RemoveFirstLink must always find the peeked node. */
         RsslRet fRet = rsslFlush(pClientChnl, &err);
 
         ASSERT_GE(fRet, RSSL_RET_SUCCESS)
             << "rsslFlush crashed or returned failure at iteration " << i
-            << " – indicates NULL-deref in RemoveFirstLink result path "
+            << " - indicates NULL-deref in RemoveFirstLink result path "
                "(ipcFlushSession Bugs 1/2); fRet=" << fRet;
     }
 
@@ -5078,7 +5078,7 @@ TEST_P(RsslSocketWriteTests, FlushBug1And2_RapidWriteFlushCycleNoCrash)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 1 & 2 – Non-writev path: queue drained one message at a time.
+ * Flush Bug 1 & 2 - Non-writev path: queue drained one message at a time.
  *
  * Write N messages, then call rsslFlush N times (once per message) with
  * the server draining between calls.  Each flush removes exactly one
@@ -5133,7 +5133,7 @@ TEST_P(RsslSocketWriteTests, FlushBug1And2_IncrementalFlushOneMessageAtATime)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 2 – Writev path: flush after many fragmented messages.
+ * Flush Bug 2 - Writev path: flush after many fragmented messages.
  *
  * The writev full-write loop (`cc == lenToWrite`) iterates backward
  * through `wrtveclen` calling RemoveFirstLink for each IOV slot.  If any
@@ -5165,7 +5165,7 @@ TEST_P(RsslSocketWriteTests, FlushBug2_WritevPathDeepIOVFlushNoCrash)
         if (ret < RSSL_RET_SUCCESS) break;
     }
 
-    /* Single flush to drain all 100 × 3-fragment chains via the writev loop. */
+    /* Single flush to drain all 100 x 3-fragment chains via the writev loop. */
     bool sawNegative = false;
     for (int attempt = 0; attempt < 300; ++attempt)
     {
@@ -5182,7 +5182,7 @@ TEST_P(RsslSocketWriteTests, FlushBug2_WritevPathDeepIOVFlushNoCrash)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 5 – Error-text termination: non-writev path chunk-footer error.
+ * Flush Bug 5 - Error-text termination: non-writev path chunk-footer error.
  *
  * When the chunk-footer write fails in the non-writev path the error text
  * is correctly `\n`-terminated (as confirmed by reading the source).  The
@@ -5243,7 +5243,7 @@ TEST_P(RsslSocketWriteTests, FlushBug5_ErrorTextNonEmptyOnFlushFailure)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 4 – Return value stays non-negative after high-water-mark hit.
+ * Flush Bug 4 - Return value stays non-negative after high-water-mark hit.
  *
  * Set a very low high-water mark so that rsslWriteEx triggers an automatic
  * flush on nearly every write.  Each flush return value must be >= 0.
@@ -5291,7 +5291,7 @@ TEST_P(RsslSocketWriteTests, FlushBug4_FlushReturnNonNegativeWithLowHighWaterMar
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 3 – queueLength consistency: write then close; server reads
+ * Flush Bug 3 - queueLength consistency: write then close; server reads
  *               all data.  Verifies no queueLength residue causes a
  *               spurious flush pending-bytes report.
  * --------------------------------------------------------------------- */
@@ -5333,7 +5333,7 @@ TEST_P(RsslSocketWriteTests, FlushBug3_QueueLengthZeroReportedAfterFullTransfer)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bugs 1+2+4 – Concurrent writer thread and repeated flusher.
+ * Flush Bugs 1+2+4 - Concurrent writer thread and repeated flusher.
  *
  * One thread writes 200 messages; the main thread calls rsslFlush in a
  * tight loop.  Any flush return < 0 indicates signed overflow (Bug 4).
@@ -5422,7 +5422,7 @@ TEST_P(RsslSocketWriteChannelLockTests, FlushBugs1_2_4_ConcurrentWriteAndFlushNo
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 4 – Fragmented messages accumulate more bytes per message.
+ * Flush Bug 4 - Fragmented messages accumulate more bytes per message.
  *               Verify non-negative flush return with fragmented queue.
  * --------------------------------------------------------------------- */
 TEST_P(RsslSocketWriteTests, FlushBug4_FragmentedQueueReturnValueNonNegative)
@@ -5471,73 +5471,73 @@ TEST_P(RsslSocketWriteTests, FlushBug4_FragmentedQueueReturnValueNonNegative)
  *
  * Code paths targeted:
  *
- *   CF2  – rsslFlush() on a channel whose public state is CLOSED before
+ *   CF2  - rsslFlush() on a channel whose public state is CLOSED before
  *          ipcFlushSession() checks workState: if the state guard is not
  *          reached, the code reads rsslSocketChannel->transportFuncs
  *          from a channel whose internals are partially torn down.
  *
- *   CF3  – rsslFlush() after the remote peer closes the connection:
+ *   CF3  - rsslFlush() after the remote peer closes the connection:
  *          the write/writev call returns -2; the error path must set error
  *          text and return RSSL_RET_FAILURE without a second attempt.
  *
- *   CF4  – Flush return value must eventually reach exactly 0 after the
+ *   CF4  - Flush return value must eventually reach exactly 0 after the
  *          server drains the TCP stream: verifies that the queueLength
  *          accumulation (Bug 3) and signed return (Bug 4) leave no residue.
  *
- *   CF5  – rsslFlush() called while the priority queue contains messages
+ *   CF5  - rsslFlush() called while the priority queue contains messages
  *          at all three priorities simultaneously: the flushStrategy walk
  *          and iovPriority[] array must not go out of bounds.
  *
- *   CF6  – rsslFlush() after a write that triggered WRITE_FLUSH_FAILED
+ *   CF6  - rsslFlush() after a write that triggered WRITE_FLUSH_FAILED
  *          must fully drain the queue when followed by server-side reads.
  *
- *   CF7  – Very high volume of small messages: 1 000 × 64-byte writes
+ *   CF7  - Very high volume of small messages: 1 000 x 64-byte writes
  *          batched before a single flush tests the writev IOV array
  *          (RIPC_MAXIOVLEN slots) boundary and the queueLength sum.
  *
- *   CF8  – Repeat flush after full drain returns 0 consistently (empty
+ *   CF8  - Repeat flush after full drain returns 0 consistently (empty
  *          queue re-entry crash: if the non-writev path handles the
  *          low-priority fallback check incorrectly a NULL curmsgb is
  *          passed to rtr_dfltcFreeMsg on an already-empty queue).
  *
- *   CF9  – Mix fragmented and non-fragmented messages across three priority
+ *   CF9  - Mix fragmented and non-fragmented messages across three priority
  *          queues, flush with a slow-reading server to force partial writev
  *          writes (nextOutBuf tracking, Bug 3 IOV-length accounting).
  *
- *   CF10 – Concurrent rsslFlush() calls from two threads on the same
+ *   CF10 - Concurrent rsslFlush() calls from two threads on the same
  *          channel under RSSL_LOCK_GLOBAL_AND_CHANNEL: the per-channel
  *          lock must serialize the queueLength decrement and the
  *          RemoveFirstLink / rtr_dfltcFreeMsg sequence.
  *
- *   CF11 – Channel closed mid-flush: close the server side to break the
+ *   CF11 - Channel closed mid-flush: close the server side to break the
  *          TCP connection, then call rsslFlush() which triggers a fatal
  *          write error inside ipcFlushSession(). The function must return
  *          RSSL_RET_FAILURE and set error text without double-freeing any
  *          queued msgb or corrupting the priority queue pointers.
  *
- *   CF12 – Flush with all three priority queues at maximum message depth:
+ *   CF12 - Flush with all three priority queues at maximum message depth:
  *          write RIPC_MAX_FLUSH_STRATEGY (32) messages to each of the three
  *          queues without flushing, then call rsslFlush once. This fills the
  *          flushStrategy walk completely and stresses the writev IOV array.
  *
- *   CF13 – Flush after rapid channel reuse: open, write, close, reopen on
+ *   CF13 - Flush after rapid channel reuse: open, write, close, reopen on
  *          the same port. The second channel pair reuses pool blocks freed
  *          by the first close; rsslFlush on the second pair must not follow
  *          stale nextMsg pointers left from the first lifetime.
  *
- *   CF14 – Single-message flush to verify the non-writev path's
+ *   CF14 - Single-message flush to verify the non-writev path's
  *          RemoveFirstLink guard (Bug 1): write one small message, flush.
  *          Repeat 500 times with a fresh buffer each time.
  *
- *   CF15 – Flush with a fragmented message exactly at the writev IOV
+ *   CF15 - Flush with a fragmented message exactly at the writev IOV
  *          slot boundary: the number of fragments equals the IOV array
  *          capacity so that the full-write loop iterates over every slot.
  *
- * Port assignments: 15600 – 15619
+ * Port assignments: 15600 - 15619
  * ===================================================================== */
 
 /* -----------------------------------------------------------------------
- * CF2 – rsslFlush() on a channel whose state is set to CLOSED.
+ * CF2 - rsslFlush() on a channel whose state is set to CLOSED.
  *
  * If rsslFlush() does not check the public channel state before entering
  * ipcFlushSession(), it will call transportFuncs->writeTransport /
@@ -5571,7 +5571,7 @@ TEST_P(RsslSocketWriteTests, Flush_ClosedChannelStateReturnsFail)
 }
 
 /* -----------------------------------------------------------------------
- * CF3 – rsslFlush() after the remote end closes.
+ * CF3 - rsslFlush() after the remote end closes.
  *
  * When the server side closes, the next write() call inside
  * ipcFlushSession() returns -2 (connection reset). The error-path
@@ -5602,7 +5602,7 @@ TEST_P(RsslSocketWriteTests, Flush_AfterRemoteCloseReturnsFailure)
 
     RsslRet ret = rsslFlush(pClientChnl, &err);
 
-    /* Must fail gracefully – not crash. The exact return depends on whether
+    /* Must fail gracefully - not crash. The exact return depends on whether
      * the OS already delivered the RST; accept failure or channel-close. */
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pClientChnl->state);
     EXPECT_TRUE(ret == RSSL_RET_SUCCESS || ret == RSSL_RET_FAILURE)
@@ -5610,10 +5610,10 @@ TEST_P(RsslSocketWriteTests, Flush_AfterRemoteCloseReturnsFailure)
 }
 
 /* -----------------------------------------------------------------------
- * CF4 – Flush return value eventually reaches exactly 0.
+ * CF4 - Flush return value eventually reaches exactly 0.
  *
  * After writing and completely draining all data, the pending-bytes
- * return must reach 0 — not a residual positive (Bug 3 queueLength)
+ * return must reach 0 - not a residual positive (Bug 3 queueLength)
  * or negative (Bug 4 signed overflow) value.
  * --------------------------------------------------------------------- */
 TEST_P(RsslSocketWriteTests, Flush_ReturnValueReachesZeroAfterFullDrain)
@@ -5643,7 +5643,7 @@ TEST_P(RsslSocketWriteTests, Flush_ReturnValueReachesZeroAfterFullDrain)
         finalRet = rsslFlush(pClientChnl, &err);
         ASSERT_GE(finalRet, RSSL_RET_SUCCESS)
             << "Negative flush at attempt " << t
-            << " — Bug 3 or Bug 4 present; ret=" << finalRet;
+            << " - Bug 3 or Bug 4 present; ret=" << finalRet;
         time_sleep(1);
     }
 
@@ -5652,7 +5652,7 @@ TEST_P(RsslSocketWriteTests, Flush_ReturnValueReachesZeroAfterFullDrain)
 }
 
 /* -----------------------------------------------------------------------
- * CF5 – Flush with all three priority queues populated simultaneously.
+ * CF5 - Flush with all three priority queues populated simultaneously.
  *
  * ipcFlushSession() iterates the flushStrategy[] array to pick buffers
  * from each queue.  All three queues containing messages simultaneously
@@ -5704,7 +5704,7 @@ flush_all:
 }
 
 /* -----------------------------------------------------------------------
- * CF6 – rsslFlush() drains completely after WRITE_FLUSH_FAILED.
+ * CF6 - rsslFlush() drains completely after WRITE_FLUSH_FAILED.
  *
  * After the output queue triggers WRITE_FLUSH_FAILED, a subsequent flush
  * loop (with the server draining) must empty the queue to 0.  If Bug 3
@@ -5754,9 +5754,9 @@ TEST_P(RsslSocketWriteTests, Flush_DrainToZeroAfterWriteFlushFailed)
 }
 
 /* -----------------------------------------------------------------------
- * CF7 – High-volume small message batch flush.
+ * CF7 - High-volume small message batch flush.
  *
- * 1 000 × 64-byte writes batched before a single rsslFlush() call
+ * 1 000 x 64-byte writes batched before a single rsslFlush() call
  * saturates the writev IOV array across many iterations.  The
  * `wrtveclen` counter must not exceed RIPC_MAXIOVLEN; the return value
  * must never be negative.
@@ -5797,7 +5797,7 @@ TEST_P(RsslSocketWriteTests, Flush_HighVolumeSmallMessageBatchFlush)
 }
 
 /* -----------------------------------------------------------------------
- * CF8 – Repeated flush on an already-empty queue.
+ * CF8 - Repeated flush on an already-empty queue.
  *
  * After the queue is fully drained, calling rsslFlush() 1 000 more times
  * must consistently return 0.  If the non-writev path's low-priority
@@ -5844,14 +5844,14 @@ TEST_P(RsslSocketWriteTests, Flush_RepeatedFlushOnEmptyQueueNeverCrashes)
 }
 
 /* -----------------------------------------------------------------------
- * CF9 – Mix of fragmented and non-fragmented messages across all three
+ * CF9 - Mix of fragmented and non-fragmented messages across all three
  *       priority queues with slow server to force partial writev writes.
  *
  * Partial writev updates `nextOutBuf` to the priority index of the buffer
  * that was only partly sent.  The next flush must resume from that buffer
  * (the writev loop re-peeks `priorityQueues[nextOutBuf]`).  If the index
  * is stale or the peek finds a wrong buffer, the partial-write handler
- * does `curmsgb->local += cc` on the wrong msgb — heap corruption.
+ * does `curmsgb->local += cc` on the wrong msgb - heap corruption.
  * --------------------------------------------------------------------- */
 TEST_P(RsslSocketWriteTests, Flush_MixedSizesAllQueuesWithSlowServerDrain)
 {
@@ -5899,7 +5899,7 @@ TEST_P(RsslSocketWriteTests, Flush_MixedSizesAllQueuesWithSlowServerDrain)
 }
 
 /* -----------------------------------------------------------------------
- * CF10 – Concurrent rsslFlush() calls from two threads.
+ * CF10 - Concurrent rsslFlush() calls from two threads.
  *
  * Two threads both call rsslFlush() on the same channel in a tight loop
  * while a writer thread queues data.  Under RSSL_LOCK_GLOBAL_AND_CHANNEL
@@ -5981,7 +5981,7 @@ TEST_P(RsslSocketWriteChannelLockTests, Flush_ConcurrentFlushesUnderChannelLockN
 }
 
 /* -----------------------------------------------------------------------
- * CF11 – Channel closed mid-flush (write error inside ipcFlushSession).
+ * CF11 - Channel closed mid-flush (write error inside ipcFlushSession).
  *
  * Queue 30 messages then abruptly close the server side.  ipcFlushSession()
  * calls writeTransport/writeVTransport which returns -2 (RST received).
@@ -5997,7 +5997,7 @@ TEST_P(RsslSocketWriteTests, Flush_ChannelClosedMidFlushDoesNotCorruptQueue)
     ASSERT_TRUE(setupChannelPair("15610"));
 
     RsslError err;
-    /* Queue 30 × 512-byte messages. */
+    /* Queue 30 x 512-byte messages. */
     for (int i = 0; i < 30; ++i)
     {
         RsslBuffer* pBuf = getClientBuffer(512, &err);
@@ -6031,7 +6031,7 @@ TEST_P(RsslSocketWriteTests, Flush_ChannelClosedMidFlushDoesNotCorruptQueue)
 }
 
 /* -----------------------------------------------------------------------
- * CF12 – Flush with all priority queues at RIPC_MAX_FLUSH_STRATEGY depth.
+ * CF12 - Flush with all priority queues at RIPC_MAX_FLUSH_STRATEGY depth.
  *
  * RIPC_MAX_FLUSH_STRATEGY = 32.  Write 32 messages to each of the three
  * priority queues (96 total) before a single flush.  The flushStrategy[]
@@ -6080,7 +6080,7 @@ done_writing_cf12:
 }
 
 /* -----------------------------------------------------------------------
- * CF13 – Flush after rapid channel reuse on the same port.
+ * CF13 - Flush after rapid channel reuse on the same port.
  *
  * Open channel pair A, write+close without flushing (pool blocks stay
  * freed), then open channel pair B on the same port.  The pool may return
@@ -6113,7 +6113,7 @@ TEST_P(RsslSocketWriteTests, Flush_AfterChannelReuseNextMsgNotStale)
                 RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
                 rsslWriteEx(pClC1, pBuf, &inArgs, &outArgs, &err);
             }
-            /* Close without flushing – pool blocks freed with stale nextMsg. */
+            /* Close without flushing - pool blocks freed with stale nextMsg. */
             rsslCloseChannel(pSrC1, &err);
             rsslCloseChannel(pClC1, &err);
             rsslCloseServer(pSrv1, &err);
@@ -6129,7 +6129,7 @@ TEST_P(RsslSocketWriteTests, Flush_AfterChannelReuseNextMsgNotStale)
     if (!setupActiveChannelPair("15612", &pSrv2, &pSrC2, &pClC2,
                                 RSSL_COMP_NONE, 0, fragSize))
     {
-        SUCCEED() << "Second channel pair failed to set up – skip CF13";
+        SUCCEED() << "Second channel pair failed to set up - skip CF13";
         return;
     }
 
@@ -6164,7 +6164,7 @@ TEST_P(RsslSocketWriteTests, Flush_AfterChannelReuseNextMsgNotStale)
 }
 
 /* -----------------------------------------------------------------------
- * CF14 – Single-message flush stress (500 iterations of write-then-flush).
+ * CF14 - Single-message flush stress (500 iterations of write-then-flush).
  *
  * Each iteration writes exactly ONE buffer, then calls rsslFlush() until
  * the queue empties.  This exercises the RemoveFirstLink guard (Bug 1)
@@ -6203,14 +6203,14 @@ TEST_P(RsslSocketWriteTests, Flush_SingleMessageFlushStressNoCrash)
 }
 
 /* -----------------------------------------------------------------------
- * CF15 – Fragmented message exactly filling the writev IOV array.
+ * CF15 - Fragmented message exactly filling the writev IOV array.
  *
  * The writev IOV array (`wrtvec[RIPC_MAXIOVLEN]`) is built up to
  * `iovLength = RIPC_MAXIOVLEN` slots.  Write enough small-fragment
  * messages without flushing so that a single flush builds a full IOV
  * array, then calls writeVTransport() for the entire array at once.
  * The full-write path iterates backward through all `wrtveclen` slots
- * calling RemoveFirstLink on each — the boundary where wrtveclen
+ * calling RemoveFirstLink on each - the boundary where wrtveclen
  * decrements to 0 must not access `iovPriority[-1]`.
  * --------------------------------------------------------------------- */
 TEST_P(RsslSocketWriteTests, Flush_WritevIovArrayFullBoundaryNoCrash)
@@ -6254,7 +6254,7 @@ TEST_P(RsslSocketWriteTests, Flush_WritevIovArrayFullBoundaryNoCrash)
 }
 
 /* -----------------------------------------------------------------------
- * Flush Bug 3 – queueLength accounting: write, partial-read by server,
+ * Flush Bug 3 - queueLength accounting: write, partial-read by server,
  *               then final flush.  The return value trajectory must be
  *               monotonically non-increasing (each flush sends more data,
  *               so pending bytes should not increase between flush calls).
@@ -6317,23 +6317,23 @@ TEST_P(RsslSocketWriteTests, FlushBug3_PendingBytesMonotonicallyDecreasing)
  * without internal struct manipulation.
  *
  * Crash vectors:
- *   A – NULL bufferInfo dereference when writing a released buffer.
- *   B – Heap over-read in the fragmented MemCopyByInt copy loop when
+ *   A - NULL bufferInfo dereference when writing a released buffer.
+ *   B - Heap over-read in the fragmented MemCopyByInt copy loop when
  *       pBuf->length is inflated past the malloc'd data block.
- *   C – Use-after-free write (Issue 4) in the non-compressed forceFlush
+ *   C - Use-after-free write (Issue 4) in the non-compressed forceFlush
  *       path: rtr_dfltcFreeMsg(msgb) followed by msgb->buffer=0 / length=0.
- *   D – packed-buffer backing-store overflow when the final slot's length
+ *   D - packed-buffer backing-store overflow when the final slot's length
  *       makes packingOffset exceed ripcBuffer->maxLength (Issue 2 / 10).
- *   E – RsslInt32 uncompBytes accumulation sanity check (Issue 8):
+ *   E - RsslInt32 uncompBytes accumulation sanity check (Issue 8):
  *       uncompressedBytesWritten must be positive after a large write.
- *   F – writeOutArgs stale sentinel on WRITE_FLUSH_FAILED (Issue 9):
+ *   F - writeOutArgs stale sentinel on WRITE_FLUSH_FAILED (Issue 9):
  *       bytesWritten must be updated on the flush-failed return path.
  *
- * Port assignments: 15300 – 15305
+ * Port assignments: 15300 - 15305
  * ===================================================================== */
 
 /* -----------------------------------------------------------------------
- * Crash vector A – NULL bufferInfo dereference after rsslReleaseBuffer().
+ * Crash vector A - NULL bufferInfo dereference after rsslReleaseBuffer().
  *
  * rsslReleaseBuffer() sets rsslBufImpl->bufferInfo = 0.  A subsequent
  * rsslWriteEx() call must detect the zero bufferInfo inside ipcWriteSession()
@@ -6368,7 +6368,7 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_ReleasedBufferWriteIsGuarded)
 }
 
 /* -----------------------------------------------------------------------
- * Crash vector B – heap over-read in the fragmented MemCopyByInt loop.
+ * Crash vector B - heap over-read in the fragmented MemCopyByInt loop.
  *
  * rsslGetBuffer() for fragmented buffers allocates the user data block as
  *   rsslBufImpl->buffer.data = _rsslMalloc(size + 7)
@@ -6420,7 +6420,7 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_FragmentedBufferInflatedLengthHeapOve
 }
 
 /* -----------------------------------------------------------------------
- * Crash vector C – use-after-free of msgb in the non-compressed forceFlush
+ * Crash vector C - use-after-free of msgb in the non-compressed forceFlush
  * path (Issue 4 on the plain-socket write path).
  *
  * In ipcWriteSession(), after a successful direct-socket send:
@@ -6474,7 +6474,7 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_DirectSocketWriteNonCompressedUseAfte
 }
 
 /* -----------------------------------------------------------------------
- * Crash vector D – packed-buffer backing-store overflow via packingOffset.
+ * Crash vector D - packed-buffer backing-store overflow via packingOffset.
  *
  * After rsslPackBuffer() commits one message and advances packingOffset,
  * inflating the returned next-slot length causes:
@@ -6519,13 +6519,13 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_PackedBufferFinalSlotInflatedExceedsB
 }
 
 /* -----------------------------------------------------------------------
- * Crash vector E – RsslInt32 uncompBytes accumulation (Issue 8).
+ * Crash vector E - RsslInt32 uncompBytes accumulation (Issue 8).
  *
  * ipcWriteSession() sums per-fragment wire sizes into:
  *   RsslInt32 uncompBytes = 0;
  *   uncompBytes += messageLength;   // repeated for each fragment
  *
- * For a ~200-fragment message (200 × ~1050 bytes ˜ 210 000 bytes) the
+ * For a ~200-fragment message (200 x ~1050 bytes ~ 210 000 bytes) the
  * accumulation stays within RsslInt32 range.  This test verifies that
  * outArgs.uncompressedBytesWritten is positive and >= the payload size
  * after such a write, confirming no silent signed overflow occurred.
@@ -6560,14 +6560,14 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_LargeFragmentedWriteUncompBytesAccumu
     EXPECT_NE(outArgs.uncompressedBytesWritten, (RsslUInt32)-1)
         << "uncompressedBytesWritten must be updated after large fragmented write";
     EXPECT_GT(outArgs.uncompressedBytesWritten, 0u)
-        << "uncompressedBytesWritten must be positive – not wrapped to "
+        << "uncompressedBytesWritten must be positive - not wrapped to "
            "negative by RsslInt32 overflow (Issue 8)";
     EXPECT_GE(outArgs.uncompressedBytesWritten, reqSize)
         << "uncompressedBytesWritten must be >= payload length";
 }
 
 /* -----------------------------------------------------------------------
- * Crash vector F – writeOutArgs.bytesWritten left as sentinel on
+ * Crash vector F - writeOutArgs.bytesWritten left as sentinel on
  * WRITE_FLUSH_FAILED (Issue 9).
  *
  * When rsslWriteEx() returns RSSL_RET_WRITE_FLUSH_FAILED, the out-args
@@ -6633,8 +6633,8 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_WriteFlushFailedOutArgsBytesWrittenNo
 /* =======================================================================
  * -- MEMORY CORRUPTION DETECTION TESTS (CANARY-WRITE PATTERN) -----------
  *
- * Each test applies a "poison" – a write operation known to risk pool or
- * heap corruption – immediately followed by a "canary" write that would
+ * Each test applies a "poison" - a write operation known to risk pool or
+ * heap corruption - immediately followed by a "canary" write that would
  * crash, return garbage, or produce detectable ASAN/valgrind reports if
  * the poison damaged memory.
  *
@@ -6647,24 +6647,24 @@ TEST_P(RsslSocketWriteTests, NegativeWrite_WriteFlushFailedOutArgsBytesWrittenNo
  * reused), providing the definitive detection mechanism.
  *
  * Target bugs:
- *   Issue 2  – Fragment chain leaked on msgb->length > msgb->maxLength
+ *   Issue 2  - Fragment chain leaked on msgb->length > msgb->maxLength
  *               break; pool block freed at IPC_header_size bytes before
  *               its actual start address (if break fires after buffer
  *               pointer decrement).
- *   Issue 3  – Write loop queues additional fragments after a fatal error,
+ *   Issue 3  - Write loop queues additional fragments after a fatal error,
  *               leaving orphaned pool blocks that exhaust the pool.
- *   Issue 4  – rtr_dfltcFreeMsg(msgb) then msgb->buffer=0 / length=0
+ *   Issue 4  - rtr_dfltcFreeMsg(msgb) then msgb->buffer=0 / length=0
  *               (use-after-free write) corrupts any pool block that was
  *               reallocated between the free and the zero-write.
- *   Issue 7  – Stale compressedmb->nextMsg: the outer while(msgb) loop
+ *   Issue 7  - Stale compressedmb->nextMsg: the outer while(msgb) loop
  *               follows a non-NULL nextMsg on a recycled pool block and
  *               writes IPC headers into unrelated heap memory.
  *
- * Port assignments: 15400 – 15411
+ * Port assignments: 15400 - 15411
  * ===================================================================== */
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 1 – Pool integrity after single-buffer length-overflow failure.
+ * MemCorrupt 1 - Pool integrity after single-buffer length-overflow failure.
  *
  * Poison : rsslGetBuffer(128) + pBuf->length += 1 ? rsslWriteEx returns
  *          RSSL_RET_BUFFER_TOO_SMALL.  The outer guard in rsslSocketWrite()
@@ -6704,7 +6704,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterLengthOverflowWriteFai
     RsslBuffer* pBuf2 = getClientBuffer(allocSize, &err);
     if (!pBuf2)
     {
-        SUCCEED() << "Canary allocation returned NULL; pool may be exhausted – no crash";
+        SUCCEED() << "Canary allocation returned NULL; pool may be exhausted - no crash";
         return;
     }
 
@@ -6718,12 +6718,12 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterLengthOverflowWriteFai
         rsslFlush(pClientChnl, &err);
 
     EXPECT_GE(ret2, RSSL_RET_SUCCESS)
-        << "Canary write must succeed – pool must be intact after overflow "
+        << "Canary write must succeed - pool must be intact after overflow "
            "write failure (Issue 2 heap-corruption check); err: " << err.text;
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 2 – Pool integrity after fragmented-buffer length overflow.
+ * MemCorrupt 2 - Pool integrity after fragmented-buffer length overflow.
  *
  * Poison : allocate a two-fragment buffer (fragSize + 512 bytes), inflate
  *          pBuf->length by 8 KB beyond the malloc'd block, write ? outer
@@ -6759,7 +6759,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterFragmentedLengthOverfl
     RsslBuffer* pBuf2 = getClientBuffer(allocSz, &err);
     if (!pBuf2)
     {
-        SUCCEED() << "Canary allocation returned NULL; no crash – fragmented pool may be exhausted";
+        SUCCEED() << "Canary allocation returned NULL; no crash - fragmented pool may be exhausted";
         return;
     }
 
@@ -6773,12 +6773,12 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterFragmentedLengthOverfl
         rsslFlush(pClientChnl, &err);
 
     EXPECT_GE(ret2, RSSL_RET_SUCCESS)
-        << "Canary fragmented write must succeed – pool intact after "
+        << "Canary fragmented write must succeed - pool intact after "
            "inflated-length failure (Issue 2); err: " << err.text;
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 3 – rsslReleaseBuffer() on an unwritten fragmented buffer.
+ * MemCorrupt 3 - rsslReleaseBuffer() on an unwritten fragmented buffer.
  *
  * Allocate a three-fragment buffer (fragSize * 3 bytes) and call
  * rsslReleaseBuffer() WITHOUT writing it first.  This exercises the
@@ -6801,7 +6801,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ReleaseUnwrittenFragmentedBufferChainWal
     RsslBuffer* pBuf = getClientBuffer(allocSz, &err);
     if (!pBuf)
     {
-        SUCCEED() << "3-fragment allocation failed – skip";
+        SUCCEED() << "3-fragment allocation failed - skip";
         return;
     }
 
@@ -6817,7 +6817,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ReleaseUnwrittenFragmentedBufferChainWal
     RsslBuffer* pBuf2 = getClientBuffer(allocSz, &err);
     if (!pBuf2)
     {
-        SUCCEED() << "Canary allocation returned NULL – no crash; pool may be tight";
+        SUCCEED() << "Canary allocation returned NULL - no crash; pool may be tight";
         return;
     }
 
@@ -6835,7 +6835,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ReleaseUnwrittenFragmentedBufferChainWal
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 4 – Rapid fragmented alloc / release cycling stresses pool
+ * MemCorrupt 4 - Rapid fragmented alloc / release cycling stresses pool
  *               nextMsg zeroing (Issue 7 stale pointer stress).
  *
  * 300 iterations alternating:
@@ -6865,12 +6865,12 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_RapidFragmentedAllocReleaseCyclingStress
 
         if (i % 2 == 0)
         {
-            /* Release without writing – chain-walk path. */
+            /* Release without writing - chain-walk path. */
             rsslReleaseBuffer(pBuf, &err);
         }
         else
         {
-            /* Write and flush – full fragment-chain creation/destruction. */
+            /* Write and flush - full fragment-chain creation/destruction. */
             RsslWriteInArgs  inArgs;  rsslClearWriteInArgs(&inArgs);
             RsslWriteOutArgs outArgs; rsslClearWriteOutArgs(&outArgs);
             RsslRet ret = rsslWriteEx(pClientChnl, pBuf, &inArgs, &outArgs, &err);
@@ -6885,10 +6885,10 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_RapidFragmentedAllocReleaseCyclingStress
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 5 – forceFlush UAF pool-reuse canary.
+ * MemCorrupt 5 - forceFlush UAF pool-reuse canary.
  *
  * After each DIRECT_SOCKET_WRITE (which calls rtr_dfltcFreeMsg(msgb) and
- * then writes msgb->buffer=0 / msgb->length=0 to the freed block – Issue 4),
+ * then writes msgb->buffer=0 / msgb->length=0 to the freed block - Issue 4),
  * immediately allocate a NEW buffer from the same pool.  If the UAF writes
  * zeroed the free-list pointer the allocator stored in the freed block, the
  * new allocation either returns NULL or a corrupted pointer.  Writing to a
@@ -6944,7 +6944,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ForceFlushUAFPoolReuseCanary)
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 6 – Pool integrity after compressed-channel length overflow.
+ * MemCorrupt 6 - Pool integrity after compressed-channel length overflow.
  *
  * Poison : on a Zlib channel, inflate pBuf->length by 1 ? BUFFER_TOO_SMALL.
  *          Release the buffer.
@@ -6977,7 +6977,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterCompressedLengthOverfl
     RsslBuffer* pBuf2 = getClientBuffer(allocSz, &err);
     if (!pBuf2)
     {
-        SUCCEED() << "Canary allocation NULL on Zlib channel – no crash";
+        SUCCEED() << "Canary allocation NULL on Zlib channel - no crash";
         return;
     }
 
@@ -6996,7 +6996,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolIntegrityAfterCompressedLengthOverfl
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 7 – Channel fully usable after WRITE_FLUSH_FAILED + recovery.
+ * MemCorrupt 7 - Channel fully usable after WRITE_FLUSH_FAILED + recovery.
  *
  * Flood until WRITE_FLUSH_FAILED, flush to drain, then write 20 more
  * canary messages.  All 20 must succeed.  Any failure indicates that the
@@ -7044,7 +7044,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ChannelUsableAfterFlushFailedAndRecovery
     time_sleep(20);
     drainServerChannel(pServerChnl, 512);
 
-    /* Phase 3: canary – write 20 more messages; all must succeed. */
+    /* Phase 3: canary - write 20 more messages; all must succeed. */
     int successCount = 0;
     for (int i = 0; i < 20; ++i)
     {
@@ -7068,7 +7068,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_ChannelUsableAfterFlushFailedAndRecovery
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 8 – Alternating poison/canary stress for pool corruption
+ * MemCorrupt 8 - Alternating poison/canary stress for pool corruption
  *               accumulation (Issue 2).
  *
  * 50 iterations each of:
@@ -7124,7 +7124,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_AlternatingOverflowNormalWritesStressPoo
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 9 – Deep (55-node) chain release + reallocation integrity.
+ * MemCorrupt 9 - Deep (55-node) chain release + reallocation integrity.
  *
  * Allocate a 55-fragment buffer (fragSize=100, allocSize=5500), call
  * rsslReleaseBuffer() without writing.  ipcReleaseDataBuffer() must walk
@@ -7144,7 +7144,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_DeepChainReleaseAndReallocIntegrity)
     RsslBuffer* pDeep = getClientBuffer(allocSz, &err);
     if (!pDeep)
     {
-        SUCCEED() << "55-fragment allocation failed – skip";
+        SUCCEED() << "55-fragment allocation failed - skip";
         return;
     }
 
@@ -7161,7 +7161,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_DeepChainReleaseAndReallocIntegrity)
     RsslBuffer* pCanary = getClientBuffer(allocSz, &err);
     if (!pCanary)
     {
-        SUCCEED() << "Canary allocation returned NULL – pool may be tight; no crash";
+        SUCCEED() << "Canary allocation returned NULL - pool may be tight; no crash";
         return;
     }
 
@@ -7175,12 +7175,12 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_DeepChainReleaseAndReallocIntegrity)
         rsslFlush(pClientChnl, &err);
 
     EXPECT_GE(ret, RSSL_RET_SUCCESS)
-        << "Canary write after 55-node chain release must succeed – all blocks "
+        << "Canary write after 55-node chain release must succeed - all blocks "
            "returned to pool correctly; err: " << err.text;
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 10 – Compressed pool cycling then multi-fragment write
+ * MemCorrupt 10 - Compressed pool cycling then multi-fragment write
  *                (Issue 7 stale compressedmb->nextMsg canary).
  *
  * Phase 1: 400 rapid small Zlib compressed writes + flushes.  Each write
@@ -7188,7 +7188,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_DeepChainReleaseAndReallocIntegrity)
  *   of Issue 4).  After 400 cycles the pool has many recycled blocks that
  *   may carry stale nextMsg pointers from their previous life in a chain.
  *
- * Phase 2: canary – write one large Zlib compressed message (7 KB, 2+
+ * Phase 2: canary - write one large Zlib compressed message (7 KB, 2+
  *   fragments).  ipcWriteSession() allocates compressedmb1 (a recycled
  *   block!) and compressedmb2.  If compressedmb1's stale nextMsg != NULL,
  *   the outer while(msgb) loop reads it as the next buffer to process and
@@ -7216,13 +7216,13 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_CompressedPoolCyclingThenMultiFragWriteC
             rsslFlush(pClientChnl, &err);
     }
 
-    /* Phase 2: canary – multi-fragment compressed write.
+    /* Phase 2: canary - multi-fragment compressed write.
      * Allocates compressedmb1 (recycled) and compressedmb2 (also recycled).
      * If compressedmb1's stale nextMsg != NULL, Issue 7 triggers here. */
     RsslBuffer* pBig = getClientBuffer(6500, &err);
     if (!pBig)
     {
-        SUCCEED() << "Multi-fragment canary allocation failed – skip";
+        SUCCEED() << "Multi-fragment canary allocation failed - skip";
         return;
     }
     memset(pBig->data, 0x42, pBig->length);
@@ -7240,7 +7240,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_CompressedPoolCyclingThenMultiFragWriteC
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 11 – Pool exhaustion and recovery.
+ * MemCorrupt 11 - Pool exhaustion and recovery.
  *
  * Hold 400 allocated buffers (never written) to stress-test the pool's
  * capacity bookkeeping.  Then release all of them and verify the pool
@@ -7281,7 +7281,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolExhaustionAndRecovery)
     if (!pCanary)
     {
         SUCCEED() << "Canary allocation returned NULL after mass-release; "
-                     "pool may still be tight – no crash";
+                     "pool may still be tight - no crash";
         return;
     }
 
@@ -7296,12 +7296,12 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PoolExhaustionAndRecovery)
 
     EXPECT_GE(ret, RSSL_RET_SUCCESS)
         << "Canary write after bulk-release of " << heldActual
-        << " buffers must succeed – all pool blocks must have been returned; "
+        << " buffers must succeed - all pool blocks must have been returned; "
            "err: " << err.text;
 }
 
 /* -----------------------------------------------------------------------
- * MemCorrupt 12 – Packed buffer overflow then normal packed write canary.
+ * MemCorrupt 12 - Packed buffer overflow then normal packed write canary.
  *
  * Poison : allocate a 256-byte packed buffer, commit one 64-byte message
  *          via rsslPackBuffer(), inflate the returned next-slot's length by
@@ -7342,7 +7342,7 @@ TEST_P(RsslSocketWriteTests, MemCorrupt_PackedOverflowThenNormalPackedWriteCanar
     RsslBuffer* pCanary = rsslGetBuffer(pClientChnl, 512, RSSL_TRUE, &err);
     if (!pCanary)
     {
-        SUCCEED() << "Canary packed allocation returned NULL – no crash";
+        SUCCEED() << "Canary packed allocation returned NULL - no crash";
         return;
     }
 

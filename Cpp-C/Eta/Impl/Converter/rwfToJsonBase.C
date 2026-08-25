@@ -327,12 +327,10 @@ void rwfToJsonBase::initializeIntToStringTable()
 
 void rwfToJsonBase::uInt32ToString(RsslUInt32 value)
 {
-	register char *tstr;
-
 	if (value <= RTR_RTMC_MAX_INT_TO_STR_TABLE)
 	{
-		tstr = _intToStringTable[value];
 		if (verifyJsonMessageSize(_intToStringTableLengths[value]) == 0) return;
+		const char *tstr = _intToStringTable[value];
 		__rtr_copy6orless(_pstr, tstr, _intToStringTableLengths[value]);
 	}
 	else
@@ -343,8 +341,7 @@ void rwfToJsonBase::uInt32ToString(RsslUInt32 value)
 
 void rwfToJsonBase::int32ToString(RsslInt32 value)
 {
-	register char *tstr;
-	register RsslUInt32 tval;
+	RsslUInt32 tval;
 
 	if (value >= 0)
 	{
@@ -358,8 +355,8 @@ void rwfToJsonBase::int32ToString(RsslInt32 value)
 
 	if (tval <= RTR_RTMC_MAX_INT_TO_STR_TABLE)
 	{
-		tstr = _intToStringTable[tval];
 		if (verifyJsonMessageSize(_intToStringTableLengths[tval]) == 0) return;
+		const char *tstr = _intToStringTable[tval];
 		__rtr_copy6orless(_pstr, tstr, _intToStringTableLengths[tval]);
 	}
 	else
@@ -370,8 +367,7 @@ void rwfToJsonBase::int32ToString(RsslInt32 value)
 
 void rwfToJsonBase::int32ToStringOffBuffer(RsslInt32 value)
 {
-	register char *tstr;
-	register RsslUInt32 tval;
+	RsslUInt32 tval;
 
 	if (value >= 0)
 	{
@@ -385,7 +381,7 @@ void rwfToJsonBase::int32ToStringOffBuffer(RsslInt32 value)
 
 	if (tval <= RTR_RTMC_MAX_INT_TO_STR_TABLE)
 	{
-		tstr = _intToStringTable[tval];
+		const char *tstr = _intToStringTable[tval];
 		__rtr_copy6orless(_pstr, tstr, _intToStringTableLengths[tval]);
 	}
 	else
@@ -396,16 +392,14 @@ void rwfToJsonBase::int32ToStringOffBuffer(RsslInt32 value)
 
 void rwfToJsonBase::uInt64ToString(RsslUInt64 value)
 {
-	register char *tstr;
-
 	if (value <= UINT_MAX)
 	{
-		register RsslUInt32 tval = (RsslUInt32)value;
+		RsslUInt32 tval = (RsslUInt32)value;
 
 		if (tval <= RTR_RTMC_MAX_INT_TO_STR_TABLE)
 		{
-			tstr = _intToStringTable[tval];
 			if (verifyJsonMessageSize(_intToStringTableLengths[tval]) == 0) return;
+			const char *tstr = _intToStringTable[tval];
 			__rtr_copy6orless(_pstr, tstr, _intToStringTableLengths[tval]);
 		}
 		else
@@ -421,8 +415,7 @@ void rwfToJsonBase::uInt64ToString(RsslUInt64 value)
 
 void rwfToJsonBase::int64ToString(RsslInt64 value)
 {
-	register char *tstr;
-	register RsslUInt64 tval;
+	RsslUInt64 tval;
 
 	if (value >= 0)
 	{
@@ -436,12 +429,12 @@ void rwfToJsonBase::int64ToString(RsslInt64 value)
 
 	if (tval <= UINT_MAX)
 	{
-		register RsslUInt32 tttval = (RsslUInt32)tval;
+		RsslUInt32 tttval = (RsslUInt32)tval;
 
 		if (tttval <= RTR_RTMC_MAX_INT_TO_STR_TABLE)
 		{
-			tstr = _intToStringTable[tttval];
 			if (verifyJsonMessageSize(_intToStringTableLengths[tttval]) == 0) return;
+			const char *tstr = _intToStringTable[tttval];
 			__rtr_copy6orless( _pstr, tstr, _intToStringTableLengths[tttval]);
 		}
 		else
@@ -1046,7 +1039,7 @@ void rwfToJsonBase::encodeBase64(const unsigned char *in, int length)
 	char aChar;
 	int bytesLeft = length;
 	int numBytes = 0;
-	unsigned char numLoops;
+	unsigned char numLoops = 4;
 
 	if (verifyJsonMessageSize((length*3)/4 + 3) == 0) return; // Assumes worst case scenario
 

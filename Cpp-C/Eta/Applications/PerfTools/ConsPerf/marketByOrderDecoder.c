@@ -22,12 +22,12 @@ RTR_C_INLINE RsslBool checkPostUserInfo(RsslMsg *pMsg)
 	{
 		case RSSL_MC_REFRESH:
 			return (!(pMsg->refreshMsg.flags & RSSL_RFMF_HAS_POST_USER_INFO)
-			 || pMsg->refreshMsg.postUserInfo.postUserAddr == postUserInfo.postUserAddr
-			 && pMsg->refreshMsg.postUserInfo.postUserId == postUserInfo.postUserId);
+			 || (pMsg->refreshMsg.postUserInfo.postUserAddr == postUserInfo.postUserAddr
+			 && pMsg->refreshMsg.postUserInfo.postUserId == postUserInfo.postUserId));
 		case RSSL_MC_UPDATE:
 			return (!(pMsg->updateMsg.flags & RSSL_UPMF_HAS_POST_USER_INFO)
-			 || pMsg->updateMsg.postUserInfo.postUserAddr == postUserInfo.postUserAddr
-			 && pMsg->updateMsg.postUserInfo.postUserId == postUserInfo.postUserId);
+			 || (pMsg->updateMsg.postUserInfo.postUserAddr == postUserInfo.postUserAddr
+			 && pMsg->updateMsg.postUserInfo.postUserId == postUserInfo.postUserId));
 		default:
 			return RSSL_TRUE;
 	}

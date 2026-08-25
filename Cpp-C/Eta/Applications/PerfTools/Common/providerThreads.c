@@ -612,10 +612,10 @@ void providerSessionDestroy(ProviderThread *pProvThread, ProviderSession *pSessi
 	}
 
 	/* Free any items in the watchlist. */
-	while(pLink = rotatingQueuePeekFrontAsList(&pSession->refreshItemList))
+	while((pLink = rotatingQueuePeekFrontAsList(&pSession->refreshItemList)))
 		freeItemInfo(pProvThread, pSession, RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink));
 
-	while(pLink = rotatingQueuePeekFrontAsList(&pSession->updateItemList))
+	while((pLink = rotatingQueuePeekFrontAsList(&pSession->updateItemList)))
 		freeItemInfo(pProvThread, pSession, RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink));
 
 	if (niProvPerfConfig.useReactor || provPerfConfig.useReactor) // Reactor used
@@ -787,7 +787,7 @@ RsslRet sendRefreshBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		/* Encode the message with data appopriate for the domain */
 
-		if (ret = encodeItemRefresh(pSession->pChannelInfo->pChannel, item, pSession->pWritingBuffer, NULL, 0))
+		if ((ret = encodeItemRefresh(pSession->pChannelInfo->pChannel, item, pSession->pWritingBuffer, NULL, 0)))
 			return ret;
 
 		if ((ret =  sendItemMsgBuffer(pProvThread, pSession, refreshLeft > 1)) < RSSL_RET_SUCCESS)
@@ -820,7 +820,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	ItemInfo *nextItem;
 	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
-	RsslTimeValue measureEncodeStartTime, measureEncodeEndTime;
+	RsslTimeValue measureEncodeStartTime = 0, measureEncodeEndTime;
 
 	/* Determine updates to send out. Spread the remainder out over the first ticks */
 	updatesLeft = providerThreadConfig._updatesPerTick;
@@ -938,7 +938,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	ItemInfo *nextItem;
 	RsslUInt32 protocolType = pSession->pChannelInfo->pChannel->protocolType;
 
-	RsslTimeValue measureEncodeStartTime, measureEncodeEndTime;
+	RsslTimeValue measureEncodeStartTime = 0, measureEncodeEndTime;
 
 	/* Determine generic messages to send out. Spread the remainder out over the first ticks */
 	genMsgsLeft = providerThreadConfig._genMsgsPerTick;
@@ -982,8 +982,8 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 
 		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
 		{
-			if (ret = encodeItemGenMsg(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer,
-										latencyStartTime) < RSSL_RET_SUCCESS)
+			if ((ret = encodeItemGenMsg(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer,
+										latencyStartTime) < RSSL_RET_SUCCESS))
 			return ret;
 		}
 		else
@@ -1186,7 +1186,7 @@ static RsslRet writeCurrentBuffer(ProviderThread *pProvThread, ProviderSession *
 
 			printf("rsslTunnelStreamSubmit() failed with return code %d - <%s>\n", ret, tunnelErrorInfo.rsslError.text);
 
-			if (retVal = rsslTunnelStreamReleaseBuffer(pSession->pWritingBuffer, &tunnelErrorInfo) != RSSL_RET_SUCCESS)
+			if ((retVal = rsslTunnelStreamReleaseBuffer(pSession->pWritingBuffer, &tunnelErrorInfo)) != RSSL_RET_SUCCESS)
 			{
 				printf("rsslTunnelStreamReleaseBuffer() failed with return code %d - <%s>\n", retVal, tunnelErrorInfo.rsslError.text);
 			}

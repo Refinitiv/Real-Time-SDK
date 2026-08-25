@@ -298,9 +298,9 @@ void ProviderThread::run()
 			addThisThread(provApiThreadName, apiThreadCpuId, 0);
 		}
 
-		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
-			|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
-			|| !provPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		if ( (!cpuId.empty() && !cpuId.caseInsensitiveCompare("-1"))
+			|| (!workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1"))
+			|| (!provPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1")) )
 		{
 			printAllThreadBinding();
 		}
@@ -512,7 +512,7 @@ void ProviderThread::sendUpdateMessages()
 
 	Int64 latencyUpdateNumber = (provPerfConfig.latencyUpdatesPerSec > 0) ? latencyUpdateRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
-	PerfTimeValue measureEncodeStartTime, measureEncodeEndTime;
+	PerfTimeValue measureEncodeStartTime = 0, measureEncodeEndTime;
 
 	// index of current template
 	UInt32 indMpUpdMsg = 0, indMboUpdMsg = 0;
@@ -636,7 +636,7 @@ void ProviderThread::sendGenericMessages()
 
 	Int64 latencyGenericNumber = (provPerfConfig.latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
-	PerfTimeValue measureEncodeStartTime, measureEncodeEndTime;
+	PerfTimeValue measureEncodeStartTime = 0, measureEncodeEndTime;
 
 	// index of current template
 	UInt32 indMpGenericMsg = 0, indMboGenericMsg = 0;

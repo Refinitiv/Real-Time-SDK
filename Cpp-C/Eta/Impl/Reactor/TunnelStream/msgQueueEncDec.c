@@ -2237,7 +2237,7 @@ RsslRet rsslReplaceQueueDataTimeout(RsslDecodeIterator *pIter, RsslInt64 timeout
 			{
 				case MSGQUEUE_SHO_DATA:
 				{					
-					RsslInt64 oldTimeout;
+					RsslInt64 oldTimeout = 0;
 					RsslUInt16 tmpFlags;
 					/* Find the position of the existing timeout in the extended header. */
 

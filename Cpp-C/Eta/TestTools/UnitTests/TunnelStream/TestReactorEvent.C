@@ -128,7 +128,8 @@ TestReactorEvent::TestReactorEvent(RsslTunnelStream* pTunnelStream, RsslTunnelSt
 	_tunnelStreamRequestEvent.streamId = pTunnelStreamRequestEvent->streamId;
 	_tunnelStreamRequestEvent.serviceId = pTunnelStreamRequestEvent->serviceId;
 	_tunnelStreamRequestEvent.name = _name;
-	strncpy(_tunnelStreamRequestEvent.name, pTunnelStreamRequestEvent->name, sizeof(_name));
+	strncpy(_tunnelStreamRequestEvent.name, pTunnelStreamRequestEvent->name, sizeof(_name) - 1);
+	_name[sizeof(_name) - 1] = '\0';
 	_tunnelStreamRequestEvent.classOfServiceFilter = pTunnelStreamRequestEvent->classOfServiceFilter;
 }
 

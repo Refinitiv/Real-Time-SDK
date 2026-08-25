@@ -115,8 +115,8 @@ static RsslItemRequestInfo* getMatchingItemReqInfo(RsslReactor *pReactor, RsslRe
 				else
 				{
 					/* Check that the private stream flag matches correctly. */
-					if ((msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && !itemRequestInfoList[i].IsPrivateStreamRequest
-							|| !(msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && itemRequestInfoList[i].IsPrivateStreamRequest)
+					if (((msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && !itemRequestInfoList[i].IsPrivateStreamRequest)
+							|| (!(msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && itemRequestInfoList[i].IsPrivateStreamRequest))
 					{
 						/* This item would be a match except that the private stream flag does not match. */
 						*rejectReason = PRIVATE_STREAM_MISMATCH;
@@ -911,7 +911,7 @@ RsslRet processBatchRequest(RsslReactor *pReactor, RsslReactorChannel* pReactorC
 			itemStream = msg->msgBase.streamId;
 			while ((ret = rsslDecodeArrayEntry(dIter, &arrayEntry)) != RSSL_RET_END_OF_CONTAINER)
 			{
-				RsslItemRejectReason rejectReason;
+				RsslItemRejectReason rejectReason = ITEM_REJECT_NONE;
 				if(ret < RSSL_RET_SUCCESS)
 				{
 					printf("\nrsslDecodeArrayEntry() Failed for batch request(ret = %d)\n", ret);
@@ -1353,7 +1353,7 @@ RsslRet sendSLItemUpdates(RsslReactor *pReactor, RsslReactorChannel* pReactorCha
 */
 RsslRet addSymbolListItem(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslItemRequestInfo* itemReqInfo)
 {
-	RsslUInt32 i, itemVacancy;
+	RsslUInt32 i, itemVacancy = 0;
 	char* newItem = itemReqInfo->Itemname;
 	RsslBool foundVacancy = RSSL_FALSE;
 

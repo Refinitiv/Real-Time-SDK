@@ -154,7 +154,7 @@ RsslRet channelHandlerReadChannel(ChannelHandler *pHandler, ChannelInfo *pChanne
 	do
 	{
 		RsslBuffer *pMsgBuf;
-		if (pMsgBuf = rsslReadEx(pChannelInfo->pChannel,&readInArgs,&readOutArgs,&ret,&error))
+		if ((pMsgBuf = rsslReadEx(pChannelInfo->pChannel,&readInArgs,&readOutArgs,&ret,&error)))
 		{
 			/* Mark that we received data for ping timeout handling. */
 			pChannelInfo->receivedMsg = RSSL_TRUE;

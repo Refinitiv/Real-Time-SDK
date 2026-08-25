@@ -267,10 +267,14 @@ void loginRequestMsgTests()
 					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE)
+					{
 						ASSERT_TRUE(pDecRDMMsg->userNameType == userNameType);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA)
+					{
 						ASSERT_TRUE(pDecRDMMsg->allowSuspectData == allowSuspectData);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_APPLICATION_ID)
 					{
@@ -292,7 +296,9 @@ void loginRequestMsgTests()
 
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG)
+					{
 						ASSERT_TRUE(pDecRDMMsg->downloadConnectionConfig == downloadConnectionConfig);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_INSTANCE_ID)
 					{
@@ -313,19 +319,29 @@ void loginRequestMsgTests()
 					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR)
+					{
 						ASSERT_TRUE(pDecRDMMsg->providePermissionExpressions == providePermissionExpressions);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE)
+					{
 						ASSERT_TRUE(pDecRDMMsg->providePermissionProfile == providePermissionProfile);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_ROLE)
+					{
 						ASSERT_TRUE(pDecRDMMsg->role == role);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_SINGLE_OPEN)
+					{
 						ASSERT_TRUE(pDecRDMMsg->singleOpen == singleOpen);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD)
+					{
 						ASSERT_TRUE(pDecRDMMsg->supportProviderDictionaryDownload == supportDictionaryDownload);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED)
 					{
@@ -334,10 +350,14 @@ void loginRequestMsgTests()
 					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_UPDATE_TYPE_FILTER)
+					{
 						ASSERT_TRUE(pDecRDMMsg->updateTypeFilter == updTypeFilter);
+					}
 
 					if (pDecRDMMsg->flags & RDM_LG_RQF_HAS_NEGATIVE_UPDATE_TYPE_FILTER)
+					{
 						ASSERT_TRUE(pDecRDMMsg->negativeUpdateTypeFilter == negUpdTypeFilter);
+					}
 
 					if (testWriteAction == TEST_EACTION_CREATE_COPY)
 						free(pDecRDMMsg);
@@ -1194,10 +1214,14 @@ void loginRefreshMsgTests()
 				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_USERNAME_TYPE)
+				{
 					ASSERT_TRUE(pDecRDMMsg->userNameType == userNameType);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA)
+				{
 					ASSERT_TRUE(pDecRDMMsg->allowSuspectData == allowSuspectData);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_APPLICATION_ID)
 				{
@@ -1212,43 +1236,69 @@ void loginRefreshMsgTests()
 				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_PROVIDE_PERM_PROFILE)
+				{
 					ASSERT_TRUE(pDecRDMMsg->providePermissionProfile == providePermissionProfile);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_PROVIDE_PERM_EXPR)
+				{
 					ASSERT_TRUE(pDecRDMMsg->providePermissionExpressions == providePermissionExpressions);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SINGLE_OPEN)
+				{
 					ASSERT_TRUE(pDecRDMMsg->singleOpen == singleOpen);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SUPPORT_BATCH)
+				{
 					ASSERT_TRUE(pDecRDMMsg->supportBatchRequests == supportBatchRequests);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD)
+				{
 					ASSERT_TRUE(pDecRDMMsg->supportProviderDictionaryDownload == supportDictionaryDownload);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL)
+				{
 					ASSERT_TRUE(pDecRDMMsg->sequenceRetryInterval == sequenceRetryInterval);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT)
+				{
 					ASSERT_TRUE(pDecRDMMsg->updateBufferLimit == updateBufferLimit);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY)
+				{
 					ASSERT_TRUE(pDecRDMMsg->sequenceNumberRecovery == sequenceNumberRecovery);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SUPPORT_ENH_SL)
+				{
 					ASSERT_TRUE(pDecRDMMsg->supportEnhancedSymbolList == supportEnhancedSymbolList);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SUPPORT_VIEW)
+				{
 					ASSERT_TRUE(pDecRDMMsg->supportViewRequests == supportViewRequests);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SUPPORT_STANDBY)
+				{
 					ASSERT_TRUE(pDecRDMMsg->supportStandby == supportStandby);
+				}
 
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_SEQ_NUM)
+				{
 					ASSERT_TRUE(pDecRDMMsg->sequenceNumber == seqNum);
+				}
 				
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+				{
 					ASSERT_TRUE(pDecRDMMsg->authenticationTTReissue == authnTTReissue);
+				}
 				
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP)
 				{
@@ -1257,7 +1307,9 @@ void loginRefreshMsgTests()
 				}
 				
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_CODE)
+				{
 					ASSERT_TRUE(pDecRDMMsg->authenticationErrorCode == authnErrorCode);
+				}
 				
 				if (pDecRDMMsg->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT)
 				{
@@ -1748,7 +1800,9 @@ void loginStatusMsgTests()
 				ASSERT_TRUE(pDecRDMMsg->userName.data != userName.data); /* deep-copy check */
 
 				if (pDecRDMMsg->flags & RDM_LG_STF_HAS_USERNAME_TYPE)
+				{
 					ASSERT_TRUE(pDecRDMMsg->userNameType == userNameType);
+				}
 
 			}
 

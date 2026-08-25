@@ -22,7 +22,7 @@
 
 using namespace refinitiv::ema::access;
 
-static constexpr std::array<char,2> DEFAULT_GROUP_ID { '\0', '\0' };
+static constexpr std::array<char,2> DEFAULT_GROUP_ID {{ '\0', '\0' }};
 
 RefreshMsgImpl::RefreshMsgImpl() :
  MsgImpl(),

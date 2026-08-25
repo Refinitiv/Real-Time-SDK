@@ -152,7 +152,9 @@ void watchlistMiscTest_BigGenericMsg(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 
 	if(connectionType != RSSL_CONN_TYPE_WEBSOCKET) /* the tr_json2 protocol does not support sending group ID */
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
+	}
 
 	ASSERT_TRUE(wtfGetChannelInfo(WTF_TC_CONSUMER, &channelInfo) == RSSL_RET_SUCCESS);
 
@@ -282,7 +284,9 @@ void watchlistMiscTest_BigPostMsg(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pRefreshMsg->state.dataState == RSSL_DATA_OK);
 
 	if (connectionType != RSSL_CONN_TYPE_WEBSOCKET) /* the tr_json2 protocol does not support sending group ID */
+	{
 		ASSERT_TRUE(rsslBufferIsEqual(&pRefreshMsg->groupId, &itemGroupId));
+	}
 
 	ASSERT_TRUE(wtfGetChannelInfo(WTF_TC_CONSUMER, &channelInfo) == RSSL_RET_SUCCESS);
 

@@ -567,7 +567,7 @@ RsslRet _UnregisterTokenSessionList(RsslReactorChannelImpl *pReactorChannel, Rss
 
 			if (pTokenSessionImpl != NULL && pTokenSessionImpl->pSessionImpl != NULL)
 			{
-				if (ret = _UnregisterTokenSession(pTokenSessionImpl, pReactorImpl) != RSSL_RET_SUCCESS)
+				if ((ret = _UnregisterTokenSession(pTokenSessionImpl, pReactorImpl)) != RSSL_RET_SUCCESS)
 				{
 					return ret;
 				}
@@ -578,7 +578,7 @@ RsslRet _UnregisterTokenSessionList(RsslReactorChannelImpl *pReactorChannel, Rss
 	{
 		pTokenSessionImpl = pReactorChannel->pCurrentTokenSession;
 
-		if (ret = _UnregisterTokenSession(pTokenSessionImpl, pReactorImpl) != RSSL_RET_SUCCESS)
+		if ((ret = _UnregisterTokenSession(pTokenSessionImpl, pReactorImpl)) != RSSL_RET_SUCCESS)
 		{
 			return ret;
 		}
@@ -731,8 +731,8 @@ RsslRet _reactorWorkerProcessReconnect(RsslReactorChannelImpl* pReactorChannel, 
 		if (pReactorChannel->isStartingServerConfig)
 		{
 			if (pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER
-				&& (pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex != pReactorChannel->preferredHostOptions.warmStandbyGroupListIndex
-					|| !pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex > 0)
+				&& ((pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex != pReactorChannel->preferredHostOptions.warmStandbyGroupListIndex)
+					|| (!pReactorChannel->preferredHostOptions.enablePreferredHostOptions && pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex > 0))
 				)
 			{
 				RsslUInt32 prevIndex;
@@ -1268,8 +1268,8 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 		if ((!pReactorConnectInfoImpl->userSetConnectionInfo && pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount != 0
 			&& (pReactorConnectInfoImpl->reconnectEndpointAttemptCount % pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount == 0)) ||
-			(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
-			(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
+			((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
+			(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName))))
 		{	/* Get host name and port for RDP service discovery */
 			RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
 			RsslQueueLink* pLink = NULL;
@@ -5476,8 +5476,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					{
 						if ((!pReactorConnectInfoImpl->userSetConnectionInfo && pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount != 0
 							&& (pReactorConnectInfoImpl->reconnectEndpointAttemptCount % pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount == 0)) ||
-							(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
-							(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
+							((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
+							(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName))))
 						{	/* Get host name and port for RDP service discovery */
 							RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
 							RsslQueueLink* pLink = NULL;

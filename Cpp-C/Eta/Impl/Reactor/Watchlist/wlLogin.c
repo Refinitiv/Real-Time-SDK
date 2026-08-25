@@ -29,19 +29,19 @@ static RsslBool wlMatchLoginParameterUInt(RsslUInt newVal, RsslUInt32 newFlags,
 {
 	return !(	
 			/* Both have an explicit param and they don't match. */
-			newFlags & matchFlag
+			(newFlags & matchFlag
 			&& oldFlags & matchFlag
-			&& newVal != oldVal
+			&& newVal != oldVal)
 			|| 
 			/* New request has param and it's not the default. */
-			newFlags & matchFlag
+			(newFlags & matchFlag
 			&& !(oldFlags & matchFlag)
-			&& newVal != defaultVal
+			&& newVal != defaultVal)
 			||
 			/* Old one has param it's not 0. */
-			!(newFlags & matchFlag)
+			(!(newFlags & matchFlag)
 			&& oldFlags & matchFlag
-			&& oldVal != defaultVal
+			&& oldVal != defaultVal)
 			);
 }
 
@@ -79,7 +79,7 @@ void wlLoginRequestDestroy(WlBase *pBase, WlLoginRequest *pLoginRequest)
 	if(pLoginRequest->pNextToken)
 		free(pLoginRequest->pNextToken);
 
-	while (pLink = rsslQueueRemoveFirstLink(&pLoginRequest->base.openPosts))
+	while ((pLink = rsslQueueRemoveFirstLink(&pLoginRequest->base.openPosts)) != NULL)
 	{
 		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
 		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);

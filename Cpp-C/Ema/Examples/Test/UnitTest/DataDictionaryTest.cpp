@@ -1016,8 +1016,10 @@ TEST_F( DataDictionaryTest, DictionaryEnumTypeDefEncodeWithFragmentation ) {
 	EXPECT_EQ( dataDictionary.getEnumTables().size(), currentCount + 1 ) << "DataDictionary::getEnumTables().size() must be equal to the index plus one of current table count of the final part";
 
       if (series.hasTotalCountHint())
+      {
 	EXPECT_EQ( series.getTotalCountHint(), globalDataDictionary.getEnumTables().size() )
 	  << "Series::getTotalCountHint() of the first multi-part payload is equal to the number of EnumTable of the globalDataDictionary";
+      }
 
       if (result)
 	break;

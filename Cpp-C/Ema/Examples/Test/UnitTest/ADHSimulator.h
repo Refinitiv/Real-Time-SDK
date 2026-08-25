@@ -98,7 +98,7 @@ public:
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if (portNo)
 		{
-			strncpy(this->portNo, portNo, sizeof(this->portNo) - 1);
+			snprintf(this->portNo, sizeof(this->portNo), "%s", portNo);
 		}
 	}
 
@@ -112,7 +112,7 @@ public:
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if ( portNo )
 		{
-			strncpy(this->portNo, portNo, sizeof(this->portNo) - 1);
+			snprintf(this->portNo, sizeof(this->portNo), "%s", portNo);
 		}
 	}
 
@@ -126,7 +126,7 @@ public:
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if ( portNo )
 		{
-			strncpy(this->portNo, portNo, sizeof(this->portNo) - 1);
+			snprintf(this->portNo, sizeof(this->portNo), "%s", portNo);
 		}
 	}
 
@@ -142,7 +142,7 @@ public:
 		memset(this->portNo, 0, sizeof(this->portNo));
 		if (adhOpts.portNo[0] != '\0')
 		{
-			strncpy(this->portNo, adhOpts.portNo, sizeof(this->portNo) - 1);
+			snprintf(this->portNo, sizeof(this->portNo), "%s", adhOpts.portNo);
 		}
 	}
 
@@ -161,7 +161,7 @@ public:
 			memset(this->portNo, 0, sizeof(this->portNo));
 			if (adhOpts.portNo[0] != '\0')
 			{
-				strncpy(this->portNo, adhOpts.portNo, sizeof(this->portNo) - 1);
+				snprintf(this->portNo, sizeof(this->portNo), "%s", adhOpts.portNo);
 			}
 		}
 		return *this;

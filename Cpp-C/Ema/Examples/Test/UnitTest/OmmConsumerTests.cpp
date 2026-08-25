@@ -14525,6 +14525,7 @@ public:
 		//cout << "Error text: " << text << endl;
 	}
 
+	using refinitiv::ema::access::OmmConsumerErrorClient::onInvalidUsage; // avoid name hiding of base overload
 	void onInvalidUsage( const EmaString& text, Int32 errorCode ) override
 	{
 		++countOnInvalidUsage;
@@ -14965,7 +14966,7 @@ TEST_P(OmmConsumerCreateTestFixture, ConsumerRoundRobinProvidersBreakConnection)
 				//std::cout << "Message queue size: " << pConsumerTestClient->getMessageQueueSize() << std::endl;
 
 				/* Checks to see that the consumer got a OPEN/OK login refresh message */
-				while (msg = pConsumerTestClient->popMsg())
+				while ((msg = pConsumerTestClient->popMsg()))
 				{
 					if (msg->getDataType() == DataType::StatusMsgEnum)
 						continue;
@@ -15152,7 +15153,7 @@ TEST_P(OmmConsumerCreateIndexTestFixture, ConsumerRoundRobinProvidersNotSendLogi
 				//std::cout << "Message queue size: " << pConsumerTestClient->getMessageQueueSize() << std::endl;
 
 				/* Checks to see that the consumer got a OPEN/OK login refresh message */
-				while (msg = pConsumerTestClient->popMsg())
+				while ((msg = pConsumerTestClient->popMsg()))
 				{
 					if (msg->getDataType() == DataType::StatusMsgEnum)
 						continue;

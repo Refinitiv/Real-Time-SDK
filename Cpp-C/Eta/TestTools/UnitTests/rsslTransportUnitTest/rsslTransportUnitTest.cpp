@@ -433,7 +433,7 @@ public:
 				connectOpts.encryptionOpts.openSSLCAStore = pClientConfig->openSSLCAStore;
 			}
 
-			if (connectOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED && pClientConfig->encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET
+			if ((connectOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED && pClientConfig->encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)
 				|| connectOpts.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 			{
 				connectOpts.wsOpts.protocols = pClientConfig->wsProtocolList;
@@ -1923,6 +1923,9 @@ public:
 
 class AbstractTransportBuffer {
 public:
+	// Virtual: derived instances are deleted through AbstractTransportBuffer* (polymorphic base with virtual methods).
+	virtual ~AbstractTransportBuffer() = default;
+
 	virtual const unsigned char* getTestBuffer(
 		RsslUInt32 requiredMsgLength, int configIndex,
 		RsslUInt32* bufferLength, RsslUInt32* numMessagesInBuffer,
@@ -2551,7 +2554,6 @@ public:
 		}
 
 		delete pTransportBuffer;
-	        delete [] testBuffer;
 
 		return;
 	}
@@ -3232,7 +3234,7 @@ void constructTUClientConfig(
 	}
 
 	if (connType == RSSL_CONN_TYPE_WEBSOCKET
-		|| connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType == RSSL_CONN_TYPE_WEBSOCKET)
+		|| (connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType == RSSL_CONN_TYPE_WEBSOCKET))
 	{
 		if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
@@ -3779,7 +3781,7 @@ public:
 
 		if (testParams.wsProtocolType == RSSL_JSON_PROTOCOL_TYPE &&
 			(testParams.connType == RSSL_CONN_TYPE_WEBSOCKET
-			|| testParams.connType == RSSL_CONN_TYPE_ENCRYPTED && testParams.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET))
+			|| (testParams.connType == RSSL_CONN_TYPE_ENCRYPTED && testParams.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)))
 		{
 			packedBufferLength = requiredPackedBufferLength;
 		}
@@ -4928,7 +4930,7 @@ public:
 
 		if (testParams.wsProtocolType == RSSL_JSON_PROTOCOL_TYPE &&
 			(testParams.connType == RSSL_CONN_TYPE_WEBSOCKET
-				|| testParams.connType == RSSL_CONN_TYPE_ENCRYPTED && testParams.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET))
+				|| (testParams.connType == RSSL_CONN_TYPE_ENCRYPTED && testParams.encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET)))
 		{
 			packedBufferLength = requiredPackedBufferLength;
 		}
@@ -5853,8 +5855,8 @@ TEST_P(SystemTestsFixture, NonBlockingClientServer)
 
 	RsslMutex* pReadWriteLock = NULL;
 	EventSignal* pReadWriteSignal = NULL;
-	if (1 <= testParams.configIndex && testParams.configIndex <= 6		// inpbuf_01.bin WebSocket + JSON
-		|| 7 <= testParams.configIndex && testParams.configIndex <= 12	// inpbuf_ws_rwf_01.bin WebSocket + RWF
+	if ((1 <= testParams.configIndex && testParams.configIndex <= 6)		// inpbuf_01.bin WebSocket + JSON
+		|| (7 <= testParams.configIndex && testParams.configIndex <= 12)	// inpbuf_ws_rwf_01.bin WebSocket + RWF
 		)
 	{   // all the tests 1 .. 6, 7 .. 12 are: step-by-step
 		// i.e. after each send the test waits for read is completed
@@ -10585,7 +10587,9 @@ int main(int argc, char* argv[])
 		RsslThreadId dlThread;
 		RSSL_MUTEX_INIT(&pipeLock);
 
-		RSSL_THREAD_START(&dlThread, deadlockThread, &dlThread);
+		// deadlockThread ignores its argument (uses globals); pass nullptr instead of &dlThread,
+		// the thread id this call is initializing.
+		RSSL_THREAD_START(&dlThread, deadlockThread, nullptr);
 
 		ret =  RUN_ALL_TESTS();
 		testComplete = true;

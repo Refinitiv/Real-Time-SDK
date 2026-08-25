@@ -235,7 +235,7 @@ int rwfToJsonConverter::processRefreshMsg(RsslDecodeIterator *iterPtr, RsslMsg &
 {
 	const RsslMsgKey *pKey;
 	
-	if ( pKey = rsslGetMsgKey(&iMsg))
+	if ( (pKey = rsslGetMsgKey(&iMsg)))
 	{
 		writeVar('k', true);
 		if (!processMsgKey(pKey, iterPtr))
