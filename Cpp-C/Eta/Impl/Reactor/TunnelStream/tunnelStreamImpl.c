@@ -385,7 +385,7 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 				return NULL;
 			}
 
-			strncpy(pTunnelImpl->base.name, pOpts->name, pTunnelImpl->_nameLength);
+			strncpy(pTunnelImpl->base.name, pOpts->name, pTunnelImpl->_nameLength + 1);
 			pTunnelImpl->base.name[pTunnelImpl->_nameLength] = '\0';
 			pTunnelImpl->_isNameAllocated = RSSL_TRUE;
 		}
@@ -1677,7 +1677,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 		{
 			/* Send an ack message if needed. */
 			if (rsslSeqNumCompare(pTunnelImpl->_lastInSeqNumAccepted, pTunnelImpl->_lastInAckedSeqNum) > 0
-					|| (pTunnelImpl->_flags & TSF_SEND_NACK) && rsslSeqNumCompare(pTunnelImpl->_lastInSeqNum, pTunnelImpl->_lastInSeqNumAccepted) > 0)
+					|| ((pTunnelImpl->_flags & TSF_SEND_NACK) && rsslSeqNumCompare(pTunnelImpl->_lastInSeqNum, pTunnelImpl->_lastInSeqNumAccepted) > 0))
 			{
 				TunnelStreamAck ackMsg;
 

@@ -2440,10 +2440,10 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore, wsProtocols;
 	EmaString cipherSuite, cipherSuite_TLSV1_3;
-	UInt16 compressionType, encryptedProtocolType;
-	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize, directWrite, proxyConnectionTimeout;
-	UInt64 serviceDiscoveryRetryCount;
+	UInt16 compressionType = 0, encryptedProtocolType = 0;
+	UInt64 guaranteedOutputBuffers = 0, compressionThreshold = 0, connectionPingTimeout = 0, numInputBuffers = 0, sysSendBufSize = 0, sysRecvBufSize = 0, highWaterMark = 0,
+	       tcpNodelay = 0, enableSessionMgnt = 0, encryptedSslProtocolVer = 0, initializationTimeout = 0, wsMaxMsgSize = 0, directWrite = 0, proxyConnectionTimeout = 0;
+	UInt64 serviceDiscoveryRetryCount = 0;
 
 	RsslConnectionTypes channelType;
 
@@ -3414,10 +3414,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	const ElementList& elementListServer = mapEntry.getElementList();
 
 	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, cipherSuite_TLSV1_3, libSslName, libCryptoName, libCurlName, wsProtocols;
-	UInt16 serverType, compressionType;
-	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket, directWrite,
-		securityProtocol;
+	UInt16 serverType = 0, compressionType = 0;
+	UInt64 guaranteedOutputBuffers = 0, compressionThreshold = 0, connectionMinPingTimeout = 0, connectionPingTimeout = 0, numInputBuffers = 0, sysSendBufSize = 0, sysRecvBufSize = 0, highWaterMark = 0,
+		tcpNodelay = 0, initializationTimeout = 0, maxFragmentSize = 0, serverSharedSocket = 0, directWrite = 0,
+		securityProtocol = 0;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -4762,6 +4762,7 @@ void ProgrammaticConfigure::retrieveGroupAndListName( const Map& map, EmaString&
 	{
 		const MapEntry& mapEntry = map.getEntry();
 		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum )
+		{
 			if ( mapEntry.getKey().getAscii() == "ConsumerGroup" )
 			{
 				_group = "ConsumerGroup";
@@ -4780,6 +4781,7 @@ void ProgrammaticConfigure::retrieveGroupAndListName( const Map& map, EmaString&
 				_list = "IProviderList";
 				break;
 			}
+		}
 	}
 
 	_setGroup = true;

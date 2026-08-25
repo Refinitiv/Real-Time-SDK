@@ -1089,6 +1089,7 @@ static RsslRet redirectToPrivateStream(RsslReactor *pReactor, ChannelCommand *pC
 	else
 	{
 		printf("Number of Private Stream Market By Order items exceeded\n");
+		return RSSL_RET_FAILURE;
 	}
 
 	pItemRequest->streamId = getNextAvailableMarketByOrderPrivateStreamId(pCommand);

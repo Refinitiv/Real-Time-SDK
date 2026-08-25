@@ -354,7 +354,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			RsslReactorCallbackRet cbRet = RSSL_RC_CRET_SUCCESS;
 
-			if (ret = (printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
+			if ((ret = printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
 			{
 				printf("printEstimatedMsgSizes() failed: %d\n", ret);
 				return RSSL_RC_CRET_SUCCESS;
@@ -1113,7 +1113,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 		exit(-1);
 	}
 
-	if (ret = (printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
+	if ((ret = printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
 	pProvSession->timeActivated = rsslGetTimeNano();

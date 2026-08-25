@@ -90,6 +90,7 @@ public :
 
 	static LoginItem* create( OmmBaseImpl&, OmmConsumerClient& , void* );
 
+	using SingleItem::open; // avoid name hiding of base overloads
 	bool open( RsslRDMLoginRequest*);
 	bool modify( const ReqMsg& );
 	bool submit( const PostMsg& );
@@ -121,6 +122,7 @@ public:
 
 	static NiProviderLoginItem* create( OmmBaseImpl&, OmmProviderClient&, void*);
 
+	using NiProviderSingleItem::open; // avoid name hiding of base overloads
 	bool open( RsslRDMLoginRequest*);
 	bool modify( const ReqMsg& );
 	bool submit( const PostMsg& );
@@ -135,6 +137,7 @@ public:
 
 private:
 
+	using ProviderItem::submit; // avoid name hiding of base overloads
 	bool submit( RsslRDMLoginRequest * );
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslPostMsg* );

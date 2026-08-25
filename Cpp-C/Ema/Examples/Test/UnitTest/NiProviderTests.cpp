@@ -321,6 +321,7 @@ public:
 		//cout << "Error text: " << text << endl;
 	}
 
+	using refinitiv::ema::access::OmmProviderErrorClient::onInvalidUsage; // avoid name hiding of base overload
 	void onInvalidUsage( const EmaString& text, Int32 errorCode ) override
 	{
 		++countOnInvalidUsage;

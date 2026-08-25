@@ -29,6 +29,7 @@ public:
 
  protected:
 	// Message Handlers
+	using rwfToJsonBase::processMsg; // avoid name hiding of base overloads
 	int processMsg(RsslDecodeIterator*, RsslMsg &, bool first=true);
 	//	typedef  int (rwfToJsonConverter::*msgHandlerFuncPtr)(RsslDecodeIterator*, RsslMsg &);
 	//	static const msgHandlerFuncPtr _msgHandlers[];

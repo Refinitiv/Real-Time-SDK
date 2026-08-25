@@ -428,7 +428,7 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 			return RSSL_RET_FAILURE;
 		}
 		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
-		if (ret = rsslEncodeRDMLoginMsg(&encodeIter, (RsslRDMLoginMsg*)&loginStatus, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		if ((ret = rsslEncodeRDMLoginMsg(&encodeIter, (RsslRDMLoginMsg*)&loginStatus, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS))
 		{
 			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
 			printf("\nrsslEncodeRDMLoginMsg() failed\n");
@@ -529,7 +529,7 @@ RsslRet sendLoginRTT(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel)
 			return RSSL_RET_FAILURE;
 		}
 		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
-		if (ret = rsslEncodeRDMLoginMsg(&encodeIter, (RsslRDMLoginMsg*)&loginRTT, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		if ((ret = rsslEncodeRDMLoginMsg(&encodeIter, (RsslRDMLoginMsg*)&loginRTT, &msgBuf->length, &rsslErrorInfo) != RSSL_RET_SUCCESS))
 		{
 			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
 			printf("\nrsslEncodeRDMLoginMsg() failed\n");

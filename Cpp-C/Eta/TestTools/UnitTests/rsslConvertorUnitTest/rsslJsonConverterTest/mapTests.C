@@ -662,7 +662,9 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 		EXPECT_EQ(MAP_ENTRY_KEYS[i], mapEntryKey);
 		ASSERT_EQ(params.actionArray[i], mapEntry.action);
 		if (mapEntry.action != RSSL_MPEA_DELETE_ENTRY)
+		{
 			ASSERT_NO_FATAL_FAILURE(decodeSampleRsslFieldList(RSSL_JSON_JPT_JSON2, &_dIter));
+		}
 	}
 
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));

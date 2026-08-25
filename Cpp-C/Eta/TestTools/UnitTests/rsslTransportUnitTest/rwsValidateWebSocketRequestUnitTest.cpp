@@ -159,11 +159,11 @@ protected:
     static char* createModifiableHandshake(const char* handshake, RsslInt32* outLen)
     {
         size_t len = strlen(handshake);
+        *outLen = (RsslInt32)len;
         char* buffer = (char*)malloc(len + 1);
         if (buffer)
         {
             memcpy(buffer, handshake, len + 1);
-            *outLen = (RsslInt32)len;
         }
         return buffer;
     }

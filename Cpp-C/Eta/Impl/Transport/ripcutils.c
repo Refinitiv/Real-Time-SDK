@@ -1430,7 +1430,7 @@ RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *er
 RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, void** userSpecPtr, RsslError *error)
 {
 	RsslSocket			sock_fd;
-	RsslUInt32 			addr;
+	RsslUInt32 			addr = 0;
 	struct				sockaddr_in	toaddr;
 	ripcSocketOption	sockopts;
 	RsslInt32	tcp_nodelay = (flags & RIPC_INT_CS_FLAG_TCP_NODELAY);

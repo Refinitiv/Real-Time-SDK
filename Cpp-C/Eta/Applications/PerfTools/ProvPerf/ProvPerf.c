@@ -386,7 +386,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
 		{
-			if (ret = (printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
+			if ((ret = printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
 			{
 				printf("printEstimatedMsgSizes() failed: %d\n", ret);
 				return RSSL_RC_CRET_SUCCESS;
@@ -944,7 +944,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 
 
 
-	if (ret = (printEstimatedMsgSizes(pProvThread, pProvSession)) != RSSL_RET_SUCCESS)
+	if ((ret = printEstimatedMsgSizes(pProvThread, pProvSession)) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
 	pProvSession->timeActivated = rsslGetTimeNano();
@@ -1396,7 +1396,7 @@ static RsslRet reflectPostMsg(ProviderThread *pProvThread, RsslDecodeIterator *p
 	}
 
 	/* Other header members & data body should be properly set, so re-encode. */
-	if (ret = rsslEncodeMsg(&eIter, &msgToReflect) != RSSL_RET_SUCCESS)
+	if ((ret = rsslEncodeMsg(&eIter, &msgToReflect)) != RSSL_RET_SUCCESS)
 		return ret;
 
 	pProvSession->pWritingBuffer->length = rsslGetEncodedBufferLength(&eIter);
@@ -1811,9 +1811,7 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Prov
 static RsslRet processGenMsg(ProviderThread *pProvThread, RsslDecodeIterator *pIter, ProviderSession *watchlist, RsslGenericMsg *pGenMsg)
 {
 	RsslRet ret = 0;
-	RsslTimeValue decodeTimeStart;
-	if (providerThreadConfig.measureDecode)
-		decodeTimeStart = rsslGetTimeNano();
+	RsslTimeValue decodeTimeStart = providerThreadConfig.measureDecode ? rsslGetTimeNano() : 0;
 
 	if((ret = decodePayload(pIter, (RsslMsg*)pGenMsg, pProvThread)) 
 			!= RSSL_RET_SUCCESS)

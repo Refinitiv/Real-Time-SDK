@@ -82,13 +82,13 @@ void timeRecordQueueCleanup(TimeRecordQueue *pRecordQueue)
 
 	RSSL_MUTEX_DESTROY(&pRecordQueue->poolLock);
 
-	while (pLink = rsslQueueRemoveFirstLink(&pRecordQueue->pool))
+	while ((pLink = rsslQueueRemoveFirstLink(&pRecordQueue->pool)))
 	{
 		TimeRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(TimeRecord, queueLink, pLink);
 		free(pRecord);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pRecordQueue->records))
+	while ((pLink = rsslQueueRemoveFirstLink(&pRecordQueue->records)))
 	{
 		TimeRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(TimeRecord, queueLink, pLink);
 		free(pRecord);

@@ -151,7 +151,7 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 		wlLoginStreamDestroy(pLoginStream);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.streamsPendingRequest))
+	while ((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.streamsPendingRequest)))
 	{
 		WlStream *pStream = RSSL_QUEUE_LINK_TO_OBJECT(WlStream,
 			base.qlStreamsPendingRequest, pLink);
@@ -191,20 +191,20 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 		}
 	}
 
-	while(pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.requestedServices))
+	while((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.requestedServices)))
 	{
 		RsslQueueLink *pRequestLink;
 		WlRequestedService *pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, 
 				qlServiceRequests, pLink);
 
-		while (pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->directoryRequests))
+		while ((pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->directoryRequests)))
 		{
 			WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest,
 					qlRequestedService, pRequestLink);
 			wlDirectoryRequestDestroy(pDirectoryRequest);
 		}
 
-		while (pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->itemRequests))
+		while ((pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->itemRequests)))
 		{
 			WlItemRequest *pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlItemRequest,
 					qlRequestedService, pRequestLink);
@@ -224,13 +224,13 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 		wlRequestedServiceDestroy(pRequestedService);
 	}
 
-	while(pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->services))
+	while((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->services)))
 	{
 		WlService *pService = RSSL_QUEUE_LINK_TO_OBJECT(WlService, 
 				qlServices, pLink);
 		RsslQueueLink *pGroupLink;
 
-		while(pGroupLink = rsslQueuePeekFront(&pService->itemGroups))
+		while((pGroupLink = rsslQueuePeekFront(&pService->itemGroups)))
 		{
 			WlItemGroup *pItemGroup = RSSL_QUEUE_LINK_TO_OBJECT(WlItemGroup, qlItemGroups,
 					pGroupLink);
@@ -247,14 +247,14 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 			wlFTGroupRemove(&pWatchlistImpl->items, pWatchlistImpl->items.ftGroupTable[i]);
 	}
 
-	while(pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.openStreams))
+	while((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.openStreams)))
 	{
 		WlItemStream *pItemStream = RSSL_QUEUE_LINK_TO_OBJECT(WlItemStream, base.qlStreamsList, 
 				pLink);
 		wlItemStreamDestroy(&pWatchlistImpl->base, pItemStream);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->directory.requests))
+	while ((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->directory.requests)))
 	{
 		WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest,
 				qlRequestedService, pLink);
@@ -292,7 +292,7 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 		pWatchlistImpl->login.index = 0;
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.newRequests))
+	while ((pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.newRequests)))
 	{
 		WlRequest *pRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlRequest, base.qlStateQueue, pLink);
 
@@ -796,8 +796,8 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 				 * or because the application closed it from inside the callback. */
 				pWatchlistImpl->items.pCurrentFanoutStream = pItemStream;
 
-				while ( pBufferedMsg = wlMsgReorderQueuePop(
-							&pItemStream->bufferedMsgQueue))
+				while ( (pBufferedMsg = wlMsgReorderQueuePop(
+							&pItemStream->bufferedMsgQueue)))
 				{
 					wlMsgEventClear(&bufferedMsgEvent);
 					bufferedMsgEvent.pSeqNum = &pBufferedMsg->seqNum;
@@ -2678,8 +2678,8 @@ static RsslRet wlItemStreamForwardUntil(RsslWatchlistImpl *pWatchlistImpl,
 
 	assert(pWatchlistImpl->items.pCurrentFanoutStream);
 
-	while (pBufferedMsg = wlMsgReorderQueuePopUntil(
-				&pItemStream->bufferedMsgQueue, seqNum))
+	while ((pBufferedMsg = wlMsgReorderQueuePopUntil(
+				&pItemStream->bufferedMsgQueue, seqNum)))
 	{
 		wlMsgEventClear(&bufferedMsgEvent);
 		bufferedMsgEvent.pSeqNum = &pBufferedMsg->seqNum;
@@ -2714,8 +2714,8 @@ static RsslRet wlItemStreamForwardAllQueued(RsslWatchlistImpl *pWatchlistImpl,
 
 	assert(pWatchlistImpl->items.pCurrentFanoutStream);
 
-	while (pBufferedMsg = wlMsgReorderQueuePop(
-				&pItemStream->bufferedMsgQueue))
+	while ((pBufferedMsg = wlMsgReorderQueuePop(
+				&pItemStream->bufferedMsgQueue)))
 	{
 		wlMsgEventClear(&bufferedMsgEvent);
 		bufferedMsgEvent.pSeqNum = &pBufferedMsg->seqNum;
@@ -3735,7 +3735,7 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 		if (pItemRequest->pView) pItemRequest->pView->pParentQueue = NULL;
 
 		/* Clean up any posts awaiting acknowledgement. */
-		while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts))
+		while ((pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts)))
 		{
 			WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
 			wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pPostRecord);
@@ -4444,20 +4444,20 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 						WlLoginRequest *pLoginRequest = (WlLoginRequest*)pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index];
 						RsslQueueLink *pLink;
 
-						while(pLink = rsslQueuePeekFront(&pWatchlistImpl->base.requestedServices))
+						while((pLink = rsslQueuePeekFront(&pWatchlistImpl->base.requestedServices)))
 						{
 							RsslQueueLink *pRequestLink;
 							WlRequestedService *pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, 
 									qlServiceRequests, pLink);
 
-							while (pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->directoryRequests))
+							while ((pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->directoryRequests)))
 							{
 								WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest,
 										qlRequestedService, pRequestLink);
 								wlDirectoryRequestDestroy(pDirectoryRequest);
 							}
 
-							while (pRequestLink = rsslQueuePeekFront(&pRequestedService->itemRequests))
+							while ((pRequestLink = rsslQueuePeekFront(&pRequestedService->itemRequests)))
 							{
 								WlItemRequest *pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlItemRequest,
 										qlRequestedService, pRequestLink);
@@ -5092,23 +5092,23 @@ static RsslRet wlEncodeAndSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 		WlStream *pStream, RsslUInt32 *pendingWaitCount, RsslErrorInfo *pError)
 {
-	RsslRet ret;
+	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslWatchlist *pWatchlist = (RsslWatchlist *)(pWatchlistImpl);
 	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl *)pWatchlist->pUserSpec;
 
 	if (pStream->base.isClosing)
 	{
-		RsslCloseMsg closeMsg;
+		RsslMsg closeMsg;
 
 		/* This stream is open and has been marked for closing. 
 		 * Once a close message is sent, we can clean it up. */
 
-		rsslClearCloseMsg(&closeMsg);
+		rsslClearCloseMsg(&closeMsg.closeMsg);
 		closeMsg.msgBase.streamId = pStream->base.streamId;
 		closeMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 		closeMsg.msgBase.domainType = pStream->base.domainType;
 
-		if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&closeMsg, NULL, RSSL_FALSE, NULL, 
+		if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, &closeMsg, NULL, RSSL_FALSE, NULL, 
 						pError) 
 					>= RSSL_RET_SUCCESS))
 		{
@@ -5649,7 +5649,7 @@ static RsslRet wlProcessItemBatchRequest(RsslWatchlistImpl *pWatchlistImpl,
 		WlItemRequestCreateOpts *pOpts, RsslErrorInfo *pErrorInfo)
 {
 	RsslDecodeIterator dIter;
-	RsslRet ret;
+	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslBool foundBatch = RSSL_FALSE;
 	RsslArray batchArray;
 	RsslElementList elementList;

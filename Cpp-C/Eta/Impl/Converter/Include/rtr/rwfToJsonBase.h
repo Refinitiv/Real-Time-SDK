@@ -79,7 +79,7 @@
 
 #define __rtr_copy8orless( to, from, length ) \
 { \
-	register unsigned int ___len = length; \
+	unsigned int ___len = length; \
 	*(unsigned int*)(to) = *(unsigned int*)(from); \
 	*(unsigned int*)(to+4) = *(unsigned int*)((from) + 4); \
 	to += ___len; \
@@ -87,7 +87,7 @@
 
 #define __rtr_copy6orless( to, from, length ) \
 { \
-	register unsigned int ___len = length; \
+	unsigned int ___len = length; \
 	*(unsigned int*)(to) = *(unsigned int*)(from); \
 	*(unsigned short*)(to+4) = *(unsigned short*)((from) + 4); \
 	to += ___len; \

@@ -127,7 +127,7 @@ RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirector
 	/* set directory response filter and service flags correctly on fanned out RDM directory message */
 	if (pDirectoryMsg && pDirectoryRequest->filter > 0)
 	{
-		RsslUInt32 serviceCount, i;
+		RsslUInt32 serviceCount = 0, i;
 		if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
 		{
 			serviceCount = pDirectoryMsg->refresh.serviceCount;

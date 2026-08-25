@@ -703,8 +703,8 @@ RsslRet wlAggregateViewMerge(WlAggregateView *pAggView, RsslBool *pUpdated,
 
 				for(ui = 0; ui < pAggView->elemCount; ++ui)
 				{
-					if (viewFieldList[ui].count == 0 && viewFieldList[ui].committed
-							|| viewFieldList[ui].count && !viewFieldList[ui].committed)
+					if ((viewFieldList[ui].count == 0 && viewFieldList[ui].committed)
+							|| (viewFieldList[ui].count && !viewFieldList[ui].committed))
 					{
 						*pUpdated = RSSL_TRUE;
 						break;
@@ -719,8 +719,8 @@ RsslRet wlAggregateViewMerge(WlAggregateView *pAggView, RsslBool *pUpdated,
 
 				for(ui = 0; ui < pAggView->elemCount; ++ui)
 				{
-					if (viewNameList[ui].count == 0 && viewNameList[ui].committed
-							|| viewNameList[ui].count && !viewNameList[ui].committed)
+					if ((viewNameList[ui].count == 0 && viewNameList[ui].committed)
+							|| (viewNameList[ui].count && !viewNameList[ui].committed))
 					{
 						*pUpdated = RSSL_TRUE;
 						break;

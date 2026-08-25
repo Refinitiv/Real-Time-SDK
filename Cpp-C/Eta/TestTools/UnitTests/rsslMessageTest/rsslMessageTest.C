@@ -485,25 +485,35 @@ void _decodeMsgKey(RsslDecodeIterator *pDecIter, RsslMsgKey *pKey)
 	RsslMsgKeyFlags mask = (RsslMsgKeyFlags)pKey->flags;
 	/* Check Service ID */
 	if ( mask & RSSL_MKF_HAS_SERVICE_ID )
+	{
 		ASSERT_TRUE( pKey->serviceId == 7); //Correct Service ID in MsgKey
+	}
 
 	/* Check Name */
 	if ( mask & RSSL_MKF_HAS_NAME  )
+	{
 		ASSERT_TRUE(
 			pKey->name.length == payloadNameLen
 			&& 0 == memcmp(pKey->name.data, payloadName, payloadNameLen)); //Correct Name in MsgKey
+	}
 
 	/* Check Name Type*/
 	if ( mask & RSSL_MKF_HAS_NAME_TYPE )
+	{
 		ASSERT_TRUE( pKey->nameType == RDM_INSTRUMENT_NAME_TYPE_RIC ); // Correct Name Type in MsgKey
+	}
 
 	/* Check Filter */
 	if ( mask & RSSL_MKF_HAS_FILTER )
+	{
 		ASSERT_TRUE( pKey->filter == 4294967294); //Correct Filter in MsgKey
+	}
 
 	/* Check ID */
 	if ( mask & RSSL_MKF_HAS_IDENTIFIER )
+	{
 		ASSERT_TRUE( pKey->identifier == 9001); //Correct ID in MsgKey
+	}
 
 	/* check opaque */
 	if (mask & RSSL_MKF_HAS_ATTRIB)
@@ -848,7 +858,7 @@ void ackMsgTest(RsslUInt32 repeat)
 					ASSERT_TRUE(
 						((ackMask & RSSL_AKMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 						== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-					if (ackMask & RSSL_AKMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum); //extractSeqNum
+					if (ackMask & RSSL_AKMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum); } //extractSeqNum
 					_setupDecodeIterator();
 
 					/* replace the seqNum */
@@ -862,7 +872,7 @@ void ackMsgTest(RsslUInt32 repeat)
 					ASSERT_TRUE(
 						((ackMask & RSSL_AKMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 						== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-					if (ackMask & RSSL_AKMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum + 1); //extractSeqNum
+					if (ackMask & RSSL_AKMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum + 1); } //extractSeqNum
 					_setupDecodeIterator();
 				}
 
@@ -1224,9 +1234,13 @@ void genericMsgTest(RsslUInt32 repeat)
 						
 						/* Call rsslSetGenericCompleteFlag()/rsslUnsetGenericCompleteFlag() to reset back to the original genericMask*/
 						if ( genericMask & RSSL_GNMF_MESSAGE_COMPLETE )
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslSetGenericCompleteFlag(&encIter)); //rsslSetGenericCompleteFlag
+						}
 						if ( !(genericMask & RSSL_GNMF_MESSAGE_COMPLETE) )
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslUnsetGenericCompleteFlag(&encIter)); //rsslUnsetGenericCompleteFlag
+						}
 					
 					}
 					else if ( extraAction & TEST_ACTION_POST_PAYLOAD )
@@ -1239,9 +1253,13 @@ void genericMsgTest(RsslUInt32 repeat)
 						
 						/* Call rsslSetGenericCompleteFlag()/rsslUnsetGenericCompleteFlag() to reset back to the original genericMask*/
 						if (genericMask & RSSL_GNMF_MESSAGE_COMPLETE)
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslSetGenericCompleteFlag(&encIter)); //rsslSetGenericCompleteFlag
+						}
 						if (!(genericMask & RSSL_GNMF_MESSAGE_COMPLETE))
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslUnsetGenericCompleteFlag(&encIter)); //rsslUnsetGenericCompleteFlag
+						}
 						
 						encDataBuf.length = rsslGetEncodedBufferLength(&encDataIter);
 						
@@ -1256,9 +1274,13 @@ void genericMsgTest(RsslUInt32 repeat)
 						
 						/* Call rsslSetGenericCompleteFlag()/rsslUnsetGenericCompleteFlag() to reset back to the original genericMask*/
 						if (genericMask & RSSL_GNMF_MESSAGE_COMPLETE)
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslSetGenericCompleteFlag(&encIter)); //rsslSetGenericCompleteFlag
+						}
 						if (!(genericMask & RSSL_GNMF_MESSAGE_COMPLETE))
+						{
 							ASSERT_TRUE(RSSL_RET_SUCCESS == rsslUnsetGenericCompleteFlag(&encIter)); //rsslUnsetGenericCompleteFlag
+						}
 
 					}
 
@@ -1309,7 +1331,7 @@ void genericMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((genericMask & RSSL_GNMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (genericMask & RSSL_GNMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum); //extractSeqNum
+						if (genericMask & RSSL_GNMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* replace the seqNum */
@@ -1323,7 +1345,7 @@ void genericMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((genericMask & RSSL_GNMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (genericMask & RSSL_GNMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum + 1); //extractSeqNum
+						if (genericMask & RSSL_GNMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum + 1); } //extractSeqNum
 						_setupDecodeIterator();
 					}
 
@@ -1591,7 +1613,7 @@ void postMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((postMask & RSSL_PSMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (postMask & RSSL_PSMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum); //extractSeqNum
+						if (postMask & RSSL_PSMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* replace the seqNum */
@@ -1605,14 +1627,14 @@ void postMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((postMask & RSSL_PSMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (postMask & RSSL_PSMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum + 1); //extractSeqNum
+						if (postMask & RSSL_PSMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum + 1); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* extract the postId */
 						ASSERT_TRUE(
 							((postMask & RSSL_PSMF_HAS_POST_ID) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractPostId(&decIter, &extractPostId)); //rsslExtractPostId
-						if (postMask & RSSL_PSMF_HAS_POST_ID) ASSERT_TRUE(extractPostId == postId); //extractPostId
+						if (postMask & RSSL_PSMF_HAS_POST_ID) { ASSERT_TRUE(extractPostId == postId); } //extractPostId
 						_setupDecodeIterator();
 
 						/* replace the postId */
@@ -1626,7 +1648,7 @@ void postMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((postMask & RSSL_PSMF_HAS_POST_ID) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractPostId(&decIter, &extractPostId)); //rsslExtractPostId
-						if (postMask & RSSL_PSMF_HAS_POST_ID) ASSERT_TRUE(extractPostId == postId + 1); //extractPostId
+						if (postMask & RSSL_PSMF_HAS_POST_ID) { ASSERT_TRUE(extractPostId == postId + 1); } //extractPostId
 						_setupDecodeIterator();
 					}
 
@@ -1919,8 +1941,10 @@ void statusMsgTest(RsslUInt32 repeat)
 							((statusMask & RSSL_STMF_HAS_GROUP_ID) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractGroupId(&decIter, &extractGroupId)); //rsslExtractGroupId
 						if (statusMask & RSSL_STMF_HAS_GROUP_ID)
+						{
 							ASSERT_TRUE((extractGroupId.length == groupIdLen
 									&& 0 == memcmp(extractGroupId.data, groupId, groupIdLen))); //extractGroupId
+						}
 						_setupDecodeIterator();
 
 						/* replace the groupId */
@@ -1936,8 +1960,10 @@ void statusMsgTest(RsslUInt32 repeat)
 							((statusMask & RSSL_STMF_HAS_GROUP_ID) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractGroupId(&decIter, &extractGroupId)); //rsslExtractGroupId
 						if (statusMask & RSSL_STMF_HAS_GROUP_ID)
+						{
 							ASSERT_TRUE((extractGroupId.length == newGroupId.length
 									&& 0 == memcmp(extractGroupId.data, newGroupId.data, newGroupId.length))); //extractGroupId
+						}
 						_setupDecodeIterator();
 
 						/* replace the streamState */
@@ -2507,7 +2533,7 @@ void refreshMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((responseMask & RSSL_RFMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (responseMask & RSSL_RFMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum); //extractSeqNum
+						if (responseMask & RSSL_RFMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* replace the seqNum */
@@ -2521,7 +2547,7 @@ void refreshMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((responseMask & RSSL_RFMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (responseMask & RSSL_RFMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum + 1); //extractSeqNum
+						if (responseMask & RSSL_RFMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum + 1); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* extract the groupId */
@@ -2844,7 +2870,7 @@ void updateMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((updateMask & RSSL_UPMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (updateMask & RSSL_UPMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum); //extractSeqNum
+						if (updateMask & RSSL_UPMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum); } //extractSeqNum
 						_setupDecodeIterator();
 
 						/* replace the seqNum */
@@ -2858,7 +2884,7 @@ void updateMsgTest(RsslUInt32 repeat)
 						ASSERT_TRUE(
 							((updateMask & RSSL_UPMF_HAS_SEQ_NUM) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE)
 							== rsslExtractSeqNum(&decIter, &extractSeqNum)); //rsslExtractSeqNum
-						if (updateMask & RSSL_UPMF_HAS_SEQ_NUM) ASSERT_TRUE(extractSeqNum == seqNum + 1); //extractSeqNum
+						if (updateMask & RSSL_UPMF_HAS_SEQ_NUM) { ASSERT_TRUE(extractSeqNum == seqNum + 1); } //extractSeqNum
 						_setupDecodeIterator();
 					}
 
@@ -7812,13 +7838,19 @@ TEST(noDataTest, noDataTest)
 		
 		/* everything in these cases is pre-encoded.  This should tell us success */
 		if (i < 4)  
+		{
 			ASSERT_TRUE(RSSL_RET_SUCCESS == rsslEncodeMsgInit(&encIter, (RsslMsg*)&updMsg, 0)); //rsslEncodeMsgInit, pre-enc
+		}
 
 		if (i == 4 || i == 7 || i == 8)  /* key opaque is next */
+		{
 			ASSERT_TRUE(RSSL_RET_ENCODE_MSG_KEY_OPAQUE == rsslEncodeMsgInit(&encIter, (RsslMsg*)&updMsg, 0)); //rsslEncodeMsgInit, key is next
+		}
 
 		if (i == 5 || i == 6)
+		{
 			ASSERT_TRUE(RSSL_RET_ENCODE_EXTENDED_HEADER == rsslEncodeMsgInit(&encIter, (RsslMsg*)&updMsg, 0)); //rsslEncodeMsgInit, ext header is next
+		}
 
 		if (i == 4 || i == 7 || i == 8) 
 		{
@@ -7826,10 +7858,14 @@ TEST(noDataTest, noDataTest)
 			_encodeFieldList(&encIter);
 			
 			if (i == 8) /* need to do extended header as well  */
+			{
 				ASSERT_TRUE( RSSL_RET_ENCODE_EXTENDED_HEADER == rsslEncodeMsgKeyAttribComplete(&encIter, RSSL_TRUE)); //rsslEncodeMsgKeyAttribComplete, eh is next
+			}
 			
 			if (i == 4 || i == 7)
+			{
 				ASSERT_TRUE(RSSL_RET_SUCCESS == rsslEncodeMsgKeyAttribComplete(&encIter, RSSL_TRUE)); //rsslEncodeMsgKeyAttribComplete
+			}
 		}
 
 		if (i == 5 || i == 6 || i == 8)

@@ -856,7 +856,7 @@ void PackedMsgImpl::addMsg(const Msg& msg, UInt64 itemHandle)
 				}
 
 				EmaString temp("Failed to pack buffer during addMsg().");
-				OmmInvalidUsageException::ErrorCode errorCode;
+				OmmInvalidUsageException::ErrorCode errorCode = OmmInvalidUsageException::FailureEnum;
 
 				// Buffer too small shouldn't ever happen because we've already verified this for an OMM buffer, so throw an error here.  Don't clean up the full pack, because the previous packed messages can still be sent. 
 				if (rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE && rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL)

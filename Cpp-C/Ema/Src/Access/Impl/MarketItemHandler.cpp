@@ -408,7 +408,7 @@ RsslReactorCallbackRet MarketItemHandler::itemCallback(RsslReactor* pReactor, Rs
 			{
 				const RsslDataDictionary* rsslDataDictionary = 0;
 				Dictionary* dictionary = NULL;
-				const EmaString** serviceNamePtr;
+				const EmaString** serviceNamePtr = NULL;
 				
 				/* Get the default dictionary */
 				if (ommServerBaseImpl->getDictionaryHandler().getDefaultDictionaryUse())

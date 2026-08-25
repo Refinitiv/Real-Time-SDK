@@ -2056,8 +2056,8 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 		else if (*readRet == RSSL_RET_READ_PING)
 		{	
 			/* are we tracing pings? */
-			if ( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_READ) 
-				&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)
+			if ( ((rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_READ) 
+				&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING))
 				|| (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING_ONLY) )
 			{
 				char message[128];
@@ -2276,7 +2276,8 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		{
 			/* the data has overwritten memory */
 			_rsslSetError(error, chnl, RSSL_RET_BUFFER_TOO_SMALL, 0);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0008 Data has overflowed the allocated buffer length(%lu).\n", __FILE__, __LINE__, allocatedBufferSize);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0008 Data has overflowed the allocated buffer length(%u).\n",
+				__FILE__, __LINE__, allocatedBufferSize);
 			return RSSL_RET_BUFFER_TOO_SMALL;
 		}
 
@@ -2466,8 +2467,8 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
 		/* are we tracing pings? */
-		if ( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
-			&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)
+		if ( ((rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
+			&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING))
 			|| (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING_ONLY) )
 		{
 			char message[128];

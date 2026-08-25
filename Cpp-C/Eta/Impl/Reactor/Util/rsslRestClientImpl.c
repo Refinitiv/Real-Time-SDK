@@ -1762,7 +1762,7 @@ void _rsslAllocateAndConvertBufferForUrlData(RsslBuffer* inputBuffer, RsslUInt32
 
 		strncpy((*buffer)->data, inputBuffer->data, inputIndex);
 
-		strncpy((*buffer)->data + inputIndex, value, valueLength);
+		memcpy((*buffer)->data + inputIndex, value, valueLength);
 
 		(*bufferIndex) = inputIndex + valueLength - 1;
 	}

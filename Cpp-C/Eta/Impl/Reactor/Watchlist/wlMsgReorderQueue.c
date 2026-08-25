@@ -123,7 +123,7 @@ void wlMsgReorderQueueDiscardAllMessages(WlMsgReorderQueue *pQueue)
 	RsslQueueLink *pLink;
 	WlBufferedMsg *pBufferedMsg;
 
-	while (pLink = rsslQueueRemoveFirstLink(&pQueue->msgQueue))
+	while ((pLink = rsslQueueRemoveFirstLink(&pQueue->msgQueue)))
 	{
 		pBufferedMsg = RSSL_QUEUE_LINK_TO_OBJECT(WlBufferedMsg, 
 				qlMsg, pLink);

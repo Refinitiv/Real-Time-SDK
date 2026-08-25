@@ -1014,7 +1014,9 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeVectorEntry(&_dIter, &vectorEntry));
 		ASSERT_EQ(params.actionArray[i], vectorEntry.action);
 		if ( (vectorEntry.action != RSSL_VTEA_DELETE_ENTRY) && (vectorEntry.action != RSSL_VTEA_CLEAR_ENTRY) )
+		{
 			ASSERT_NO_FATAL_FAILURE(decodeSampleRsslFieldList(RSSL_JSON_JPT_JSON2, &_dIter));
+		}
 	}
 
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeVectorEntry(&_dIter, &vectorEntry));

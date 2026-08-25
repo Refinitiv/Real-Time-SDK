@@ -675,7 +675,7 @@ void rtrShmSegDetachMutex( rtrShmMutexPtr shmMutex )
 //
 rtrShmNamedPipePtr rtrShmSegCreateNamedPipe( const char *key, unsigned short namedPipeNumber, char *errBuff )
 {
-	int fd;
+	int fd = -1;
 	int tempLen;
 	rtrShmNamedPipePtr pipe;
 	char namedPipeName[__MY_MAX_ADDR];

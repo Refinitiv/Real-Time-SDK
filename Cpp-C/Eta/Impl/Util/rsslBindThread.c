@@ -102,7 +102,7 @@ RSSL_API RsslBool rsslIsStrProcessorCoreBindValid(const char* cpuString)
 
 	/* Convert cpuString to an integer: Cpu core id. */
 	cpuId = strtol(cpuString, &pEnd, 10);
-	if (cpuId > 0 || cpuId == 0 && pEnd && (pEnd - cpuString) > 0)
+	if (cpuId > 0 || (cpuId == 0 && pEnd && (pEnd - cpuString) > 0))
 	{
 		return rsslIsProcessorCoreNumberValid(cpuId);
 	}

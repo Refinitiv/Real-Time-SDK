@@ -106,8 +106,8 @@ static RsslItemRequestInfo* getMatchingItemReqInfo(RsslChannel* chnl, RsslMsg* m
 				else
 				{
 					/* Check that the private stream flag matches correctly. */
-					if ((msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && !itemRequestInfoList[i].IsPrivateStreamRequest
-							|| !(msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && itemRequestInfoList[i].IsPrivateStreamRequest)
+					if (((msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && !itemRequestInfoList[i].IsPrivateStreamRequest)
+							|| (!(msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM) && itemRequestInfoList[i].IsPrivateStreamRequest))
 					{
 						/* This item would be a match except that the private stream flag does not match. */
 						*rejectReason = PRIVATE_STREAM_MISMATCH;
@@ -1341,7 +1341,7 @@ RsslRet sendSLItemUpdates(RsslChannel* chnl, RsslItemRequestInfo* itemReqInfo, R
 */
 RsslRet addSymbolListItem(RsslItemRequestInfo* itemReqInfo)
 {
-	RsslUInt32 i, itemVacancy;
+	RsslUInt32 i, itemVacancy = 0;
 	char* newItem = itemReqInfo->Itemname;
 	RsslBool foundVacancy = RSSL_FALSE;
 

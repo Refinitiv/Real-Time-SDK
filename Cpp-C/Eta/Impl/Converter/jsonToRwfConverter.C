@@ -2792,7 +2792,7 @@ bool jsonToRwfConverter::processVector(jsmntok_t ** const tokPtr, void* setDb)
 		{
 		case RSSL_DT_ELEMENT_LIST:
 		{
-			if (localSetDb = processElementSetDef(setDefTok))
+			if ((localSetDb = processElementSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalElementSetDefDb(&_iter, (RsslLocalElementSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -2804,7 +2804,7 @@ bool jsonToRwfConverter::processVector(jsmntok_t ** const tokPtr, void* setDb)
 		}
 		case RSSL_DT_FIELD_LIST:
 		{
-			if (localSetDb = processFieldSetDef(setDefTok))
+			if ((localSetDb = processFieldSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalFieldSetDefDb(&_iter, (RsslLocalFieldSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -3112,7 +3112,7 @@ bool jsonToRwfConverter::processMap(jsmntok_t ** const tokPtr, void* setDb)
 		{
 		case RSSL_DT_ELEMENT_LIST:
 		{
-			if (localSetDb = processElementSetDef(setDefTok))
+			if ((localSetDb = processElementSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalElementSetDefDb(&_iter, (RsslLocalElementSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -3124,7 +3124,7 @@ bool jsonToRwfConverter::processMap(jsmntok_t ** const tokPtr, void* setDb)
 		}
 		case RSSL_DT_FIELD_LIST:
 		{
-			if (localSetDb = processFieldSetDef(setDefTok))
+			if ((localSetDb = processFieldSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalFieldSetDefDb(&_iter, (RsslLocalFieldSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -3376,7 +3376,7 @@ bool jsonToRwfConverter::processSeries(jsmntok_t ** const tokPtr, void* setDb)
 		{
 		case RSSL_DT_ELEMENT_LIST:
 		{
-			if (localSetDb = processElementSetDef(setDefTok))
+			if ((localSetDb = processElementSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalElementSetDefDb(&_iter, (RsslLocalElementSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -3388,7 +3388,7 @@ bool jsonToRwfConverter::processSeries(jsmntok_t ** const tokPtr, void* setDb)
 		}
 		case RSSL_DT_FIELD_LIST:
 		{
-			if (localSetDb = processFieldSetDef(setDefTok))
+			if ((localSetDb = processFieldSetDef(setDefTok)))
 			{
 				if ( (_rsslRet = rsslEncodeLocalFieldSetDefDb(&_iter, (RsslLocalFieldSetDefDb*)localSetDb)) < RSSL_RET_SUCCESS)
 				{
@@ -4485,7 +4485,7 @@ RsslLocalElementSetDefDb* jsonToRwfConverter::processElementSetDef(jsmntok_t *to
 	jsmntok_t *dataTok;
 	jsmntok_t *defTok;
 	jsmntok_t *setTok;
-	int setId;
+	int setId = 0;
 
 	int setDefCount = 0;
 	int i,j,k;
@@ -4661,7 +4661,7 @@ RsslLocalFieldSetDefDb* jsonToRwfConverter::processFieldSetDef(jsmntok_t *tokPtr
 	jsmntok_t *dataTok;
 	jsmntok_t *defTok;
 	jsmntok_t *setTok;
-	int setId;
+	int setId = 0;
 
 
 

@@ -216,7 +216,9 @@ void tunnelStreamMsgExchangeTest(bool authenticate, bool enableWatchlist)
 	/* Test tunnel stream accessors */
 	ASSERT_EQ(5, pConsTunnelStream->streamId);
 	if (!enableWatchlist) /* Watchlist will likely use different stream ID. */
+	{
 		ASSERT_EQ(5, pProvTunnelStream->streamId);
+	}
 	ASSERT_EQ(RSSL_DMT_SYSTEM, pConsTunnelStream->domainType);
 	ASSERT_EQ(RSSL_DMT_SYSTEM, pProvTunnelStream->domainType);
 	ASSERT_EQ(defaultService()->serviceId, pConsTunnelStream->serviceId);
@@ -679,7 +681,9 @@ void tunnelStreamLongNameTest(bool enableWatchlist)
 
 	ASSERT_EQ(5, pConsTunnelStream->streamId);
 	if (!enableWatchlist) /* Watchlist will likely use different stream ID. */
+	{
 		ASSERT_EQ(5, pProvTunnelStream->streamId);
+	}
 	ASSERT_TRUE(strncmp(tsName255, pConsTunnelStream->name, strlen(tsName255)) == 0);
 	ASSERT_TRUE(strncmp(tsName255, pProvTunnelStream->name, strlen(tsName255)) == 0);
 
@@ -764,7 +768,9 @@ void tunnelStreamMaxMsgSizeTest(bool enableWatchlist)
 		/* Test tunnel stream accessors */
 		ASSERT_EQ(5, pConsTunnelStream->streamId);
 		if (!enableWatchlist) /* Watchlist will likely use different stream ID. */
+		{
 			ASSERT_EQ(5, pProvTunnelStream->streamId);
+		}
 		ASSERT_EQ(RSSL_DMT_SYSTEM, pConsTunnelStream->domainType);
 		ASSERT_EQ(RSSL_DMT_SYSTEM, pProvTunnelStream->domainType);
 		ASSERT_EQ(defaultService()->serviceId, pConsTunnelStream->serviceId);
@@ -917,7 +923,9 @@ void tunnelStreamBufferUsedTest(bool enableWatchlist)
 		/* Test tunnel stream accessors */
 		ASSERT_EQ(5, pConsTunnelStream->streamId);
 		if (!enableWatchlist) /* Watchlist will likely use different stream ID. */
+		{
 			ASSERT_EQ(5, pProvTunnelStream->streamId);
+		}
 		ASSERT_EQ(RSSL_DMT_SYSTEM, pConsTunnelStream->domainType);
 		ASSERT_EQ(RSSL_DMT_SYSTEM, pProvTunnelStream->domainType);
 		ASSERT_EQ(defaultService()->serviceId, pConsTunnelStream->serviceId);

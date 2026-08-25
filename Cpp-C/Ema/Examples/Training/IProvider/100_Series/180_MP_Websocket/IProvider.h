@@ -61,6 +61,7 @@ public:
 
 	void onMemoryExhaustion( const refinitiv::ema::access::EmaString& );
 
+	using refinitiv::ema::access::OmmProviderErrorClient::onInvalidUsage; // avoid hiding base class method
 	void onInvalidUsage( const refinitiv::ema::access::EmaString&, refinitiv::ema::access::Int32 );
 
 	void onJsonConverter( const refinitiv::ema::access::EmaString& text, refinitiv::ema::access::Int32 errorCode,

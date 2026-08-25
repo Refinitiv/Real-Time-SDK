@@ -134,7 +134,8 @@ static bool setupActiveChannelPair(
     serverConfig.connType         = connType;
     serverConfig.compressionType  = compressType;
     serverConfig.compressionLevel = compressLevel;
-    strncpy(serverConfig.portNo, port, sizeof(serverConfig.portNo));
+    strncpy(serverConfig.portNo, port, sizeof(serverConfig.portNo) - 1);
+    serverConfig.portNo[sizeof(serverConfig.portNo) - 1] = '\0';
     snprintf(serverConfig.wsProtocolList, sizeof(serverConfig.wsProtocolList),
              "rssl.json.v2, rssl.rwf, tr_json2");
 
@@ -154,7 +155,8 @@ static bool setupActiveChannelPair(
     clientConfig.blocking        = rsslBlocking;
     clientConfig.connType        = connType;
     clientConfig.compressionType = compressType;
-    strncpy(clientConfig.portNo, port, sizeof(clientConfig.portNo));
+    strncpy(clientConfig.portNo, port, sizeof(clientConfig.portNo) - 1);
+    clientConfig.portNo[sizeof(clientConfig.portNo) - 1] = '\0';
 
     if (connType == RSSL_CONN_TYPE_ENCRYPTED)
     {
@@ -796,7 +798,8 @@ static RSSL_THREAD_DECLARE(concurrentInitThread, pArg)
     clearTUServerConfig(&serverConfig);
     serverConfig.blocking = RSSL_FALSE;
     serverConfig.connType = RSSL_CONN_TYPE_SOCKET;
-    strncpy(serverConfig.portNo, arg->port, sizeof(serverConfig.portNo));
+    strncpy(serverConfig.portNo, arg->port, sizeof(serverConfig.portNo) - 1);
+    serverConfig.portNo[sizeof(serverConfig.portNo) - 1] = '\0';
     RsslServer* srv = bindRsslServer(&serverConfig);
     if (!srv) { arg->done = true; return 0; }
 

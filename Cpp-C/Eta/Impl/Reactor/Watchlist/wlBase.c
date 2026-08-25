@@ -215,7 +215,7 @@ void wlRemoveRequest(WlBase *pBase, WlRequestBase *pRequestBase)
 {
 	RsslQueueLink *pLink;
 
-	while (pLink = rsslQueueRemoveFirstLink(&pRequestBase->openPosts))
+	while ((pLink = rsslQueueRemoveFirstLink(&pRequestBase->openPosts)) != NULL)
 	{
 		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
 		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);

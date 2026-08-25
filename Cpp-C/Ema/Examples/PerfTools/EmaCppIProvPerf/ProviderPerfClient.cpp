@@ -174,7 +174,7 @@ void ProviderPerfClient::onGenericMsg(const GenericMsg& genericMsg, const OmmPro
 	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
 	TimeTrack timeTracker;
 	EmaString errText;
-	PerfTimeValue decodeTimeStart, decodeTimeEnd;
+	PerfTimeValue decodeTimeStart = 0, decodeTimeEnd;
 	ProviderStats& stats = providerThread->getProviderStats();
 
 	stats.genMsgRecvCount.countStatIncr();

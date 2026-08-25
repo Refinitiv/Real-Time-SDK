@@ -1966,10 +1966,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 {
 	RsslRet			retval = RSSL_RET_SUCCESS;
 	RsslInt32		i = 0;
-	RsslInt32		totalSize;
+	RsslInt32		totalSize = 0;
 	caddr_t			hdr;
-	caddr_t			chunkhdr;
-	caddr_t			footeraddr;
+	caddr_t			chunkhdr = 0;
+	caddr_t			footeraddr = 0;
 	RsslInt32		IPC_header_size, footer_size;
 	rtr_msgb_t		*nmb,*lastmb;
 	RsslUInt32		messageLength;
@@ -5702,7 +5702,7 @@ static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSess
 	RsslUInt8 		flags = 0;
 	RsslUInt32		chunkLength = 0;
 	RsslUInt8		iterator = 0;
-	RsslUInt8		componentVersionLength;
+	RsslUInt8		componentVersionLength = 0;
 
 	_DEBUG_TRACE_CONN("fd "SOCKET_PRINT_TYPE"\n", rsslSocketChannel->stream)
 
@@ -6444,7 +6444,8 @@ ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 														rsslSocketChannel->transportInfo)) == RSSL_RET_SUCCESS)
 				{
 					pBuf = strIpAddr;
-					strncpy(pBuf, inet_ntoa(ipInfo.sin_addr), 129);
+					// leave the last byte as the pre-zeroed NUL terminator
+					strncpy(pBuf, inet_ntoa(ipInfo.sin_addr), sizeof(strIpAddr) - 1);
 					pBuf +=
 						addrLen = strlen(strIpAddr);
 				}
@@ -12027,7 +12028,7 @@ void ipcCleanRsslSocketChannel()
 	RsslSocketChannel* session;
 	RsslQueueLink* pLink;
 
-    while (pLink = rsslQueueRemoveFirstLink(&freeSocketChannelList))
+    while ((pLink = rsslQueueRemoveFirstLink(&freeSocketChannelList)))
     {
 		session = RSSL_QUEUE_LINK_TO_OBJECT(RsslSocketChannel, link1, pLink);
         _rsslFree(session);
@@ -12039,7 +12040,7 @@ void ipcCleanRsslServerSocketChannel()
     RsslServerSocketChannel* session;
 	RsslQueueLink* pLink;
 
-    while (pLink = rsslQueueRemoveFirstLink(&freeServerSocketChannelList))
+    while ((pLink = rsslQueueRemoveFirstLink(&freeServerSocketChannelList)))
     {
 		session = RSSL_QUEUE_LINK_TO_OBJECT(RsslServerSocketChannel, link1, pLink);
         _rsslFree(session);

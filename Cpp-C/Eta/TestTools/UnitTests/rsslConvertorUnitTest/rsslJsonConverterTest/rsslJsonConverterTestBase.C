@@ -150,7 +150,7 @@ void encodeAnsiData()
 	const int ROWS = 25; /*Standard page size 25 X 80*/
 	const int COLS = 80;
 	PAGETYP qa_page; /*page structure*/
-	CHARTYP pageImage[ROWS*COLS] = { 0 };
+	CHARTYP pageImage[ROWS*COLS] = { { 0 } };
 	LISTTYP *qa_ulist;/*pointer to update struc*/
 	char qa_list_sp[sizeof(LISTTYP) +
 		sizeof(struct upd_type) * 200] = { 0 };
@@ -1039,7 +1039,9 @@ void MsgConversionTestBase::decodeSampleRsslFieldList(RsslJsonProtocolType proto
 				EXPECT_EQ(0, decodeReal.isBlank);
 					EXPECT_EQ(RSSL_RH_FRACTION_256, decodeReal.hint);
 					if (decodeReal.value != 30396)
-					EXPECT_EQ(30396, decodeReal.value); /* Despite conversion, should be close enough to get original value back. */
+					{
+						EXPECT_EQ(30396, decodeReal.value); /* Despite conversion, should be close enough to get original value back. */
+					}
 					foundBidField = true;
 				}
 				else
@@ -1047,7 +1049,9 @@ void MsgConversionTestBase::decodeSampleRsslFieldList(RsslJsonProtocolType proto
 					EXPECT_EQ(0, decodeReal.isBlank);
 					EXPECT_EQ(RSSL_RH_EXPONENT_6, decodeReal.hint);
 					if (decodeReal.value != 118734375)
+					{
 						EXPECT_EQ(118734375, decodeReal.value); /* Despite conversion, should be close enough to get original value back. */
+					}
 				foundBidField = true;
 				}
 				break;

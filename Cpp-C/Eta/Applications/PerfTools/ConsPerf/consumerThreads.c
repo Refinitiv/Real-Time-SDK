@@ -286,7 +286,7 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 								&uncompBytesWritten, &pConsumerThread->threadRsslError);
 		}
 
-		if (ret > RSSL_RET_SUCCESS || ret == RSSL_RET_WRITE_FLUSH_FAILED && pConsumerThread->pChannel->state == RSSL_CH_STATE_ACTIVE)
+		if (ret > RSSL_RET_SUCCESS || (ret == RSSL_RET_WRITE_FLUSH_FAILED && pConsumerThread->pChannel->state == RSSL_CH_STATE_ACTIVE))
 		{
 			FD_SET(pConsumerThread->pChannel->socketId, &pConsumerThread->wrtfds);
 		}
@@ -317,7 +317,7 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 		if (retval != RSSL_RET_SUCCESS)
 		{
 			printf("rsslTunnelStreamSubmit() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
-			if (retval = rsslTunnelStreamReleaseBuffer(msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			if ((retval = rsslTunnelStreamReleaseBuffer(msgBuf, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 			{
 				printf("rsslTunnelStreamReleaseBuffer() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
 			}
@@ -2038,8 +2038,8 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 	/* Did the index stop where we expected it to? */
 	assert(
 			/* No unique items */
-			pConsumerThread->itemListCount == consPerfConfig.commonItemCount && 
-			xmlItemListIndex == consPerfConfig.commonItemCount
+			(pConsumerThread->itemListCount == consPerfConfig.commonItemCount && 
+			xmlItemListIndex == consPerfConfig.commonItemCount)
 			||
 			xmlItemListIndex == pConsumerThread->itemListUniqueIndex 
 			+ pConsumerThread->itemListCount - consPerfConfig.commonItemCount);
@@ -2604,7 +2604,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 	RsslRet ret = 0;
 	RsslError closeError;
 
-	RsslTimeValue decodeTimeStart, decodeTimeEnd;
+	RsslTimeValue decodeTimeStart = 0, decodeTimeEnd;
 	ItemInfo *pItemInfo = NULL;
 
 	if (consPerfConfig.measureDecode)
@@ -2801,7 +2801,7 @@ static RsslRet processDefaultMsgRespJson(ConsumerThread* pConsumerThread, RsslDo
 	RsslInt32 rsslStreamId;
 	RsslMsgClasses rsslMsgClass;
 
-	RsslTimeValue decodeTimeStart, decodeTimeEnd;
+	RsslTimeValue decodeTimeStart = 0, decodeTimeEnd;
 	ItemInfo *pItemInfo = NULL;
 
 	rsslMsgClass = jsonGetMsgClass(json);
@@ -3197,7 +3197,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 			if (pConsumerThread->pChannel != NULL && FD_ISSET(pConsumerThread->pChannel->socketId, &useRead))
 			{
 				RsslBuffer messageBuff = RSSL_INIT_BUFFER;
-				RsslRet	cRet;
+				RsslRet	cRet = 0;
 				RsslInt16 numConverted = 0;
 
 				do{
@@ -3577,7 +3577,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 	RsslRet ret = 0;
 	RsslErrorInfo reactorErrorInfo;
 	RsslBuffer *msgBuf=0;
-	RsslRet	readret;
+	RsslRet	readret = 0;
 	RsslMsg msg = RSSL_INIT_MSG;
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};

@@ -1599,7 +1599,7 @@ RsslRet processLoginRequest(EtaChannelManagementInfo *etaChannelManagementInfo, 
 			printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(etaChannelManagementInfo->loginRequestInfo.Username), etaChannelManagementInfo->loginRequestInfo.Username);
 
 			/* send login response */
-			if (retval = sendLoginResponse(etaChannelManagementInfo) != RSSL_RET_SUCCESS)
+			if ((retval = sendLoginResponse(etaChannelManagementInfo)) != RSSL_RET_SUCCESS)
 				return retval;
 		}
 		break;

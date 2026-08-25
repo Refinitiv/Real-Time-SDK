@@ -1226,7 +1226,7 @@ RSSL_API RsslRet rsslRMTESApplyToCache(RsslBuffer *inBuffer, RsslRmtesCacheBuffe
 	RsslUInt32 inBufPos = 0;
 	RsslUInt32 cacheBufPos = 0;
 	RsslUInt32 numCount = 0;
-	char prevChar;
+	char prevChar = 0;
 	RsslUInt32 escStart;
 	RsslBool escFirst = RSSL_FALSE;
 	RMTESParseState state = NORMAL;

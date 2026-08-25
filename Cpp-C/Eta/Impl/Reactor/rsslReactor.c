@@ -1699,9 +1699,9 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 	reactorServiceEndpointEvent.userSpecPtr = pOpts->userSpecPtr;
 
-	if ((!pOpts->userName.data) || (!pOpts->userName.length) && (!pOpts->password.data) || (!pOpts->password.length) && (!pOpts->clientId.data) || (!pOpts->clientId.length))
+	if ((!pOpts->userName.data) || ((!pOpts->userName.length) && (!pOpts->password.data)) || ((!pOpts->password.length) && (!pOpts->clientId.data)) || (!pOpts->clientId.length))
 	{
-		if ((!pOpts->clientId.data) || (!pOpts->clientId.length) && (((!pOpts->clientSecret.data) || (!pOpts->clientSecret.length)) || ((!pOpts->clientJWK.data) || (!pOpts->clientJWK.length))))
+		if ((!pOpts->clientId.data) || ((!pOpts->clientId.length) && (((!pOpts->clientSecret.data) || (!pOpts->clientSecret.length)) || ((!pOpts->clientJWK.data) || (!pOpts->clientJWK.length)))))
 		{
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorServiceDiscoveryOptions credentials are not properly provided.");
 			return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
@@ -3667,7 +3667,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 	RsslBuffer *pMsgBuffer = NULL; /* The buffer to send JSON message to network only. */
 	RsslBool releaseUserBuffer = RSSL_FALSE; /* Release when it writes user's buffer successfully. */
 	RsslReactorPackedBufferImpl *pPackedBufferImpl = NULL;
-	RsslHashLink *pHashLink;
+	RsslHashLink *pHashLink = NULL;
 
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
@@ -5685,7 +5685,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									{
 										pClosingReactorChannel->reconnectAttemptLimit = 0;
 
-										if (ret = _reactorHandleChannelDown(pReactorImpl, pClosingReactorChannel, pError) != RSSL_RET_SUCCESS)
+										if ((ret = _reactorHandleChannelDown(pReactorImpl, pClosingReactorChannel, pError)) != RSSL_RET_SUCCESS)
 										{
 											RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 											return ret;
@@ -5705,7 +5705,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									rsslSetErrorInfo(pError, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS,
 										__FILE__, __LINE__, "Reactor has connected to Preferred Host, closing old connection.");
 
-									if (ret = _reactorHandleChannelDown(pReactorImpl, pReactorChannel->pWarmStandByHandlerImpl->pStartingReactorChannel, pError) != RSSL_RET_SUCCESS)
+									if ((ret = _reactorHandleChannelDown(pReactorImpl, pReactorChannel->pWarmStandByHandlerImpl->pStartingReactorChannel, pError)) != RSSL_RET_SUCCESS)
 									{
 										pReactorChannel->pWarmStandByHandlerImpl->pStartingReactorChannel->doNotSendShutdownToWorker = RSSL_FALSE;
 										RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
@@ -7564,7 +7564,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								&& pStartingReactorChannel->reactorChannel.pRsslChannel != NULL && pStartingReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 							{
 								// We start the fallback process to fallback to the starting server of the current group, send a PREFERRED_HOST_START_FALLBACK event to the user
-								if (ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+								if ((ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 								{
 									return RSSL_RET_FAILURE;
 								}
@@ -7615,7 +7615,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							{
 								RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 								// There is no change as the starting channel is connected to the active server of the current group, send a PREFERRED_HOST_NO_FALLBACK event to the user
-								if (ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+								if ((ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 								{
 									return RSSL_RET_FAILURE;
 								}
@@ -7629,7 +7629,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							RsslReactorWarmStandbyServiceImpl* pWSBService;
 
 							// We start the fallback process to fallback to the starting server of the current group, send a PREFERRED_HOST_START_FALLBACK event to the user
-							if (ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+							if ((ret = _reactorSendPreferredHostStartingFallback(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 							{
 								return RSSL_RET_FAILURE;
 							}
@@ -7639,7 +7639,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							// Do the initial active connection first.
 							if (isRsslChannelActive(pWarmStandByHandlerImpl->pStartingReactorChannel) == RSSL_TRUE)
 							{
-								if (ret = _preferredHostFallbackForWSBService(pReactorImpl, pWarmStandByHandlerImpl->pStartingReactorChannel, pWarmStandbyGroupImpl, pError) != RSSL_RET_SUCCESS)
+								if ((ret = _preferredHostFallbackForWSBService(pReactorImpl, pWarmStandByHandlerImpl->pStartingReactorChannel, pWarmStandbyGroupImpl, pError)) != RSSL_RET_SUCCESS)
 								{
 									RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 									return RSSL_RET_FAILURE;
@@ -7655,7 +7655,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 								if (isRsslChannelActive(pChannel) == RSSL_TRUE)
 								{
-									if (ret = _preferredHostFallbackForWSBService(pReactorImpl, pChannel, pWarmStandbyGroupImpl, pError) != RSSL_RET_SUCCESS)
+									if ((ret = _preferredHostFallbackForWSBService(pReactorImpl, pChannel, pWarmStandbyGroupImpl, pError)) != RSSL_RET_SUCCESS)
 									{
 										RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 										return RSSL_RET_FAILURE;
@@ -7674,7 +7674,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						}
 						RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 						// We're done here, send a PREFERRED_HOST_COMPLETE event to the user
-						if (ret = _reactorSendPreferredHostComplete(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+						if ((ret = _reactorSendPreferredHostComplete(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 						{
 							return RSSL_RET_FAILURE;
 						}
@@ -8658,7 +8658,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 					RsslReactorOMMConsumerRole *pConsumerRole = &pReactorChannel->channelRole.ommConsumerRole;
 					RsslRDMDirectoryMsg directoryResponse, *pDirectoryResponse;
 
-					if (pConsumerRole->directoryMsgCallback || pReactorChannel->channelSetupState == RSSL_RC_CHST_LOGGED_IN && pConsumerRole->dictionaryDownloadMode == RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE)
+					if (pConsumerRole->directoryMsgCallback || (pReactorChannel->channelSetupState == RSSL_RC_CHST_LOGGED_IN && pConsumerRole->dictionaryDownloadMode == RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE))
 					{
 						if (!pRdmMsg)
 						{
@@ -11623,7 +11623,7 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopyV1(RsslReactorOAuthCred
 	tokenScope = pOAuthCredential ? pOAuthCredential->tokenScope : defaultOAuthCredential.tokenScope;
 	dataLength += tokenScope.length;
 	dataLength += userNameLength;
-	if(copySensitiveData == RSSL_TRUE || pOAuthCredential != NULL && pOAuthCredential->pOAuthCredentialEventCallback == NULL)
+	if(copySensitiveData == RSSL_TRUE || (pOAuthCredential != NULL && pOAuthCredential->pOAuthCredentialEventCallback == NULL))
 		dataLength += passwordLength;
 	dataLength += (pOAuthCredential && pOAuthCredential->clientId.length) ? pOAuthCredential->clientId.length : (pConsRole && pConsRole->clientId.length ? pConsRole->clientId.length : 0);
 
@@ -11871,7 +11871,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		for (i = 0; i < pReactorChannel->channelRole.ommConsumerRole.oAuthCredentialCount; i++)
 		{
 			rsslClearReactorTokenChannelInfo(&pTokenChannelList[i]);
-			if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
+			if ((ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 			{
 				return ret;
 			}
@@ -11904,7 +11904,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		}
 
 		rsslClearReactorTokenChannelInfo(pTokenChannel);
-		if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, RSSL_FALSE, pError) != RSSL_RET_SUCCESS)
+		if ((ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, RSSL_FALSE, pError)) != RSSL_RET_SUCCESS)
 		{
 			return ret;
 		}
@@ -16477,7 +16477,7 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 			RsslReactorChannelEventImpl* pEvent = NULL;
 			rsslSetErrorInfo(&pReactorChannelImpl->channelWorkerCerr, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__,
 				"Channel is already connected to the Preferred Host.");
-			if (ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) != RSSL_RET_SUCCESS)
+			if ((ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr)) != RSSL_RET_SUCCESS)
 			{
 				return (reactorUnlockInterface(pReactorImpl), ret);
 			}
@@ -16486,7 +16486,7 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 		}
 	}
 	// If the current channel is a WSB channel, we may still attempt to move WSB groups even when the starting channel is reconnecting
-	else if(_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE && pReactorChannelImpl->channelSetupState == RSSL_RC_CHST_INIT
+	else if((_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE && pReactorChannelImpl->channelSetupState == RSSL_RC_CHST_INIT)
 		|| pReactorChannelImpl->channelSetupState == RSSL_RC_CHST_RECONNECTING
 		|| pReactorChannelImpl->channelSetupState == RSSL_RC_CHST_INIT_FAIL)
 	{
@@ -16498,7 +16498,7 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 		/* The current pReactorChannel is preferred */
 		/* Do not fallback to this channel */
 		RsslReactorChannelEventImpl* pEvent = NULL;
-		if (ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+		if ((ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 		{
 			return (reactorUnlockInterface(pReactorImpl), ret);
 		}

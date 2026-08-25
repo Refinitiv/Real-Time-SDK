@@ -561,7 +561,7 @@ static RsslRet encodeBatchItemClose(RsslChannel* chnl, RsslBuffer* msgBuf, RsslI
 		itemStreamId = i + MARKET_BY_PRICE_PRIVATE_STREAM_ID_START;
 
 		/* we only want to close a stream if it was not already closed (e.g. rejected by provider, closed via refresh or status, or redirected) */
-		if (!rsslIsFinalState(&marketByPricePSItemInfoList[itemStreamId].itemState))
+		if (!rsslIsFinalState(&marketByPricePSItemInfoList[i].itemState))
 		{
 			if((ret = rsslEncodeArrayEntry(&encodeIter, 0, (void*)(&itemStreamId))) < RSSL_RET_SUCCESS)
 			{

@@ -303,9 +303,9 @@ void NIProviderThread::run()
 			addThisThread(provApiThreadName, apiThreadCpuId, 0);
 		}
 
-		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
-			|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
-			|| !niProvPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		if ( (!cpuId.empty() && !cpuId.caseInsensitiveCompare("-1"))
+			|| (!workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1"))
+			|| (!niProvPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1")) )
 		{
 			printAllThreadBinding();
 		}
@@ -505,7 +505,7 @@ void NIProviderThread::sendUpdateMessages()
 
 	Int64 latencyUpdateNumber = (niProvPerfConfig.latencyUpdatesPerSec > 0) ? latencyUpdateRandomArray->getNext() : -1;
 	PerfTimeValue latencyStartTime;
-	PerfTimeValue measureEncodeStartTime, measureEncodeEndTime;
+	PerfTimeValue measureEncodeStartTime = 0, measureEncodeEndTime;
 
 	// index of current template
 	UInt32 indMpUpdMsg = 0, indMboUpdMsg = 0;

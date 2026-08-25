@@ -387,9 +387,9 @@ void ConsumerThread::run()
 		addThisThread(consumerApiThreadName, apiThreadCpuId, 0);
 	}
 
-	if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
-		|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
-		|| !pConsPerfCfg->useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+	if ( (!cpuId.empty() && !cpuId.caseInsensitiveCompare("-1"))
+		|| (!workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1"))
+		|| (!pConsPerfCfg->useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1")) )
 	{
 		printAllThreadBinding();
 	}

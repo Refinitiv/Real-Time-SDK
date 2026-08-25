@@ -1235,7 +1235,7 @@ void watchlistDirectoryTest_DeleteService(RsslConnectionTypes connectionType)
 
 	RsslBuffer dictionariesUsedList[] = { { 5, const_cast<char*>("Spock") }, { 6, const_cast<char*>("Yelled") }, { 8, const_cast<char*>("KHAAAAAN") }, { 3, const_cast<char*>("And") }, { 1, const_cast<char*>("I") }, { 10, const_cast<char*>("Facepalmed") }};
 	RsslUInt32 dictionariesUsedCount = sizeof(dictionariesUsedList)/sizeof(RsslBuffer);
-	int s1, s2;
+	int s1 = 0, s2 = 0;
 
 	ASSERT_TRUE(wtfStartTest());
 

@@ -405,7 +405,9 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 			}
 
 			if (pServiceInfo->flags & RDM_SVC_IFF_HAS_IS_SOURCE)
+			{
 				ASSERT_TRUE(pServiceInfo->isSource == pCompareServiceInfo->isSource);
+			}
 
 			for(i = 0; i < pServiceInfo->capabilitiesCount; ++i)
 				ASSERT_TRUE(pServiceInfo->capabilitiesList[i] == pCompareServiceInfo->capabilitiesList[i]);
@@ -438,10 +440,14 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 					ASSERT_TRUE(pQos->timeliness == pCompareQos->timeliness);
 
 					if (pQos->rate == RSSL_QOS_RATE_TIME_CONFLATED)
+					{
 						ASSERT_TRUE(pQos->rateInfo == pCompareQos->rateInfo);
+					}
 
 					if (pQos->timeliness == RSSL_QOS_TIME_DELAYED)
+					{
 						ASSERT_TRUE(pQos->timeInfo == pCompareQos->timeInfo);
+					}
 				}
 			}
 
@@ -452,13 +458,19 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 			}
 
 			if (pServiceInfo->flags & RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE)
+			{
 				ASSERT_TRUE(pServiceInfo->supportsQosRange == pCompareServiceInfo->supportsQosRange);
+			}
 
 			if (pServiceInfo->flags & RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS)
+			{
 				ASSERT_TRUE(pServiceInfo->supportsOutOfBandSnapshots == pCompareServiceInfo->supportsOutOfBandSnapshots);
+			}
 
 			if (pServiceInfo->flags & RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS)
+			{
 				ASSERT_TRUE(pServiceInfo->acceptingConsumerStatus == pCompareServiceInfo->acceptingConsumerStatus);
+			}
 		}
 	}
 
@@ -473,7 +485,9 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 			ASSERT_TRUE(pServiceState->flags == pCompareServiceState->flags);
 
 			if (pServiceState->flags & RDM_SVC_STF_HAS_ACCEPTING_REQS)
+			{
 				ASSERT_TRUE(pServiceState->acceptingRequests == pCompareServiceState->acceptingRequests);
+			}
 
 			if (pServiceState->flags & RDM_SVC_STF_HAS_STATUS)
 			{
@@ -530,13 +544,19 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 			ASSERT_TRUE(pServiceLoad->flags == pCompareServiceLoad->flags);
 
 			if (pServiceLoad->flags & RDM_SVC_LDF_HAS_OPEN_LIMIT)
+			{
 				ASSERT_TRUE(pServiceLoad->openLimit == pCompareServiceLoad->openLimit);
+			}
 
 			if (pServiceLoad->flags & RDM_SVC_LDF_HAS_OPEN_WINDOW)
+			{
 				ASSERT_TRUE(pServiceLoad->openWindow == pCompareServiceLoad->openWindow);
+			}
 
 			if (pServiceLoad->flags & RDM_SVC_LDF_HAS_LOAD_FACTOR)
+			{
 				ASSERT_TRUE(pServiceLoad->loadFactor == pCompareServiceLoad->loadFactor);
+			}
 		}
 	}
 
@@ -583,10 +603,14 @@ void testCompareService(RsslRDMService *pService, RsslRDMService *pCompareServic
 					ASSERT_TRUE(pServiceLink->name.data != pCompareServiceLink->name.data); /* deep-copy check */
 
 					if (pServiceLink->flags & RDM_SVC_LKF_HAS_TYPE)
+					{
 						ASSERT_TRUE(pServiceLink->type == pCompareServiceLink->type);
+					}
 
 					if (pServiceLink->flags & RDM_SVC_LKF_HAS_CODE)
+					{
 						ASSERT_TRUE(pServiceLink->linkCode == pCompareServiceLink->linkCode);
+					}
 
 					ASSERT_TRUE(pServiceLink->linkState == pCompareServiceLink->linkState);
 
@@ -669,7 +693,9 @@ void directoryRequestMsgTests()
 
 			/* Check parameters */
 			if (pDecRDMMsg->flags & RDM_DR_RQF_HAS_SERVICE_ID)
+			{
 				ASSERT_TRUE(pDecRDMMsg->serviceId == serviceId);
+			}
 
 			if (testWriteAction == TEST_EACTION_CREATE_COPY)
 				free(pDecRDMMsg);
@@ -953,10 +979,14 @@ void directoryRefreshMsgTests()
 				ASSERT_TRUE(rsslBufferIsEqual(&pDecRDMMsg->state.text, &state.text));
 
 				if (flagsList[i] & RDM_DR_RFF_HAS_SERVICE_ID)
+				{
 					ASSERT_TRUE(pDecRDMMsg->serviceId == serviceId);
+				}
 
 				if (flagsList[i] & RDM_DR_RFF_HAS_SEQ_NUM)
+				{
 					ASSERT_TRUE(pDecRDMMsg->sequenceNumber == seqNum);
+				}
 
 				ASSERT_TRUE(pDecRDMMsg->filter == filter);
 
@@ -1098,11 +1128,17 @@ void directoryUpdateMsgTests()
 				ASSERT_TRUE(pDecRDMMsg->flags == flagsList[i]);
 
 				if (flagsList[i] & RDM_DR_UPF_HAS_SERVICE_ID)
+				{
 					ASSERT_TRUE(pDecRDMMsg->serviceId == serviceId); 
+				}
 				if (flagsList[i] & RDM_DR_UPF_HAS_FILTER)
+				{
 					ASSERT_TRUE(pDecRDMMsg->filter == filter);
+				}
 				if (flagsList[i] & RDM_DR_UPF_HAS_SEQ_NUM)
+				{
 					ASSERT_TRUE(pDecRDMMsg->sequenceNumber == seqNum); 
+				}
 
 
 				ASSERT_TRUE(pDecRDMMsg->serviceCount == k);
@@ -1474,9 +1510,13 @@ void directoryStatusMsgTests()
 			ASSERT_TRUE(pDecRDMMsg->flags == flagsList[i]);
 
 			if (flagsList[i] & RDM_DR_STF_HAS_SERVICE_ID)
+			{
 				ASSERT_TRUE(pDecRDMMsg->serviceId == serviceId); 
+			}
 			if (flagsList[i] & RDM_DR_STF_HAS_FILTER)
+			{
 				ASSERT_TRUE(pDecRDMMsg->filter == filter);
+			}
 			if (flagsList[i] & RDM_DR_STF_HAS_STATE)
 			{
 				ASSERT_TRUE(pDecRDMMsg->state.streamState == state.streamState);

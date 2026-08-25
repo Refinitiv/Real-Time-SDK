@@ -4087,13 +4087,15 @@ bool jsonToRwfSimple::processAckMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsgP
 						if (_jsonMsg[(*tokPtr)->start] != 'n' &&
 							_jsonMsg[(*tokPtr)->start] != 't' &&
 							_jsonMsg[(*tokPtr)->start] != 'f')
+						{
 							if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->ackMsg.nakCode) != &_jsonMsg[(*tokPtr)->end])
 							{
 								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_NAKCODE);
 								return false;
 							}
-						else
-							rsslMsgPtr->ackMsg.nakCode = 0;
+							else
+								rsslMsgPtr->ackMsg.nakCode = 0;
+						}
 					}
 					else
 					{

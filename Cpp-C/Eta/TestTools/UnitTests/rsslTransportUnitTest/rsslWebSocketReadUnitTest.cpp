@@ -181,7 +181,10 @@ struct WsWriterServerArg
     std::atomic<bool> done;           /* set by thread just before it returns */
     std::atomic<bool> stopRequested;  /* set by test/TearDown to ask thread to exit */
     RsslSocket        serverSocketId; /* valid once ready == true             */
-    char              errText[256];
+    /* Holds a full RsslError.text (MAX_RSSL_ERROR_TEXT); +64 leaves room for the
+       snprintf literal prefix (e.g. "rsslAccept(compressed) failed: ") + NUL so
+       the formatted result can never be truncated (-Wformat-truncation).       */
+    char              errText[MAX_RSSL_ERROR_TEXT + 64];
 
     WsWriterServerArg()
         : port(0), bound(false), ready(false), done(false), stopRequested(false),

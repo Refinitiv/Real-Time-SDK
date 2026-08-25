@@ -75,7 +75,7 @@ int OmmLoggerClient::discoverLogFileNumber(EmaString fileName, int maxFileNumber
 		struct dirent * entry = 0;
 		long lastFileNumber = 0;
 		long maxNumber = 1;
-		while (entry = readdir(dir))
+		while ((entry = readdir(dir)))
 		{
 			// expected regular file or might be UNKNOWN for some file systems
 			if (!(entry->d_type == DT_REG || entry->d_type == DT_UNKNOWN))

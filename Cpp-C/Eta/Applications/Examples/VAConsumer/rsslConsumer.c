@@ -589,7 +589,7 @@ void parseCommandLine(int argc, char **argv)
 			{
 				char* pToken, * pToken2, * pSaveToken, * pSaveToken2;
 
-				RsslUInt8 itemDomain;
+				RsslUInt8 itemDomain = RSSL_DMT_MARKET_PRICE;
 
 				if (channelCommandCount == MAX_CHAN_COMMANDS)
 				{
@@ -2734,7 +2734,7 @@ int main(int argc, char **argv)
 
 
 			/* Preferred Host. Check timeout and Initiate fallback direct call. */
-			if (ret = handlePreferredHostRuntime(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+			if ((ret = handlePreferredHostRuntime(&rsslErrorInfo)) != RSSL_RET_SUCCESS)
 			{
 				cleanUpAndExit(-1);
 			}

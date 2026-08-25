@@ -207,7 +207,8 @@ RsslRet tunnelSubstreamExpireBuffer(TunnelSubstream *pSubstream, RsslBuffer *pTu
 	RsslRet ret;
 	MsgQueueSubstreamHeader	substreamMsg;
 	MsgQueueSubstreamDataHeader *pDataMsg;
-	RsslRDMQueueDataExpired queueDataExpired;
+	RsslRDMQueueMsg queueMsg;
+	RsslRDMQueueDataExpired *pQueueDataExpired = &queueMsg.dataExpired;
 	TunnelStreamImpl	*pTunnelImpl = pSubstreamImpl->_tunnelImpl;
 
 	rsslClearDecodeIterator(&dIter);
@@ -234,20 +235,20 @@ RsslRet tunnelSubstreamExpireBuffer(TunnelSubstream *pSubstream, RsslBuffer *pTu
 
 	pDataMsg = (MsgQueueSubstreamDataHeader*)&substreamMsg;
 
-	rsslClearRDMQueueDataExpired(&queueDataExpired);
-	queueDataExpired.rdmMsgBase.streamId = rsslMsg.msgBase.streamId;
-	queueDataExpired.rdmMsgBase.domainType = rsslMsg.msgBase.domainType;
+	rsslClearRDMQueueDataExpired(pQueueDataExpired);
+	pQueueDataExpired->rdmMsgBase.streamId = rsslMsg.msgBase.streamId;
+	pQueueDataExpired->rdmMsgBase.domainType = rsslMsg.msgBase.domainType;
 
-	queueDataExpired.identifier = pDataMsg->identifier;
-	queueDataExpired.undeliverableCode = undeliverableCode;
+	pQueueDataExpired->identifier = pDataMsg->identifier;
+	pQueueDataExpired->undeliverableCode = undeliverableCode;
 	
-	queueDataExpired.sourceName = pDataMsg->toQueue;
-	queueDataExpired.destName = pDataMsg->fromQueue;
-	queueDataExpired.encDataBody = pDataMsg->enclosedBuffer;
-	queueDataExpired.containerType = pDataMsg->containerType;
-	queueDataExpired.queueDepth = pSubstreamImpl->_lastQueueDepth;
+	pQueueDataExpired->sourceName = pDataMsg->toQueue;
+	pQueueDataExpired->destName = pDataMsg->fromQueue;
+	pQueueDataExpired->encDataBody = pDataMsg->enclosedBuffer;
+	pQueueDataExpired->containerType = pDataMsg->containerType;
+	pQueueDataExpired->queueDepth = pSubstreamImpl->_lastQueueDepth;
 
-	ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, NULL, (RsslRDMQueueMsg*)&queueDataExpired,
+	ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, NULL, &queueMsg,
 			RSSL_TRUE, NULL, NULL, 0, pErrorInfo);
 
 	/* Returned from callback, free message from persistence. */
@@ -575,8 +576,8 @@ RTR_C_INLINE RsslRet tunnelSubstreamCallQueueCallback(TunnelSubstreamImpl *pSubs
 	TunnelStreamImpl		*pTunnelImpl = (TunnelStreamImpl*)pSubstreamImpl->_tunnelImpl;
 
 	/* No RsslMsg should be provided on locally-generated QueueMsgs -- if one is needed we will create it. */
-	assert(isLocallyGenerated && pRsslMsg == NULL && (pQueueMsg->rdmMsgBase.rdmMsgType == RDM_QMSG_MT_DATA_EXPIRED || pQueueMsg->rdmMsgBase.rdmMsgType == RDM_QMSG_MT_ACK) 
-			|| !isLocallyGenerated && pRsslMsg != NULL);
+	assert((isLocallyGenerated && pRsslMsg == NULL && (pQueueMsg->rdmMsgBase.rdmMsgType == RDM_QMSG_MT_DATA_EXPIRED || pQueueMsg->rdmMsgBase.rdmMsgType == RDM_QMSG_MT_ACK)) 
+			|| (!isLocallyGenerated && pRsslMsg != NULL));
 
 	tunnelStreamQueueMsgEventClear(&queueMsgEvent);
 	queueMsgEvent.base.pReactorChannel = pTunnelImpl->_manager->base._pReactorChannel;
@@ -665,18 +666,19 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 		case RSSL_MC_REFRESH:
 		{
 			RsslRefreshMsg *pRefresh = (RsslRefreshMsg*)pMsg;
-			RsslRDMQueueRefresh queueRefresh;
+			RsslRDMQueueMsg queueMsg;
+			RsslRDMQueueRefresh *pQueueRefresh = &queueMsg.refresh;
 			MsgQueueSubstreamRefreshHeader *pSubRefresh;
 
-			rsslClearRDMQueueRefresh(&queueRefresh);
+			rsslClearRDMQueueRefresh(pQueueRefresh);
 
-			queueRefresh.rdmMsgBase.streamId = pMsg->msgBase.streamId;
-			queueRefresh.rdmMsgBase.domainType = pMsg->msgBase.domainType;
+			pQueueRefresh->rdmMsgBase.streamId = pMsg->msgBase.streamId;
+			pQueueRefresh->rdmMsgBase.domainType = pMsg->msgBase.domainType;
 
 			if (pRefresh->flags & RSSL_RFMF_HAS_MSG_KEY
 					&& pRefresh->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME)
-				queueRefresh.sourceName = pRefresh->msgBase.msgKey.name;
-			queueRefresh.state = pRefresh->state;
+				pQueueRefresh->sourceName = pRefresh->msgBase.msgKey.name;
+			pQueueRefresh->state = pRefresh->state;
 
 			if ((ret = decodeSubstreamHeader(&dIter, pMsg, &substreamMsg))
 					!= RSSL_RET_SUCCESS)
@@ -688,7 +690,7 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 
 			pSubRefresh = (MsgQueueSubstreamRefreshHeader*)&substreamMsg;
 
-			pSubstreamImpl->_lastQueueDepth = queueRefresh.queueDepth = pSubRefresh->queueDepth;
+			pSubstreamImpl->_lastQueueDepth = pQueueRefresh->queueDepth = pSubRefresh->queueDepth;
 			pSubstreamImpl->_lastInSeqNum = pSubRefresh->lastOutSeqNum;
 
 			if (pRefresh->state.streamState == RSSL_STREAM_OPEN)
@@ -696,7 +698,7 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 				if (pRefresh->state.dataState == RSSL_DATA_OK && pSubstreamImpl->base._state != SBS_OPEN)
 				{
 					pSubstreamImpl->base._state = SBS_OPEN;
-					if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueRefresh, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+					if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 						return ret;
 
 					if (pSubstreamImpl->_pPersistFile)
@@ -714,7 +716,8 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 								/* Generate acknowledgements for anything that wasn't acknowledged during the last session,
 								 * but is indicating by the refresh as being received. */
 								PersistentMsg *pMsg = RSSL_QUEUE_LINK_TO_OBJECT(PersistentMsg, _qLink, pLink);
-								RsslRDMQueueAck queueAck;
+								RsslRDMQueueMsg queueMsg;
+								RsslRDMQueueAck *pQueueAck = &queueMsg.ack;
 								RsslMsg rsslMsg;
 								MsgQueueSubstreamHeader substreamMsg;
 								TunnelBufferImpl *pBufferImpl;
@@ -755,15 +758,15 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 									return RSSL_RET_FAILURE;
 								}
 
-								rsslClearRDMQueueAck(&queueAck);
-								queueAck.rdmMsgBase.streamId = pSubstreamImpl->base._streamId;
-								queueAck.identifier = substreamMsg.dataHeader.identifier;
+								rsslClearRDMQueueAck(pQueueAck);
+								pQueueAck->rdmMsgBase.streamId = pSubstreamImpl->base._streamId;
+								pQueueAck->identifier = substreamMsg.dataHeader.identifier;
 
 								/* QueueAck flips source and destination names from data message. */
-								queueAck.sourceName = substreamMsg.dataHeader.toQueue;
-								queueAck.destName = substreamMsg.dataHeader.fromQueue;
+								pQueueAck->sourceName = substreamMsg.dataHeader.toQueue;
+								pQueueAck->destName = substreamMsg.dataHeader.fromQueue;
 
-								if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, NULL, (RsslRDMQueueMsg*)&queueAck, RSSL_TRUE, 
+								if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, NULL, &queueMsg, RSSL_TRUE, 
 									&substreamMsg.ackHeader.fromQueue, &substreamMsg.ackHeader.toQueue, substreamMsg.ackHeader.seqNum, pErrorInfo)) != RSSL_RET_SUCCESS)
 								{
 									rsslTunnelStreamReleaseBuffer((RsslBuffer*)pBufferImpl, pErrorInfo);
@@ -805,7 +808,7 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 			else
 			{
 				pSubstreamImpl->base._state = SBS_CLOSED;
-				if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueRefresh, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+				if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 					return ret;
 			}
 
@@ -817,26 +820,27 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 		case RSSL_MC_STATUS:
 		{
 			RsslStatusMsg *pStatus = (RsslStatusMsg*)pMsg;
-			RsslRDMQueueStatus queueStatus;
+			RsslRDMQueueMsg queueMsg;
+			RsslRDMQueueStatus *pQueueStatus = &queueMsg.status;
 
-			rsslClearRDMQueueStatus(&queueStatus);
+			rsslClearRDMQueueStatus(pQueueStatus);
 
-			queueStatus.rdmMsgBase.streamId = pMsg->msgBase.streamId;
-			queueStatus.rdmMsgBase.domainType = pMsg->msgBase.domainType;
+			pQueueStatus->rdmMsgBase.streamId = pMsg->msgBase.streamId;
+			pQueueStatus->rdmMsgBase.domainType = pMsg->msgBase.domainType;
 
 			if (pStatus->flags & RSSL_STMF_HAS_STATE)
 			{
-				queueStatus.flags |= RDM_QMSG_STF_HAS_STATE;
-				queueStatus.state = pStatus->state;
+				pQueueStatus->flags |= RDM_QMSG_STF_HAS_STATE;
+				pQueueStatus->state = pStatus->state;
 			}
 
-			queueStatus.state = pStatus->state;
+			pQueueStatus->state = pStatus->state;
 
 			if (pStatus->flags & RSSL_STMF_HAS_STATE
 					&& pStatus->state.streamState != RSSL_STREAM_OPEN)
 				pSubstreamImpl->base._state = SBS_CLOSED;
 
-			if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueStatus, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+			if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 				return ret;
 
 			break;
@@ -858,17 +862,18 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 				case MSGQUEUE_SHO_ACK:
 				{
 					
-					RsslRDMQueueAck queueAck;
+					RsslRDMQueueMsg queueMsg;
+					RsslRDMQueueAck *pQueueAck = &queueMsg.ack;
 					MsgQueueSubstreamAckHeader *pAckMsg = 
 						(MsgQueueSubstreamAckHeader*)&substreamMsg;
 
-					rsslClearRDMQueueAck(&queueAck);
-					queueAck.rdmMsgBase.streamId = pMsg->msgBase.streamId;
-					queueAck.rdmMsgBase.domainType = pMsg->msgBase.domainType;
+					rsslClearRDMQueueAck(pQueueAck);
+					pQueueAck->rdmMsgBase.streamId = pMsg->msgBase.streamId;
+					pQueueAck->rdmMsgBase.domainType = pMsg->msgBase.domainType;
 
-					queueAck.identifier = pAckMsg->identifier;
-					queueAck.sourceName = substreamMsg.dataHeader.fromQueue;
-					queueAck.destName = substreamMsg.dataHeader.toQueue;
+					pQueueAck->identifier = pAckMsg->identifier;
+					pQueueAck->sourceName = substreamMsg.dataHeader.fromQueue;
+					pQueueAck->destName = substreamMsg.dataHeader.toQueue;
 
 					if (pSubstreamImpl->_pPersistFile != NULL)
 					{
@@ -877,7 +882,7 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 							return ret;
 					}
 
-					if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueAck, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+					if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 						return ret;
 
 					break;
@@ -902,22 +907,23 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 					{
 						case MSGQUEUE_SHO_DATA:
 						{
-							RsslRDMQueueData queueData;
+							RsslRDMQueueMsg queueMsg;
+							RsslRDMQueueData *pQueueData = &queueMsg.data;
 
-							rsslClearRDMQueueData(&queueData);
-							queueData.rdmMsgBase.streamId = pMsg->msgBase.streamId;
-							queueData.rdmMsgBase.domainType = pMsg->msgBase.domainType;
+							rsslClearRDMQueueData(pQueueData);
+							pQueueData->rdmMsgBase.streamId = pMsg->msgBase.streamId;
+							pQueueData->rdmMsgBase.domainType = pMsg->msgBase.domainType;
 
-							queueData.flags = pDataMsg->flags;
-							queueData.identifier = pDataMsg->identifier;
-							queueData.sourceName = pDataMsg->fromQueue;
-							queueData.destName = pDataMsg->toQueue;
-							queueData.encDataBody = pDataMsg->enclosedBuffer;
-							queueData.containerType = pDataMsg->containerType;
-							pSubstreamImpl->_lastQueueDepth = queueData.queueDepth = pDataMsg->queueDepth;
-							queueData.timeout = pDataMsg->timeout;
+							pQueueData->flags = pDataMsg->flags;
+							pQueueData->identifier = pDataMsg->identifier;
+							pQueueData->sourceName = pDataMsg->fromQueue;
+							pQueueData->destName = pDataMsg->toQueue;
+							pQueueData->encDataBody = pDataMsg->enclosedBuffer;
+							pQueueData->containerType = pDataMsg->containerType;
+							pSubstreamImpl->_lastQueueDepth = pQueueData->queueDepth = pDataMsg->queueDepth;
+							pQueueData->timeout = pDataMsg->timeout;
 
-							if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueData, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+							if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 								return ret;
 
 							break;
@@ -925,22 +931,23 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 
 						default: /* Expired */
 						{
-							RsslRDMQueueDataExpired queueDataExpired;
+							RsslRDMQueueMsg queueMsg;
+							RsslRDMQueueDataExpired *pQueueDataExpired = &queueMsg.dataExpired;
 
-							rsslClearRDMQueueDataExpired(&queueDataExpired);
-							queueDataExpired.rdmMsgBase.streamId = pMsg->msgBase.streamId;
-							queueDataExpired.rdmMsgBase.domainType = pMsg->msgBase.domainType;
+							rsslClearRDMQueueDataExpired(pQueueDataExpired);
+							pQueueDataExpired->rdmMsgBase.streamId = pMsg->msgBase.streamId;
+							pQueueDataExpired->rdmMsgBase.domainType = pMsg->msgBase.domainType;
 
-							queueDataExpired.flags = pDataMsg->flags;
-							queueDataExpired.identifier = pDataMsg->identifier;
-							queueDataExpired.undeliverableCode = pDataMsg->undeliverableCode;
-							queueDataExpired.sourceName = pDataMsg->fromQueue;
-							queueDataExpired.destName = pDataMsg->toQueue;
-							queueDataExpired.encDataBody = pDataMsg->enclosedBuffer;
-							queueDataExpired.containerType = pDataMsg->containerType;
-							pSubstreamImpl->_lastQueueDepth = queueDataExpired.queueDepth = pDataMsg->queueDepth;
+							pQueueDataExpired->flags = pDataMsg->flags;
+							pQueueDataExpired->identifier = pDataMsg->identifier;
+							pQueueDataExpired->undeliverableCode = pDataMsg->undeliverableCode;
+							pQueueDataExpired->sourceName = pDataMsg->fromQueue;
+							pQueueDataExpired->destName = pDataMsg->toQueue;
+							pQueueDataExpired->encDataBody = pDataMsg->enclosedBuffer;
+							pQueueDataExpired->containerType = pDataMsg->containerType;
+							pSubstreamImpl->_lastQueueDepth = pQueueDataExpired->queueDepth = pDataMsg->queueDepth;
 
-							if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, (RsslRDMQueueMsg*)&queueDataExpired, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
+							if ((ret = tunnelSubstreamCallQueueCallback(pSubstreamImpl, pMsg, &queueMsg, RSSL_FALSE, NULL, NULL, 0, pErrorInfo)) != RSSL_RET_SUCCESS)
 								return ret;
 							break;
 						}

@@ -555,7 +555,9 @@ TEST_P(UpdateMsgMembersTestFixture, UpdateMsgMembersTest)
 
 	/* Check FieldList. */
 	if (params.containerType == RSSL_DT_FIELD_LIST)
+	{
 		ASSERT_NO_FATAL_FAILURE(decodeSampleRsslFieldList(params.protocolType, &_dIter));
+	}
 }
 
 

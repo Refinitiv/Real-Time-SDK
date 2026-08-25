@@ -33,6 +33,8 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 				testDetails.append(MAX_SIZE_PLUS_PADDING);
 				UInt32 excpToStrLen = excp.toString().length();
 				EXPECT_TRUE( excpToStrLen < MAX_SIZE_PLUS_PADDING ) << testDetails.c_str();
+				EXPECT_TRUE( excp.getText().length() > 0 ) << "OmmInvalidConfigurationException::getText() should not be empty";
+				EXPECT_TRUE( excp.toString().find( excp.getText() ) != EmaString::npos ) << "OmmInvalidConfigurationException::toString() should embed getText()";
 			}
 
 			try {			
@@ -45,6 +47,8 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 				testDetails.append(MAX_SIZE_PLUS_PADDING);
 				UInt32 excpToStrLen = excp.toString().length();
 				EXPECT_TRUE( excpToStrLen < MAX_SIZE_PLUS_PADDING ) << testDetails.c_str();
+				EXPECT_TRUE( excp.getText().length() > 0 ) << "OmmInvalidUsageException::getText() should not be empty";
+				EXPECT_TRUE( excp.toString().find( excp.getText() ) != EmaString::npos ) << "OmmInvalidUsageException::toString() should embed getText()";
 			}
 
 			EmaString emaStrLargeText(largeText);
@@ -59,6 +63,8 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 				testDetails.append(MAX_SIZE_PLUS_PADDING);
 				UInt32 excpToStrLen = excp.toString().length();
 				EXPECT_TRUE( excpToStrLen < MAX_SIZE_PLUS_PADDING ) << testDetails.c_str();
+				EXPECT_TRUE( excp.getText().length() > 0 ) << "OmmInvalidHandleException::getText() should not be empty";
+				EXPECT_TRUE( excp.toString().find( excp.getText() ) != EmaString::npos ) << "OmmInvalidHandleException::toString() should embed getText()";
 			}
 
 			try {
@@ -71,6 +77,8 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 				testDetails.append(MAX_SIZE_PLUS_PADDING);
 				UInt32 excpToStrLen = excp.toString().length();
 				EXPECT_TRUE( excpToStrLen < MAX_SIZE_PLUS_PADDING ) << testDetails.c_str();
+				EXPECT_TRUE( excp.getText().length() > 0 ) << "OmmUnsupportedDomainTypeException::getText() should not be empty";
+				EXPECT_TRUE( excp.toString().find( excp.getText() ) != EmaString::npos ) << "OmmUnsupportedDomainTypeException::toString() should embed getText()";
 			}
 			try {
 				Int64 code = 20;
@@ -84,6 +92,8 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 				testDetails.append(MAX_SIZE_PLUS_PADDING);
 				UInt32 excpToStrLen = excp.toString().length();
 				EXPECT_TRUE( excpToStrLen < MAX_SIZE_PLUS_PADDING ) << testDetails.c_str();
+				EXPECT_TRUE( excp.getText().length() > 0 ) << "OmmSystemException::getText() should not be empty";
+				EXPECT_TRUE( excp.toString().find( excp.getText() ) != EmaString::npos ) << "OmmSystemException::toString() should embed getText()";
 			}
 		}
 		catch( const OmmException& excp)

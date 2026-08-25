@@ -451,7 +451,7 @@ RsslRet tunnelManagerClose(TunnelManager *pManager, RsslErrorInfo *pErrorInfo)
 	}
 
 	/* Tunnel streams should release any outstanding buffers; now cleanup buffer pool. */
-	while(pLink = rsslQueueRemoveFirstLink(&pManagerImpl->_tunnelBufferPool))
+	while((pLink = rsslQueueRemoveFirstLink(&pManagerImpl->_tunnelBufferPool)))
 	{
 		TunnelBufferImpl *pBufferImpl = RSSL_QUEUE_LINK_TO_OBJECT(
 				TunnelBufferImpl, _tbpLink, pLink);
