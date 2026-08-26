@@ -581,9 +581,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return ReactorReturnCode.FAILURE;
             }
 
-            if (eventType == ReactorChannelEventType.CHANNEL_DOWN
-                || eventType == ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING)
+            if (eventType == ReactorChannelEventType.CHANNEL_DOWN || eventType == ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING)
             {
+                if (reactorChannel.ConnectOptions != null && reactorChannel.ConnectOptions.ConnectionList.Count > 1)
+                {
+                    reactorChannel.Watchlist?.ItemHandler.CloseProviderDrivenRequests();
+                }
                 // If watchlist is on, it will send status messages to the tunnel streams (so
                 // don't do it ourselves).
 

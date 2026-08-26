@@ -301,23 +301,36 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         m_Output.WriteLine(requestMsg.ToString());
                         m_MessageQueue.Enqueue(requestMsg);
 
-                        if(reqMsg.HasServiceId)
+                        if (reqMsg.HasServiceId)
                         {
                             m_ServiceId = reqMsg.ServiceId();
                         }
 
-                        if(m_ProviderTestOptions.SendItemResponse == false)
+                        if (m_ProviderTestOptions.SendItemResponse == false || (m_ProviderTestOptions.SendItemRefreshMap != null
+                            && m_ProviderTestOptions.SendItemRefreshMap.ContainsKey(reqMsg.Name())
+                            && !m_ProviderTestOptions.SendItemRefreshMap[reqMsg.Name()]))
                         {
-                            m_Output.WriteLine("Skip sending item response for this request");
+                            m_Output.WriteLine("Skip sending item response for request " + reqMsg.Name());
                             break;
                         }
-                        else if(m_ProviderTestOptions.CloseItemRequest)
+                        else if (m_ProviderTestOptions.CloseItemRequest)
                         {
-                            m_Output.WriteLine("Closes this item request");
+                            m_Output.WriteLine("Closes this item request " + reqMsg.Name());
 
                             providerEvent.Provider.Submit(new StatusMsg().DomainType(reqMsg.DomainType()).Name(reqMsg.Name()).
                                 State(OmmState.StreamStates.CLOSED, OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NOT_AUTHORIZED, "Unauthorized access to the item."), providerEvent.Handle);
                             break;
+                        }
+
+                        if (m_ProviderTestOptions.WaitBeforeSendingItemRefresh > 0)
+                        {
+                            try
+                            {
+                                Thread.Sleep(TimeSpan.FromMilliseconds(m_ProviderTestOptions.WaitBeforeSendingItemRefresh));
+                            }
+                            catch { }
+
+                            m_ProviderTestOptions.WaitBeforeSendingItemRefresh = 0;
                         }
 
                         if (reqMsg.HasServiceId)
@@ -339,7 +352,7 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         RefreshMsg refreshMsg = new RefreshMsg().Name(reqMsg.Name()).ServiceId(reqMsg.ServiceId()).Solicited(true).DomainType(reqMsg.DomainType()).
                             State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Refresh Completed").Complete(true).Payload(fieldList);
 
-                        if(m_ProviderTestOptions.SupportStandby)
+                        if (m_ProviderTestOptions.SupportStandby)
                         {
                             // TODO: Add code for handling a response message for active and standby servers.
                         }
@@ -428,6 +441,15 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                         m_Output.WriteLine(cloneMsg.ToString());
 
                         m_MessageQueue.Enqueue(cloneMsg);
+
+                        RequestAttributes requestAttributes = new()
+                        {
+                            Name = reqMsg.Name(),
+                            Handle = providerEvent.Handle,
+                            ServiceId = reqMsg.ServiceId()
+                        };
+
+                        m_ItemNameToHandleDict[reqMsg.Name()] = requestAttributes;
 
                         FieldList summaryData = new FieldList();
                         summaryData.AddUInt(1, 74);
@@ -591,6 +613,21 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
                 if (reqMsg.DomainType() == EmaRdm.MMT_DICTIONARY)
                 {
                     ProcessDictionaryRequest(reqMsg, providerEvent);
+                }
+
+                if (reqMsg.DomainType() == EmaRdm.MMT_MARKET_PRICE && m_ProviderTestOptions.RespondToReissue)
+                {
+                    FieldList fieldList = new();
+                    fieldList.AddReal(22, 3990, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
+                    fieldList.AddReal(25, 3994, OmmReal.MagnitudeTypes.EXPONENT_NEG_2);
+                    fieldList.AddReal(30, 9, OmmReal.MagnitudeTypes.EXPONENT_0);
+                    fieldList.AddReal(31, 19, OmmReal.MagnitudeTypes.EXPONENT_0);
+                    fieldList.MarkForClear().Complete();
+
+                    RefreshMsg refreshMsg = new RefreshMsg().Name(reqMsg.Name()).ServiceId(reqMsg.ServiceId()).Solicited(true).DomainType(reqMsg.DomainType()).
+                        State(OmmState.StreamStates.OPEN, OmmState.DataStates.OK, OmmState.StatusCodes.NONE, "Refresh Completed").Complete(true).Payload(fieldList);
+
+                    providerEvent.Provider.Submit(refreshMsg.MarkForClear(), providerEvent.Handle);
                 }
             }
             finally

@@ -2012,5 +2012,10 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             errorInfo = null;
             return ReactorReturnCode.SUCCESS;
         }
+
+        void IWlItemHandler.CloseProviderDrivenRequests()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

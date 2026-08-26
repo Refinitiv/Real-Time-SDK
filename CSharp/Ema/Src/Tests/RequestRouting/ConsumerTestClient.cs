@@ -40,6 +40,8 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
 
         private bool _isDisposed = false;
 
+        internal Dictionary<string, long> NameHandleMap = new();
+
         public ConsumerTestClient(ITestOutputHelper output)
         {
             m_ConsumerTestOptoins = new ConsumerTestOptions();
@@ -226,6 +228,11 @@ namespace LSEG.Ema.Access.Tests.RequestRouting
             try
             {
                 m_Handles.Add(consumerEvent.Handle);
+                if (refreshMsg.HasName) 
+                { 
+                    if (NameHandleMap.ContainsKey(refreshMsg.Name())) NameHandleMap.Remove(refreshMsg.Name());
+                    NameHandleMap.Add(refreshMsg.Name(), consumerEvent.Handle); 
+                }
 
                 RefreshMsg cloneMsg = new(refreshMsg);
 

@@ -9649,11 +9649,12 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist
             requestMsg.ApplyHasQos();
             requestMsg.Qos.Timeliness(QosTimeliness.REALTIME);
             requestMsg.Qos.Rate(QosRates.TICK_BY_TICK);
+            requestMsg.MsgKey.ApplyHasServiceId();
+            requestMsg.MsgKey.ServiceId = receivedRefreshMsg.MsgKey.ServiceId;
             requestMsg.ApplyHasView();
             WatchlistItemDomainsTest.EncodeViewFieldIdList(consumer.ReactorChannel, view1List, requestMsg);
 
             submitOptions.Clear();
-            submitOptions.ServiceName = Provider.DefaultService.Info.ServiceName.ToString();
             Assert.True(consumer.SubmitAndDispatch((Msg)requestMsg, submitOptions) >= ReactorReturnCode.SUCCESS);
 
             /* Provider receives request with view. */

@@ -2,15 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|              Copyright (C) 2025 LSEG. All rights reserved.     
+ *|              Copyright (C) 2025-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Codec;
-using LSEG.Eta.ValueAdd.Rdm;
-using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using System.Collections.Generic;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LSEG.Ema.Access
 {
@@ -78,6 +80,7 @@ namespace LSEG.Ema.Access
 
                         ServiceDirectory<T>? directory;
                         directory = Directory(singleItem.RequestMsg);
+                        bool returnToActiveQueue = true;
 
                         if (directory != null)
                         {
@@ -86,7 +89,14 @@ namespace LSEG.Ema.Access
 
                             /* The item state is changed to normal item stream */
                             singleItem.State = SingleItem<T>.StateEnum.NORMAL;
-                            if (singleItem.Submit(singleItem.RequestMsg!, singleItem.ServiceName, false, false) == false)
+                            if (singleItem.Type() == ItemType.SINGLE_ITEM_WITH_SOURCE && singleItem.DomainType != (int)DomainType.SYMBOL_LIST)
+                            {
+                                m_ConsumerSession.SessionWatchlist.SendItemStatus(singleItem, singleItem.RequestMsg!, OmmState.StreamStates.CLOSED,
+                                        OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "This individual item of the Symbol List will be recovered by another connection.");
+                                singleItem.Close();
+                                returnToActiveQueue = false;
+                            }
+                            else if (singleItem.Submit(singleItem.RequestMsg!, singleItem.ServiceName, false, false) == false)
                             {
                                 singleItem.State = SingleItem<T>.StateEnum.RECOVERING;
                                 m_ConsumerSession.SessionWatchlist.RecoverItemQueue().Enqueue(singleItem.RequestMsg!);
@@ -104,7 +114,7 @@ namespace LSEG.Ema.Access
                         m_TempRemoveSingleItems.Enqueue(singleItem);
 
                         /* Adds to the active queue */
-                        _itemNameMap[itemName].Add(singleItem);
+                        if (returnToActiveQueue) _itemNameMap[itemName].Add(singleItem);
                     }
 
                     singleItem = m_TempRemoveSingleItems.Count > 0 ? m_TempRemoveSingleItems.Dequeue() : null;

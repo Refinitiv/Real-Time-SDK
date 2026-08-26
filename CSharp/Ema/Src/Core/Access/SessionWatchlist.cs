@@ -2,14 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|              Copyright (C) 2025 LSEG. All rights reserved.                --
+ *|              Copyright (C) 2025-2026 LSEG. All rights reserved.                --
  *|-----------------------------------------------------------------------------
  */
 
+using System.Collections.Generic;
 using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System.Collections.Generic;
 
 namespace LSEG.Ema.Access;
 
@@ -449,7 +450,7 @@ internal sealed class SessionWatchlist<T>
         {
             IRequestMsg requestMsg = singleItem.RequestMsg;
 
-            if (item.Type() == ItemType.SINGLE_ITEM && rsslStatusMsg.CheckHasState())
+            if ((item.Type() == ItemType.SINGLE_ITEM || item.Type() == ItemType.SINGLE_ITEM_WITH_SOURCE) && rsslStatusMsg.CheckHasState())
             {
                 if (state.StreamState() == StreamStates.CLOSED_RECOVER)
                 {
@@ -470,15 +471,24 @@ internal sealed class SessionWatchlist<T>
                     /* Recover item only for non-private item stream. */
                     if (requestMsg.CheckPrivateStream() == false)
                     {
+                        bool isNormalItem = singleItem.Type() != ItemType.SINGLE_ITEM_WITH_SOURCE || singleItem.DomainType == (int)DomainType.SYMBOL_LIST;
+
                         SessionChannelInfo<T> sessionChannelInfo = (dynamic)singleItem.Directory()!.ChannelInfo!.SessionChannelInfo!;
 
                         if (sessionChannelInfo.PHOperationInProcess == false)
                         {
                             /* This is used to close this stream with the watchlist only */
-                            singleItem.State = SingleItem<T>.StateEnum.CLOSING_STREAM;
+                            if (isNormalItem) singleItem.State = SingleItem<T>.StateEnum.CLOSING_STREAM;
+                            else singleItem.State = SingleItem<T>.StateEnum.NORMAL;
 
                             try
                             {
+                                if (!isNormalItem)
+                                {
+                                    SendItemStatus(singleItem, singleItem.RequestMsg, OmmState.StreamStates.CLOSED,
+                                                OmmState.DataStates.SUSPECT, OmmState.StatusCodes.NONE, "This individual item of the Symbol List will be recovered by another connection.");
+                                    notifyStatusMsg = false;
+                                }
                                 singleItem.Close();
                             }
                             catch (OmmInvalidUsageException iue)
@@ -500,40 +510,43 @@ internal sealed class SessionWatchlist<T>
                             }
                         }
 
-                        if (handleConnectionRecovering || sessionChannelInfo.PHOperationInProcess)
+                        if (isNormalItem)
                         {
-                            if (sessionChannelInfo.PHOperationInProcess)
+                            if (handleConnectionRecovering || sessionChannelInfo.PHOperationInProcess)
                             {
-                                /* Sets the state that the item is being recovered by watchlist when the requested service is operational */
-                                singleItem.State = SingleItem<T>.StateEnum.RECOVERING_BY_WATCHLIST;
+                                if (sessionChannelInfo.PHOperationInProcess)
+                                {
+                                    /* Sets the state that the item is being recovered by watchlist when the requested service is operational */
+                                    singleItem.State = SingleItem<T>.StateEnum.RECOVERING_BY_WATCHLIST;
+                                }
+                                else
+                                {
+                                    /* Sets the state that the item is being recovered */
+                                    singleItem.State = SingleItem<T>.StateEnum.RECOVERING;
+                                }
+
+                                /* Waiting to recover this item with the same channel */
+                                singleItem.RetrytosameChannel = true;
+
+                                /* Added this item into the recovering queue of SessionDirectory to recover once the requested service is ready. */
+                                singleItem.Directory()!.SessionDirectory!.AddRecoveringQueue(singleItem);
+
                             }
                             else
                             {
                                 /* Sets the state that the item is being recovered */
                                 singleItem.State = SingleItem<T>.StateEnum.RECOVERING;
+
+                                /* Add item to recovery queue to retry with another connection if any */
+                                _recoveryItemQueue.Enqueue(requestMsg);
                             }
-
-                            /* Waiting to recover this item with the same channel */
-                            singleItem.RetrytosameChannel = true;
-
-                            /* Added this item into the recovering queue of SessionDirectory to recover once the requested service is ready. */
-                            singleItem.Directory()!.SessionDirectory!.AddRecoveringQueue(singleItem);
-
-                        }
-                        else
-                        {
-                            /* Sets the state that the item is being recovered */
-                            singleItem.State = SingleItem<T>.StateEnum.RECOVERING;
-
-                            /* Add item to recovery queue to retry with another connection if any */
-                            _recoveryItemQueue.Enqueue(requestMsg);
                         }
                     }
                 }
                 else if (state.StreamState() == StreamStates.CLOSED)
                 {
                     /* Recover item only for non-private item stream. */
-                    if (requestMsg.CheckPrivateStream() == false)
+                    if (requestMsg.CheckPrivateStream() == false && (singleItem.Type() != ItemType.SINGLE_ITEM_WITH_SOURCE || singleItem.DomainType == (int)DomainType.SYMBOL_LIST))
                     {
                         state.StreamState(StreamStates.OPEN);
 

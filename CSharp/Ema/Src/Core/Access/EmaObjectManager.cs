@@ -637,6 +637,7 @@ namespace LSEG.Ema.Access
         internal VaPool m_dictionaryItemPool = new VaPool(false);
         internal VaPool m_directoryItemPool = new VaPool(false);
         internal VaPool m_batchItemPool = new VaPool(false);
+        internal VaPool m_singleItemWithSourcePool = new VaPool(false);
 
         private IEmaPool<Data>[] pools = new IEmaPool<Data>[Access.DataType.DataTypes.ERROR + 1];
 
@@ -785,6 +786,7 @@ namespace LSEG.Ema.Access
         }
 
         internal Action? FreeSingleItemPool;
+        internal Action? FreeSingleItemWithSourcePool;
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void GrowSingleItemPool<T>(int count)
@@ -802,6 +804,32 @@ namespace LSEG.Ema.Access
                 {
                     SingleItem<T>? item;
                     while ((item = (SingleItem<T>?)m_singleItemPool.Poll()) != null) 
+                    {
+                        if (item.m_handle.IsAllocated)
+                        {
+                            item.m_handle.Free();
+                        }
+                    }
+                };
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal void GrowSingleItemWithSourcePool<T>(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var singleItem = new SingleItemWithSource<T>();
+                m_singleItemWithSourcePool.Add(singleItem);
+                singleItem.m_handle = GCHandle.Alloc(singleItem);
+            }
+
+            if (FreeSingleItemWithSourcePool == null)
+            {
+                FreeSingleItemWithSourcePool = () =>
+                {
+                    SingleItem<T>? item;
+                    while ((item = (SingleItem<T>?)m_singleItemWithSourcePool.Poll()) != null)
                     {
                         if (item.m_handle.IsAllocated)
                         {

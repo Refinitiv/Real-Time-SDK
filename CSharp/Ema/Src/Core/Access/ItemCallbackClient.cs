@@ -2,25 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Codec;
-
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-
-using LSEG.Eta.ValueAdd.Reactor;
-using LSEG.Eta.ValueAdd.Common;
-using LSEG.Eta.Rdm;
+using LSEG.Eta.Codec;
 using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
 using LSEG.Eta.Transports;
-using LSEG.Ema.Domain.Login;
+using LSEG.Eta.ValueAdd.Common;
+using LSEG.Eta.ValueAdd.Reactor;
 using Microsoft.Extensions.Primitives;
 
 namespace LSEG.Ema.Access
@@ -34,7 +29,9 @@ namespace LSEG.Ema.Access
         DIRECTORY_ITEM = 4,
         NIPROVIDER_DICTIONARY_ITEM = 7,
         IPROVIDER_SINGLE_ITEM = 8,
-        IPROVIDER_DICTIONARY_ITEM = 9
+        IPROVIDER_DICTIONARY_ITEM = 9,
+        SYMBOL_LIST_SOURCE_ITEM = 10,
+        SINGLE_ITEM_WITH_SOURCE = 11
     }
     internal interface Item<T>
     {
@@ -59,6 +56,12 @@ namespace LSEG.Ema.Access
         public bool Submit(PostMsg postMsg);
         public bool Submit(GenericMsg genericMsg);
         public void BackToPool();
+        public int EtaStreamId { get => StreamId; }
+
+        public void SetUserSpecObject(ReactorSubmitOptions submitOptions)
+        {
+            submitOptions.RequestMsgOptions.UserSpecObj = this;
+        }
     }
 
     internal class SingleItem<T> : VaNode, Item<T>
@@ -102,12 +105,20 @@ namespace LSEG.Ema.Access
         internal ItemType m_type;
 
         internal GCHandle m_handle;
+        internal int m_StreamId;
 
         internal bool m_InitReqWithServiceID;
         internal int m_ServiceId;
 
         public int DomainType { get; set; }
-        public int StreamId { get; protected set; }
+        public int StreamId { get => m_StreamId; set { m_StreamId = value; } }
+
+        public virtual int EtaStreamId 
+        { 
+            get { return m_StreamId; }
+            private set { m_StreamId = value; } 
+        }
+
         public object? Closure { get; private set; }
         public T? Client { get; private set; }
         public Item<T>? Parent { get; private set; }
@@ -127,6 +138,11 @@ namespace LSEG.Ema.Access
         public bool AssignedItemId { get; set; } = false;
         public OpenSuspectClient<T>? OpenSuspectClient { get; set; }
         #endregion
+
+        public virtual void SetUserSpecObject(ReactorSubmitOptions submitOptions)
+        {
+            submitOptions.RequestMsgOptions.UserSpecObj = this;
+        }
 
 #pragma warning disable CS8618
         public SingleItem()
@@ -165,7 +181,7 @@ namespace LSEG.Ema.Access
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public void Reset(OmmBaseImpl<T> baseImpl, T client, object? closure, Item<T>? batchItem)
+        public virtual void Reset(OmmBaseImpl<T> baseImpl, T client, object? closure, Item<T>? batchItem)
         {
             DomainType = 0;
             StreamId = 0;
@@ -710,7 +726,7 @@ namespace LSEG.Ema.Access
             }
             else
             {
-                closeMsg.StreamId = StreamId;
+                closeMsg.StreamId = EtaStreamId;
             }
 
             ReactorSubmitOptions submitOptions = m_OmmBaseImpl.GetSubmitOptions();
@@ -906,7 +922,7 @@ namespace LSEG.Ema.Access
                 }
             }
 
-            submitOptions.RequestMsgOptions.UserSpecObj = this;
+            SetUserSpecObject(submitOptions);
 
             int domainType = requestMsg.DomainType;
 
@@ -981,7 +997,7 @@ namespace LSEG.Ema.Access
             }
             else
             {
-                requestMsg.StreamId = StreamId;
+                requestMsg.StreamId = EtaStreamId;
             }
 
             if (DomainType == 0)
@@ -1057,7 +1073,7 @@ namespace LSEG.Ema.Access
             submitOptions.Clear();
             submitOptions.ServiceName = serviceName;
 
-            submitMsg.StreamId = StreamId;
+            submitMsg.StreamId = EtaStreamId;
 
             if (submitMsg.MsgClass == MsgClasses.GENERIC && submitMsg.DomainType == 0)
             {
@@ -1225,6 +1241,408 @@ namespace LSEG.Ema.Access
         }
     }
 
+    internal class SourceItem<T> : Item<T>
+    {
+        internal IRequestMsg m_InitialRequestMsg = new Eta.Codec.Msg();
+        internal Dictionary<int, SingleItemWithSource<T>> m_StreamIdItemsMap = new Dictionary<int, SingleItemWithSource<T>>(); // stores items by msg.StreamId (from ValueAdd layer)
+        internal SingleItemWithSource<T>? m_SymbolListItem;
+
+        internal bool m_HasBehavior = false;
+        internal int m_SymbolListFlags;
+
+        int Item<T>.DomainType { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        int Item<T>.StreamId { get; }
+
+        object? Item<T>.Closure => throw new System.NotImplementedException();
+
+        T? Item<T>.Client => throw new System.NotImplementedException();
+
+        long Item<T>.ItemId { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        Item<T>? Item<T>.Parent => null;
+
+        bool Item<T>.AssignedItemId { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        ClosedStatusClient<T>? Item<T>.ClosedStatusClient { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        public bool Open(RequestMsg reqMsg) 
+        { 
+            return false; 
+        }
+
+        public bool Modify(RequestMsg reqMsg) 
+        { 
+            return false; 
+        }
+
+        public bool Close() 
+        { 
+            return false; 
+        }
+
+        public void Remove() { }
+
+        public ItemType Type()
+        {
+            return ItemType.SYMBOL_LIST_SOURCE_ITEM;
+        }
+
+        public ServiceDirectory<T>? Directory()
+        {
+            return m_SymbolListItem?.Directory();
+        }
+
+        public int GetNextStreamId(int numOfItem)
+        {
+            return 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal Item<T>? GetItem(int streamId)
+        {
+            SingleItemWithSource<T>? item = null;
+
+            if (m_StreamIdItemsMap.ContainsKey(streamId))
+            {                
+                item = m_StreamIdItemsMap[streamId];
+            }
+
+            return item;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal SingleItemWithSource<T>? GetItem(Msg msg, bool createIfNotFound)
+        {
+            return GetItem(msg, msg.StreamId(), createIfNotFound);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal SingleItemWithSource<T>? GetItem(Msg msg, int streamId, bool createIfNotFound)
+        {
+            SingleItemWithSource<T>? item = null;
+
+            if (m_StreamIdItemsMap.ContainsKey(msg.StreamId()))
+            {
+                item = m_StreamIdItemsMap[msg.StreamId()];
+            }
+            else if (m_SymbolListItem != null && createIfNotFound)
+            {
+                if ((item = (SingleItemWithSource<T>?)m_SymbolListItem.m_OmmBaseImpl.GetEmaObjManager().m_singleItemWithSourcePool.Poll()) == null)
+                {
+                    item = new SingleItemWithSource<T>(m_SymbolListItem.m_OmmBaseImpl, m_SymbolListItem.Client, m_SymbolListItem.Closure);
+                    m_SymbolListItem.m_OmmBaseImpl.GetEmaObjManager().m_singleItemWithSourcePool.UpdatePool(item);
+                }
+                else
+                    item.Reset(m_SymbolListItem.m_OmmBaseImpl, m_SymbolListItem.Client!, m_SymbolListItem.Closure, null);
+
+                item.StreamId = streamId;
+                item.m_EtaStreamId = msg.StreamId();
+                item.m_HasEtaStreamId = true;
+                m_StreamIdItemsMap.Add(msg.StreamId(), item);
+                item.m_Source = this;
+
+
+                item.m_ServiceDirectory = m_SymbolListItem.m_ServiceDirectory;
+                item.DomainType = msg.DomainType();
+                item.ServiceList = m_SymbolListItem.ServiceList;
+                item.ServiceName = m_SymbolListItem.ServiceName;
+
+                item.RequestMsg = new Eta.Codec.Msg();
+                item.RequestMsg.MsgClass = MsgClasses.REQUEST;
+                item.RequestMsg.StreamId = msg.m_rsslMsg.StreamId;
+
+                if (msg.m_rsslMsg.MsgKey.CheckHasNameType())
+                {
+                    item.RequestMsg.MsgKey.ApplyHasNameType();
+                    item.RequestMsg.MsgKey.NameType = msg.m_rsslMsg.MsgKey.NameType;
+                }
+
+                item.RequestMsg.DomainType = msg.DomainType();
+                item.RequestMsg.ContainerType = DataTypes.NO_DATA;
+                if ((m_SymbolListFlags & SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS) > 0) item.RequestMsg.ApplyStreaming();
+
+                int serviceId = 0;
+                ServiceDirectory<T>? directory = null;
+                if (m_SymbolListItem.m_ServiceDirectory != null)
+                {
+                    directory = m_SymbolListItem.m_ServiceDirectory;
+                }
+                else
+                {
+                    if (m_InitialRequestMsg.MsgKey.CheckHasServiceId())
+                    {
+                        serviceId = m_InitialRequestMsg.MsgKey.ServiceId;
+                        directory = m_SymbolListItem.m_OmmBaseImpl.DirectoryCallbackClient!.GetService(m_InitialRequestMsg.MsgKey.ServiceId);
+                    }
+                    else if (m_SymbolListItem.ServiceName != null)
+                    {
+                        directory = m_SymbolListItem.m_OmmBaseImpl.DirectoryCallbackClient!.GetService(m_SymbolListItem.ServiceName);
+                        if (directory != null) serviceId = directory.Service!.ServiceId;
+                    }
+                }
+
+                if (serviceId != 0)
+                {
+                    item.RequestMsg.MsgKey.ApplyHasServiceId();
+                    item.RequestMsg.MsgKey.ServiceId = serviceId;
+                }
+
+                Qos? itemQos = null;
+
+                item.RequestMsg.ApplyHasQos();
+                if (directory != null && directory.Service!.Info.QosList.Count != 0)
+                {
+                    itemQos = directory.Service.Info.BestQos;
+                    itemQos.Copy(item.RequestMsg.Qos);
+                }
+                else
+                {
+                    item.RequestMsg.Qos.Rate(QosRates.TICK_BY_TICK);
+                    item.RequestMsg.Qos.Timeliness(QosTimeliness.REALTIME);
+                }
+
+                if (msg.m_rsslMsg.MsgKey != null && msg.m_rsslMsg.MsgKey.CheckHasName())
+                {
+                    ByteBuffer name = new ByteBuffer(msg.m_rsslMsg.MsgKey.Name.Length);
+                    
+                    name.Put(msg.m_rsslMsg.MsgKey.Name.Data().Contents, msg.m_rsslMsg.MsgKey.Name.Position, msg.m_rsslMsg.MsgKey.Name.Position + msg.m_rsslMsg.MsgKey.Name.Length);
+                    name.Flip();
+                    item.RequestMsg.MsgKey.ApplyHasName();
+                    item.RequestMsg.MsgKey.Name.Data(name);
+
+                    item.ItemName = msg.m_rsslMsg.MsgKey.Name.ToString();
+                }
+
+                long handle = m_SymbolListItem.m_OmmBaseImpl.NextLongId();
+                m_SymbolListItem.m_OmmBaseImpl.ItemCallbackClient!.AddToMap(handle, item);
+            }
+
+            return item;
+        }
+
+        bool Item<T>.Submit(RefreshMsg refreshMsg)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        bool Item<T>.Submit(UpdateMsg updateMsg)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        bool Item<T>.Submit(StatusMsg statusMsg)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        bool Item<T>.Submit(PostMsg postMsg)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        bool Item<T>.Submit(GenericMsg genericMsg)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void Item<T>.BackToPool()
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+
+
+
+    class SingleItemWithSource<T> : SingleItem<T>
+    {
+        Eta.Codec.ElementList? m_ElementList;
+        Eta.Codec.ElementEntry? m_ElementEntry;
+        Eta.Codec.ElementList? m_BehaviourElementList;
+        Eta.Codec.ElementEntry? m_BehaviourEntry;
+        UInt? m_DataStreamFlag;
+        DecodeIterator? m_DecodeIterator;
+        
+
+        bool m_Initialized = false;
+
+        internal bool m_HasEtaStreamId = false;
+        internal int m_EtaStreamId;
+
+        internal SourceItem<T>? m_Source;
+        internal ReactorChannel? m_ReactorChannel;
+
+        public override int EtaStreamId { get { if (m_HasEtaStreamId) return m_EtaStreamId; else return StreamId; } }
+
+        internal SingleItemWithSource() : base() 
+        {
+            m_type = ItemType.SINGLE_ITEM_WITH_SOURCE;
+        }
+
+        internal SingleItemWithSource(OmmBaseImpl<T> baseImpl, T? client, object? closure) : base(baseImpl, client, closure, null) 
+        {
+            m_type = ItemType.SINGLE_ITEM_WITH_SOURCE;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override void SetUserSpecObject(ReactorSubmitOptions rsslSubmitOptions)
+        {
+            SourceItem<T>? source = this.m_Source;
+
+            if (source == null)
+            {
+                source = new SourceItem<T>();
+                source.m_SymbolListItem = Copy();
+                this.m_Source = source;
+            }
+
+            rsslSubmitOptions.RequestMsgOptions.UserSpecObj = source;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override void Remove()
+        {
+            if (m_Source != null)
+            {
+                m_Source.m_StreamIdItemsMap.Remove(base.EtaStreamId);
+                m_Initialized = false;
+                this.m_Source = null;
+            }
+            if (m_ReactorChannel != null && m_OmmBaseImpl.ItemCallbackClient != null && m_OmmBaseImpl.ItemCallbackClient.m_ProviderDrivenItemsByReactorChannel.ContainsKey(m_ReactorChannel))
+            {
+                m_OmmBaseImpl.ItemCallbackClient.m_ProviderDrivenItemsByReactorChannel[m_ReactorChannel].Remove(this.EtaStreamId);
+            }
+            m_ReactorChannel = null;
+
+            base.Remove();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal override bool Submit(IRequestMsg rsslRequestMsg, string? serviceName, bool reissue, bool reportError = true)
+        {
+            bool res = base.Submit(rsslRequestMsg, serviceName, reissue, reportError);
+
+            if (!m_Initialized && !reissue)
+            {
+                m_Initialized = true;
+                ExtractFlags(rsslRequestMsg, m_Source!);
+                m_Source!.m_InitialRequestMsg = new Eta.Codec.Msg();
+                rsslRequestMsg.Copy(m_Source?.m_InitialRequestMsg, CopyMsgFlags.ALL_FLAGS);
+                m_Source?.m_StreamIdItemsMap.Add(rsslRequestMsg.StreamId, this);
+            }
+
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        SingleItemWithSource<T> Copy()
+        {
+            // this object should not be taken from pool
+            SingleItemWithSource<T> res = new SingleItemWithSource<T>(this.m_OmmBaseImpl, this.Client, this.Closure);
+
+            res.m_ServiceDirectory = this.m_ServiceDirectory;
+            res.ServiceList = this.ServiceList;
+            res.DomainType = this.DomainType;
+
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        void ExtractFlags(IRequestMsg requestMsg, SourceItem<T> source)
+        {
+            if (requestMsg.ContainerType != DataTypes.ELEMENT_LIST)
+                return; // nothing to extract
+
+
+            if (m_DecodeIterator == null) m_DecodeIterator = new DecodeIterator();
+            if (m_ElementList == null) m_ElementList = new Eta.Codec.ElementList();
+            m_ElementList.Clear();
+
+            m_DecodeIterator.Clear();
+            m_DecodeIterator.SetBufferAndRWFVersion(requestMsg.EncodedDataBody, Codec.MajorVersion(), Codec.MinorVersion());
+
+            CodecReturnCode ret = m_ElementList.Decode(m_DecodeIterator, null);
+            if (ret != CodecReturnCode.SUCCESS)
+            {
+                return;
+            }
+
+            if (m_ElementEntry == null) m_ElementEntry = new();
+            m_ElementEntry.Clear();
+            if (m_BehaviourElementList == null) m_BehaviourElementList = new();
+            m_BehaviourElementList.Clear();
+            if (m_BehaviourEntry == null) m_BehaviourEntry = new();
+            m_BehaviourEntry.Clear();
+
+            while ((ret = m_ElementEntry.Decode(m_DecodeIterator)) != CodecReturnCode.END_OF_CONTAINER)
+            {
+                if (ret != CodecReturnCode.SUCCESS)
+                {
+                    return;
+                }
+
+                if (m_ElementEntry.Name.Equals(SymbolList.ElementNames.SYMBOL_LIST_BEHAVIORS))
+                {
+                    source.m_HasBehavior = true;
+
+                    if (m_ElementEntry.DataType != DataTypes.ELEMENT_LIST)
+                    {
+                        // Nothing to extract
+                        return;
+                    }
+
+                    ret = m_BehaviourElementList.Decode(m_DecodeIterator, null);
+                    if (ret == CodecReturnCode.SUCCESS)
+                    {
+                        while ((ret = m_BehaviourEntry.Decode(m_DecodeIterator)) != CodecReturnCode.END_OF_CONTAINER)
+                        {
+                            if (ret < CodecReturnCode.SUCCESS)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                if (m_BehaviourEntry.Name.Equals(SymbolList.ElementNames.SYMBOL_LIST_DATA_STREAMS))
+                                {
+                                    if (m_BehaviourEntry.DataType != DataTypes.UINT)
+                                    {
+                                        return;
+                                    }
+
+                                    if (m_DataStreamFlag == null) m_DataStreamFlag = new UInt();
+
+                                    ret = m_DataStreamFlag.Decode(m_DecodeIterator);
+                                    if (ret != CodecReturnCode.SUCCESS)
+                                    {
+                                        return;
+                                    }
+
+                                    if ((int)m_DataStreamFlag.ToLong() < SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_NAMES_ONLY
+                                            || (int)m_DataStreamFlag.ToLong() > SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS)
+                                    {
+                                        return;
+                                    }
+                                    source.m_SymbolListFlags = (int)m_DataStreamFlag.ToLong();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override void Reset(OmmBaseImpl<T> baseImpl, T client, object? closure, Item<T>? batchItem)
+        {
+            base.Reset(baseImpl, client, closure, batchItem);
+            
+            m_Source = null;
+            m_ReactorChannel = null;
+            m_HasEtaStreamId = false;
+            m_Initialized = false;
+        }
+    }
+
     internal sealed class BatchItem<T> : SingleItem<T>
     {
         private static readonly string CLIENT_NAME = "BatchItem";
@@ -1255,22 +1673,22 @@ namespace LSEG.Ema.Access
 
         public override bool Modify(RequestMsg reqMsg)
         {
-            return HandleInvalidAttemp("Invalid attempt to modify batch stream");
+            return HandleInvalidAttempt("Invalid attempt to modify batch stream");
         }
 
         public override bool Submit(PostMsg postMsg)
         {
-            return HandleInvalidAttemp("Invalid attempt to submit PostMsg on batch stream");
+            return HandleInvalidAttempt("Invalid attempt to submit PostMsg on batch stream");
         }
 
         public override bool Submit(GenericMsg genericMsg)
         {
-            return HandleInvalidAttemp("Invalid attempt to submit GenericMsg on batch stream");
+            return HandleInvalidAttempt("Invalid attempt to submit GenericMsg on batch stream");
         }
 
         public override bool Close()
         {
-            return HandleInvalidAttemp("Invalid attempt to close batch stream");
+            return HandleInvalidAttempt("Invalid attempt to close batch stream");
         }
 
         internal void AddBatchItems(List<string> itemList)
@@ -1322,7 +1740,7 @@ namespace LSEG.Ema.Access
             }
         }
 
-        private bool HandleInvalidAttemp(string message)
+        private bool HandleInvalidAttempt(string message)
         {
             StringBuilder strBuilder = m_OmmBaseImpl.GetStrBuilder();
             strBuilder.Append($"{message}. Instance name='{m_OmmBaseImpl.InstanceName}'.");
@@ -1552,6 +1970,9 @@ namespace LSEG.Ema.Access
 
         private ConsumerSession<T>? m_ConsumerSession; /* This is used when there is a consumer session */
 
+        internal Dictionary<ReactorChannel, Dictionary<int, Item<T>>> m_ProviderDrivenItemsByReactorChannel = new Dictionary<ReactorChannel, Dictionary<int, Item<T>>>();
+        internal int _nextProviderStreamId = 0;
+
         public ItemCallbackClient(OmmBaseImpl<T> baseImpl) : base(baseImpl, CLIENT_NAME)
         {
             m_OmmBaseImpl = baseImpl;
@@ -1774,6 +2195,82 @@ namespace LSEG.Ema.Access
             return ReactorCallbackReturnCode.SUCCESS;
         }
 
+        int GetNextProviderStreamId()
+        {
+            if (_nextProviderStreamId == int.MaxValue) _nextProviderStreamId = 0;
+
+            int startStreamId = _nextProviderStreamId;
+            int nextProviderStreamId = ++_nextProviderStreamId;
+
+            while (IsStreamIdInUse(-nextProviderStreamId) && _nextProviderStreamId < int.MaxValue)
+            {
+                nextProviderStreamId = ++_nextProviderStreamId;
+            }
+
+            if (IsStreamIdInUse(-nextProviderStreamId)) // start from the beginning to startStreamId to make the full circle
+            {
+                _nextProviderStreamId = 0;
+                while (IsStreamIdInUse(-nextProviderStreamId) && _nextProviderStreamId < startStreamId)
+                {
+                    nextProviderStreamId = ++_nextProviderStreamId;
+                }
+
+                if (IsStreamIdInUse(-nextProviderStreamId)) // free streamId not found
+                {
+                    StringBuilder temp = m_OmmBaseImpl.GetStrBuilder();
+                    temp.Append("Unable to obtain next available stream id to retrieve provider-driven item.");
+                    m_OmmBaseImpl.HandleInvalidUsage(temp.ToString(), OmmInvalidUsageException.ErrorCodes.INTERNAL_ERROR);
+                }
+            }
+
+            return -nextProviderStreamId;
+        }
+
+        Item<T> GetProviderDrivenItem(Msg rsslMsg, ReactorChannel reactorChannel, object userSpecObject, bool createIfNotFound)
+        {
+            Item<T> item;
+            Dictionary<int, Item<T>> map;
+
+            if (m_ProviderDrivenItemsByReactorChannel.ContainsKey(reactorChannel))
+            {
+                map = m_ProviderDrivenItemsByReactorChannel[reactorChannel];
+            }
+            else
+            {
+                map = new Dictionary<int, Item<T>>();
+                m_ProviderDrivenItemsByReactorChannel.Add(reactorChannel, map);
+            }
+
+            if (map.ContainsKey(rsslMsg.StreamId()))
+            {
+                item = map[rsslMsg.StreamId()];
+            }
+            else // this streamId has not been yet processed for the given reactorChannel, create new Item
+            {
+                item = CreateProviderDrivenItem(rsslMsg, userSpecObject, map, reactorChannel, createIfNotFound);
+            }
+
+            return item;
+        }
+
+        Item<T> CreateProviderDrivenItem(Msg rsslMsg, object userSpecObject, Dictionary<int, Item<T>> map, ReactorChannel channel, bool createIfNotFound)
+        {
+            SingleItemWithSource<T> item;
+
+            if (userSpecObject != null && userSpecObject is SourceItem<T>) // streamId of an item requested by the API from the Symbol List Refresh, streamId should be negativey
+            {
+                SourceItem<T> sourceItem = (SourceItem<T>)userSpecObject;
+                int streamId = rsslMsg.StreamId() < 0 ? GetNextProviderStreamId() : rsslMsg.StreamId();
+                item = sourceItem.GetItem(rsslMsg, streamId, true)!; // we are getting new tiem here so it is not null
+                item.m_ReactorChannel = channel;
+
+                map.Add(rsslMsg.StreamId(), item);
+            }
+            else throw new OmmInvalidUsageException("ItemCallbackClient.CreateProviderDrivenItem : Invalid attempt to get provider-driven item for Symbol List request");
+
+            return item;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorCallbackReturnCode ProcessIProviderMsgCallback(ReactorMsgEvent msgEvent, DataDictionary? dataDictionary)
         {
@@ -1882,6 +2379,8 @@ namespace LSEG.Ema.Access
             m_RefreshMsg!.Decode(msg, channelInfo.MajorVersion, channelInfo.MinorVersion, dataDictionary);
 
             bool fromBatchRequest = false;
+            bool fromSymbolListRequest = false;
+
             if (EventImpl.Item!.Type() == ItemType.BATCH_ITEM)
             {
                 fromBatchRequest = true;
@@ -1903,6 +2402,15 @@ namespace LSEG.Ema.Access
                     return ReactorCallbackReturnCode.FAILURE;
                 }
             }
+            else if (EventImpl.Item!.Type() == ItemType.SYMBOL_LIST_SOURCE_ITEM)
+            {
+                fromSymbolListRequest = true;
+                EventImpl.Item = msg.StreamId > 0
+                        ? ((SourceItem<T>)EventImpl.Item).GetItem(m_RefreshMsg, true)
+                        : GetProviderDrivenItem(m_RefreshMsg, channelInfo, EventImpl.Item, true);
+                m_RefreshMsg.StreamId(EventImpl.Item!.StreamId);
+                m_RefreshMsg.m_rsslMsg.StreamId = EventImpl.Item.StreamId;
+            }
 
             ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
@@ -1910,7 +2418,7 @@ namespace LSEG.Ema.Access
             {
                 m_RefreshMsg.SetServiceName(serviceDirectory.ServiceName!);
 
-                if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                if (IsSingleItem())
                 {
                     SingleItem<T> singleItem = ((SingleItem<T>)EventImpl.Item);
 
@@ -1926,9 +2434,9 @@ namespace LSEG.Ema.Access
                 }
 
                 /* Adds the item to the item map of SessionDirectory when the item is requested by batch request. */
-                if (fromBatchRequest)
+                if (fromBatchRequest || fromSymbolListRequest)
                 {
-                    if (serviceDirectory.SessionDirectory != null && EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                    if (serviceDirectory.SessionDirectory != null && IsSingleItem())
                     {
                         if (m_RefreshMsg.HasName)
                         {
@@ -1937,7 +2445,7 @@ namespace LSEG.Ema.Access
                     }
                 }
             }
-            else if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+            else if (IsSingleItem())
             {
                 m_RefreshMsg.SetServiceName(((SingleItem<T>)EventImpl.Item).ServiceName!);
             }
@@ -1992,6 +2500,30 @@ namespace LSEG.Ema.Access
                     return ReactorCallbackReturnCode.FAILURE;
                 }
             }
+            else if (EventImpl.Item!.Type() == ItemType.SYMBOL_LIST_SOURCE_ITEM)
+            {
+                EventImpl.Item = ((SourceItem<T>)EventImpl.Item).GetItem(m_UpdateMsg.StreamId());
+                if (EventImpl.Item == null)
+                {
+                    if (commonImpl.GetLoggerClient().IsErrorEnabled)
+                    {
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid update message stream Id {msg.StreamId}")
+                            .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
+                            .AppendLine($"\tReactor {channelInfo.ReactorChannel!.Reactor!.GetHashCode()}");
+
+                        commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+                    }
+
+                    return ReactorCallbackReturnCode.FAILURE;
+                }
+                else
+                {
+                    m_UpdateMsg.StreamId(EventImpl.Item.StreamId);
+                    m_UpdateMsg.m_rsslMsg.StreamId = EventImpl.Item.StreamId;
+                }
+            }
 
             ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
@@ -1999,7 +2531,7 @@ namespace LSEG.Ema.Access
             {
                 m_UpdateMsg.SetServiceName(serviceDirectory.ServiceName!);
 
-                if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+                if (IsSingleItem())
                 {
                     SingleItem<T> singleItem = ((SingleItem<T>)EventImpl.Item);
 
@@ -2018,7 +2550,7 @@ namespace LSEG.Ema.Access
                     }
                 }
             }
-            else if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+            else if (IsSingleItem())
             {
                 m_UpdateMsg.SetServiceName(((SingleItem<T>)EventImpl.Item).ServiceName!);
             }
@@ -2067,6 +2599,14 @@ namespace LSEG.Ema.Access
                     return ReactorCallbackReturnCode.FAILURE;
                 }
             }
+            else if (EventImpl.Item!.Type() == ItemType.SYMBOL_LIST_SOURCE_ITEM)
+            {
+                EventImpl.Item = msg.StreamId > 0
+                        ? ((SourceItem<T>)EventImpl.Item).GetItem(m_StatusMsg, true)
+                        : GetProviderDrivenItem(m_StatusMsg, channelInfo, EventImpl.Item, true);
+                m_StatusMsg.StreamId(EventImpl.Item!.StreamId);
+                m_StatusMsg.m_rsslMsg.StreamId = EventImpl.Item.StreamId;
+            }
 
             ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
 
@@ -2074,7 +2614,7 @@ namespace LSEG.Ema.Access
             {
                 m_StatusMsg.SetServiceName(serviceDirectory.ServiceName!);
             }
-            else if (EventImpl.Item.Type() == ItemType.SINGLE_ITEM)
+            else if (IsSingleItem())
             {
                 m_StatusMsg.SetServiceName(((SingleItem<T>)EventImpl.Item).ServiceName!);
             }
@@ -2128,6 +2668,30 @@ namespace LSEG.Ema.Access
                     return ReactorCallbackReturnCode.FAILURE;
                 }
             }
+            else if (EventImpl.Item!.Type() == ItemType.SYMBOL_LIST_SOURCE_ITEM)
+            {
+                EventImpl.Item = ((SourceItem<T>)EventImpl.Item).GetItem(m_GenericMsg.StreamId());
+                if (EventImpl.Item == null)
+                {
+                    if (commonImpl.GetLoggerClient().IsErrorEnabled)
+                    {
+                        using var lockScope = commonImpl.GetUserLocker().EnterLockScope();
+                        var strBuilder = commonImpl.GetStrBuilder()
+                            .AppendLine($"Received an item event with invalid generic message stream Id {msg.StreamId}")
+                            .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
+                            .AppendLine($"\tReactor {channelInfo.ReactorChannel!.Reactor!.GetHashCode()}");
+
+                        commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+                    }
+
+                    return ReactorCallbackReturnCode.FAILURE;
+                }
+                else
+                {
+                    m_GenericMsg.StreamId(EventImpl.Item.StreamId);
+                    m_GenericMsg.m_rsslMsg.StreamId = EventImpl.Item.StreamId;
+                }
+            }
 
             ServiceDirectory<T>? serviceDirectory = EventImpl.Item.Directory();
             if (serviceDirectory != null)
@@ -2159,7 +2723,7 @@ namespace LSEG.Ema.Access
             m_AckMsg.Decode(msg, channelInfo.ReactorChannel!.MajorVersion, channelInfo.ReactorChannel!.MinorVersion,
                 channelInfo.DataDictionary!);
 
-            if(EventImpl.Item!.Type() == ItemType.BATCH_ITEM)
+            if (EventImpl.Item!.Type() == ItemType.BATCH_ITEM)
             {
                 EventImpl.Item = ((BatchItem<T>)EventImpl.Item).GetSingleItem(msg.StreamId);
 
@@ -2177,6 +2741,30 @@ namespace LSEG.Ema.Access
                     }
 
                     return ReactorCallbackReturnCode.FAILURE;
+                }
+            }
+            else if (EventImpl.Item!.Type() == ItemType.SYMBOL_LIST_SOURCE_ITEM)
+            {
+                EventImpl.Item = ((SourceItem<T>)EventImpl.Item).GetItem(msg.StreamId);
+                if (EventImpl.Item == null)
+                {
+                    if (commonImpl.GetLoggerClient().IsErrorEnabled)
+                    {
+                        var strBuilder = m_OmmBaseImpl.GetStrBuilder();
+
+                        strBuilder.AppendLine($"Received an item event with invalid ack message stream Id {msg.StreamId}")
+                            .AppendLine($"\tInstance Name {commonImpl.InstanceName}")
+                            .AppendLine($"\tReactor {channelInfo.ReactorChannel!.Reactor!.GetHashCode()}");
+
+                        commonImpl.GetLoggerClient().Error(CLIENT_NAME, strBuilder.ToString());
+                    }
+
+                    return ReactorCallbackReturnCode.FAILURE;
+                }
+                else
+                {
+                    m_AckMsg.StreamId(EventImpl.Item.StreamId);
+                    m_AckMsg.m_rsslMsg.StreamId = EventImpl.Item.StreamId;
                 }
             }
 
@@ -2206,6 +2794,11 @@ namespace LSEG.Ema.Access
             NotifyOnAckMsg();
 
             return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        bool IsSingleItem()
+        {
+            return EventImpl.Item!.Type() == ItemType.SINGLE_ITEM || EventImpl.Item.Type() == ItemType.SINGLE_ITEM_WITH_SOURCE;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -2373,6 +2966,25 @@ namespace LSEG.Ema.Access
                             return item.ItemId;
                         }
                     }
+                case (int)DomainType.SYMBOL_LIST:
+                    SingleItemWithSource<T>? itemWithSource = null;
+                    if ((itemWithSource = (SingleItemWithSource<T>?)m_OmmBaseImpl.GetEmaObjManager().m_singleItemWithSourcePool.Poll()) == null)
+                    {
+                        itemWithSource = new SingleItemWithSource<T>(m_OmmBaseImpl, client, closure);
+                        m_OmmBaseImpl.GetEmaObjManager().m_singleItemWithSourcePool.UpdatePool(itemWithSource);
+                    }
+                    else
+                    {
+                        itemWithSource.Reset(m_OmmBaseImpl, client, closure, null);
+                    }
+
+                    if (!itemWithSource.Open(reqMsg))
+                    {
+                        RemoveFromMap(itemWithSource, true);
+                        return 0;
+                    }
+                    else
+                        return itemWithSource.ItemId;
                 default:
                     {
                         if (requestMsg.CheckHasBatch())

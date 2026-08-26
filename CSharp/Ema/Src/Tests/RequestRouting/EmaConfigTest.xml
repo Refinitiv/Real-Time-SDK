@@ -16,7 +16,40 @@
 			<!-- Channel or ChannelSet may be specified -->
 			<Channel value="Channel_1"/>
 			<Dictionary value="Dictionary_3"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_1"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<Channel value="Channel_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<RequestTimeout value="5000"/>
 			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_2"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<ChannelSet value="Channel_1,Channel_2,Channel_3"/>
+			<ReconnectAttemptLimit value="4"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<Dictionary value="Dictionary_3"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_3"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<ChannelSet value="Channel_1,Channel_2,Channel_3"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<Dictionary value="Dictionary_3"/>
+			<XmlTraceToStdout value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_9"/>
@@ -169,6 +202,19 @@
 			<ReconnectMaxDelay value="3000" />
 			<SessionEnhancedItemRecovery value="1"/>
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_55"/>
+			<SessionChannelSet value="Connection_1_1, Connection_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="3"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -251,6 +297,24 @@
 			<MaxDispatchCountApiThread value="500" />
 			<MaxDispatchCountUserThread value="500" />
 			<RefreshFirstRequired value="1" />
+		</IProvider>
+		<IProvider>
+			<!-- Name is mandatory                                                           -->
+			<Name value="Provider_8"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options      -->
+			<Server value="Server_4"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum           -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()   -->
+			<!-- was set to ApiControlEnum                                                   -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()  -->
+			<Directory value="Directory_5"/>
+			<!-- Directory_5 provides the DIRECT_FEED and DIRECT_FEED1 service -->
+			<ItemCountHint value="10000"/>
+			<ServiceCountHint value="10000" />
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="500" />
+			<MaxDispatchCountUserThread value="500" />
 		</IProvider>
     </IProviderList>
 </IProviderGroup>
@@ -510,6 +574,14 @@
                         <ReconnectMinDelay value="2000"/>
                         <ReconnectMaxDelay value="4000"/>
                 </SessionChannelInfo>
+				<SessionChannelInfo>
+						<Name value="Connection_1_1"/>
+						<ChannelSet value="Channel_1"/>
+						<ReconnectAttemptLimit value="1"/>
+						<ReconnectMinDelay value="2000"/>
+						<ReconnectMaxDelay value="4000"/>
+						<EnablePreferredHostOptions value="1"/>
+				</SessionChannelInfo>
                 <SessionChannelInfo>
                         <Name value="Connection_2"/>
                         <ChannelSet value="Channel_4, Channel_5"/>

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2024 LSEG. All rights reserved.     
+ *|           Copyright (C) 2023-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -91,6 +91,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             m_matchedQosHandle = GCHandle.Alloc(MatchedQos, GCHandleType.Normal);
         }
+
+        internal WlStreamAttributes? m_ProviderDrivenTableAggregationKey = null;
 
         /// <summary>
         /// Gets or sets <see cref="Flags"/> for this item request.

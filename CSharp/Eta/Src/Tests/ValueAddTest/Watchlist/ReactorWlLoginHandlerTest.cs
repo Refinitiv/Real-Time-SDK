@@ -209,6 +209,11 @@ public class ReactorWlLoginHandlerTest
             errorInfo = null;
             return ReactorReturnCode.SUCCESS;
         }
+
+        void IWlItemHandler.CloseProviderDrivenRequests()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     #endregion

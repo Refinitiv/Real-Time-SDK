@@ -108,7 +108,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         // table that maps item provider request aggregation key to application
         // requests for symbol list data stream
-        Dictionary<WlStreamAttributes, IRequestMsg> ProviderRequestDict = new ();
+        internal Dictionary<WlStreamAttributes, IRequestMsg> ProviderRequestDict = new ();
+        
         IRequestMsg m_RequestMsg = new Msg();
         WlStreamAttributes m_SymbolListRequestKey = new();
         Map m_Map = new();
@@ -159,6 +160,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         public void ServiceRemovedCallback(WlService wlService, bool isChannelDown)
         {
+            if (!isChannelDown)
+            {
+                CloseProviderDrivenRequests(wlService.RdmService!.ServiceId, "Individual item from Symbol List closed due to service removed from the cache.");
+            }
             ServiceDeleted(wlService, isChannelDown, out ReactorErrorInfo? errorInfo);
         }
 
@@ -1353,16 +1358,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
             else
                 stateText = "Service for this item was lost.";
 
-            m_StatusMsg.Clear();
-            m_StatusMsg.MsgClass = MsgClasses.STATUS;
-            m_StatusMsg.ApplyHasState();
-            m_StatusMsg.State.StreamState(StreamStates.CLOSED_RECOVER);
-            m_StatusMsg.State.DataState(DataStates.SUSPECT);
-            m_StatusMsg.State.Text().Data(stateText);
-
             var streamLink = wlService.StreamIdDlList.Peek();
             while (streamLink != null)
             {
+                m_StatusMsg.Clear();
+                m_StatusMsg.MsgClass = MsgClasses.STATUS;
+                m_StatusMsg.ApplyHasState();
+                m_StatusMsg.State.StreamState(StreamStates.CLOSED_RECOVER);
+                m_StatusMsg.State.DataState(DataStates.SUSPECT);
+                m_StatusMsg.State.Text().Data(stateText);
+
                 WlItemStream stream = m_Watchlist!.StreamManager!.StreamsByStreamIds[streamLink.StreamId - WlStreamManager.MIN_STREAM_ID];
                 RemoveWlItemStreamFromService(stream);
                 m_StatusMsg.DomainType = stream.StreamDomainType;
@@ -1972,6 +1977,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 m_StatusMsg.State.StreamState(StreamStates.CLOSED_RECOVER);
             }
             m_StatusMsg.State.DataState(DataStates.SUSPECT);
+            m_StatusMsg.State.Text().Data(text);
+
+            // callback user
+            WlRequest? tempWlRequest;
+            m_Watchlist.StreamIdToWlRequestDict!.TryGetValue(streamId, out tempWlRequest);
+            return CallbackUserWithMsg("WlItemHandler.SendStatus", m_StatusMsg, tempWlRequest!, out errorInfo);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal ReactorReturnCode SendStatus(int streamId, int domainType, int streamState, int dataState, bool privateStream, string text, out ReactorErrorInfo? errorInfo)
+        {
+            // populate StatusMsg
+            m_StatusMsg.Clear();
+            m_StatusMsg.MsgClass = MsgClasses.STATUS;
+            m_StatusMsg.StreamId = streamId;
+            m_StatusMsg.DomainType = domainType;
+            m_StatusMsg.ApplyHasState();
+            m_StatusMsg.State.StreamState(streamState);
+            m_StatusMsg.State.DataState(dataState);
             m_StatusMsg.State.Text().Data(text);
 
             // callback user
@@ -3470,6 +3494,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
             // determine if a new stream is needed or if existing stream can be used.
             attributes.Clear();
             requestMsg.MsgKey.Copy(attributes.MsgKey);
+            if (!attributes.MsgKey.CheckHasNameType()) //if no nametype set, aggregate to default nameType RIC
+            {
+                attributes.MsgKey.ApplyHasNameType();
+                attributes.MsgKey.NameType = InstrumentNameTypes.RIC;
+            }
             if (submitOptions.ServiceName != null)
             {
                 int serviceId = m_Watchlist.DirectoryHandler!.ServiceId(submitOptions.ServiceName);
@@ -4024,12 +4053,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             if ((wlItemRequest.ItemReqFlags & WlItemRequest.Flags.PROV_DRIVEN) != 0)
             {
-                m_SymbolListRequestKey.Clear();
-                m_SymbolListRequestKey.MsgKey = wlItemRequest.RequestMsg.MsgKey;
-                m_SymbolListRequestKey.MsgKey.ServiceId = wlItemRequest.RequestMsg.MsgKey.ServiceId;
-                m_SymbolListRequestKey.DomainType = wlItemRequest.RequestMsg.DomainType;
-                m_SymbolListRequestKey.Qos = wlItemRequest.RequestMsg.Qos;
-                ProviderRequestDict.Remove(m_SymbolListRequestKey);
+                if ((wlItemRequest.ItemReqFlags & WlItemRequest.Flags.PROV_DRIVEN) != 0 && wlItemRequest.m_ProviderDrivenTableAggregationKey != null)
+                {
+                    ProviderRequestDict.Remove(wlItemRequest.m_ProviderDrivenTableAggregationKey);
+                    wlItemRequest.m_ProviderDrivenTableAggregationKey.ReturnToPool();
+                    wlItemRequest.m_ProviderDrivenTableAggregationKey = null;
+                }
             }
 
             m_Watchlist.CloseWlRequest(wlItemRequest);
@@ -4237,6 +4266,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     m_RequestMsg.Qos.Timeliness(QosTimeliness.REALTIME);
                 }
 
+                if (wlRequest.RequestMsg.CheckMsgKeyInUpdates() && wlRequest.RequestMsg.CheckStreaming()) m_RequestMsg.ApplyMsgKeyInUpdates();
+
                 m_DecodeIt.Clear();
                 m_DecodeIt.SetBufferAndRWFVersion(msg.EncodedDataBody, m_Watchlist.ReactorChannel!.MajorVersion,
                     m_Watchlist.ReactorChannel!.MinorVersion);
@@ -4270,6 +4301,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                     m_RequestMsg.MsgKey.Name = m_MapKey;
                                     m_SymbolListRequestKey.Clear();
                                     m_SymbolListRequestKey.MsgKey = m_RequestMsg.MsgKey;
+                                    m_SymbolListRequestKey.MsgKey.ApplyHasServiceId();
                                     m_SymbolListRequestKey.MsgKey.ServiceId = serviceId;
                                     m_SymbolListRequestKey.DomainType = m_RequestMsg.DomainType;
                                     m_RequestMsg.Qos.Copy(m_SymbolListRequestKey.Qos);
@@ -4291,7 +4323,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                         m_RequestMsg.Copy(newWlRequest.RequestMsg, CopyMsgFlags.ALL_FLAGS);
                                         m_Watchlist.StreamIdToWlRequestDict!.Add(providerProvideStreamId, newWlRequest);
                                         if (m_RequestMsg.CheckStreaming())
-                                            ProviderRequestDict.Add(m_SymbolListRequestKey, newWlRequest.RequestMsg);
+                                        {
+                                            WlStreamAttributes key = m_Watchlist.CreateWlStreamAttributes();
+                                            m_SymbolListRequestKey.Copy(key);
+                                            newWlRequest.m_ProviderDrivenTableAggregationKey = key;
+                                            ProviderRequestDict.Add(key, newWlRequest.RequestMsg);
+                                        }
+                                            
                                     }
                                     else // submit failed
                                     {
@@ -4853,6 +4891,45 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     itemNode = nextNode;
                 }
                 pendingRequests.Clear();
+            }
+        }
+
+        public void CloseProviderDrivenRequests()
+        {
+            if (ProviderRequestDict.Count > 0)
+            {
+                var requests = ProviderRequestDict.Values;
+                foreach (var request in requests)
+                {
+                    var _closeMsg = new Eta.Codec.Msg();
+                    _closeMsg.MsgClass = MsgClasses.CLOSE;
+                    _closeMsg.StreamId = request.StreamId;
+                    _closeMsg.DomainType = request.DomainType;
+                    SendStatus(request.StreamId, request.DomainType, StreamStates.CLOSED, DataStates.SUSPECT, request.CheckPrivateStream(), "Individual item from Symbol List closed due to server change.", out var info);
+                    m_Watchlist.SubmitMsg(_closeMsg, new ReactorSubmitOptions(), out info);
+                }
+                ProviderRequestDict.Clear();
+            }
+        }
+
+        internal void CloseProviderDrivenRequests(int serviceId, String message)
+        {
+            if (ProviderRequestDict.Count > 0)
+            {
+                var _closeMsg = new Eta.Codec.Msg();
+                var requests = ProviderRequestDict.Values;
+                foreach (var requestMsg in requests)
+                {
+                    if (requestMsg.MsgKey.CheckHasServiceId() && serviceId != 0 && requestMsg.MsgKey.ServiceId == serviceId)
+                    {
+                        _closeMsg.Clear();
+                        _closeMsg.MsgClass = MsgClasses.CLOSE;
+                        _closeMsg.StreamId = requestMsg.StreamId;
+                        _closeMsg.DomainType = requestMsg.DomainType;
+                        SendStatus(requestMsg.StreamId, requestMsg.DomainType, StreamStates.CLOSED, DataStates.SUSPECT, requestMsg.CheckPrivateStream(), message, out var info);
+                        m_Watchlist.SubmitMsg(_closeMsg, new ReactorSubmitOptions(), out info);
+                    }
+                }
             }
         }
     }

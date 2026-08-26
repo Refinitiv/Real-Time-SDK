@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,5 +23,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         ReactorReturnCode LoginStreamOpen(out ReactorErrorInfo? errorInfo);
 
         void CloseWlItemRequestFromPendingService();
+
+        void CloseProviderDrivenRequests();
     }
 }
