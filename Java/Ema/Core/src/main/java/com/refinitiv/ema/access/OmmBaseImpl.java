@@ -554,8 +554,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 			ommImplState(OmmImplState.NOT_INITIALIZED);
 						
-			if (_loginCallbackClient != null)
-			_loginCallbackClient.sendLoginClose();
+			if (_loginCallbackClient != null) _loginCallbackClient.sendLoginClose();
 
 			if (_channelCallbackClient != null)
 				_channelCallbackClient.closeChannels();

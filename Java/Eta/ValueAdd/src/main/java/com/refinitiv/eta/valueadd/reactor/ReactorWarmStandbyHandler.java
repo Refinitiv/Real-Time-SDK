@@ -74,6 +74,10 @@ class ReactorWarmStandbyHandler
 
 	private final Map<Integer, ReactorWarmStandbyChangeEvent> wsbChangeEvents = new HashMap<>();
 
+
+	int _nextProviderStreamId = 0;
+	HashSet<Integer> _usedStreamIds = new HashSet<>();
+
 	ReactorWarmStandbyHandler()
 	{	
 		clear();
@@ -517,7 +521,17 @@ class ReactorWarmStandbyHandler
 	{
 		return warmStandByHandlerLock;
 	}
-	
+
+	int getProviderStreamId()
+	{
+		int streamId = -(++_nextProviderStreamId);
+
+		while (_usedStreamIds.contains(streamId)) streamId = -(++_nextProviderStreamId);
+		_usedStreamIds.add(streamId);
+
+		return streamId;
+	}
+
 }
 
 class ReactorWSRecoveryMsgInfo

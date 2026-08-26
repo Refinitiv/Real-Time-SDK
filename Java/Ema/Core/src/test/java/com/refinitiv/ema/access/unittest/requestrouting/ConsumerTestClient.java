@@ -8,10 +8,7 @@
 
 package com.refinitiv.ema.access.unittest.requestrouting;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -218,6 +215,8 @@ public class ConsumerTestClient implements OmmConsumerClient
 		_handles.clear();
 	}
 
+	public HashMap<String, Long> handleNameMap = new HashMap<>();
+
 	@Override
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent consumerEvent) 
 	{
@@ -226,7 +225,8 @@ public class ConsumerTestClient implements OmmConsumerClient
 		try
 		{
 			_handles.add(consumerEvent.handle());
-			
+			if (refreshMsg.hasName()) handleNameMap.put(refreshMsg.name(), consumerEvent.handle());
+
 			RefreshMsg cloneMsg = EmaFactory.createRefreshMsg(1280);
 			
 			refreshMsg.copy(cloneMsg);

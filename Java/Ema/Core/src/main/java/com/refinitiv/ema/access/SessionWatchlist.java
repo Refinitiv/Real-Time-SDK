@@ -2,16 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.access;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 import com.refinitiv.ema.access.OmmBaseImpl.OmmImplState;
 import com.refinitiv.eta.codec.Buffer;
@@ -25,6 +22,7 @@ import com.refinitiv.eta.codec.QosTimeliness;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.State;
 import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -142,7 +140,7 @@ class SessionWatchlist<T>
 	{
 		com.refinitiv.eta.codec.StatusMsg rsslStatusMsg = callbackClient.rsslStatusMsg();
 
-		rsslStatusMsg.streamId(item._streamId);
+		rsslStatusMsg.streamId(item._streamId); // ema-facing streamId should be used
 		rsslStatusMsg.domainType(requestMsg.domainType());
 		rsslStatusMsg.containerType(DataTypes.NO_DATA);
 	
@@ -197,7 +195,7 @@ class SessionWatchlist<T>
 			SingleItem<T> item = (SingleItem<T>) _streamIdMap.get(tmpIntObject);
 			
 			/* Checks to ensure that the item exists. */
-			if(item != null && (item.state() == SingleItem.ItemStates.RECOVERING || item.state() == SingleItem.ItemStates.RECOVERING_NO_MATHCING))
+			if (item != null && (item.state() == SingleItem.ItemStates.RECOVERING || item.state() == SingleItem.ItemStates.RECOVERING_NO_MATHCING))
 			{
 				ServiceList serviceList = item._serviceList;
 				
@@ -212,13 +210,13 @@ class SessionWatchlist<T>
 					{
 						if(item.state() == SingleItem.ItemStates.RECOVERING)
 						{
-							if(item._itemClosedDirHash == null)
+							if (item._itemClosedDirHash == null)
 							{
 								sendItemStatus(item, rsslRequestMsg, OmmState.StreamState.OPEN,
 										OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "No matching service present.");
-								
+
 								item.state(SingleItem.ItemStates.RECOVERING_NO_MATHCING);
-								
+
 								_recoveryItemQueue.addLast(rsslRequestMsg); /* Add this RequestMsg back to the request item queue to process later.*/
 							}
 							else
@@ -478,11 +476,11 @@ class SessionWatchlist<T>
 		int originalStreamState = state.streamState();
 		boolean notifyStatusMsg = true;
 		
-		while(true && singleItem._requestMsg != null)
+		while (true && singleItem._requestMsg != null)
 		{
 			RequestMsg requestMsg = singleItem._requestMsg;
 			
-			if(item.type() == Item.ItemType.SINGLE_ITEM && rsslStatusMsg.checkHasState())
+			if ((item.type() == Item.ItemType.SINGLE_ITEM || item.type() == Item.ItemType.SINGLE_ITEM_WITH_SOURCE) && rsslStatusMsg.checkHasState())
 			{
 				if (state.streamState() == StreamStates.CLOSED_RECOVER)
 				{					
@@ -495,7 +493,7 @@ class SessionWatchlist<T>
 							
 							/* Sets the state that the item is being recovered */
 							singleItem.state(SingleItem.ItemStates.RECOVERING);
-						
+
 							/* Add item to recovery queue to retry with another connection if any */
 							_recoveryItemQueue.addLast(requestMsg);
 						}
@@ -525,23 +523,31 @@ class SessionWatchlist<T>
 				else if(state.streamState() == StreamStates.OPEN && state.dataState() == DataStates.SUSPECT)
 				{					
 					/* Recover item only for non-private item stream. */
-					if(requestMsg.checkPrivateStream() == false)
+					if (requestMsg.checkPrivateStream() == false)
 					{
-						if(item.directory().channelInfo().getReactorChannelType() == ReactorChannelType.NORMAL)
+						boolean isNormalItem = singleItem.type() != Item.ItemType.SINGLE_ITEM_WITH_SOURCE || singleItem._domainType == DomainTypes.SYMBOL_LIST;
+						if (item.directory().channelInfo().getReactorChannelType() == ReactorChannelType.NORMAL)
 						{
 							@SuppressWarnings("unchecked")
 							SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) item.directory().channelInfo().sessionChannelInfo();
 							
-							if(sessionChannelInfo.phOperationInProgress() == false)
+							if (sessionChannelInfo.phOperationInProgress() == false)
 							{
 								/* This is used to close this stream with the watchlist only */
-								singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
-								
+								if (isNormalItem) singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
+								else singleItem.state(SingleItem.ItemStates.NORMAL);
+
 								try
 								{
+									if (!isNormalItem)
+									{
+										sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
+												OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "This individual item of the Symbol List will be recovered by another connection.");
+										notifyStatusMsg = false;
+									}
 									singleItem.close();
 								}
-								catch(OmmInvalidUsageException iue)
+								catch (OmmInvalidUsageException iue)
 								{
 									/* This will be closed later when the ReactorChannel is operational  */
 									if (singleItem.directory().channelInfo().rsslReactorChannel().state() == ReactorChannel.State.CLOSED)
@@ -559,60 +565,63 @@ class SessionWatchlist<T>
 									}
 								}
 							}
-							
-							if(handleConnectionRecovering || sessionChannelInfo.phOperationInProgress())
+
+							if (isNormalItem)
 							{
-								if(sessionChannelInfo.phOperationInProgress())
+								if (handleConnectionRecovering || sessionChannelInfo.phOperationInProgress())
 								{
-								
-									/* Sets the state that the item is being recovered by watchlist when the requested service is operational */
-									singleItem.state(SingleItem.ItemStates.RECOVERING_BY_WATCHLIST);
+									if (sessionChannelInfo.phOperationInProgress())
+									{
+
+										/* Sets the state that the item is being recovered by watchlist when the requested service is operational */
+										singleItem.state(SingleItem.ItemStates.RECOVERING_BY_WATCHLIST);
+									}
+									else
+									{
+										/* Sets the state that the item is being recovered */
+										singleItem.state(SingleItem.ItemStates.RECOVERING);
+									}
+
+
+									/* Waiting to recover this item with the same channel */
+									singleItem._retrytosameChannel = true;
+
+									/* Added this item into the recovering queue of SessionDirectory to recover once the requested service is ready. */
+									singleItem.directory().sessionDirectory().addRecoveringQueue(singleItem);
+
 								}
 								else
 								{
 									/* Sets the state that the item is being recovered */
 									singleItem.state(SingleItem.ItemStates.RECOVERING);
+
+									/* Add item to recovery queue to retry with another connection if any */
+									_recoveryItemQueue.addLast(requestMsg);
 								}
-								
-								
-								/* Waiting to recover this item with the same channel */
-								singleItem._retrytosameChannel = true;
-								
-								/* Added this item into the recovering queue of SessionDirectory to recover once the requested service is ready. */
-								singleItem.directory().sessionDirectory().addRecoveringQueue(singleItem);
-								
 							}
-							else
-							{	
-								/* Sets the state that the item is being recovered */
-								singleItem.state(SingleItem.ItemStates.RECOVERING);
-								
-								/* Add item to recovery queue to retry with another connection if any */
-								_recoveryItemQueue.addLast(requestMsg);
-							}
-							
 						}
 						else if (item.directory().channelInfo().getReactorChannelType() == ReactorChannelType.WARM_STANDBY)
 						{
 							@SuppressWarnings("unchecked")
 							SessionChannelInfo<T> sessionChannelInfo = (SessionChannelInfo<T>) item.directory().channelInfo().sessionChannelInfo();
-							if(sessionChannelInfo != null)
+							if (sessionChannelInfo != null)
 							{
 								singleItem.state(SingleItem.ItemStates.RECOVERING);
 								
 								int wsbMode = sessionChannelInfo.getWarmStandbyMode(sessionChannelInfo.reactorChannel());
 								
 								/* Checks whether the WSB channel in the DOWN_RECONNECTING/DOWN state in order to recover with another connection if any for both login and service based.*/
-								if(sessionChannelInfo.state() == OmmImplState.RSSLCHANNEL_DOWN && !sessionChannelInfo.phOperationInProgress())
-								{	
+								if (sessionChannelInfo.state() == OmmImplState.RSSLCHANNEL_DOWN && !sessionChannelInfo.phOperationInProgress())
+								{
 									/* This is used to close this stream with the watchlist only */
-									singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
+									if (isNormalItem) singleItem.state(SingleItem.ItemStates.CLOSING_STREAM);
+									else singleItem.state(SingleItem.ItemStates.NORMAL);
 									
 									try
 									{
 										singleItem.close();
 									}
-									catch(OmmInvalidUsageException iue)
+									catch (OmmInvalidUsageException iue)
 									{
 										/* This will be closed later when the ReactorChannel is operational  */
 										if (singleItem.directory().channelInfo().rsslReactorChannel().state() == ReactorChannel.State.CLOSED)
@@ -620,7 +629,7 @@ class SessionWatchlist<T>
 											_closingItemQueue.addLast(singleItem);
 											break;
 										}
-										else if(iue.errorCode() == OmmInvalidUsageException.ErrorCode.SHUTDOWN)
+										else if (iue.errorCode() == OmmInvalidUsageException.ErrorCode.SHUTDOWN)
 										{
 											/* Remove this item as Reactor is shutdown */
 											singleItem.remove();
@@ -629,12 +638,15 @@ class SessionWatchlist<T>
 											break;
 										}
 									}
-									
-									/* Sets the state that the item is being recovered */
-									singleItem.state(SingleItem.ItemStates.RECOVERING);
-									
-									/* Add item to recovery queue to retry with another connection if any */
-									_recoveryItemQueue.addLast(requestMsg);
+
+									if (isNormalItem)
+									{
+										/* Sets the state that the item is being recovered */
+										singleItem.state(SingleItem.ItemStates.RECOVERING);
+
+										/* Add item to recovery queue to retry with another connection if any */
+										_recoveryItemQueue.addLast(requestMsg);
+									}
 								}
 								else if(wsbMode == ReactorWarmStandbyMode.LOGIN_BASED)
 								{
@@ -652,7 +664,7 @@ class SessionWatchlist<T>
 				else if (state.streamState() == StreamStates.CLOSED)
 				{
 					/* Recover item only for non-private item stream. */
-					if(requestMsg.checkPrivateStream() == false)
+					if(requestMsg.checkPrivateStream() == false && (singleItem.type() != Item.ItemType.SINGLE_ITEM_WITH_SOURCE || singleItem._domainType == DomainTypes.SYMBOL_LIST))
 					{
 						state.streamState(StreamStates.OPEN);
 						
@@ -678,7 +690,7 @@ class SessionWatchlist<T>
 			break;
 		}
 		
-		if(notifyStatusMsg)
+		if (notifyStatusMsg)
 		{
 			callbackClient.notifyOnAllMsg(statusMsg);
 			callbackClient.notifyOnStatusMsg();

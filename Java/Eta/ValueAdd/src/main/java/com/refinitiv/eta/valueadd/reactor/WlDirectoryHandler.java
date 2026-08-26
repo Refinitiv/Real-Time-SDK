@@ -875,7 +875,7 @@ class WlDirectoryHandler implements WlHandler
             ret = _serviceCache.processServiceList(serviceList, msg, errorInfo);
         }
         List<WlService> servicesFromReceivedRefresh = convertServicesIntoWlServices(serviceList);
-        
+
         if (ret == ReactorCallbackReturnCodes.SUCCESS)
         {
         	// fanout refresh message to user requests associated with the stream
@@ -958,7 +958,7 @@ class WlDirectoryHandler implements WlHandler
                         callbackMsg = _tempRefreshMsg;
                         callbackDirectoryMsg = newDirectoryRefresh;
                     }
-                    
+
                     // callback user
                     _tempWlInteger.value(callbackMsg.streamId());
 
@@ -978,7 +978,7 @@ class WlDirectoryHandler implements WlHandler
                 }
             }
         }
-        
+
         _receivedRefresh = true;
 
         return ret;
@@ -1190,7 +1190,7 @@ class WlDirectoryHandler implements WlHandler
 
                     _tempRefreshMsg.clear();
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
-                    
+
                     // callback user
                     _tempWlInteger.value(_tempRefreshMsg.streamId());
                     ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);

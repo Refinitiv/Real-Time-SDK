@@ -760,6 +760,8 @@ class Worker implements Runnable
                     ReactorChannel reactorChannel = (ReactorChannel)_reconnectingChannelQueue.next();
                     if (reactorChannel != null)
                     {
+						if (reactorChannel._skipReconnection) continue;
+
                         if (reactorChannel.nextRecoveryTime() > System.currentTimeMillis()
                         		&& !reactorChannel._reconnectImmedietlyToPH)
                             continue;
@@ -888,6 +890,8 @@ class Worker implements Runnable
 	                        if (_reactor.reactorHandlesWarmStandby(reactorChannel)
 									|| (reactorChannel._preferredHostOptions.isPreferredHostEnabled() && reactorChannel.warmStandByHandlerImpl != null))
 	                        {
+								if (reactorChannel._skipReconnection) continue;
+
 	                        	/* Checks whether this ReactorChannel is still handling session management */
                             	boolean handlingSessionMgnt = reactorChannel.state() == State.EDP_RT ||
                                         reactorChannel.state() == State.EDP_RT_DONE ||
@@ -901,10 +905,18 @@ class Worker implements Runnable
 										&& reactorChannel.isStartingServerConfig)
 	                            {
 									boolean isAnotherChannelActive = false;
+									boolean considerMoving = false;
+
 									// Check if we have an active connection in our group already that we've switched to (or should switch to)
 									reactorChannel.warmStandByHandlerImpl.warmStandByHandlerLock().lock();
 									try
 									{
+										// This is the same condition that is used to determine that all standbys are gone in the Reactor
+										int warmStandbyChannelListSize = reactorChannel.warmStandByHandlerImpl.channelList().size();
+										int numberOfStandbyChannels = warmStandbyChannelListSize > 0 ? warmStandbyChannelListSize - 1 : 0;
+										considerMoving = numberOfStandbyChannels == 0
+												|| numberOfStandbyChannels == reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl().closingStandbyCount()
+												|| reactorChannel._ignoreClosedStandbyCount;
 										for (ReactorChannel wsbChannel : reactorChannel.warmStandByHandlerImpl.channelList())
 										{
 											if (wsbChannel.state() == ReactorChannel.State.READY
@@ -917,8 +929,7 @@ class Worker implements Runnable
 										reactorChannel.warmStandByHandlerImpl.warmStandByHandlerLock().unlock();
 									}
 
-									if (((reactorChannel.warmStandByHandlerImpl.warmStandbyHandlerState() & ReactorWarmStandbyHandlerState.CLOSING_STANDBY_CHANNELS) != 0
-											&& !isAnotherChannelActive) || reactorChannel._skipReconnection)
+									if (!considerMoving && !isAnotherChannelActive)
 									{
 										continue; // We are now waiting for all standbys to close before proceeding
 									}

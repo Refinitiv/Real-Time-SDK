@@ -2465,6 +2465,7 @@ public class Reactor
 		ReactorWarmStandbyHandler warmStandbyHandler = null;
 		ReactorWarmStandbyGroupImpl warmStandbyGroupImpl = null;
 		boolean sendCallbackToUser = true;
+		boolean handleClosedStatusForEnhancedSymbolListFeature = false;
 
 		if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 		{
@@ -2777,7 +2778,8 @@ public class Reactor
 									
 									/* Submit the recovered queue message only for the standby servers */
 									queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
-									
+									handleClosedStatusForEnhancedSymbolListFeature = true;
+
 									/* Reset this flag for the submitWSBRequestQueue() method*/
 									warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
 								} 
@@ -2788,6 +2790,7 @@ public class Reactor
 									warmStandbyHandler.startingReactorChannel()
 											.reactorChannelType(ReactorChannelType.NORMAL);
 									warmStandbyHandler.startingReactorChannel().resetReconnectTimers();
+									handleClosedStatusForEnhancedSymbolListFeature = true;
 								}
 							}
 						}
@@ -2795,7 +2798,8 @@ public class Reactor
 						{
 							reactorChannel._queueRequestsForDiscovery = false;
 							queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
-							
+							handleClosedStatusForEnhancedSymbolListFeature = true;
+
 							/* Reset this flag for the submitWSBRequestQueue() method*/
 							warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
 						}
@@ -2820,6 +2824,7 @@ public class Reactor
 
 							/* Submit the recovered queue message only for the standby servers */
 							queueRequestsForWSBGroupRecovery(warmStandbyHandler, errorInfo);
+							handleClosedStatusForEnhancedSymbolListFeature = true;
 
 							/* Reset this flag for the submitWSBRequestQueue() method*/
 							warmStandbyHandler.startingReactorChannel().sendReqFromQueue = false;
@@ -2848,6 +2853,7 @@ public class Reactor
 					/* If the channel has closed, handle the transitions for WSB */
 					if (reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.CLOSED)
 					{
+						handleClosedStatusForEnhancedSymbolListFeature = true;
 						if (warmStandbyGroupImpl.warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
 						{
 							if (reactorChannel.isActiveServer)
@@ -2892,7 +2898,8 @@ public class Reactor
 											&& reactorChannel.isStartingServerConfig)
 									{
 										selectedAsActiveServer = true;
-									} else if (!reactorChannel.isStartingServerConfig
+									}
+									else if (!reactorChannel.isStartingServerConfig
 											&& warmStandbyGroupImpl.downloadConfigActiveServer == reactorChannel.standByServerListIndex)
 									{
 										selectedAsActiveServer = true;
@@ -2920,6 +2927,8 @@ public class Reactor
 												reactorWarmStandbyEvent.reactorChannel = reactorChannel;
 												reactorWarmStandbyEvent.nextReactorChannel = nextReactorChannel;
 
+												handleClosedStatusForEnhancedSymbolListFeature = true;
+
 												sendWarmStandbyEvent(reactorChannel, reactorWarmStandbyEvent,
 														errorInfo);
 												break;
@@ -2946,6 +2955,8 @@ public class Reactor
 				{
 					if (reactorChannel.warmStandByHandlerImpl != null)
 					{
+						handleClosedStatusForEnhancedSymbolListFeature = true;
+
 						/* Check whether this is standby channel in order to close after the callback when moving from a WSB group. */
 						if (!reactorChannel.isStartingServerConfig)
 						{
@@ -2981,6 +2992,11 @@ public class Reactor
 						// Warm standby not enabled, this must be an event from the connection list.
 						if (!reactorChannel._preferredHostOptions.isPreferredHostEnabled())
 							reactorChannel._haveAttemptedFirstConnectionListEntry = true;
+
+						if (reactorChannel.getReactorConnectOptions().connectionList().size() > 1)
+						{
+							handleClosedStatusForEnhancedSymbolListFeature = true;
+						}
 					}
 				}
 			}
@@ -3150,7 +3166,13 @@ public class Reactor
 				errorInfo.clear();
 			}
 		}
-		
+
+		if ((reactorChannel._closeProviderDrivenItems || handleClosedStatusForEnhancedSymbolListFeature) && reactorChannel.watchlist() != null)
+		{
+			reactorChannel._closeProviderDrivenItems = false;
+			reactorChannel.watchlist().closeProviderDrivenRequests();
+		}
+
 		if (reactorHandlesWarmStandby(reactorChannel)
 				&& (eventType == ReactorChannelEventTypes.FD_CHANGE ||
 						eventType == ReactorChannelEventTypes.CHANNEL_UP ||
@@ -6205,6 +6227,7 @@ public class Reactor
 						 * or bad source directory response
 						 */
 
+						reactorChannel._closeProviderDrivenItems = true;
 						if (reactorChannel.isStartingServerConfig)
 						{
 							if (reactorChannel.reconnectAttemptLimit() != 0) reactorChannel._skipReconnection = true;
@@ -6214,6 +6237,12 @@ public class Reactor
 								ReactorChannelEventTypes.CHANNEL_DOWN,
 								reactorChannel, errorInfo) == ReactorReturnCodes.SUCCESS)
 						{
+							if (reactorChannel.isStartingServerConfig)
+							{
+								reactorChannel.resetReconnectTimers();
+								reactorChannel.state(State.DOWN);
+								sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, reactorChannel);
+							}
 							errorInfo.clear();
 						}
 						break;
@@ -6870,7 +6899,7 @@ public class Reactor
 			break;
 		case PREFERRED_HOST_SUBMIT_MSG_RECOVERY_QUEUE:
 			
-			if(reactorChannel.warmStandByHandlerImpl != null)
+			if (reactorChannel.warmStandByHandlerImpl != null)
 			{
 				/* Submit the recovered queue message only for the standby servers */   			
 				queueRequestsForWSBGroupRecovery(reactorChannel.warmStandByHandlerImpl, errorInfo);
@@ -10645,6 +10674,16 @@ public class Reactor
 				{
 					Map.Entry<WlInteger, WlRequest> request = iter.next();
 
+					RequestMsg tmpMsg = request.getValue().requestMsg();
+
+					if (tmpMsg.domainType() == DomainTypes.LOGIN
+							|| tmpMsg.domainType() == DomainTypes.SOURCE
+							|| tmpMsg.domainType() == DomainTypes.DICTIONARY
+							|| request.getValue().providerDriven())
+					{
+						continue;
+					}
+
 					ReactorWLSubmitMsgOptions submitOpts;
 					if (wsbHandler.freeSubmitMsgQueue().size() != 0)
 					{
@@ -10653,14 +10692,7 @@ public class Reactor
 					{
 						submitOpts = new ReactorWLSubmitMsgOptions();
 					}
-					
-					RequestMsg tmpMsg = request.getValue().requestMsg();
-					
-					if(tmpMsg.domainType() == DomainTypes.LOGIN || tmpMsg.domainType() == DomainTypes.SOURCE || tmpMsg.domainType() == DomainTypes.DICTIONARY)
-					{
-						continue;
-					}
-					
+
 					tmpMsg.copy(submitOpts.msg, CopyMsgFlags.ALL_FLAGS);
 
 					submitOpts.submitOptions.serviceName(request.getValue().streamInfo()._serviceName);
@@ -10675,7 +10707,7 @@ public class Reactor
 				
 				/* Checks whether the last submission time for the starting server is set before updating with the current time. */
 				/* lastSubmitOptionsTime equals to 0 when the starting channel hasn't submitted the items from the queue yet. */
-				if(reactorChannel.lastSubmitOptionsTime != 0)
+				if (reactorChannel.lastSubmitOptionsTime != 0)
 				{
 					reactorChannel.lastSubmitOptionsTime = lastSubmitionTime != -1 ? lastSubmitionTime : System.nanoTime();
 				}

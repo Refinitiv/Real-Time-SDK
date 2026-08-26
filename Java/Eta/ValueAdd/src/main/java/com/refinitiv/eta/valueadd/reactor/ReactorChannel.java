@@ -159,7 +159,8 @@ public class ReactorChannel extends VaNode
 	Channel oldPHStartingChannel; // This is old channel which will be closed by worker thread if any for the Preferred host feature only.
     boolean _skipReconnection;
     boolean _tryToForceClose;
-	
+    boolean _closeProviderDrivenItems;
+
 	// Original Login Request Information
 	Buffer userName;
 	int flags;

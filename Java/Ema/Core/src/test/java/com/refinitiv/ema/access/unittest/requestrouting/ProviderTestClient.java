@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -37,6 +37,8 @@ class RequestAttributes
 	String name;
 	
 	int serviceId;
+
+	int domainType;
 }
 
 public class ProviderTestClient extends TimerTask implements OmmProviderClient {
@@ -151,7 +153,11 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 			GenericMsg cloneMsg = EmaFactory.createGenericMsg(genericMsg);
 
 			System.out.println("---- Provider " + name + " ----");
-			System.out.println(cloneMsg);
+			if (genericMsg.domainType() == DomainTypes.SYMBOL_LIST)
+			{
+				System.out.println("");
+				System.out.println(cloneMsg);
+			}
 			
 			_messageQueue.add(cloneMsg);
 			
@@ -190,29 +196,85 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					}
 					
 					/* Standby server is changed to active server */
-					if(warmStandbyMode == 1 && recvWarmStandbyMode == 0)
+					if (warmStandbyMode == 1 && recvWarmStandbyMode == 0)
 					{
-						/* Send unsolicited refresh message for the requested items */ 
+						RefreshMsg refreshMsg = null;
+						/* Send unsolicited refresh message for the requested items */
 						Iterator<RequestAttributes>  it = _itemNameToHandleMap.values().iterator();
 						while(it.hasNext())
 						{
 							RequestAttributes reqAttributes = it.next();
-							FieldList fieldList = EmaFactory.createFieldList();
-							fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-							fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-							fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
-							fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
-							
-							RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).serviceId(reqAttributes.serviceId).solicited(false).clearCache(true).
-									state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
-									payload(fieldList).complete(true);
+							switch (reqAttributes.domainType)
+							{
+								case DomainTypes.MARKET_PRICE:
+								{
+									FieldList fieldList = EmaFactory.createFieldList();
+									fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+									fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+									fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+									fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+
+									refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).serviceId(reqAttributes.serviceId).solicited(false).clearCache(true).
+											state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
+											payload(fieldList).complete(true);
+								}
+								break;
+								case DomainTypes.SYMBOL_LIST:
+								{
+									FieldList summaryData = EmaFactory.createFieldList();
+									summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 74));
+									summaryData.add(EmaFactory.createFieldEntry().rmtes(3, ByteBuffer.wrap("TOP 25 BY VOLUME".getBytes())));
+									summaryData.add(EmaFactory.createFieldEntry().realFromDouble(77, 1864.0));
+									summaryData.add(EmaFactory.createFieldEntry().enumValue(1709, 559));
+									summaryData.add(EmaFactory.createFieldEntry().time(3798, 15, 45, 47, 0, 0, 0));
+									summaryData.add(EmaFactory.createFieldEntry().time(14269, 15, 45, 47, 451, 675, 0));
+
+									Map slMap = EmaFactory.createMap();
+
+									if (symbolListResponseItems == null)
+									{
+										slMap.totalCountHint(3);
+										slMap.summaryData(summaryData);
+
+										FieldList mapEntryValue = EmaFactory.createFieldList();
+										mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 1));
+										slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemA".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+										mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 2));
+										slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemB".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+										mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 3));
+										slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemC".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+									}
+									else
+									{
+										slMap.totalCountHint(symbolListResponseItems.size());
+										slMap.summaryData(summaryData);
+
+										int i = 1;
+										for (java.util.Map.Entry<String, Integer> entry : symbolListResponseItems.entrySet())
+										{
+											FieldList mapEntryValue = EmaFactory.createFieldList();
+											mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, i++));
+											slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap(entry.getKey().getBytes()), entry.getValue(), mapEntryValue));
+										}
+									}
+
+									refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).domainType(DomainTypes.SYMBOL_LIST).serviceId(reqAttributes.serviceId).solicited(false).
+											state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
+											payload(slMap).complete(true);
+								}
+								break;
+							}
+
+
 							
 							if(_providerTestOptions.itemGroupId != null)
 							{
 								refreshMsg.itemGroup(_providerTestOptions.itemGroupId);
 							}
 							
-							providerEvent.provider().submit( refreshMsg, reqAttributes.handle );
+							providerEvent.provider().submit(refreshMsg, reqAttributes.handle);
 						}
 						
 					}
@@ -248,7 +310,7 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 				}
 				
 				/* Standby server is changed to active server */
-				if(prevWarmStandbyMode == 1 && recvWarmStandbyMode == 0)
+				if (prevWarmStandbyMode == 1 && recvWarmStandbyMode == 0)
 				{
 					/* Send unsolicited refresh message for the requested items */ 
 					Iterator<RequestAttributes>  it = _itemNameToHandleMap.values().iterator();
@@ -256,24 +318,74 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					{
 						RequestAttributes reqAttributes = it.next();
 						
-						if(reqAttributes.serviceId == serviceId)
+						if (reqAttributes.serviceId == serviceId)
 						{
-							FieldList fieldList = EmaFactory.createFieldList();
-							fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-							fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
-							fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
-							fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
-							
-							RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).serviceId(reqAttributes.serviceId).solicited(false).clearCache(true).
-									state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
-									payload(fieldList).complete(true);
-							
-							if(_providerTestOptions.itemGroupId != null)
+							if (reqAttributes.domainType == DomainTypes.SYMBOL_LIST)
 							{
-								refreshMsg.itemGroup(_providerTestOptions.itemGroupId);
+								Map slMap = EmaFactory.createMap();
+
+								FieldList summaryData = EmaFactory.createFieldList();
+								summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 74));
+								summaryData.add(EmaFactory.createFieldEntry().rmtes(3, ByteBuffer.wrap("TOP 25 BY VOLUME".getBytes())));
+								summaryData.add(EmaFactory.createFieldEntry().realFromDouble(77, 1864.0));
+								summaryData.add(EmaFactory.createFieldEntry().enumValue(1709, 559));
+								summaryData.add(EmaFactory.createFieldEntry().time(3798, 15, 45, 47, 0, 0, 0));
+								summaryData.add(EmaFactory.createFieldEntry().time(14269, 15, 45, 47, 451, 675, 0));
+
+								if (symbolListResponseItems == null)
+								{
+									slMap.totalCountHint(3);
+									slMap.summaryData(summaryData);
+
+									FieldList mapEntryValue = EmaFactory.createFieldList();
+									mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 1));
+									slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemA".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+									mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 2));
+									slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemB".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+									mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 3));
+									slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemC".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+								}
+								else
+								{
+									slMap.totalCountHint(symbolListResponseItems.size());
+									slMap.summaryData(summaryData);
+
+									int i = 1;
+									for (java.util.Map.Entry<String, Integer> entry : symbolListResponseItems.entrySet())
+									{
+										FieldList mapEntryValue = EmaFactory.createFieldList();
+										mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, i++));
+										slMap.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap(entry.getKey().getBytes()), entry.getValue(), mapEntryValue));
+									}
+								}
+
+								RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).serviceId(reqAttributes.serviceId).solicited(false).
+										state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
+										payload(slMap).domainType(DomainTypes.SYMBOL_LIST).complete(true);
+
+								providerEvent.provider().submit( refreshMsg, reqAttributes.handle );
 							}
-							
-							providerEvent.provider().submit( refreshMsg, reqAttributes.handle );
+							else
+							{
+								FieldList fieldList = EmaFactory.createFieldList();
+								fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+								fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+								fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+								fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+
+								RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqAttributes.name).serviceId(reqAttributes.serviceId).solicited(false).clearCache(true).
+										state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Unsolicited Refresh Completed").
+										payload(fieldList).complete(true);
+
+								if (_providerTestOptions.itemGroupId != null)
+								{
+									refreshMsg.itemGroup(_providerTestOptions.itemGroupId);
+								}
+
+								providerEvent.provider().submit( refreshMsg, reqAttributes.handle );
+							}
 						}
 					}
 					
@@ -327,6 +439,76 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 		}
 		
 	}
+
+	HashMap<String, Integer> symbolListResponseItems = null;
+	HashMap<String, Long> symbolListHandles = new HashMap<>();
+
+	public void setSymbolListResponsePayload(HashMap<String, Integer> items)
+	{
+		symbolListResponseItems = items;
+	}
+
+	OmmProvider providerInstance;
+
+	public void sendSymbolListUpdate(String symbolListName)
+	{
+		long handle = 0;
+		boolean handleSet = false;
+
+		if (symbolListHandles.containsKey(symbolListName))
+		{
+			handleSet = true;
+			handle = symbolListHandles.get(symbolListName);
+		}
+
+		FieldList summaryData = EmaFactory.createFieldList();
+		summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 74));
+		summaryData.add(EmaFactory.createFieldEntry().rmtes(3, ByteBuffer.wrap("TOP 25 BY VOLUME".getBytes())));
+		summaryData.add(EmaFactory.createFieldEntry().realFromDouble(77, 1864.0));
+		summaryData.add(EmaFactory.createFieldEntry().enumValue(1709, 559));
+		summaryData.add(EmaFactory.createFieldEntry().time(3798, 15, 45, 47, 0, 0, 0));
+		summaryData.add(EmaFactory.createFieldEntry().time(14269, 15, 45, 47, 451, 675, 0));
+
+		Map map = EmaFactory.createMap();
+
+		if (symbolListResponseItems == null)
+		{
+			map.totalCountHint(3);
+			map.summaryData(summaryData);
+
+			FieldList mapEntryValue = EmaFactory.createFieldList();
+			mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 1));
+			map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemA".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+			mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 2));
+			map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemB".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+			mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 3));
+			map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemC".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+		}
+		else
+		{
+			map.totalCountHint(symbolListResponseItems.size());
+			map.summaryData(summaryData);
+
+			int i = 1;
+			for (java.util.Map.Entry<String, Integer> entry : symbolListResponseItems.entrySet())
+			{
+				FieldList mapEntryValue = EmaFactory.createFieldList();
+				mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, i++));
+				map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap(entry.getKey().getBytes()), entry.getValue(), mapEntryValue));
+			}
+		}
+
+		UpdateMsg updateMsg = EmaFactory.createUpdateMsg().domainType(EmaRdm.MMT_MARKET_PRICE).payload(map);
+
+		if (_ommProvider != null && handleSet)
+		{
+			_ommProvider.submit(updateMsg, handle);
+		}
+	}
+
+	public OmmProvider providerInstance() { return _ommProvider; }
 
 	@Override
 	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent) {
@@ -422,13 +604,16 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					
 					_messageQueue.add(cloneMsg);
 					
-					if(reqMsg.hasServiceId())
+					if (reqMsg.hasServiceId())
 					{
 						_serviceId = reqMsg.serviceId();
 					}
 					
 					
-					if(_providerTestOptions.sendItemResponse == false)
+					if(_providerTestOptions.sendItemResponse == false
+							|| (_providerTestOptions.sendItemRefreshMap != null
+							&& _providerTestOptions.sendItemRefreshMap.containsKey(reqMsg.name())
+							&& !_providerTestOptions.sendItemRefreshMap.get(reqMsg.name())))
 					{
 						System.out.println("Skip sending item response for this request");
 						break;
@@ -441,6 +626,17 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 								state(OmmState.StreamState.CLOSED, OmmState.DataState.SUSPECT, OmmState.StatusCode.NOT_AUTHORIZED, "Unauthorized access to the item."),
 								providerEvent.handle() );
 						break;
+					}
+
+					if (_providerTestOptions.waitBeforeSendingItemRefresh > 0)
+					{
+						try
+						{
+							Thread.sleep(_providerTestOptions.waitBeforeSendingItemRefresh);
+						}
+						catch (Exception e) {}
+
+						_providerTestOptions.waitBeforeSendingItemRefresh = 0;
 					}
 
 					if (reqMsg.hasServiceId())
@@ -469,7 +665,7 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 						Long tempServiceId = Long.valueOf(_serviceId);
 						
 						/* Checks whether the service based is used and get the mode from service Id */
-						if(_serviceBasedWSBModeMap.size() > 0 && _serviceBasedWSBModeMap.containsKey(tempServiceId))
+						if (_serviceBasedWSBModeMap.size() > 0 && _serviceBasedWSBModeMap.containsKey(tempServiceId))
 						{
 							tempWarmStandbyMode = _serviceBasedWSBModeMap.get(tempServiceId).longValue();
 						}
@@ -515,7 +711,8 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					reqAttributes.name = reqMsg.name();
 					reqAttributes.handle = providerEvent.handle();
 					reqAttributes.serviceId = reqMsg.serviceId();
-					
+					reqAttributes.domainType = reqMsg.domainType();
+
 					_itemNameToHandleMap.put(reqMsg.name(), reqAttributes);
 
 				}
@@ -562,9 +759,10 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 			break;
 			
 			case EmaRdm.MMT_SYMBOL_LIST:
-				
+
 				_accessLock.lock();
-				
+				providerInstance = providerEvent.provider();
+
 				try
 				{
 					ReqMsg cloneMsg = EmaFactory.createReqMsg(reqMsg);
@@ -572,7 +770,12 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					System.out.println(cloneMsg);
 					
 					_messageQueue.add(cloneMsg);
-				
+
+					if (reqMsg.hasServiceId())
+					{
+						_serviceId = reqMsg.serviceId();
+					}
+
 					FieldList summaryData = EmaFactory.createFieldList();
 					summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 74));
 					summaryData.add(EmaFactory.createFieldEntry().rmtes(3, ByteBuffer.wrap("TOP 25 BY VOLUME".getBytes())));
@@ -580,25 +783,80 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 					summaryData.add(EmaFactory.createFieldEntry().enumValue(1709, 559));
 					summaryData.add(EmaFactory.createFieldEntry().time(3798, 15, 45, 47, 0, 0, 0));
 					summaryData.add(EmaFactory.createFieldEntry().time(14269, 15, 45, 47, 451, 675, 0));
-					
+
 					Map map = EmaFactory.createMap();
-					
-					map.totalCountHint(3);
-					map.summaryData(summaryData);
-					
-					FieldList mapEntryValue = EmaFactory.createFieldList();
-					mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 1));
-					map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemA".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
-					
-					mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 2));
-					map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemB".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
-					
-					mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 3));
-					map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemC".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
-					
-					RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqMsg.name()).serviceId(reqMsg.serviceId()).solicited(true).
-							state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Refresh Completed").
-							payload(map).complete(true);
+
+					if (symbolListResponseItems == null)
+					{
+						map.totalCountHint(3);
+						map.summaryData(summaryData);
+
+						FieldList mapEntryValue = EmaFactory.createFieldList();
+						mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 1));
+						map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemA".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+						mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 2));
+						map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemB".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+
+						mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, 3));
+						map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap("itemC".getBytes()), MapEntry.MapAction.ADD, mapEntryValue));
+					}
+					else
+					{
+						map.totalCountHint(symbolListResponseItems.size());
+						map.summaryData(summaryData);
+
+						int i = 1;
+						for (java.util.Map.Entry<String, Integer> entry : symbolListResponseItems.entrySet())
+						{
+							FieldList mapEntryValue = EmaFactory.createFieldList();
+							mapEntryValue.add(EmaFactory.createFieldEntry().uintValue(6453, i++));
+							map.add(EmaFactory.createMapEntry().keyBuffer(ByteBuffer.wrap(entry.getKey().getBytes()), entry.getValue(), mapEntryValue));
+						}
+					}
+
+					RefreshMsg refreshMsg = EmaFactory.createRefreshMsg().name(reqMsg.name()).domainType(DomainTypes.SYMBOL_LIST).serviceId(reqMsg.serviceId()).solicited(true).
+							state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Refresh Completed")
+							.complete(true);
+
+					if(_providerTestOptions.supportStandby)
+					{
+						long tempWarmStandbyMode = warmStandbyMode;
+						Long tempServiceId = Long.valueOf(_serviceId);
+
+						/* Checks whether the service based is used and get the mode from service Id */
+						if (_serviceBasedWSBModeMap.size() > 0 && _serviceBasedWSBModeMap.containsKey(tempServiceId))
+						{
+							tempWarmStandbyMode = _serviceBasedWSBModeMap.get(tempServiceId).longValue();
+						}
+
+						/* Send payload only on the active server */
+						if( tempWarmStandbyMode == 0)
+						{
+							refreshMsg.payload(map);
+
+							System.out.println("Send Symbol List RefreshMsg with map");
+						}
+						else
+						{
+							/* Send blank payload for the standby server */
+							System.out.println("Send Symbol List RefreshMsg with no data as payload");
+						}
+					}
+					else
+					{
+						refreshMsg.payload(map);
+					}
+
+					symbolListHandles.put(reqMsg.name(), providerEvent.handle());
+
+					RequestAttributes reqAttributes = new RequestAttributes();
+					reqAttributes.name = reqMsg.name();
+					reqAttributes.handle = providerEvent.handle();
+					reqAttributes.serviceId = reqMsg.serviceId();
+					reqAttributes.domainType = reqMsg.domainType();
+
+					_itemNameToHandleMap.put(reqMsg.name(), reqAttributes);
 					
 					providerEvent.provider().submit( refreshMsg, providerEvent.handle() );
 				}
@@ -608,7 +866,6 @@ public class ProviderTestClient extends TimerTask implements OmmProviderClient {
 				}
 				
 			break;
-			
 		}
 	}
 

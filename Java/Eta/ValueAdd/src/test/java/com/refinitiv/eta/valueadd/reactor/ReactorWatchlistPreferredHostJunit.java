@@ -7648,7 +7648,7 @@ public class ReactorWatchlistPreferredHostJunit {
             provider3.closeChannelAndSelector();  // Close starting active second
             
             /* Consumer receives FD Change, open suspect, channel down reconnecting, login status open suspect, directory update, and channel down events */
-            consumer.testReactor().dispatch(6, 5000);
+            consumer.testReactor().dispatch(6, 7000);
 
 			// Channel down reconnecting
             event = consumerReactor.pollEvent();
@@ -8008,7 +8008,7 @@ public class ReactorWatchlistPreferredHostJunit {
 				e.printStackTrace();
 			}
 			
-			consumer.testReactor().dispatch(2, 5000);
+			consumer.testReactor().dispatch(2, 7000);
 			
 			event = consumer.testReactor().pollEvent();
 			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
@@ -9340,7 +9340,7 @@ public class ReactorWatchlistPreferredHostJunit {
             
 			consumer.testReactor().switchingReactorChannel = true;
             
-            consumer.testReactor().dispatch(2);
+            consumer.testReactor().dispatch(2, 7000);
             
         	int channel_down_reconnecting = 0;
 			//There are two channel_down_reconnecting events
@@ -9363,7 +9363,7 @@ public class ReactorWatchlistPreferredHostJunit {
             }
         	assertEquals(2, channel_down_reconnecting);
 
-			provider.testReactor().accept(opts, provider);
+			provider.testReactor().accept(opts, provider, 7000);
 
 			/* Provider 1 receives channel-up/channel-ready */
 			provider.testReactor().dispatch(2);

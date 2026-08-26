@@ -2,30 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2022,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2022,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.eta.valueadd.reactor;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.CopyMsgFlags;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.MsgKey;
-import com.refinitiv.eta.codec.MsgKeyFlags;
-import com.refinitiv.eta.codec.RequestMsg;
-import com.refinitiv.eta.codec.StatusMsg;
-import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.common.VaNode;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
@@ -341,7 +331,7 @@ class Watchlist extends VaNode
         		
         		if(status.checkHasState())
         		{
-        			if(status.state().streamState() == StreamStates.CLOSED)
+        			if (status.state().streamState() == StreamStates.CLOSED)
         			{
         				wlStream._closeMsg.clear();
         				wlStream._closeMsg.streamId(msg.streamId());
@@ -643,7 +633,47 @@ class Watchlist extends VaNode
         WlRequest removedRequest = _streamIdtoWlRequestTable.remove(_tempWlInteger);
         assert (removedRequest == wlRequest); // There should a (non-null) WlRequest in the table, and it should be this same request.
     }
-    
+
+    void closeProviderDrivenRequests()
+    {
+        if (_itemHandler._providerRequestTable.size() > 0)
+        {
+            Collection<RequestMsg> requests = new ArrayList<>(_itemHandler._providerRequestTable.values());
+            for (RequestMsg request : requests)
+            {
+                CloseMsg _closeMsg = (CloseMsg)CodecFactory.createMsg();
+                _closeMsg.msgClass(MsgClasses.CLOSE);
+                _closeMsg.streamId(request.streamId());
+                _closeMsg.domainType(request.domainType());
+                _itemHandler.sendStatus(request.streamId(), request.domainType(), StreamStates.CLOSED, DataStates.SUSPECT, "Individual item from Symbol List closed due to server change.");
+                submitMsg(_closeMsg, new ReactorSubmitOptions(), new ReactorErrorInfo());
+            }
+            _itemHandler._providerRequestTable.clear();
+        }
+    }
+
+    void closeProviderDrivenRequests(int serviceId, String message)
+    {
+        if (_itemHandler._providerRequestTable.size() > 0)
+        {
+            Collection<RequestMsg> requests = _itemHandler._providerRequestTable.values()
+                    .stream()
+                    .filter(r -> (r.msgKey().checkHasServiceId() && serviceId != 0)
+                            ? (r.msgKey().serviceId() == serviceId)
+                            : false)
+                    .collect(Collectors.toList());
+            for (RequestMsg requestMsg : requests)
+            {
+                CloseMsg _closeMsg = (CloseMsg)CodecFactory.createMsg();
+                _closeMsg.msgClass(MsgClasses.CLOSE);
+                _closeMsg.streamId(requestMsg.streamId());
+                _closeMsg.domainType(requestMsg.domainType());
+                _itemHandler.sendStatus(requestMsg.streamId(), requestMsg.domainType(), StreamStates.CLOSED, DataStates.SUSPECT, message);
+                submitMsg(_closeMsg, new ReactorSubmitOptions(), new ReactorErrorInfo());
+            }
+        }
+    }
+
     /* Close the watchlist. */
     public void close()
     {
@@ -699,6 +729,7 @@ class Watchlist extends VaNode
         _streamIdtoWlStreamTable.clear();
         _reactorChannelInfo.clear();
         _reactorChnlInfo.clear();
+        _nextProviderStreamId = 0;
     }
     
     @Override

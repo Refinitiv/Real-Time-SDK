@@ -2,19 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.access;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -23,6 +17,7 @@ import com.refinitiv.eta.codec.CopyMsgFlags;
 import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.Qos;
 import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceState;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
@@ -399,16 +394,16 @@ class SessionDirectory<T>
 		
 		Directory<T> directory;
 		
-		while(singleItem != null)
+		while (singleItem != null)
 		{
 			tmpLongObject.value(singleItem.itemId());
 			
 			/* Handles this item when it hasn't been removed from the item map */
-			if(_consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
+			if (_consumerSession.watchlist().itemHandleMap().containsKey(tmpLongObject))
 			{
 				directory = directory(singleItem._requestMsg);
 				
-				if(directory != null)
+				if (directory != null)
 				{
 					singleItem._directory = directory;
 					singleItem._serviceName = _serviceName;
@@ -585,15 +580,23 @@ class SessionDirectory<T>
 					
 					Directory<T> directory;
 					directory = directory(singleItem._requestMsg);
-					
-					if(directory != null)
+					boolean returnToActiveQueue = true;
+
+					if (directory != null)
 					{
 						singleItem._directory = directory;
 						singleItem._serviceName = _serviceName;
 				
 						/* The item state is changed to normal item stream */
 						singleItem.state(SingleItem.ItemStates.NORMAL);
-						if(singleItem.rsslSubmit(singleItem._requestMsg, false) == false)
+						if (singleItem.type() == Item.ItemType.SINGLE_ITEM_WITH_SOURCE && singleItem._domainType != DomainTypes.SYMBOL_LIST)
+						{
+							_consumerSession.watchlist().sendItemStatus(singleItem, singleItem._requestMsg, OmmState.StreamState.CLOSED,
+									OmmState.DataState.SUSPECT, OmmState.StatusCode.NONE, "This individual item of the Symbol List will be recovered by another connection.");
+							singleItem.close();
+							returnToActiveQueue = false;
+						}
+						else if (singleItem.rsslSubmit(singleItem._requestMsg, false) == false)
 						{
 							singleItem.state(SingleItem.ItemStates.RECOVERING);
 							_consumerSession.watchlist().recoverItemQueue().add(singleItem._requestMsg);
@@ -611,7 +614,7 @@ class SessionDirectory<T>
 					singleItemIt.remove();
 					
 					/* Adds to the active queue */
-					_itemNameMap.get(itemName).add(singleItem);
+					if (returnToActiveQueue) _itemNameMap.get(itemName).add(singleItem);
 				}
 			}
 			

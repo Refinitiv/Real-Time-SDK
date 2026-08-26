@@ -18,6 +18,40 @@
 			<Dictionary value="Dictionary_3"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_2"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<ChannelSet value="Channel_1,Channel_2,Channel_3"/>
+			<ReconnectAttemptLimit value="4"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<Dictionary value="Dictionary_3"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_3"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<ChannelSet value="Channel_1,Channel_2,Channel_3"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<Dictionary value="Dictionary_3"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<!-- Name is mandatory	-->
+			<Name value="Consumer_1_1"/>
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<!-- Channel or ChannelSet may be specified -->
+			<Channel value="Channel_1"/>
+			<Dictionary value="Dictionary_3"/>
+			<RequestTimeout value="5000"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
 		<Consumer>
 			<Name value="Consumer_9"/>
 			<SessionChannelSet value="Connection_1, Connection_2"/>
@@ -28,6 +62,19 @@
 			<LoginRequestTimeOut value="5000"/>
 			<DirectoryRequestTimeOut value="5000"/>
 			<RequestTimeout value="5000"/>
+			<SessionEnhancedItemRecovery value="0"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_9_1"/>
+			<SessionChannelSet value="Connection_1, Connection_2"/>
+			<Dictionary value="Dictionary_3"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="2000" />
+			<ReconnectMaxDelay value="6000" />
+			<LoginRequestTimeOut value="5000"/>
+			<DirectoryRequestTimeOut value="5000"/>
+			<RequestTimeout value="15000"/>
 			<SessionEnhancedItemRecovery value="0"/>
 		</Consumer>
 		<Consumer>
@@ -645,6 +692,20 @@
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_58_2"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3,WarmStandbyChannel_4" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_3" />
+			<EnablePreferredHostOptions value="1"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="2"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
 			<Name value="Consumer_PackJSON"/>
 			<ChannelSet value="Channel_JSON" />
 			<Dictionary value="Dictionary_3"/>
@@ -655,6 +716,103 @@
 			<EnablePreferredHostOptions value="1"/>
 			<PHDetectionTimeInterval value="8"/>
 			<ReconnectAttemptLimit value="1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_50"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_51"/>
+			<SessionChannelSet value="Connection_26, Connection_27"/>
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_52"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2" />
+			<PreferredWSBChannelName value="WarmStandbyChannel_1" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_53"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<ReconnectAttemptLimit value="2"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_54"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2" />
+			<ChannelSet value="Channel_1, Channel_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="0"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="3"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_55"/>
+			<SessionChannelSet value="Connection_1_1, Connection_2" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<EnablePreferredHostOptions value="1"/>
+			<ReconnectAttemptLimit value="3"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_56_3"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<ReconnectAttemptLimit value="-1"/>
+			<ReconnectMinDelay value="1000" />
+			<ReconnectMaxDelay value="2000" />
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_57_2"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_3, WarmStandbyChannel_9" />
+			<Dictionary value="Dictionary_3"/>
+			<LoginRequestTimeOut value="30000"/>
+			<DirectoryRequestTimeOut value="30000"/>
+			<RequestTimeout value="30000"/>
+			<XmlTraceToStdout value="1"/>
+			<ReconnectAttemptLimit value="3"/>
 			<ReconnectMinDelay value="1000" />
 			<ReconnectMaxDelay value="2000" />
 		</Consumer>
@@ -1342,6 +1500,24 @@
                         <ReconnectMinDelay value="1000"/>
                         <ReconnectMaxDelay value="1000"/>
                 </SessionChannelInfo>
+				<SessionChannelInfo>
+					<Name value="Connection_26"/>
+					<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+					<EnablePreferredHostOptions value="1"/>
+					<PreferredWSBChannelName value="WarmStandbyChannel_1"/>
+					<ReconnectAttemptLimit value="3"/>
+					<ReconnectMinDelay value="1000"/>
+					<ReconnectMaxDelay value="1000"/>
+				</SessionChannelInfo>
+				<SessionChannelInfo>
+					<Name value="Connection_27"/>
+					<ChannelSet value="Channel_1"/>
+					<ReconnectAttemptLimit value="3"/>
+					<ReconnectMinDelay value="2000"/>
+					<ReconnectMaxDelay value="4000"/>
+					<EnablePreferredHostOptions value="1"/>
+					<!-- PreferredChannelName value="Channel_1"/ -->
+				</SessionChannelInfo>
         </SessionChannelList>
 </SessionChannelGroup>
 
@@ -2017,6 +2193,7 @@
 						<CapabilitiesEntry value="MMT_MARKET_PRICE"/>
 						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
 						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_SYMBOL_LIST"/>
 					</Capabilities>
 					<!-- list of dictionary names specified in the DictionaryGroup	-->
 					<!-- EMA will populate the Service::InfoFilter::DictionariesProvided element -->

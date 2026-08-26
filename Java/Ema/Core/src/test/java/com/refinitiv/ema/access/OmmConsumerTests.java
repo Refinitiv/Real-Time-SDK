@@ -6643,7 +6643,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(ChannelState.ACTIVE, channelInfo.channelState());
 			assertEquals("WarmStandbyChannel_2", channelInfo.preferredHostInfo().getWsbChannelName());
 			
-			Thread.sleep(10000);
+			Thread.sleep(15000);
 			
 			// Checks for PH START and COMPLETE events
 			message = consumerClient.popMessage();
@@ -7744,6 +7744,8 @@ public class OmmConsumerTests extends TestCase
 			System.out.println(">>>>>>>>>>>>>   Killing 19006");
 
 			ommprovider_6.uninitialize();
+
+			Thread.sleep(5000);
 			ommprovider_3.uninitialize();
 
 			Thread.sleep(7000);
@@ -8080,6 +8082,138 @@ public class OmmConsumerTests extends TestCase
 			ommprovider_8.uninitialize();
 
 			Thread.sleep(8000);
+
+			assertTrue(providerClient_3.queueSize() > 0);
+			// the standby should also get messages in the queue since it is connected
+			assertTrue(providerClient_6.queueSize() > 0);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			assertFalse(true);
+		}
+		finally
+		{
+			System.out.println(">>>>> Uninitializing...");
+			assertNotNull(consumer);
+
+			if (consumer != null) consumer.uninitialize();
+			if (ommprovider_3 != null) ommprovider_3.uninitialize();
+			if (ommprovider_6 != null) ommprovider_6.uninitialize();
+
+			if (ommprovider_7 != null) ommprovider_7.uninitialize();
+			if (ommprovider_8 != null) ommprovider_8.uninitialize();
+		}
+	}
+
+	@Test
+	public void testWSBReconnectionToPreferredWSBGroupWhenTheSecondGroupGoesDown_2()
+	{
+		/*
+			The scenario is as follows: there are 2 WSB groups, G0 and G1, with G0 preferred, and preferred host enabled.
+			At first the servers of G0, the connection is established. Then G1 goes up and G0 goes down.
+			The consumer should reconnect to G1. Then G0 goes up and G1 goes down.
+			At this point the consumer should be able to establish connection to both starting and standby servers of G0
+		*/
+		String emaConfigFileLocation = "./src/test/resources/com/refinitiv/ema/unittest/OmmConsumerTests/EmaConfigTest.xml";
+
+		OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig(emaConfigFileLocation);
+
+		ProviderTestOptions providerTestOptions = new ProviderTestOptions();
+		providerTestOptions.supportStandby = true;
+		providerTestOptions.sendRefreshAttrib = true;
+		providerTestOptions.itemGroupId = ByteBuffer.wrap("10".getBytes());
+
+		ProviderTestClient providerClient_3 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_6 = new ProviderTestClient(providerTestOptions);
+
+		ProviderTestClient providerClient_7 = new ProviderTestClient(providerTestOptions);
+		ProviderTestClient providerClient_8 = new ProviderTestClient(providerTestOptions);
+
+
+		OmmProvider ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_1"), providerClient_3);
+		assertNotNull(ommprovider_3);
+
+		OmmProvider ommprovider_6 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_3_1"), providerClient_6);
+		assertNotNull(ommprovider_6);
+
+		OmmProvider ommprovider_7 = null;
+
+		OmmProvider ommprovider_8 = null;
+
+		OmmConsumer consumer = null;
+		ConsumerTestOptions consumerOption = new ConsumerTestOptions();
+
+		consumerOption.getChannelInformation = true;
+		consumerOption.getSessionChannelInfo = false;
+		ConsumerTestClient consumerClient = new ConsumerTestClient(consumerOption);
+
+		try
+		{
+			ConsumerTestOptions options = new ConsumerTestOptions();
+			options.getChannelInformation = true;
+
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig(emaConfigFileLocation).consumerName("Consumer_58_2"), consumerClient);
+
+			Thread.sleep(2000);
+
+			consumerClient.clearQueue();
+			int count = consumerClient.channelInfoSize();
+			for (int i = 0; i < count; i++) consumerClient.popChannelInfo();
+
+			String serviceName = "DIRECT_FEED";
+			String serviceName2 = "DIRECT_FEED_2";
+
+			ReqMsg reqMsg = EmaFactory.createReqMsg().domainType(EmaRdm.MMT_MARKET_PRICE).serviceName(serviceName).name(".AV.N");
+			ReqMsg reqMsg2 = EmaFactory.createReqMsg().domainType(EmaRdm.MMT_MARKET_PRICE).serviceName(serviceName2).name(".BV.N");
+
+			System.out.println(">>>>>>> Requesting items...\n");
+			consumer.registerClient(reqMsg, consumerClient);
+			consumer.registerClient(reqMsg2, consumerClient);
+
+			Thread.sleep(3000);
+
+			ommprovider_7 = EmaFactory.createOmmProvider(config.port("19007").providerName("Provider_1"), providerClient_7);
+			assertNotNull(ommprovider_7);
+
+			ommprovider_8 = EmaFactory.createOmmProvider(config.port("19008").providerName("Provider_3_1"), providerClient_8);
+			assertNotNull(ommprovider_8);
+
+			Thread.sleep(2000);
+
+			System.out.println(">>>>>>>>>>>>>   Killing 19003");
+			ommprovider_3.uninitialize();
+
+			Thread.sleep(2000);
+
+			System.out.println(">>>>>>>>>>>>>   Killing 19006");
+
+			ommprovider_6.uninitialize();
+
+			Thread.sleep(10000);
+
+			providerClient_3 = new ProviderTestClient(providerTestOptions);
+			providerClient_6 = new ProviderTestClient(providerTestOptions);
+
+			ommprovider_3 = EmaFactory.createOmmProvider(config.port("19003").providerName("Provider_1"), providerClient_3);
+			assertNotNull(ommprovider_3);
+
+			ommprovider_6 = EmaFactory.createOmmProvider(config.port("19006").providerName("Provider_3_1"), providerClient_6);
+			assertNotNull(ommprovider_6);
+
+			Thread.sleep(5000);
+
+			//System.out.println(" >>>> Provider 7 uninitializing...");
+			ommprovider_7.uninitialize();
+
+			Thread.sleep(2000);
+
+			//System.out.println(" >>>> Provider 8 uninitializing...");
+			ommprovider_8.uninitialize();
+
+			Thread.sleep(12000);
+
+			System.out.println(" >>> Done waiting for 12 seconds ...");
 
 			assertTrue(providerClient_3.queueSize() > 0);
 			// the standby should also get messages in the queue since it is connected

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -480,7 +480,11 @@ class WlItemHandler implements WlHandler
         return ret;
     }
 
-    private int handleNonAggregatedRequest(WlService wlService, WlRequest wlRequest, RequestMsg requestMsg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo, boolean sendNow)
+    private int handleNonAggregatedRequest(WlService wlService, WlRequest wlRequest,
+                                           RequestMsg requestMsg,
+                                           ReactorSubmitOptions submitOptions,
+                                           ReactorErrorInfo errorInfo,
+                                           boolean sendNow)
     {
         WlStream wlStream = createNewStream(requestMsg);
         wlRequest.stream(wlStream);
@@ -1380,6 +1384,11 @@ class WlItemHandler implements WlHandler
         // determine if a new stream is needed or if existing stream can be used
         _tempItemAggregationKey.clear();
         requestMsg.msgKey().copy(_tempItemAggregationKey.msgKey());
+        if (!_tempItemAggregationKey.msgKey().checkHasNameType()) //if no nametype set, aggregate to default nameType RIC
+        {
+            _tempItemAggregationKey.msgKey().applyHasNameType();
+            _tempItemAggregationKey.msgKey().nameType(InstrumentNameTypes.RIC);
+        }
         if (submitOptions.serviceName() != null)
         {
             // set service id in item aggregation key if requested by service name
@@ -1784,7 +1793,7 @@ class WlItemHandler implements WlHandler
         return ret;
     }
 
-    private int removeUserRequestFromClosedStream(WlRequest wlRequest)
+    int removeUserRequestFromClosedStream(WlRequest wlRequest)
     {
         int ret = ReactorReturnCodes.SUCCESS;
 
@@ -1935,6 +1944,22 @@ class WlItemHandler implements WlHandler
         _statusMsg.state().dataState(DataStates.SUSPECT);
         _statusMsg.state().text().data(text);
   
+        // callback user
+        _tempWlInteger.value(_statusMsg.streamId());
+        return callbackUser("WlItemHandler.sendStatus", _statusMsg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo);
+    }
+
+    /* Sends status message to a user. */
+    int sendStatus(int streamId, int domainType, int streamState, int dataState, String text)
+    {
+        // populate StatusMsg
+        _statusMsg.streamId(streamId);
+        _statusMsg.domainType(domainType);
+        _statusMsg.applyHasState();
+        _statusMsg.state().streamState(streamState);
+        _statusMsg.state().dataState(dataState);
+        _statusMsg.state().text().data(text);
+
         // callback user
         _tempWlInteger.value(_statusMsg.streamId());
         return callbackUser("WlItemHandler.sendStatus", _statusMsg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo);
@@ -2998,11 +3023,11 @@ class WlItemHandler implements WlHandler
         
         int statusFlags = 0;
 
-        if(_watchlist.reactor().reactorHandlesWarmStandby(_watchlist.reactorChannel()))
+        if (_watchlist.reactor().reactorHandlesWarmStandby(_watchlist.reactorChannel()))
         {
         	ReactorWarmStandbyHandler wsbHandler = _watchlist.reactorChannel().warmStandByHandlerImpl;
         	
-        	if(wsbHandler.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+        	if (wsbHandler.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
         	{
         		/* Check to see if this service is also in the next active, if it exists */
         		if(wsbHandler.nextActiveReactorChannel() != null && wsbHandler.nextActiveReactorChannel().channel() != null 
@@ -3011,7 +3036,7 @@ class WlItemHandler implements WlHandler
     				statusFlags = WlStreamStatusFlags.SEND_STATUS;
     				sendChannelDownText = false;
 
-        			if(wsbHandler.nextActiveReactorChannel().watchlist()._directoryHandler._serviceCache._servicesByIdTable.get(wlService._tableKey) == null)
+        			if (wsbHandler.nextActiveReactorChannel().watchlist()._directoryHandler._serviceCache._servicesByIdTable.get(wlService._tableKey) == null)
         			{
                 		ReactorWSBService wsbService = _watchlist.reactorChannel().warmStandByHandlerImpl.currentWarmStandbyGroupImpl()._perServiceById.get(wlService.tableKey());
                 		
@@ -3079,17 +3104,17 @@ class WlItemHandler implements WlHandler
         else
             stateText = "Service for this item was lost.";
 
-        _statusMsg.clear();
-        _statusMsg.msgClass(MsgClasses.STATUS);
-        _statusMsg.applyHasState();
-        _statusMsg.state().streamState(StreamStates.CLOSED_RECOVER);
-        _statusMsg.state().dataState(DataStates.SUSPECT);
-        _statusMsg.msgClass(MsgClasses.STATUS);
-        _statusMsg.state().text().data(stateText);
-        
         WlStream wlStream;
         while ((wlStream = wlService.streamList().peek()) != null)
         {
+            _statusMsg.clear();
+            _statusMsg.msgClass(MsgClasses.STATUS);
+            _statusMsg.applyHasState();
+            _statusMsg.state().streamState(StreamStates.CLOSED_RECOVER);
+            _statusMsg.state().dataState(DataStates.SUSPECT);
+            _statusMsg.msgClass(MsgClasses.STATUS);
+            _statusMsg.state().text().data(stateText);
+
             int ret;
             removeWlStreamFromService(wlStream);
             _statusMsg.domainType(wlStream.domainType());
@@ -3564,6 +3589,8 @@ class WlItemHandler implements WlHandler
 				_requestMsg.qos().timeliness(QosTimeliness.REALTIME);
 			}
 
+            if (wlRequest._requestMsg.checkMsgKeyInUpdates() && wlRequest._requestMsg.checkStreaming()) _requestMsg.applyMsgKeyInUpdates();
+
 			_dIter.clear();
 			_dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _watchlist.reactorChannel().majorVersion(), _watchlist
 					.reactorChannel().minorVersion());
@@ -3609,8 +3636,19 @@ class WlItemHandler implements WlHandler
 						
 						if (_providerRequestTable.containsKey(_symbolListRequestKey))
 							continue;
-						int providerProvideStreamId = _watchlist.nextProviderStreamId();
-						_requestMsg.streamId(providerProvideStreamId);
+
+                        int providerProvideStreamId = 0;
+
+                        if (_watchlist.reactor().reactorHandlesWarmStandby(_watchlist.reactorChannel()))
+                        {
+                            providerProvideStreamId = _watchlist.reactorChannel().warmStandByHandlerImpl.getProviderStreamId();
+                        }
+                        else
+                        {
+                            providerProvideStreamId = _watchlist.nextProviderStreamId();
+                        }
+
+                        _requestMsg.streamId(providerProvideStreamId);
 						WlRequest newWlRequest = ReactorFactory.createWlRequest();
 						newWlRequest.providerDriven(true);
 						newWlRequest.streamInfo().serviceName(wlRequest.streamInfo().serviceName());
@@ -3628,8 +3666,14 @@ class WlItemHandler implements WlHandler
 					        newWlRequest.tableKey(wlInteger);
 							_watchlist.streamIdtoWlRequestTable().put(wlInteger, newWlRequest);
 							if (_requestMsg.checkStreaming())
-								_providerRequestTable.put(_symbolListRequestKey, newWlRequest.requestMsg());
-						} 
+                            {
+                                WlItemAggregationKey key = ReactorFactory.createWlItemAggregationKey();
+                                _symbolListRequestKey.copy(key);
+                                newWlRequest._providerDrivenTableAggregationKey = key;
+                                _providerRequestTable.put(key, newWlRequest.requestMsg());
+                            }
+
+						}
 						else // submit failed
 						{
 						    repoolWlRequest(newWlRequest);
@@ -4066,14 +4110,11 @@ class WlItemHandler implements WlHandler
 	
     void closeWlRequest(WlRequest wlRequest)
     {
-        if (wlRequest.providerDriven())
+        if (wlRequest.providerDriven() && wlRequest._providerDrivenTableAggregationKey != null)
         {
-            _symbolListRequestKey.clear();
-            _symbolListRequestKey.msgKey(wlRequest.requestMsg().msgKey());
-            _symbolListRequestKey.msgKey().serviceId(wlRequest.requestMsg().msgKey().serviceId());
-            _symbolListRequestKey.domainType(wlRequest.requestMsg().domainType());
-            _symbolListRequestKey.qos(wlRequest.requestMsg().qos());
-            _providerRequestTable.remove(_symbolListRequestKey);
+            _providerRequestTable.remove(wlRequest._providerDrivenTableAggregationKey);
+            wlRequest._providerDrivenTableAggregationKey.returnToPool();
+            wlRequest._providerDrivenTableAggregationKey = null;
         }    	
 
         _watchlist.closeWlRequest(wlRequest);

@@ -74,10 +74,14 @@ class WlServiceCache
                         // update service in table (this applies to both services by id and services by name tables)
                         service.applyUpdate(wlService.rdmService());
                         
-                        if(initDirectory && wsbActive)
+                        if (initDirectory && wsbActive)
                         {
+							if (service.checkHasState() && service.state().serviceState() != 1)
+							{
+								_watchlist.closeProviderDrivenRequests(service.serviceId(), "Individual item from Symbol List closed due to service down.");
+							}
                         	/* Chceck to see if the old state is the same as the new state after the service has been applied to cache */
-                         	if(serviceState != wlService.rdmService().state().serviceState())
+                         	if (serviceState != wlService.rdmService().state().serviceState())
                          	{
                          		wsbServiceStateChange(wlService._tableKey, (int)wlService.rdmService().state().serviceState(), MapEntryActions.UPDATE, errorInfo);
                          	}
@@ -85,8 +89,6 @@ class WlServiceCache
                          	wsbUpdateCachedService(wlService, MapEntryActions.UPDATE, errorInfo);
                          	
                         }
-                        
-                        
                         // notify item handler service updated
                         ret = _watchlist.itemHandler().serviceUpdated(wlService, service.checkHasState());
                     }
@@ -118,7 +120,8 @@ class WlServiceCache
                             _servicesByNameTable.remove(serviceName);
                         }
                         _serviceList.remove(wlService);
-                        
+
+						_watchlist.closeProviderDrivenRequests(service.serviceId(), "Individual item from Symbol List closed due to service deleted.");
                         // notify item handler service deleted
                         ret = _watchlist.itemHandler().serviceDeleted(wlService, false);
                         
@@ -404,6 +407,10 @@ class WlServiceCache
         // clear service list
         while ((wlService = _serviceList.poll()) != null)
         {
+			if (!channelIsDown)
+			{
+				_watchlist.closeProviderDrivenRequests(wlService.rdmService().serviceId(), "Individual item from Symbol List closed due to service removed from the cache.");
+			}
             // Handle items associated with this service.
         	_watchlist.itemHandler().serviceDeleted(wlService, channelIsDown);
         	// Can set the errorInfo to null here because DELETE actions will not trigger sending any generic messages

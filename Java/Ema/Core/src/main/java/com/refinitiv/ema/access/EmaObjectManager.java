@@ -136,6 +136,7 @@ class EmaObjectManager
 	LimitedVaPool _ommServiceIdIntegerPool;
 	LimitedVaPool _streamInfoPool;
 	LimitedVaPool _timeoutEventPool;
+    LimitedVaPool _singleItemWithSourcePool;
 
 	Deque<com.refinitiv.eta.codec.ElementList> _rsslElementListPool;
 	Deque<com.refinitiv.eta.codec.Vector> _rsslVectorPool;
@@ -264,6 +265,7 @@ class EmaObjectManager
 		_longObjectPool = new LimitedVaPool(globalLock);
 		_intObjectPool = new LimitedVaPool(globalLock);
 		_timeoutEventPool = new LimitedVaPool(globalLock);
+        _singleItemWithSourcePool = new LimitedVaPool(globalLock);
 
 		_ommServiceIdIntegerPool = new LimitedVaPool(true);
 		_streamInfoPool = new LimitedVaPool(true);
@@ -456,6 +458,8 @@ class EmaObjectManager
 		_subItemPool.setLimit(_sessionObjectsPoolLimit);
 		_tunnelItemPool.setLimit(_sessionObjectsPoolLimit);
 		_timeoutEventPool.setLimit(_sessionObjectsPoolLimit);
+        _singleItemPool.setLimit(_sessionObjectsPoolLimit);
+        _singleItemWithSourcePool.setLimit(_sessionObjectsPoolLimit);
 
 		initialSize = _sessionObjectsPoolLimit >= 0 ? _sessionObjectsPoolLimit : DATA_POOL_INITIAL_SIZE;
 		for (int index = 0; index < initialSize; ++index)
@@ -545,6 +549,7 @@ class EmaObjectManager
 
 			_singleItemPool.add(new SingleItem<T>());
 			_batchItemPool.add(new BatchItem<T>());
+			_singleItemWithSourcePool.add(new SingleItemWithSource<T>());
 			_longObjectPool.add(new LongObject());
 			_intObjectPool.add(new IntObject());
 			_subItemPool.add(new SubItem<T>());
@@ -853,6 +858,7 @@ class EmaObjectManager
 
 			_singleItemPool.add(new SingleItem<T>());
 			_batchItemPool.add(new BatchItem<T>());
+			_singleItemWithSourcePool.add(new SingleItemWithSource<T>());
 			_longObjectPool.add(new LongObject());
 			_intObjectPool.add(new IntObject());
 			_subItemPool.add(new SubItem<T>());
@@ -980,4 +986,3 @@ class EmaObjectManager
 		_byteBufferList[MAX_NUM_BYTE_BUFFER].add(ByteBuffer.allocate(MAX_BYTE_BUFFER_CAPABILITY));
 	}
 }
-

@@ -2,31 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
 package com.refinitiv.ema.examples.training.consumer.series200.ex270_SymbolList;
 
-import com.refinitiv.ema.access.Map;
-import com.refinitiv.ema.access.MapEntry;
-import com.refinitiv.ema.access.Msg;
-import com.refinitiv.ema.access.AckMsg;
-import com.refinitiv.ema.access.GenericMsg;
-import com.refinitiv.ema.access.RefreshMsg;
-import com.refinitiv.ema.access.StatusMsg;
-import com.refinitiv.ema.access.UpdateMsg;
-import com.refinitiv.ema.access.Data;
-import com.refinitiv.ema.access.DataType;
+import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.access.DataType.DataTypes;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.FieldEntry;
-import com.refinitiv.ema.access.FieldList;
-import com.refinitiv.ema.access.OmmConsumer;
-import com.refinitiv.ema.access.OmmConsumerClient;
-import com.refinitiv.ema.access.OmmConsumerEvent;
-import com.refinitiv.ema.access.OmmException;
 import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.eta.rdm.SymbolList;
 
 
 class AppClient implements OmmConsumerClient
@@ -40,6 +25,8 @@ class AppClient implements OmmConsumerClient
 
 		if (DataType.DataTypes.MAP == refreshMsg.payload().dataType())
 			decode(refreshMsg.payload().map());
+		else if (DataType.DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
+			decode(refreshMsg.payload().fieldList(), false);
 		
 		System.out.println();
 	}
@@ -51,6 +38,8 @@ class AppClient implements OmmConsumerClient
 		
 		if (DataType.DataTypes.MAP == updateMsg.payload().dataType())
 			decode(updateMsg.payload().map());
+		else if (DataType.DataTypes.FIELD_LIST == updateMsg.payload().dataType())
+			decode(updateMsg.payload().fieldList(), false);
 		
 		System.out.println();
 	}
@@ -75,7 +64,7 @@ class AppClient implements OmmConsumerClient
 		for(FieldEntry fieldEntry : fieldList)
 		{
 			
-			System.out.println(fieldEntry.name() + "\t");
+			System.out.print(fieldEntry.name() + "\t");
 
 			if (Data.DataCode.BLANK == fieldEntry.code())
 				System.out.println(" blank");
@@ -167,16 +156,83 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer 
 {
+	static void printHelp()
+	{
+		System.out.println("\nOptions:\n" + "  -?\tShows this usage\n" +
+				"-item specifies Symbol List item name to be requested\r\n" +
+				"-enhancedSymbolListRequestOn in case specified, Enhanced Symbol List Request feature will be turned on\r\n" +
+				"-snapshots items from Symbol List will be requested as non-streaming if this parameter is specified (works only together with -enhancedSymbolListRequestOn)");
+	}
+
 	public static void main(String[] args)
 	{
 		OmmConsumer consumer = null;
+
+		int argsCount = 0;
+		boolean enhancedSymbolListRequestOn = false;
+		String itemName = ".AV.N";
+		boolean snapshots = false;
+
+		while (argsCount < args.length)
+		{
+			if (args[argsCount].equals("-?"))
+			{
+				printHelp();
+				return;
+			}
+			if ("-item".equals(args[argsCount]))
+			{
+				itemName = argsCount < (args.length-1) ? args[++argsCount] : ".AV.N";
+				++argsCount;
+			}
+			else if ("-enhancedSymbolListRequestOn".equals(args[argsCount]))
+			{
+				enhancedSymbolListRequestOn = true;
+				++argsCount;
+			}
+			else if ("-snapshots".equals(args[argsCount]))
+			{
+				snapshots = true;
+				++argsCount;
+			}
+			else // unrecognized command line argument
+			{
+				System.out.println("Unrecognized parameter: " + args[argsCount]);
+				printHelp();
+				return;
+			}
+		}
+
+		System.out.println("App settings: \n\t-item: " + itemName + ", \n\tEnhanced SymbolL List Feature on: " + enhancedSymbolListRequestOn + ", \n\tsnapshots: " + snapshots);
 		try
 		{
 			AppClient appClient = new AppClient();
 			
 			consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
-			
-			consumer.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_SYMBOL_LIST).serviceName("ELEKTRON_DD").name(".AV.N"), appClient, 0);
+
+			ReqMsg request = EmaFactory.createReqMsg().domainType(EmaRdm.MMT_SYMBOL_LIST).serviceName("ELEKTRON_DD").name(itemName);
+
+			if (enhancedSymbolListRequestOn)
+			{
+				ElementList payload = EmaFactory.createElementList();
+				ElementEntry entry = EmaFactory.createElementEntry();
+
+				ElementList eePayload = EmaFactory.createElementList();
+				ElementEntry eeEntry = EmaFactory.createElementEntry();
+
+				eeEntry.uintValue(":DataStreams", snapshots
+						? SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS
+						: SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
+
+				eePayload.add(eeEntry);
+
+				entry.elementList(":SymbolListBehaviors", eePayload);
+				payload.add(entry);
+
+				request.payload(payload);
+			}
+
+			consumer.registerClient(request, appClient, 0);
 			
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

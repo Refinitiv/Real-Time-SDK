@@ -2,12 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|              Copyright (C) 2024 LSEG. All rights reserved.                --
+// *|              Copyright (C) 2024,2026 LSEG. All rights reserved.                --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access.unittest.requestrouting;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import com.refinitiv.ema.access.Map;
 
@@ -42,5 +43,9 @@ public class ProviderTestOptions
 	public int sendDirectoryPayloadInMiliSecond = 0;
 	
 	public Map sourceDirectoryPayload = null;
-	
+
+	public HashMap<String, Boolean> sendItemRefreshMap;
+
+	public int waitBeforeSendingItemRefresh;
+
 }

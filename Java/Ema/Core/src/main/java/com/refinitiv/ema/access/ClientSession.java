@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2024-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2024-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.valueadd.common.VaNode;
@@ -22,7 +24,7 @@ class ClientSession extends VaNode
 {
     private LongObject _clientHandle;
     private ReactorChannel _rsslReactorChannel;
-    private HashMap<LongObject, ItemInfo>	_itemInfoByStreamIdMap;
+    private ConcurrentHashMap<LongObject, ItemInfo>	_itemInfoByStreamIdMap;
     private HashMap<LongObject, HashMap<Buffer, ArrayList<ItemInfo>>>_serviceGroupIdToItemInfoMap;
     private HashSet<ItemInfo>  _itemInfoByItemInfoSet = null;
     private boolean _isLogin;
@@ -37,7 +39,7 @@ class ClientSession extends VaNode
     {
     	_ommServerBaseImpl = ommServerBaseImpl;
     	
-    	_itemInfoByStreamIdMap = new HashMap<LongObject, ItemInfo>(_ommServerBaseImpl.activeConfig().itemCountHint);
+    	_itemInfoByStreamIdMap = new ConcurrentHashMap<LongObject, ItemInfo>(_ommServerBaseImpl.activeConfig().itemCountHint);
     	
     	_serviceGroupIdToItemInfoMap = new HashMap<>();
     	
@@ -261,7 +263,7 @@ class ClientSession extends VaNode
 		_ommServerBaseImpl = server;
 
 		if (_itemInfoByStreamIdMap == null || _itemInfoByStreamIdMap.size() < _ommServerBaseImpl.activeConfig().itemCountHint)
-			_itemInfoByStreamIdMap = new HashMap<LongObject, ItemInfo>(_ommServerBaseImpl.activeConfig().itemCountHint);
+			_itemInfoByStreamIdMap = new ConcurrentHashMap<LongObject, ItemInfo>(_ommServerBaseImpl.activeConfig().itemCountHint);
 
 		_serviceGroupIdToItemInfoMap.clear();
 
