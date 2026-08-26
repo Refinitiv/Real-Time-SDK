@@ -401,7 +401,7 @@ public class JsonRealConverterTest {
 	 @Test
 	 public void invalid_outofrange_positiveExponential()
 	 {
-		 String inputValue = "1.0E9";
+		 String inputValue = "1.0E26";
 		 Real real = CodecFactory.createReal();
 		 real.clear();
 		 
