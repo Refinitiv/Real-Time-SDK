@@ -584,7 +584,6 @@ public:
 	bool					catchUnknownJsonFids;
 	bool					closeChannelFromFailure;
 	UInt32					outputBufferSize;
-	UInt32					jsonTokenIncrementSize;
 };
 
 typedef const EmaString* EmaStringPtr;

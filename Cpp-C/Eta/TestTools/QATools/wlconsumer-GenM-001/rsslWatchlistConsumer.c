@@ -515,10 +515,6 @@ int main(int argc, char **argv)
 	{
 		jsonConverterOptions.outputBufferSize = watchlistConsumerConfig.jsonOutputBufferSize;
 	}
-	if (watchlistConsumerConfig.jsonTokenIncrementSize > 0)
-	{
-		jsonConverterOptions.jsonTokenIncrementSize = watchlistConsumerConfig.jsonTokenIncrementSize;
-	}
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

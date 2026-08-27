@@ -15,7 +15,7 @@ class EnumTableDefinition; // forward declaration
 class jsonToRwfSimple : public jsonToRwfBase
 {
  public:
-	jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens, int incSize);
+	jsonToRwfSimple(int bufSize, unsigned int flags, int numTokens);
 	~jsonToRwfSimple();
 	void reset();
 	RsslBuffer *errorText();

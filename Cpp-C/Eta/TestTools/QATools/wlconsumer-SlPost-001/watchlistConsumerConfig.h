@@ -142,7 +142,6 @@ typedef struct
 	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
 
 	RsslUInt32			jsonOutputBufferSize;			/* JSON Converter output buffer size. */
-	RsslUInt32			jsonTokenIncrementSize;			/* JSON Converter number of json token increment size for parsing JSON messages. */
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];

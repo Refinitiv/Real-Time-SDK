@@ -528,7 +528,6 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.catchUnknownJsonFids, DEFAULT_CATCH_UNKNOWN_JSON_FIDS);
 	EXPECT_EQ(baseConfig.closeChannelFromFailure, DEFAULT_CLOSE_CHANNEL_FROM_FAILURE);
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
-	EXPECT_EQ(baseConfig.jsonTokenIncrementSize, DEFAULT_JSON_TOKEN_INCREMENT_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 	EXPECT_EQ(baseConfig.restVerboseMode, DEFAULT_REST_VERBOSE_MODE);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
@@ -637,7 +636,6 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.catchUnknownJsonFids = false;
 	baseConfig.closeChannelFromFailure = false;
 	baseConfig.outputBufferSize = 23;
-	baseConfig.jsonTokenIncrementSize = 42;
 	baseConfig.restEnableLog = true;
 	baseConfig.restVerboseMode = true;
 	baseConfig.restEnableLogViaCallback = true;

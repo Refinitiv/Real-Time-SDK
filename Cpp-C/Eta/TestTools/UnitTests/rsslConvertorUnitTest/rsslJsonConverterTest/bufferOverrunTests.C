@@ -60,8 +60,27 @@ TEST_F(BufferOverrunTests, DictionaryTest)
 	EXPECT_STREQ("Dictionary", _jsonDocument["Domain"].GetString());
 
 	ASSERT_TRUE(_jsonDocument.HasMember("Series"));
-
 }
 
+/*
+ * Trigger UNEXPECTED_KEY with a huge unknown key under Key object.
+ * The key is included in the error message, which is truncated to 250 (ERROR_TEXT_MAX)
+ */
+TEST_F(BufferOverrunTests, UnexpectedKeyErrorOverflow)
+{
+	const std::string hugeKey = "HUGEKEY_" + std::string(4096, 'X');
+	const std::string jsonMsg = std::string("{\"ID\": 2, \"Type\": \"Request\", \"Domain\": \"MarketPrice\", \"Key\": {\"Name\": \"TRI.N\",\"") + hugeKey + "\": 1}}";
+	setJsonBufferToString(jsonMsg.c_str());
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
 
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
 
+	ASSERT_TRUE(_jsonDocument.HasMember("Text"));
+	ASSERT_TRUE(_jsonDocument["Text"].IsString());
+	EXPECT_NE(_jsonDocument["Text"].GetString(), nullptr);
+	EXPECT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Unexpected Key"));
+	EXPECT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "HUGEKEY_"));
+	EXPECT_LE(_jsonDocument["Text"].GetStringLength(), (size_t)ERROR_TEXT_MAX);
+}

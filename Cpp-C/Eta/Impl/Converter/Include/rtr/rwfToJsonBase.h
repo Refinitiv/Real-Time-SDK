@@ -16,6 +16,8 @@
 #include "rtr/rjcbuffer.h"
 #include "rtr/rsslJsonConverter.h"
 #include "rtr/rtratomic.h"
+
+#define JSMN_HEADER
 #include "jsmn.h"
 
 #define MAX_MSG_PREQUEL 24
@@ -157,7 +159,7 @@ public:
 
 
 	// Constructor
-	rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, int numTokens, int incSize);
+	rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, int numTokens);
 
 	// Destructor
 	virtual ~rwfToJsonBase();
@@ -230,8 +232,7 @@ public:
 
 	// Exclusively for OMM JSON container type
 	jsmntok_t *_tokens;
-	int _numTokens;
-	int _incSize;
+	unsigned int _numTokens;
 
 	char *_pstr;
 	u_32 _size;

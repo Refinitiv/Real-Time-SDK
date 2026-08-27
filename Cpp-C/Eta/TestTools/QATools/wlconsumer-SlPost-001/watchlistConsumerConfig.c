@@ -132,7 +132,6 @@ void printUsageAndExit(int argc, char **argv)
 			"-restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth"
 			"\n"
 			"-jsonOutputBufferSize <size>   Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
-			"-jsonTokenIncrementSize <increment> Number of json token increment size for parsing JSON messages"
 			"\n"
 		, argv[0], argv[0]);
 	exit(-1);
@@ -252,7 +251,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	/* Use default values for JSON Converter buffers. */
 	watchlistConsumerConfig.jsonOutputBufferSize = 0;
-	watchlistConsumerConfig.jsonTokenIncrementSize = 0;
 
 	for(i = 1; i < argc; ++i)
 	{
@@ -712,11 +710,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			watchlistConsumerConfig.jsonOutputBufferSize = atoi(argv[i]);
-		}
-		else if (0 == strcmp(argv[i], "-jsonTokenIncrementSize"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-			watchlistConsumerConfig.jsonTokenIncrementSize = atoi(argv[i]);
 		}
 		else if (0 == strcmp(argv[i], "-restProxyHost"))
 		{

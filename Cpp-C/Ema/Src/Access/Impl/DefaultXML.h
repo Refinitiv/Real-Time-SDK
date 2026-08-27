@@ -137,7 +137,6 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ItemCountHint",
 	"IsSource",
 	"JsonExpandedEnumFields",
-	"JsonTokenIncrementSize",
 	"LoginRequestTimeOut",
 	"MaxDispatchCountApiThread",
 	"MaxDispatchCountUserThread",

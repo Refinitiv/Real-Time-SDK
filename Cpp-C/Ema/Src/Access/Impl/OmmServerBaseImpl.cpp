@@ -293,11 +293,6 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		_activeServerConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
-	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
-	{
-		_activeServerConfig.jsonTokenIncrementSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
-	}
-
 	pConfigServerImpl->getLoggerName(_activeServerConfig.configuredName, _activeServerConfig.loggerConfig.loggerName);
 
 	_activeServerConfig.loggerConfig.minLoggerSeverity = OmmLoggerClient::SuccessEnum;
@@ -895,7 +890,6 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeServerConfig.catchUnknownJsonFids;
 		jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeServerConfig.closeChannelFromFailure;
 		jsonConverterOptions.outputBufferSize = _activeServerConfig.outputBufferSize;
-		jsonConverterOptions.jsonTokenIncrementSize = _activeServerConfig.jsonTokenIncrementSize;
 		jsonConverterOptions.sendJsonConvError = _activeServerConfig.sendJsonConvError;
 
 		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)

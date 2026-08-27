@@ -1747,10 +1747,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 												}
-												else if (eentry.getName() == "JsonTokenIncrementSize")
-												{
-													activeConfig.jsonTokenIncrementSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
-												}
 												else if (eentry.getName() == "EnableRtt")
 												{
 													activeConfig.enableRtt = eentry.getUInt() ? true : false;
@@ -1987,10 +1983,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "OutputBufferSize")
 									{
 										activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
-									}
-									else if (eentry.getName() == "JsonTokenIncrementSize")
-									{
-										activeConfig.jsonTokenIncrementSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 									}
 									else if (eentry.getName() == "SendJsonConvError")
 									{

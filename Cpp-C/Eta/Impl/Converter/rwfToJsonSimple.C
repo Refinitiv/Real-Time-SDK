@@ -32,7 +32,7 @@ DEV_THREAD_LOCAL rwfToJsonSimple::SetDefDbMem rwfToJsonSimple::_setDefDbMem;
 //
 //////////////////////////////////////////////////////////////////////
 rwfToJsonSimple::rwfToJsonSimple(int bufSize, u_16 convFlags)
-	: rwfToJsonBase(bufSize, MAX_MSG_SIMPLIFIED_PREQUEL, convFlags, DEFAULT_NUM_TOKENS, DEFAULT_NUM_TOKENS)
+	: rwfToJsonBase(bufSize, MAX_MSG_SIMPLIFIED_PREQUEL, convFlags, DEFAULT_NUM_TOKENS)
 {
 }
 //////////////////////////////////////////////////////////////////////
@@ -1887,25 +1887,33 @@ int rwfToJsonSimple::processJson(RsslDecodeIterator *iterPtr, const RsslBuffer *
 	else
 	{
 		jsmn_parser jsmnParser;
-		while (true)
+
+		jsmn_init(&jsmnParser);
+		int ret = jsmn_parse(&jsmnParser, encDataBufPtr->data,  encDataBufPtr->length, _tokens, _numTokens);
+		if (ret < 0)
 		{
-			jsmn_init(&jsmnParser);
-			jsmnerr_t ret = jsmn_parse(&jsmnParser, encDataBufPtr->data,  encDataBufPtr->length, _tokens, _numTokens);
-			if ( ret < JSMN_SUCCESS)
+			if (ret == JSMN_ERROR_NOMEM)
 			{
-				if ( ret == JSMN_ERROR_NOMEM )
-				{
-				  	free(_tokens);
-					_numTokens += _incSize;
-					if ((_tokens = (jsmntok_t*)malloc(_numTokens * sizeof(jsmntok_t))) == NULL)
-						return 0;
-					continue;
-				}
-				else
+				// We get the needed number of tokens by using NULL as the tokens array
+				jsmn_init(&jsmnParser);
+				ret = jsmn_parse(&jsmnParser, encDataBufPtr->data,  encDataBufPtr->length, NULL, 0);
+				if (ret < 0)
+					return 0;
+
+				// Realloc tokens
+				_numTokens = ret;
+				free(_tokens);
+				if ((_tokens = (jsmntok_t*)malloc(_numTokens * sizeof(jsmntok_t))) == NULL)
+					return 0;
+
+				// Retry parsing with the new token size
+				jsmn_init(&jsmnParser);
+				ret = jsmn_parse(&jsmnParser, encDataBufPtr->data,  encDataBufPtr->length, _tokens, _numTokens);
+				if (ret < 0)
 					return 0;
 			}
 			else
-				break;
+				return 0;
 		}
 
 		writeJsonString(encDataBufPtr->data, encDataBufPtr->length);

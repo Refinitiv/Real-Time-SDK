@@ -11,6 +11,8 @@
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslDataPackage.h"
 #include "rtr/rsslJsonConverter.h"
+
+#define JSMN_HEADER
 #include "jsmn.h"
 
 #define POS_EXP_MIN 0
@@ -42,7 +44,7 @@ class jsonToRwfBase
 		_dictionaryCount = dictionaryCount;
 	}
 
-	jsonToRwfBase(int bufSize, unsigned int flags, int numTokens, int incSize);
+	jsonToRwfBase(int bufSize, unsigned int flags, int numTokens);
 	virtual ~jsonToRwfBase();
 	int decodeJsonMsg(RsslJsonMsg &jsonMsg);
 	int parseJsonBuffer(const RsslBuffer *bufPtr, int offset);
@@ -50,6 +52,10 @@ class jsonToRwfBase
 	virtual void reset();
 	void setRsslServiceNameToIdCallback(void *closure, RsslJsonServiceNameToIdCallback *callback)
 	{ _closure = closure; _rsslServiceNameToIdCallback = callback; }
+
+	// Helper functions
+	static const char *getTokenTypeText(int tokenType);
+	static int safe_snprintf(char *str, size_t offset, size_t maxLength, const char *format, ...);
 
 	const char *errorFile();
 	int *errorLineNum();
@@ -64,8 +70,7 @@ class jsonToRwfBase
 	jsmntok_t *_tokens;
 	jsmntok_t *_tokensEndPtr;
 	jsmntok_t *_curMsgTok;
-	int _numTokens;
-	int _incSize;
+	unsigned int _numTokens;
 
 	int _bufSize;
 	RsslEncodeIterator _iter;
@@ -92,7 +97,7 @@ class jsonToRwfBase
 		EMPTY_MSG = 17 // Empty JSON
 	};
 	errorCodes	_errorCode;
-	jsmnerr_t	_jsmnError;
+	int _jsmnError;
 	jsmntype_t	_expectedTokenType;
 	RsslBuffer _errorParentKey;
 	RsslBuffer _errorMissingKey;

@@ -308,7 +308,7 @@
                             </xs:complexType>
                           </xs:element>
 
-                          <xs:element name="JsonTokenIncrementSize" minOccurs="0" maxOccurs="1">
+                           <xs:element name="JsonTokenIncrementSize" minOccurs="0" maxOccurs="1">
                             <xs:complexType>
                               <xs:attribute name="value" type="xs:unsignedLong" use="required" />
                             </xs:complexType>

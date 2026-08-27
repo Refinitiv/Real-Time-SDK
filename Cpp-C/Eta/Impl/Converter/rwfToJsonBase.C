@@ -29,7 +29,7 @@ rtr_atomic_val rwfToJsonBase::_intToStringTableInitCount = 0;
 // Constructor
 //
 //////////////////////////////////////////////////////////////////////
-rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, int numTokens, int incSize) :
+rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, int numTokens) :
 	_closure(0),
 	_rsslServiceIdToNameCallback(0),
 	_msgClass(0),
@@ -49,7 +49,6 @@ rwfToJsonBase::rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags, 
 	_utf8BufSz(0),
 	_maxPrequel(maxPrequel),
 	_numTokens(numTokens),
-	_incSize(incSize),
 	_pstr(0),
 	_size(0),
 	_dictionaryList(0),

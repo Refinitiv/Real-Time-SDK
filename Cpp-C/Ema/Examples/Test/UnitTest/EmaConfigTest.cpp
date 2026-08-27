@@ -269,8 +269,6 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting JsonExpandedEnumFields from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|OutputBufferSize", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
-	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|JsonTokenIncrementSize", uintValue);
-	EXPECT_TRUE(debugResult && uintValue == 999992) << "extracting JsonTokenIncrementSize from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ShouldInitializeCPUIDlib", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
 	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|RestProxyHostName", retrievedValue);
@@ -1294,7 +1292,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
-			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700)
 			.addUInt("SendJsonConvError", 1)
 			.addUInt("EnablePreferredHostOptions", 1)
@@ -1425,7 +1422,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
-		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
 		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "detectionTimeSchedule , 45 23 * * 6";
@@ -1513,7 +1509,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
-			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700)
 			.addUInt("EnablePreferredHostOptions", 1)
 			.addAscii("PHDetectionTimeSchedule", "45 23 * * 6")
@@ -1639,7 +1634,6 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
-		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.enablePreferredHostOptions == 1) << "enablePreferredHostOptions , \"True\"";
 		EXPECT_TRUE(activeConfig.phDetectionTimeSchedule == "45 23 * * 6") << "phDetectionTimeSchedule , 45 23 * * 6";

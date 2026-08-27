@@ -66,7 +66,6 @@
 			<DefaultServiceID value="1"/>
 			<JsonExpandedEnumFields value="1"/>
 			<OutputBufferSize value="99999"/>
-			<JsonTokenIncrementSize value="999992"/>
 			<SendJsonConvError value="1"/>
 			<ShouldInitializeCPUIDlib value="0"/>
 			<RestProxyHostName value="restproxylocalhost"/>
@@ -122,7 +121,6 @@
 			<DefaultServiceID value="1"/>
 			<JsonExpandedEnumFields value="1"/>
 			<OutputBufferSize value="99999"/>
-			<JsonTokenIncrementSize value="999992"/>
 			<SendJsonConvError value="1"/>
 			<ShouldInitializeCPUIDlib value="0"/>
 			<RestProxyHostName value="restproxylocalhost"/>
