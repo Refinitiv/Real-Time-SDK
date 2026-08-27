@@ -17,8 +17,9 @@ import com.refinitiv.ema.access.OmmConsumerTests;
 
 @RunWith(Suite.class)
 @SuiteClasses({FieldListTests.class, ElementListTests.class, MapTests.class, SeriesTests.class, FilterListTests.class, VectorTests.class, DataDictionaryJunitTest.class,
-	ArrayTests.class, AckMsgTests.class, GenericMsgTests.class, ReqMsgTests.class, RefreshMsgTests.class, StatusMsgTests.class, UpdateMsgTests.class, PostMsgTests.class, 
-	RmtesUnitTest.class, DateTimeTests.class, EmaFileConfigJunitTests.class, LoginHelperTest.class, EmaUtilityTests.class, OmmConsumerTests.class, NiProviderTests.class})
+	ArrayTests.class, AckMsgTests.class, GenericMsgTests.class, ReqMsgTests.class, RefreshMsgTests.class, StatusMsgTests.class, UpdateMsgTests.class, PostMsgTests.class,
+	RmtesUnitTest.class, DateTimeTests.class, EmaFileConfigJunitTests.class, LoginHelperTest.class, EmaUtilityTests.class, OmmConsumerTests.class, NiProviderTests.class,
+	ViewTests.class})
 public class RunAllTests {
 
-} 
+}

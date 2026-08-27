@@ -4067,15 +4067,22 @@ class SingleItem<T> extends Item<T>
 			
 			return false;
 	    }
-		
-		/* There is no need to clone batch request as it is not used for recovering */
-		if(session() != null && _requestMsg == null && !rsslRequestMsg.checkHasBatch())
-		{
-			_requestMsg = (RequestMsg)CodecFactory.createMsg();
-			
-			_requestMsg.msgClass(MsgClasses.REQUEST);
-			rsslRequestMsg.copy(_requestMsg, CopyMsgFlags.ALL_FLAGS);
-		}
+
+        /* Store the request message for recovery and view tracking.
+         * reportError is used to determine whether this is an application submit or Watchlist submit.
+         * Watchlist Submits do not require copying. */
+        if(session() != null && reportError && !rsslRequestMsg.checkHasBatch())
+        {
+            if(_requestMsg == null)
+            {
+                _requestMsg = (RequestMsg)CodecFactory.createMsg();
+                _requestMsg.msgClass(MsgClasses.REQUEST);
+            }
+
+            /* Always update the stored request message with the latest view information */
+            rsslRequestMsg.copy(_requestMsg, CopyMsgFlags.ALL_FLAGS);
+
+        }
 		
 
 		return true;

@@ -40,6 +40,7 @@ class WlRequest extends VaNode
 	boolean _reissue_hasChange = false;
     boolean _reissue_hasViewChange = false;
     boolean _fanoutSolicitedAfterView = false;
+    private boolean _isAddedToUserReqList = false;
     
     int _statusFlags; // Used for the warm standby settings.
 
@@ -68,7 +69,8 @@ class WlRequest extends VaNode
         PENDING_REQUEST, 			// Waiting to send a request message via WlStream
         PENDING_REFRESH,			// Waiting to receive a refresh message
         PENDING_COMPLETE_REFRESH,	// Waiting to receive the complete refresh message for multi-part
-        OPEN 						// Request has been completed									
+        OPEN, 						// Request has been completed
+        CANCELED,                  // Request has been canceled
     }
     
     /* Returns the request message. */
@@ -316,6 +318,11 @@ class WlRequest extends VaNode
     void view(WlView view)
     {
     	_view = view;
+        if (view == null)
+        {
+            _viewType = 0;
+            _viewElemCount = 0;
+        }
     }
       
 	public ArrayList<Integer> viewFieldIdList() 
@@ -358,6 +365,21 @@ class WlRequest extends VaNode
     	_statusFlags = flags;
     }
     
+    boolean isAddedToUserReqList()
+    {
+    	return _isAddedToUserReqList;
+    }
+    
+    void addedToUserReqList()
+    {
+    	_isAddedToUserReqList = true;
+    }
+    
+    void removedFromUserReqList()
+    {
+    	_isAddedToUserReqList = false;
+    }
+    
 	/* Clears the object for re-use. */
     void clear()
     {
@@ -378,10 +400,9 @@ class WlRequest extends VaNode
         _initialResponseReceived = false;
         _symbolListFlags = 0;
         _tableKey = null;
-        _viewElemCount = 0;
-        _viewType = 0;
         _fanoutSolicitedAfterView = false;
-        _view = null;
+        _isAddedToUserReqList = false;
+        view(null);
     }
     
     @Override
@@ -400,8 +421,8 @@ class WlRequest extends VaNode
         
         _handler = null;
         _stream = null;
-        _view = null;
-        
+        view(null);
+
         /* Clears user-specified object given when the stream was opened by users.*/
         _streamInfo.clear();
         

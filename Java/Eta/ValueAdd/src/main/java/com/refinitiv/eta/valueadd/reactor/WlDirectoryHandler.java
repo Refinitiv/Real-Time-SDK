@@ -150,6 +150,7 @@ class WlDirectoryHandler implements WlHandler
             case MsgClasses.CLOSE:
                 // remove watchlist request form userRequestList
                 _stream.userRequestList().remove(wlRequest);
+                wlRequest.removedFromUserReqList();
                 
                 // close watchlist request
                 _watchlist.closeWlRequest(wlRequest);

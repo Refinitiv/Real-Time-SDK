@@ -1932,7 +1932,7 @@ public class OmmConsumerTests extends TestCase
 			Thread.sleep(7000);
 			
 			/* Ensure that the provider receives a request message but it doesn't send a response back. */
-			assertEquals(3, providerClient1.queueSize());
+			assertEquals(2, providerClient1.queueSize());
 			
 			Msg message = providerClient1.popMessage();
 			ReqMsg recvReqMsg = (ReqMsg)message;
@@ -1950,10 +1950,7 @@ public class OmmConsumerTests extends TestCase
 			assertEquals(1, recvReqMsg.serviceId());
 			assertEquals("DIRECT_FEED", recvReqMsg.serviceName());
 			assertEquals("LSEG.O", recvReqMsg.name());
-			
-			message = providerClient1.popMessage();
-			recvReqMsg = (ReqMsg)message;
-			
+
 			assertEquals(1, consumerClient.queueSize());
 			message = consumerClient.popMessage();
 			

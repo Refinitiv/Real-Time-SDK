@@ -342,9 +342,12 @@ public class ReactorWatchlistItemHandlerJunit {
 
         // Create second request message
         prepareRequestMsg(false, viewFieldList, requestMsg);
+        
+        /* The Watchlist component creates an unique  WlRequest for each  user request.*/
+        WlRequest wlRequest2 = ReactorFactory.createWlRequest();
 
         // Call target method
-        itemHandler.handleRequest(wlRequest, requestMsg, submitOptions, false, errorInfo);
+        itemHandler.handleRequest(wlRequest2, requestMsg, submitOptions, false, errorInfo);
 
         assertEquals(WlRequest.State.PENDING_REFRESH, wlRequest.state());
         assertEquals(0, wlRequest.stream().waitingRequestList().size());
@@ -414,10 +417,13 @@ public class ReactorWatchlistItemHandlerJunit {
         wlRequest.stream()._refreshState = WlStream.RefreshStates.REFRESH_VIEW_PENDING;
 
         // Create second request message
-        prepareRequestMsg(false, viewFieldList, requestMsg);
+        prepareRequestMsg(false, viewFieldList, requestMsg); 
+        
+        /* The Watchlist component creates an unique  WlRequest for each  user request.*/
+        WlRequest wlRequest2 = ReactorFactory.createWlRequest();
 
         // Call target method
-        itemHandler.handleRequest(wlRequest, requestMsg, submitOptions, false, errorInfo);
+        itemHandler.handleRequest(wlRequest2, requestMsg, submitOptions, false, errorInfo);
 
         assertEquals(WlRequest.State.PENDING_REFRESH, wlRequest.state());
         assertEquals(0, wlRequest.stream().waitingRequestList().size());

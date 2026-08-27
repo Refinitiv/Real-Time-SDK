@@ -295,7 +295,10 @@ class WlItemHandler implements WlHandler
                 // add to waiting request list for service            	
                 wlRequest.streamInfo().serviceName(submitOptions.serviceName());
                 wlRequest.streamInfo().userSpecObject(submitOptions.requestMsgOptions().userSpecObj());
-                wlService.waitingRequestList().add(wlRequest);         	
+                // Request may carry decoded view metadata before a WlView is created
+                // Clear installed view state while it's in the waiting Request List
+                wlRequest.view(null);
+                wlService.waitingRequestList().add(wlRequest);
             }
         }
         else // cannot open item at this time, add to pending request table if not private stream
@@ -363,8 +366,13 @@ class WlItemHandler implements WlHandler
                     return ret;
             }
 
-            // add request to stream
-            wlStream.userRequestList().add(wlRequest);
+            /* Checks to add user request to the stream only once. */
+            if(wlRequest.isAddedToUserReqList() == false)
+            {
+            	// add request to stream
+            	wlStream.userRequestList().add(wlRequest);
+            	wlRequest.addedToUserReqList();
+            }
 
             if ( wlRequest.requestMsg().checkPause() && wlRequest.requestMsg().checkStreaming())
                 wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() + 1);
@@ -453,7 +461,14 @@ class WlItemHandler implements WlHandler
             {
                 // join the snapshot request to the existing snapshot stream
                 wlRequest.state(State.PENDING_REFRESH);
-                wlStream.userRequestList().add(wlRequest);
+                
+                /* Checks to add user request to the stream only once. */
+                if(wlRequest.isAddedToUserReqList() == false)
+                {
+                	// add request to stream
+                	wlStream.userRequestList().add(wlRequest);
+                	wlRequest.addedToUserReqList();
+                }
             }
             else
             {
@@ -468,10 +483,20 @@ class WlItemHandler implements WlHandler
 
                     // join the snapshot request to the existing stream
                     wlRequest.state(State.PENDING_REFRESH);
-                    wlStream.userRequestList().add(wlRequest);
+                    
+                    /* Checks to add user request to the stream only once. */
+                    if(wlRequest.isAddedToUserReqList() == false)
+                    {
+                    	// add request to stream
+                    	wlStream.userRequestList().add(wlRequest);
+                    	wlRequest.addedToUserReqList();
+                    }
                 } else {
                     // currently in the middle of snapshot, multi-part refresh or pending view
                     wlRequest.state(State.PENDING_REQUEST);
+                    // Adds request to waitingRequestList before handleViews() creates view
+                    // Keep null view consistent while in queue
+                    wlRequest.view(null);
                     wlStream.waitingRequestList().add(wlRequest);
                 }
             }
@@ -491,6 +516,7 @@ class WlItemHandler implements WlHandler
 
         // add to fanout list
         wlStream.userRequestList().add(wlRequest);
+        wlRequest.addedToUserReqList();
 
         int ret;
         if ( requestMsg.checkHasView() && requestMsg.domainType() != DomainTypes.SYMBOL_LIST)
@@ -1223,6 +1249,10 @@ class WlItemHandler implements WlHandler
                             if (!requestMsg.checkNoRefresh())
                             {
                                 wlRequest.state(WlRequest.State.PENDING_REFRESH);
+
+                                // A view reissue expects a new solicited refresh fanout cycle.
+                                if (wlRequest._reissue_hasViewChange)
+                                    wlRequest._fanoutSolicitedAfterView = false;
                             }
                         }
 
@@ -1231,7 +1261,11 @@ class WlItemHandler implements WlHandler
 
                         if (_hasPendingViewRequest)
                         {
-                            wlRequest.stream().waitingRequestList().add(wlRequest);
+                        	/* wlRequest is already added to the user request list to receive the response.
+                        	 * So, the wlRequest is added to the waiting list to wait for pending view change. */
+                        	if(!wlRequest.stream().waitingRequestList().contains(wlRequest))
+                        		wlRequest.stream().waitingRequestList().add(wlRequest);
+                        	
                             _hasPendingViewRequest = false;
                         }
                     }
@@ -1239,7 +1273,11 @@ class WlItemHandler implements WlHandler
                     {
                         // add to waiting request list
                         if(wlRequest._reissue_hasChange)
-                            wlRequest.stream().waitingRequestList().add(wlRequest);
+                        {
+                        	if(!wlRequest.stream().waitingRequestList().contains(wlRequest))
+                        		wlRequest.stream().waitingRequestList().add(wlRequest);
+                        }
+                            
                     }
                 }
                 else
@@ -1599,9 +1637,6 @@ class WlItemHandler implements WlHandler
             	
             	if (wlStream != null)
             	{
-                	if (wlStream.requestPending() && wlStream.wlService() != null)
-                		wlStream.wlService().numOutstandingRequests(wlStream.wlService().numOutstandingRequests() - 1);
-                	
             	    ret = removeUserRequestFromOpenStream(wlRequest, msg, wlStream, submitOptions, errorInfo);
             	}
             	else
@@ -1697,10 +1732,124 @@ class WlItemHandler implements WlHandler
 
         return ret;
     }
-    
+
+    private boolean requestWaitingForRefresh(WlRequest wlRequest)
+    {
+        return wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
+                wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH;
+    }
+
+    private int finalizeRemovedUserRequest(WlRequest wlRequest, WlStream wlStream,
+            ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo, boolean deferProviderActionForWaitingRequests)
+    {
+        int ret = ReactorReturnCodes.SUCCESS;
+        boolean sendProviderAction = !(deferProviderActionForWaitingRequests && !wlStream.waitingRequestList().isEmpty());
+
+        wlStream.refreshState(RefreshStates.REFRESH_NOT_REQUIRED);
+
+        if (wlRequest.requestMsg().checkPause())
+        {
+            wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() - 1);
+        }
+
+        if (wlRequest.requestMsg().checkHasView() && wlStream._requestsWithViewCount > 0)
+        {
+            removeRequestView(wlStream, wlRequest, errorInfo);
+            wlStream._pendingViewChange = true;
+        }
+        else if (wlStream._requestsWithViewCount > 0)
+        {
+            wlStream._pendingViewChange = true;
+        }
+
+        if (wlStream.state().streamState() == StreamStates.OPEN)
+        {
+            if (wlStream.userRequestList().isEmpty())
+            {
+                if (sendProviderAction)
+                {
+                    if (wlStream.requestPending() && wlStream.wlService() != null)
+                        wlStream.wlService().numOutstandingRequests(wlStream.wlService().numOutstandingRequests() - 1);
+
+                    // Last user request was removed so we have to treat any waiting request as canceled
+                    // before issuing stream close to avoid stale pending-refresh. Set requestPending to false.
+                    wlStream.responseReceived();
+
+                    closeWlStream(wlRequest.stream());
+
+                    _closeMsg.clear();
+                    _closeMsg.msgClass(MsgClasses.CLOSE);
+                    _closeMsg.streamId(wlRequest.stream().streamId());
+                    _closeMsg.domainType(wlRequest.stream().domainType());
+
+                    if ((ret = wlRequest.stream().sendMsgOutOfLoop(_closeMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
+                    {
+                        return ret;
+                    }
+
+                    // If inside dispatch reading a message on this stream,
+                    // don't repool it yet. The fanout will still be accessing it, e.g. iterating over its userRequestList.
+                    // If not in dispatch, however, it's safe to repool it now.
+                    if (wlStream == _currentFanoutStream)
+                        _currentFanoutStream = null;
+                    else
+                        wlRequest.stream().returnToPool();
+                }
+            }
+            else
+            {
+                // update priority
+                // reduce stream priority count by that in user request being closed
+                int streamPriorityCount = wlRequest.stream().requestMsg().checkHasPriority() ?
+                        wlRequest.stream().requestMsg().priority().count() : 1;
+                int userRequestPriorityCount = wlRequest.requestMsg().checkHasPriority() ?
+                        wlRequest.requestMsg().priority().count() : 1;
+                wlRequest.stream().requestMsg().priority().count(streamPriorityCount - userRequestPriorityCount);
+
+                if (sendProviderAction)
+                {
+                    if (wlStream.requestPending() && wlStream.wlService() != null)
+                        wlStream.wlService().numOutstandingRequests(wlStream.wlService().numOutstandingRequests() - 1);
+
+                    // resend and preserve solicited refresh's behaviorr for any remaining pending requests
+                    boolean needsSolicitedRefresh = false;
+                    for (WlRequest remainingRequest : wlStream.userRequestList())
+                    {
+                        if (remainingRequest.state() == WlRequest.State.PENDING_REFRESH)
+                        {
+                            needsSolicitedRefresh = true;
+                            break;
+                        }
+                    }
+
+                    if (!needsSolicitedRefresh)
+                        wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);
+
+                    wlRequest.stream().sendMsgOutOfLoop(wlRequest.stream().requestMsg(), submitOptions, errorInfo);
+
+                    if (!needsSolicitedRefresh)
+                        wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
+                }
+            }
+        }
+        
+        if(wlRequest.stream() != null)
+        {
+        	while(wlStream.waitingRequestList().remove(wlRequest));
+        	while(wlStream.userRequestList().remove(wlRequest));
+        }
+
+        closeWlRequest(wlRequest);
+        repoolWlRequest(wlRequest);
+
+        return ret;
+    }
+
     private int removeUserRequestFromOpenStream(WlRequest wlRequest, Msg msg, WlStream wlStream, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
+
+		_requestTimeoutList.remove(wlRequest);
     	
         Iterator<WlRequest> wlRequestIter = wlStream.waitingRequestList().iterator();
         while (wlRequestIter.hasNext())
@@ -1709,11 +1858,25 @@ class WlItemHandler implements WlHandler
 
             if (wlRequestInList.requestMsg().streamId() == wlRequest.requestMsg().streamId()) {
             	wlRequestIter.remove();
+            	
+            	/* Remove the same WlRequest object from the waiting request list as it can be added with multiple reissues. */
+            	while(wlStream.waitingRequestList().remove(wlRequest));
 
-                // close watchlist request
-                closeWlRequest(wlRequest);
-                repoolWlRequest(wlRequest);
-                return ret;
+            	/* Returns back to the pool when WlRequest is not belong to the user request list.*/
+            	if(!wlStream.userRequestList().contains(wlRequest))
+            	{
+            		// close watchlist request
+            		closeWlRequest(wlRequest);
+            		repoolWlRequest(wlRequest);
+            		return ret;
+            	}
+            	else
+            	{
+                 	/* The WlRequest can be in the user request list when it is added
+                 	 * to the waiting request list for the item reissue with pending view change. 
+                 	 * Therefore, the WlRequest in the user request list will be handled below. */
+            		break;
+            	}
             }
         }
         
@@ -1723,72 +1886,18 @@ class WlItemHandler implements WlHandler
         	WlRequest wlRequestInList = wlRequestIter.next();
 
             if (wlRequestInList.requestMsg().streamId() == wlRequest.requestMsg().streamId()) {
-            	wlRequestIter.remove();
+              if (requestWaitingForRefresh(wlRequestInList))
+              {
+                wlRequestInList.state(WlRequest.State.CANCELED);
+                break;
+              }
 
-            	wlStream.refreshState(RefreshStates.REFRESH_NOT_REQUIRED);
-
-       			if (wlRequest.requestMsg().checkPause())
-    			{
-       				wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() - 1);
-    			}
-
-       			if (wlRequest.requestMsg().checkHasView() &&  wlStream._requestsWithViewCount > 0)
-       			{
-       				removeRequestView(wlStream, wlRequest, errorInfo);
-       				wlStream._pendingViewChange = true;
-       			}
-       			else if (wlStream._requestsWithViewCount > 0 )
-       				wlStream._pendingViewChange = true;
-
-       			if (wlStream.state().streamState() == StreamStates.OPEN)
-       			{
-                    // Stream is open; need to change priority or close it.
-	                if (wlStream.userRequestList().isEmpty())
-	                {
-                        closeWlStream(wlRequest.stream());
-
-                        msg.copy(_closeMsg, CopyMsgFlags.NONE);
-
-                        _closeMsg.streamId(wlRequest.stream().streamId());
-
-	                    if ((ret = wlRequest.stream().sendMsgOutOfLoop(_closeMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
-	                    {
-	                        return ret;
-	                    }
-
-	                    // If inside dispatch reading a message on this stream,
-                        // don't repool it yet. The fanout will still be accessing it, e.g. iterating over its userRequestList.
-                        // If not in dispatch, however, it's safe to repool it now.
-	                    if (wlStream == _currentFanoutStream)
-	                        _currentFanoutStream = null;
-	                    else
-	                        wlRequest.stream().returnToPool();
-	                }
-	                else
-	                {
-	                    // update priority
-	                    // reduce stream priority count by that in user request being closed
-	                    int streamPriorityCount =  wlRequest.stream().requestMsg().checkHasPriority() ?
-	                            wlRequest.stream().requestMsg().priority().count() : 1;
-	                    int userRequestPriorityCount = wlRequest.requestMsg().checkHasPriority() ?
-	                            wlRequest.requestMsg().priority().count() : 1;
-	                    wlRequest.stream().requestMsg().priority().count(streamPriorityCount - userRequestPriorityCount);
-
-	                    // resend
-	                    wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);
-	                    wlRequest.stream().sendMsgOutOfLoop(wlRequest.stream().requestMsg(), submitOptions, errorInfo);
-	                    wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
-	                }
-       			}
-
-                // close watchlist request
-                closeWlRequest(wlRequest);
-                repoolWlRequest(wlRequest);
+	            wlRequestIter.remove();
+	            wlRequestInList.removedFromUserReqList();
+                ret = finalizeRemovedUserRequest(wlRequest, wlStream, submitOptions, errorInfo, false);
                 break;
             }
         }
-
-        _requestTimeoutList.remove(wlRequest);
 
         return ret;
     }
@@ -2102,6 +2211,16 @@ class WlItemHandler implements WlHandler
             WlRequest usrRequest;
             for (usrRequest = wlStream.userRequestList().poll(); usrRequest != null; usrRequest = wlStream.userRequestList().poll())
             {
+            	/* Reset the flag as WlRequest is removed from the user request list. */
+            	usrRequest.removedFromUserReqList();
+            	
+                if (usrRequest.state() == State.CANCELED)
+                {
+                    closeWlRequest(usrRequest);
+                    repoolWlRequest(usrRequest);
+                    continue;
+                }
+
                 msg.streamId(usrRequest.requestMsg().streamId());
                 msg.domainType(usrRequest.requestMsg().domainType());
 
@@ -2175,8 +2294,8 @@ class WlItemHandler implements WlHandler
                 
         boolean isRefreshComplete = msg.checkRefreshComplete();
         
-        boolean fanoutViewPendingRefresh =( (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) && 
-        									(wlStream.aggregateView() != null && wlStream.aggregateView().elemCount() != wlStream._requestsWithViewCount) );
+        boolean fanoutViewPendingRefresh = (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING ||
+                (msg.checkSolicited() && wlStream.requestMsg().checkHasView()));
         boolean solicitedRefresh = (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_PENDING ||
         		wlStream.refreshState() == WlStream.RefreshStates.REFRESH_COMPLETE_PENDING); 
 
@@ -2201,7 +2320,8 @@ class WlItemHandler implements WlHandler
             return ReactorReturnCodes.SUCCESS;
 
         int listSize = wlStream.userRequestList().size();
-        
+        ArrayList<WlRequest> canceledRequests = null;
+
         // decrement number of outstanding requests on service when the request has not been removed by the user
         if (isRefreshComplete && (listSize != 0) )
         {
@@ -2218,13 +2338,25 @@ class WlItemHandler implements WlHandler
             
             wlRequest.handlePendingViewFanout(fanoutViewPendingRefresh);
 
+            if (wlRequest.state() == WlRequest.State.CANCELED)
+            {
+                if (isRefreshComplete)
+                {
+                    if (canceledRequests == null)
+                        canceledRequests = new ArrayList<>();
+
+                    canceledRequests.add(wlRequest);
+                }
+                continue;
+            }
+
             // only fanout if refresh is desired and refresh is unsolicited or to those whose state is awaiting refresh
             if (!wlRequest.requestMsg().checkNoRefresh() &&
                     (!msg.checkSolicited() ||
                      wlRequest.solicitedRefreshNeededForView(solicitedRefresh) ||
                      wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
-                     wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH) ||
-                     fanoutViewPendingRefresh)
+                     wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH ||
+                     fanoutViewPendingRefresh))
             {
                 // check refresh complete flag and change state of user request accordingly
                 if (isRefreshComplete)
@@ -2351,6 +2483,20 @@ class WlItemHandler implements WlHandler
             }
         }
 
+        if (isRefreshComplete && canceledRequests != null)
+        {
+            for (WlRequest canceledRequest : canceledRequests)
+            {
+                if (wlStream.userRequestList().remove(canceledRequest))
+                {
+                	canceledRequest.removedFromUserReqList();
+                    ret = finalizeRemovedUserRequest(canceledRequest, wlStream, _submitOptions, errorInfo, true);
+                    if (ret < ReactorReturnCodes.SUCCESS)
+                        return ret;
+                }
+            }
+        }
+
         if (_currentFanoutStream != null)
         {
             /* if no longer waiting for snapshot, send requests in waiting request list */
@@ -2372,16 +2518,38 @@ class WlItemHandler implements WlHandler
                 }
             }
 
+            if (wlStream.userRequestList().isEmpty() && wlStream.waitingRequestList().isEmpty())
+            {
+                closeWlStream(wlStream);
+                _currentFanoutStream = null;
+            }
+
             if (_snapshotViewClosed)
             {
                 _snapshotViewClosed = false;
 
-                if ( currentViewCount > 0 && wlStream._requestsWithViewCount == currentViewCount && !wlStream.userRequestList().isEmpty() && (_wlViewHandler.resorted() ||
+                if ( currentViewCount > 0 && wlStream._requestsWithViewCount >= currentViewCount && !wlStream.userRequestList().isEmpty() && (_wlViewHandler.resorted() ||
                             !_wlViewHandler.commitedViewsContainsAggregateView(wlStream._aggregateView)) && wlStream._requestsWithViewCount == wlStream._userRequestList.size())
                 { 
-                    wlStream.requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);            		 
+                    boolean needsSolicitedRefresh = false;
+                    for (int reqIdx = 0; reqIdx < wlStream.userRequestList().size(); ++reqIdx)
+                    {
+                        WlRequest userRequest = wlStream.userRequestList().get(reqIdx);
+                        if (userRequest.state() == WlRequest.State.PENDING_REFRESH)
+                        {
+                            needsSolicitedRefresh = true;
+                            break;
+                        }
+                    }
+
+                    if (!needsSolicitedRefresh)
+                        wlStream.requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);
+
                     wlStream.sendMsgOutOfLoop(wlStream.requestMsg(), _submitOptions, errorInfo);
-                    wlStream.requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
+
+                    if (!needsSolicitedRefresh)
+                        wlStream.requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
+
                     if (_wlViewHandler.resorted()) _wlViewHandler.resorted(false);
                 }
             }           
@@ -2459,6 +2627,9 @@ class WlItemHandler implements WlHandler
             for (int i = 0; i < wlStream.userRequestList().size(); i++)
             {
                 WlRequest wlRequest = wlStream.userRequestList().get(i);
+
+                if (wlRequest.state() == WlRequest.State.CANCELED)
+                    continue;
 
                 // update stream id in message to that of user request
                 msg.streamId(wlRequest.requestMsg().streamId());
@@ -3355,20 +3526,69 @@ class WlItemHandler implements WlHandler
     {
         closeWlStream(wlStream);
 
-        // fanout status to user and add requests to request timeout list
+        // fanout status to user and add requests to request timeout list for both User Request List and Waiting Request List
+        // Note that pending Snapshot View requests should still be requested when possible
+
         LinkedList<WlRequest> requestList = wlStream.userRequestList();
         WlRequest usrRequest;
         for (usrRequest = requestList.poll(); usrRequest != null; usrRequest = requestList.poll())
         {
+        	usrRequest.removedFromUserReqList();
+            if (usrRequest.state() == State.CANCELED)
+            {
+                closeWlRequest(usrRequest);
+                repoolWlRequest(usrRequest);
+                continue;
+            }
+
             usrRequest.state(State.PENDING_REQUEST);
-            
-            // add to request timeout list only if single open supported
-            if (_watchlist.loginHandler().supportSingleOpen())
+
+            boolean addedToTimeoutList = false;
+            // Check if the request can be added to timeout list
+            if (!usrRequest._requestMsg.checkPrivateStream() && (_watchlist.loginHandler().supportSingleOpen() || _watchlist.loginHandler().supportAllowSuspectData()))
             {
                 _requestTimeoutList.add(usrRequest);
+                addedToTimeoutList = true;
             }
-            
+
+            // Always send status message about this stream state
             sendStatus(usrRequest.requestMsg().streamId(), usrRequest.requestMsg().domainType(), "Request timeout", usrRequest.requestMsg().checkPrivateStream());
+
+            // In the case where the request was not added to the timeout list, close it
+            if (!addedToTimeoutList)
+            {
+                closeWlRequest(usrRequest);
+            }
+        }
+
+        LinkedList<WlRequest> waitingRequestList = wlStream.waitingRequestList();
+        for (usrRequest = waitingRequestList.poll(); usrRequest != null; usrRequest = waitingRequestList.poll())
+        {
+            if (usrRequest.state() == State.CANCELED)
+            {
+                closeWlRequest(usrRequest);
+                repoolWlRequest(usrRequest);
+                continue;
+            }
+
+            usrRequest.state(State.PENDING_REQUEST);
+
+            boolean addedToTimeoutList = false;
+            // Check if the request can be added to timeout list
+            if (!usrRequest._requestMsg.checkPrivateStream() && (_watchlist.loginHandler().supportSingleOpen() || _watchlist.loginHandler().supportAllowSuspectData()))
+            {
+                _requestTimeoutList.add(usrRequest);
+                addedToTimeoutList = true;
+            }
+
+            // Always send status message about this stream state
+            sendStatus(usrRequest.requestMsg().streamId(), usrRequest.requestMsg().domainType(), "Request timeout", usrRequest.requestMsg().checkPrivateStream());
+
+            // In the case where the request was not added to the timeout list, close it
+            if (!addedToTimeoutList)
+            {
+                closeWlRequest(usrRequest);
+            }
         }
 
         wlStream.returnToPool();
@@ -3694,8 +3914,9 @@ class WlItemHandler implements WlHandler
 	private int extractViewFromMsg(WlRequest wlRequest, RequestMsg requestMsg, ReactorErrorInfo errorInfo)
 	{		
 		wlRequest.viewElemCount(0);
+        wlRequest.viewType(0);
 		_viewDataFound = false;		
-	    _viewElemCount = 0;	    
+	    _viewElemCount = 0;
 		_elementList.clear();
 		_elementEntry.clear();
 		_hasViewType = false;
@@ -4100,6 +4321,14 @@ class WlItemHandler implements WlHandler
                     break;
                 default:
                     break;
+            }
+            
+            WlStream wlStream = wlRequest.stream();
+            
+            /* Removes this view from the aggregated view as the WlRequest is cancelled. */
+            if(wlStream != null && wlStream.aggregateView() != null)
+            {
+                wlStream.aggregateView().newViews().remove(wlRequest.view());
             }
             
             _wlViewHandler.destroyView(wlRequest._view);

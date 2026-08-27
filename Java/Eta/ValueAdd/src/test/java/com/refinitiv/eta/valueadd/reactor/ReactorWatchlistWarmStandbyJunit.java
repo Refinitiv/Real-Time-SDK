@@ -840,6 +840,7 @@ public class ReactorWatchlistWarmStandbyJunit {
             refreshMsg.streamId(providerStreamId);
             refreshMsg.containerType(DataTypes.NO_DATA);
             refreshMsg.applyHasMsgKey();
+            refreshMsg.applyRefreshComplete();
             refreshMsg.msgKey().applyHasServiceId();
             refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
             refreshMsg.msgKey().applyHasName();
@@ -877,6 +878,7 @@ public class ReactorWatchlistWarmStandbyJunit {
             refreshMsg.msgKey().applyHasServiceId();
             refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
             refreshMsg.msgKey().applyHasName();
+            refreshMsg.applyRefreshComplete();
             refreshMsg.msgKey().name().data("TRI.N");
             refreshMsg.msgKey().applyHasIdentifier();
             refreshMsg.msgKey().identifier(1);

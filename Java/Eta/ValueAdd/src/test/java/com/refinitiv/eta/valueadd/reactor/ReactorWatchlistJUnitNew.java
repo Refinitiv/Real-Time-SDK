@@ -20751,6 +20751,791 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
+    public void snapshotOverlappingViewTimeoutAggregatesRetryTest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* First snapshot for TRI.N with view [22,25]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertFalse(receivedRequestMsg.checkStreaming());
+            assertTrue(receivedRequestMsg.checkHasView());
+            assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList));
+            /* Overlapping snapshot for TRI.N with second view [30,31]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(6);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(30);
+            viewFieldList.add(31);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* 2nd request waits while first request has no response. */
+            providerReactor.dispatch(0);
+            try
+            {
+                Thread.sleep(5000);
+            }
+            catch (InterruptedException e)
+            {
+                assert(false);
+            }
+            consumerReactor.dispatch(2);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(6, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            /* Retry must carry merged view [22,25,30,31]. */
+            providerReactor.dispatch(2);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertFalse(receivedRequestMsg.checkStreaming());
+            assertTrue(receivedRequestMsg.checkHasView());
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            viewFieldList.add(30);
+            viewFieldList.add(31);
+            List<Integer> decodedViewFieldList = new ArrayList<Integer>();
+            decodeViewDataForFieldId(consumer.reactorChannel(), receivedRequestMsg, decodedViewFieldList);
+            Collections.sort(viewFieldList);
+            Collections.sort(decodedViewFieldList);
+            assertEquals(viewFieldList, decodedViewFieldList);
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+    @Test
+    public void snapshotOverlappingViewTimeoutAggregatesSingleRetryRequestTest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* First snapshot for TRI.N with view [22,25]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            /* Overlapping snapshot for TRI.N with second view [30,31]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(6);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(30);
+            viewFieldList.add(31);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Third overlap for TRI.N with view [1025]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(7);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(1025);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Additional overlaps should remain queued while first request times out. */
+            providerReactor.dispatch(0);
+            try
+            {
+                Thread.sleep(5000);
+            }
+            catch (InterruptedException e)
+            {
+                assert(false);
+            }
+            consumerReactor.dispatch(3);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(6, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(7, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            /* Provider gets a close and one merged retry request only. */
+            providerReactor.dispatch(2);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertFalse(receivedRequestMsg.checkStreaming());
+            assertTrue(receivedRequestMsg.checkHasView());
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            viewFieldList.add(30);
+            viewFieldList.add(31);
+            viewFieldList.add(1025);
+            List<Integer> decodedViewFieldList = new ArrayList<Integer>();
+            decodeViewDataForFieldId(consumer.reactorChannel(), receivedRequestMsg, decodedViewFieldList);
+            Collections.sort(viewFieldList);
+            Collections.sort(decodedViewFieldList);
+            assertEquals(viewFieldList, decodedViewFieldList);
+            /* Ensure there is no second timeout retry request for the same item. */
+            providerReactor.dispatch(0);
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+
+    /**
+     * Tests the requestTimeout() path where a user request in the active userRequestList
+     * times out when singleOpen is disabled: status is always sent but the request is
+     * NOT added to the retry list, so no new request is sent to the provider.
+     */
+    @Test
+    public void requestTimeoutUserRequestNoRetryWhenSingleOpenOffTest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer with singleOpen=0 and allowSuspectData=0. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
+        consumerRole.rdmLoginRequest().attrib().singleOpen(0);
+        consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
+        consumerRole.rdmLoginRequest().attrib().allowSuspectData(0);
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* Consumer sends a streaming request for TRI.N. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Provider receives the request. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            /* Wait for request timeout. */
+            try { Thread.sleep(5000); } catch (InterruptedException e) { assert(false); }
+            /* Consumer receives exactly one status (CLOSED_RECOVER) for the timeout.
+               The request is NOT retried because singleOpen is off. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            assertEquals(StreamStates.CLOSED_RECOVER, statusMsg.state().streamState());
+            /* Provider receives only a CLOSE — no retry request. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+
+    /**
+     * Tests the requestTimeout() path where a waiting snapshot-view request is NOT added
+     * to the retry list (because singleOpen=0 AND allowSuspectData=0) and is therefore
+     * CLOSED.  Both the active request (userRequestList) and the waiting request
+     * (waitingRequestList) each receive a CLOSED_RECOVER status.  No retry reaches the
+     * provider.
+     */
+    @Test
+    public void requestTimeoutWaitingRequestClosedWhenNoRetryConditionTest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer with singleOpen=0 and allowSuspectData=0. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
+        consumerRole.rdmLoginRequest().attrib().singleOpen(0);
+        consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
+        consumerRole.rdmLoginRequest().attrib().allowSuspectData(0);
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* First snapshot for TRI.N with view [22,25]. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            receivedRequestMsg = (RequestMsg)msgEvent.msg();
+            assertFalse(receivedRequestMsg.checkStreaming());
+            /* Second overlapping snapshot for TRI.N with view [30,31] — goes to waitingRequestList. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(6);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            viewFieldList.clear();
+            viewFieldList.add(30);
+            viewFieldList.add(31);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Provider sees no extra traffic while the first request is outstanding. */
+            providerReactor.dispatch(0);
+            /* Wait for timeout. */
+            try { Thread.sleep(5000); } catch (InterruptedException e) { assert(false); }
+            /* Both requests get a CLOSED_RECOVER status.
+               The waiting request (stream 6) is closed — NOT added to the retry list. */
+            consumerReactor.dispatch(2);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            assertEquals(StreamStates.CLOSED_RECOVER, statusMsg.state().streamState());
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(6, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            assertEquals(StreamStates.CLOSED_RECOVER, statusMsg.state().streamState());
+            /* Provider receives only a CLOSE — no retry request since neither
+               singleOpen nor allowSuspectData is enabled. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+        }
+        finally
+        {
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+
+    /**
+     * Tests the requestTimeout() userRequestList path for private stream requests.
+     * Even with singleOpen/allowSuspectData enabled, private stream requests are
+     * not added to the retry list and are closed after timeout.
+     */
+    @Test
+    public void requestTimeoutPrivateStreamUserRequestClosedNoRetryTest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer with singleOpen=1 and allowSuspectData=1. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
+        consumerRole.rdmLoginRequest().attrib().singleOpen(1);
+        consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
+        consumerRole.rdmLoginRequest().attrib().allowSuspectData(1);
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* Consumer sends a private stream request for TRI.N. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.applyPrivateStream();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI.N");
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Provider receives the request. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            /* Wait for timeout. */
+            try { Thread.sleep(5000); } catch (InterruptedException e) { assert(false); }
+            /* Consumer receives timeout status for the private stream request. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertEquals(5, statusMsg.streamId());
+            assertTrue(statusMsg.checkHasState());
+            assertEquals("Request timeout", statusMsg.state().text().toString());
+            assertEquals(StreamStates.CLOSED_RECOVER, statusMsg.state().streamState());
+
+            /* Provider receives only CLOSE, no retry REQUEST. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent)event.reactorEvent();
+            assertEquals(MsgClasses.CLOSE, msgEvent.msg().msgClass());
+        }
+        finally
+        {
+            consumerReactor.dispatch(-1, 100);
+            providerReactor.dispatch(-1, 100);
+            while (consumerReactor.pollEvent() != null) { }
+            while (providerReactor.pollEvent() != null) { }
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }
+
+    @Test
+    public void waitingRequestNullViewReissueDoesNotNPETest()
+    {
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg) CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg) CodecFactory.createMsg();
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        int providerStreamId;
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole) consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole) provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        try
+        {
+            ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+            opts.setupDefaultLoginStream(true);
+            opts.setupDefaultDirectoryStream(true);
+            provider.bind(opts);
+            TestReactor.openSession(consumer, provider, opts);
+            /* Stream 5: first streaming view request for TRI with view [22, 25].
+             * Provider receives this and the WlStream becomes REFRESH_VIEW_PENDING. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(5);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI");
+            viewFieldList.add(22);
+            viewFieldList.add(25);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent) event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            receivedRequestMsg = (RequestMsg) msgEvent.msg();
+            assertTrue(receivedRequestMsg.checkStreaming());
+            assertTrue(receivedRequestMsg.checkHasView());
+            providerStreamId = receivedRequestMsg.streamId();
+            /* Stream 6: streaming view [25, 1025] for TRI.
+             * WlStream is REFRESH_VIEW_PENDING so this lands in waitingRequestList.
+             * extractViewFromMsg sets viewElemCount > 0 but handleViews() is never called,
+             * so view() == null on stream 6's wlRequest. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(6);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI");
+            viewFieldList.clear();
+            viewFieldList.add(25);
+            viewFieldList.add(1025);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(0);
+            /* Stream 7: streaming view [22, 1025] for TRI.
+             * Also lands in waitingRequestList: viewElemCount > 0, view() == null. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(7);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI");
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(1025);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            providerReactor.dispatch(0);
+            /* Provider sends a complete OPEN refresh for stream 5. */
+            refreshMsg.clear();
+            refreshMsg.msgClass(MsgClasses.REFRESH);
+            refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+            refreshMsg.streamId(providerStreamId);
+            refreshMsg.containerType(DataTypes.NO_DATA);
+            refreshMsg.applySolicited();
+            refreshMsg.applyRefreshComplete();
+            refreshMsg.applyHasMsgKey();
+            refreshMsg.msgKey().applyHasServiceId();
+            refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+            refreshMsg.msgKey().applyHasName();
+            refreshMsg.msgKey().name().data("TRI");
+            refreshMsg.state().streamState(StreamStates.OPEN);
+            refreshMsg.state().dataState(DataStates.OK);
+            submitOptions.clear();
+            assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+            /* Consumer dispatches the refresh.
+             * - Stream 5 consumer gets a refresh (stream state becomes OPEN).
+             * - Stream 6 is promoted from waitingRequestList: handleRequest -> handleViews sets
+             *   its view; the merged view [22,25,1025] is sent to the provider; refreshState
+             *   becomes REFRESH_VIEW_PENDING again so the loop exits.
+             * - Stream 7 remains in waitingRequestList with view() == null. */
+            consumerReactor.dispatch(1);
+            event = consumerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent) event.reactorEvent();
+            assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+            assertEquals(5, msgEvent.msg().streamId());
+            /* Provider receives the new merged-view request triggered by stream 6 promotion. */
+            providerReactor.dispatch(1);
+            event = providerReactor.pollEvent();
+            assertEquals(TestReactorEventTypes.MSG, event.type());
+            msgEvent = (ReactorMsgEvent) event.reactorEvent();
+            assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+            /* Re-issue stream 7 with a new view [22, 30].
+             * handleReissue() is called. At WlItemHandler line 1107:
+             *   stream.state().streamState() == OPEN  -- TRUE (set by the refresh above)
+             *   viewElemCount() > 0                   -- TRUE (from original stream-7 submission)
+             *   removeOldView                         -- TRUE
+             *   view() != null                        -- FALSE (handleViews never called for stream 7)
+             * Without the null guard, removeRequestView() would NPE in
+             * WlViewHandler.removeRequestView at view.state() (null dereference).
+             * With the guard the call must succeed. */
+            requestMsg.clear();
+            requestMsg.msgClass(MsgClasses.REQUEST);
+            requestMsg.streamId(7);
+            requestMsg.domainType(DomainTypes.MARKET_PRICE);
+            requestMsg.applyStreaming();
+            requestMsg.applyHasView();
+            requestMsg.msgKey().applyHasName();
+            requestMsg.msgKey().name().data("TRI");
+            viewFieldList.clear();
+            viewFieldList.add(22);
+            viewFieldList.add(30);
+            encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+            submitOptions.clear();
+            submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+            assertTrue("Re-issuing stream 7 with null view must not NPE and must succeed",
+                    consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        }
+        finally
+        {
+            consumerReactor.dispatch(-1, 100);
+            providerReactor.dispatch(-1, 100);
+            while (consumerReactor.pollEvent() != null) { }
+            while (providerReactor.pollEvent() != null) { }
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
+    }    @Test
     public void openWindowReconnectTest_SingleOpenOn()
     {
         openWindowReconnectTest(true);
