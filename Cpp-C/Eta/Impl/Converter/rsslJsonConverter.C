@@ -2,9 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020,2023-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020,2023-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
+
+#include <new>
 
 #include "rtr/rsslJsonConverter.h"
 #include "rtr/jsonToRwfSimple.h"
@@ -48,11 +50,13 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 		return NULL;
 	}
 
+	memset(pConverterImpl, 0, sizeof(RsslJsonConverterImpl));
+
 	/*The purpose of this option is to optimize performance of rmdstestclient*/
 	if (pOptions->skipEncodingPayload)
-		pConverterImpl->_jsonToRwfSimple = new jsonToRsslMsgDecoder(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS);
+		pConverterImpl->_jsonToRwfSimple = new(std::nothrow) jsonToRsslMsgDecoder(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS);
 	else
-		pConverterImpl->_jsonToRwfSimple = new jsonToRwfSimple(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS);
+		pConverterImpl->_jsonToRwfSimple = new(std::nothrow) jsonToRwfSimple(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS);
 
 	if (!pConverterImpl->_jsonToRwfSimple)
 	{
@@ -61,7 +65,7 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 		return NULL;
 	}
 
-	pConverterImpl->_rwfToJsonSimple = new rwfToJsonSimple(pOptions->bufferSize, 0);
+	pConverterImpl->_rwfToJsonSimple = new(std::nothrow) rwfToJsonSimple(pOptions->bufferSize, 0);
 	if (!pConverterImpl->_rwfToJsonSimple)
 	{
 		snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "Failed to allocate RWF-to-JSON converter.");
@@ -69,7 +73,7 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 		return NULL;
 	}
 
-	pConverterImpl->_jsonToRwfConverter = new jsonToRwfConverter(pOptions->bufferSize, 0);
+	pConverterImpl->_jsonToRwfConverter = new(std::nothrow) jsonToRwfConverter(pOptions->bufferSize, 0);
 	if (!pConverterImpl->_jsonToRwfConverter)
 	{
 		snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "Failed to allocate JSON-to-RWF standard converter.");
@@ -77,7 +81,7 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 		return NULL;
 	}
 
-	pConverterImpl->_rwfToJsonConverter = new rwfToJsonConverter(pOptions->bufferSize, 0);
+	pConverterImpl->_rwfToJsonConverter = new(std::nothrow) rwfToJsonConverter(pOptions->bufferSize, 0);
 	if (!pConverterImpl->_rwfToJsonConverter)
 	{
 		snprintf(pError->text, MAX_CONVERTER_ERROR_TEXT, "Failed to allocate RWF-to-JSON standard converter.");
@@ -95,25 +99,25 @@ RSSL_RJC_API RsslRet rsslDestroyRsslJsonConverter(RsslJsonConverter pConverter, 
 	if (pConverterImpl->_jsonToRwfSimple)
 	{
 		delete pConverterImpl->_jsonToRwfSimple;
-		pConverterImpl->_jsonToRwfSimple = 0;
+		pConverterImpl->_jsonToRwfSimple = nullptr;
 	}
 
 	if (pConverterImpl->_rwfToJsonSimple)
 	{
 		delete pConverterImpl->_rwfToJsonSimple;
-		pConverterImpl->_rwfToJsonSimple = 0;
+		pConverterImpl->_rwfToJsonSimple = nullptr;
 	}
 
 	if (pConverterImpl->_jsonToRwfConverter)
 	{
 		delete pConverterImpl->_jsonToRwfConverter;
-		pConverterImpl->_jsonToRwfConverter = 0;
+		pConverterImpl->_jsonToRwfConverter = nullptr;
 	}
 
 	if (pConverterImpl->_rwfToJsonConverter)
 	{
 		delete pConverterImpl->_rwfToJsonConverter;
-		pConverterImpl->_rwfToJsonConverter = 0;
+		pConverterImpl->_rwfToJsonConverter = nullptr;
 	}
 
 	free(pConverter);

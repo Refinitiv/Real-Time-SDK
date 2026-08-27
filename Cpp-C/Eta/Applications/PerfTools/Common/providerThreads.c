@@ -291,19 +291,35 @@ void providerThreadInit(ProviderThread *pProvThread,
 
 static void providerThreadCleanup(ProviderThread *pProvThread)
 {
+	RsslErrorInfo reactorErrorInfo;
+
 	timeRecordQueueCleanup(&pProvThread->genMsgLatencyRecords);
 	if (pProvThread->pDictionary)
 	{
 		rsslDeleteDataDictionary(pProvThread->pDictionary);
 		free(pProvThread->pDictionary);
+		pProvThread->pDictionary = NULL;
 	}
 
 	channelHandlerCleanup(&pProvThread->channelHandler);
 
+	// Destroy the reactor after the channel is closed
+	if (pProvThread->pReactor)
+	{
+		rsslDestroyReactor(pProvThread->pReactor, &reactorErrorInfo);
+		pProvThread->pReactor = NULL;
+	}
+
 	if(pProvThread->statsFile)
+	{
 		fclose(pProvThread->statsFile);
+		pProvThread->statsFile = NULL;
+	}
 	if(pProvThread->latencyLogFile)
+	{
 		fclose(pProvThread->latencyLogFile);
+		pProvThread->latencyLogFile = NULL;
+	}
 
 	rjcSessionUninitialize(&(pProvThread->rjcSess));
 }
@@ -1637,6 +1653,8 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 		printf("providerThreadList malloc failed. threadCount=%d\n", providerThreadConfig.threadCount);
 		exit(-1);
 	}
+	// Make sure rjcSess is initialized for each thread!
+	memset(pProvider->providerThreadList, 0,  providerThreadConfig.threadCount * sizeof(ProviderThread));
 
 	for(i = 0; i < providerThreadConfig.threadCount; ++i)
 	{

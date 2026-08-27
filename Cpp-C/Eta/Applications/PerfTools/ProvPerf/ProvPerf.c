@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2025 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -566,11 +566,14 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 			pProvThread = pTmpProvThread;
 			connHandlerIndex = i;
 		}
-		else
-		{
-			printf("Provider connection count greater than max value 0x7fffffff.\n");
-			return RSSL_RET_FAILURE;
-		}
+	}
+
+	// Fail is no provider thread is available
+	if (pProvThread == NULL)
+	{
+		rsslSetErrorInfo(pRsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to select a provider thread for Reactor connection");
+		return RSSL_RET_FAILURE;
 	}
 
 	// create provider session here and link to provider thread

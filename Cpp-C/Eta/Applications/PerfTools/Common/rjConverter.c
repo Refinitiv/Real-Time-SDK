@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2020-2021,2023-2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2020-2021,2023-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
@@ -108,14 +108,24 @@ void rjcSessionUninitialize(rjConverterSession *rjcSession)
 
 	rsslJsonUninitialize();
 
-	if (rjcSession->pJsonConverter != 0)
+	if (rjcSession->pJsonConverter)
+	{
 		rsslDestroyRsslJsonConverter(rjcSession->pJsonConverter, &rjcError);
+		rjcSession->pJsonConverter = NULL;
+	}
 
 	if (rjcSession->convBuff.data)
+	{
 		free(rjcSession->convBuff.data);
+		rjcSession->convBuff.data = NULL;
+		rjcSession->convBuff.length = 0;
+	}
 
 	if (rjcSession->pDictionaryList)
+	{
 		free(rjcSession->pDictionaryList);
+		rjcSession->pDictionaryList = NULL;
+	}
 }
 
 RsslRet rjcSessionInitialize(rjConverterSession *rjcSession, RsslErrorInfo *pError)
