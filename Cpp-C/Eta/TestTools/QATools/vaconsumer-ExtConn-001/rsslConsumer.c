@@ -83,7 +83,6 @@ static time_t nextDebugTimeMS = 0;
 static RsslBool sendJsonConvError = RSSL_FALSE;
 
 static RsslUInt32 jsonOutputBufferSize = 0;
-static RsslUInt32 jsonTokenIncrementSize = 0;
 
 //#define MAX_CHAN_COMMANDS 4
 // API QA
@@ -391,7 +390,6 @@ void printUsageAndExit(char *appName)
 			"\n -debugAll enable all levels of debug info"
 			"\n -debugInfoInterval set time interval for debug log"
 			"\n -jsonOutputBufferSize size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
-			"\n -jsonTokenIncrementSize number of json token increment size for parsing JSON messages"
 			"\n -sendJsonConvError enable send json conversion error to provider"
 			"\n"
 			"\n Options for Preferred host:"
@@ -1557,11 +1555,6 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				jsonOutputBufferSize = atoi(argv[i - 1]);
-			}
-			else if (strcmp("-jsonTokenIncrementSize", argv[i]) == 0)
-			{
-				i += 2; if (i > argc) printUsageAndExit(argv[0]);
-				jsonTokenIncrementSize = atoi(argv[i - 1]);
 			}
 			else if (strcmp("-restProxyHost", argv[i]) == 0)
 			{
@@ -2914,11 +2907,6 @@ int main(int argc, char **argv)
 	{
 		jsonConverterOptions.outputBufferSize = jsonOutputBufferSize;
 	}
-	if (jsonTokenIncrementSize > 0)
-	{
-		jsonConverterOptions.jsonTokenIncrementSize = jsonTokenIncrementSize;
-	}
-
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
 		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);

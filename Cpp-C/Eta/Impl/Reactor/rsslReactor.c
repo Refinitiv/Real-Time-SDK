@@ -556,9 +556,6 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 	/* Set the maximum output buffer size for the converter. */
 	rjcOptions.bufferSize = pReactorJsonConverterOptions->outputBufferSize;
 
-	/* Set the number of json token increment size for the converter. */
-	rjcOptions.jsonTokenIncrementSize = pReactorJsonConverterOptions->jsonTokenIncrementSize;
-
 	pReactorImpl->pJsonConverter = rsslCreateRsslJsonConverter(&rjcOptions, &rjcError);
 	if (pReactorImpl->pJsonConverter == NULL)
 	{

@@ -18,6 +18,7 @@
 
 #include <float.h>
 #include <ctype.h>
+#include <stdarg.h> // for va_list, va_start, va_end
 
 /* Suppress warning C4756: overflow in constant arithmetic that occurs only on VS2013 */
 #if defined(WIN32) &&  _MSC_VER == 1800
@@ -140,17 +141,16 @@ const jsonToRwfBase::msgHandlerFuncPtr jsonToRwfBase::_msgHandlers[] =
 		&jsonToRwfBase::processPostMsg
 	};
 
-jsonToRwfBase::jsonToRwfBase(int bufSize, unsigned int flags, int numTokens, int incSize) :
+jsonToRwfBase::jsonToRwfBase(int bufSize, unsigned int flags, int numTokens) :
 	_rsslServiceNameToIdCallback(0),
 	_closure(0),
 	_error(false),
 	_numTokens(numTokens),
-	_incSize(incSize),
 	_nullUserName(0),
 	_errorCode(NO_ERROR_CODE),
 	_errorToken(0),
 	_expectedTokenType(JSMN_PRIMITIVE),
-	_jsmnError(JSMN_SUCCESS),
+	_jsmnError(0),
 	_rsslRet(0),
 	_errorLineNum(0),
 	_errorTextLen(0),
@@ -207,9 +207,53 @@ void jsonToRwfBase::reset()
 	_errorToken = 0;
 	_expectedTokenType = JSMN_PRIMITIVE;
 	_rsslRet = 0;
-	_jsmnError = JSMN_SUCCESS;
+	_jsmnError = 0;
 	_errorLineNum = 0;
 	_errorTextLen = 0;
+}
+
+/* Token to string helper function */
+const char *jsonToRwfBase::getTokenTypeText(int tokenType)
+{
+	switch (tokenType)
+	{
+	case JSMN_PRIMITIVE:
+		return "PRIMITIVE";
+	case JSMN_OBJECT:
+		return "OBJECT";
+	case JSMN_ARRAY:
+		return "ARRAY";
+	case JSMN_STRING:
+		return "STRING";
+	default:
+	case JSMN_UNDEFINED:
+		return "UNDEFINED";
+	}
+}
+
+/*
+ * Helper function to make sure snprintf does not overflow when a negative size is passed to size parameter.
+ * Example call when length is bigger then ERROR_TEXT_MAX:
+ * length += snprintf(ptr + length, ERROR_TEXT_MAX - length, ...);
+ */
+int jsonToRwfBase::safe_snprintf(char *str, size_t offset, size_t maxLength, const char *format, ...)
+{
+	va_list args;
+	if (offset >= maxLength)
+	{
+		/*
+		Returning 0 because most usage cases accumulte the return value to calculate the total length.
+		length += safe_snprintf(arg1);
+		length += safe_snprintf(arg2);
+		...
+		*/
+		return 0;
+	}
+	va_start(args, format);
+	int ret = vsnprintf(str + offset, maxLength - offset, format, args);
+	va_end(args);
+
+	return ret;
 }
 
 RsslBuffer* jsonToRwfBase::errorText()
@@ -223,145 +267,85 @@ RsslBuffer* jsonToRwfBase::errorText()
 	switch (_errorCode)
 	{
 		case MEM_ALLOC_FAILURE:
-			_errorText.length = snprintf(_errorText.data,
+			_errorText.length = safe_snprintf(_errorText.data, 0,
 										ERROR_TEXT_MAX,
 										"JSON Converter memory allocation Error: %s Line %d",
 										_errorFile, _errorLineNum);
 			break;
 		case JSMN_PARSE_ERROR:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON parser error: %d", _jsmnError);
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON parser error: %d", _jsmnError);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case INVALID_TOKEN_TYPE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON Converter Token Type error: ");
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Expected ");
-			switch ( _expectedTokenType)
-			{
-				case JSMN_PRIMITIVE :
-					_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'PRIMITIVE' ");
-					break;
-				case JSMN_OBJECT :
-					_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'OBJECT' ");
-					break;
-				case JSMN_ARRAY :
-					_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'ARRAY' ");
-					break;
-				case JSMN_STRING :
-					_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'STRING' ");
-					break;
-			}
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON Converter Token Type error: ");
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Expected ");
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, "'%s'", getTokenTypeText(_expectedTokenType));
 			if (_errorParentKey.data)
 			{
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, "for key '%s'", _errorParentKey.data);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, "for key '%s'", _errorParentKey.data);
 			}
 			if (_errorToken)
 			{
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Received ");
-				switch ( _errorToken->type)
-				{
-					case JSMN_PRIMITIVE :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'PRIMITIVE' ");
-						break;
-					case JSMN_OBJECT :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'OBJECT' ");
-						break;
-					case JSMN_ARRAY :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'ARRAY' ");
-						break;
-					case JSMN_STRING :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'STRING' ");
-						break;
-				}
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Msg Offset: %d ", _errorToken->start);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Received ");
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, "'%s'", getTokenTypeText(_errorToken->type));
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Msg Offset: %d ", _errorToken->start);
 			}
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case UNEXPECTED_VALUE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON Unexpected Value.");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON Unexpected Value.");
 			if (_errorToken)
 			{
-				int tokenLength = _errorToken->end - _errorToken->start;
-				char* singleToken = (char*)malloc((size_t)tokenLength * sizeof(char)+1);
-				memset(singleToken, 0, tokenLength+1);
-				memcpy(singleToken, &_jsonMsg[_errorToken->start], tokenLength);
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Received '%s' at", singleToken);
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Msg Offset: %d ", _errorToken->start);
-				free(singleToken);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Received '%.*s' at",
+					_errorToken->end - _errorToken->start, &_jsonMsg[_errorToken->start]);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Msg Offset: %d ", _errorToken->start);
 			}
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case INVALID_PRIMITIVE_TYPE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON invalid primitive type.");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON invalid primitive type.");
 			if (_errorToken)
 			{
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Received ");
-				switch ( _errorToken->type)
-				{
-					case JSMN_PRIMITIVE :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'PRIMITIVE' ");
-						break;
-					case JSMN_OBJECT :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'OBJECT' ");
-						break;
-					case JSMN_ARRAY :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'ARRAY' ");
-						break;
-					case JSMN_STRING :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'STRING' ");
-						break;
-				}
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Msg Offset: %d ", _errorToken->start);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Received ");
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, "'%s'", getTokenTypeText(_errorToken->type));
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Msg Offset: %d ", _errorToken->start);
 			}
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case INVALID_CONTAINER_TYPE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON invalid container type.");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON invalid container type.");
 			if (_errorToken)
 			{
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Received ");
-				switch ( _errorToken->type)
-				{
-					case JSMN_PRIMITIVE :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'PRIMITIVE' ");
-						break;
-					case JSMN_OBJECT :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'OBJECT' ");
-						break;
-					case JSMN_ARRAY :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'ARRAY' ");
-						break;
-					case JSMN_STRING :
-						_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " 'STRING' ");
-						break;
-				}
-				_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " Msg Offset: %d ", _errorToken->start);
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Received ");
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, "'%s'", getTokenTypeText(_errorToken->type));
+				_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " Msg Offset: %d ", _errorToken->start);
 			}
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case SET_DEFINITION_ERROR:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON Set Definition error.");
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON Set Definition error.");
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case RSSL_ENCODE_ERROR:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RSSL error code : %d",_rsslRet);
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RSSL error code : %d",_rsslRet);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case RSSL_DICT_NOT_INIT:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RsslDataDictionary is not initialized with error code: %d", _rsslRet);
-			_errorText.length += snprintf(_errorText.data + _errorText.length, ERROR_TEXT_MAX - _errorText.length, " %s Line %d.", _errorFile, _errorLineNum);
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON RSSL Conversion Error. RsslDataDictionary is not initialized with error code: %d", _rsslRet);
+			_errorText.length += safe_snprintf(_errorText.data, _errorText.length, ERROR_TEXT_MAX, " %s Line %d.", _errorFile, _errorLineNum);
 			break;
 		case NO_MSG_BASE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "JSON message with no message Base.");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "JSON message with no message Base.");
 			break;
 		case UNSUPPORTED_MSG_TYPE:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Unsupported Message Type");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "Unsupported Message Type");
 			break;
 		case EMPTY_MSG:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "Empty JSON Message");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "Empty JSON Message");
 			break;
 		case NO_ERROR_CODE:
 		default:
-			_errorText.length = snprintf(_errorText.data, ERROR_TEXT_MAX, "No error code.");
+			_errorText.length = safe_snprintf(_errorText.data, 0, ERROR_TEXT_MAX, "No error code.");
 			break;
 		}
 		return &_errorText;
@@ -477,32 +461,42 @@ bool jsonToRwfBase::encodeMsgPayload(RsslMsg *rsslMsgPtr, jsmntok_t *dataTokPtr)
 
 int jsonToRwfBase::parseJsonBuffer(const RsslBuffer *bufPtr, int offset)
 {
-	jsmnerr_t ret;
-	jsmn_parser jsmnParser;
-
 	if (bufPtr && bufPtr->data && bufPtr->length > 0)
 	{
 	 	_jsonMsg = bufPtr->data + offset;
-		while (true)
-		{
-			jsmn_init(&jsmnParser);
-			ret = jsmn_parse(&jsmnParser, _jsonMsg,  bufPtr->length, _tokens, _numTokens);
-			if ( ret < JSMN_SUCCESS)
-			{
-				if ( ret == JSMN_ERROR_NOMEM )
-				{
-				  	free(_tokens);
-					_numTokens += _incSize;
-					if ((_tokens = (jsmntok_t*)malloc(_numTokens * sizeof(jsmntok_t))) == NULL)
-					{
-						_error = true;
 
-						error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
-						return -1;
-					}
-					continue;
+		jsmn_parser jsmnParser;
+		jsmn_init(&jsmnParser);
+		int ret = jsmn_parse(&jsmnParser, _jsonMsg, bufPtr->length, _tokens, _numTokens);
+		if (ret < 0)
+		{
+			if (ret == JSMN_ERROR_NOMEM)
+			{
+				// We get the needed number of tokens by using NULL as the tokens array
+				jsmn_init(&jsmnParser);
+				ret = jsmn_parse(&jsmnParser, _jsonMsg, bufPtr->length, NULL, 0);
+				if (ret < 0)
+				{
+					error(JSMN_PARSE_ERROR, __LINE__, __FILE__);
+					_jsmnError = ret;
+					_error = true;
+					return ret;
 				}
-				else
+
+				// Realloc tokens
+				_numTokens = ret;
+				free(_tokens);
+				if ((_tokens = (jsmntok_t*)malloc(_numTokens * sizeof(jsmntok_t))) == NULL)
+				{
+					_error = true;
+					error(MEM_ALLOC_FAILURE, __LINE__, __FILE__);
+					return -1;
+				}
+
+				// Retry parsing with the new token size
+				jsmn_init(&jsmnParser);
+				ret = jsmn_parse(&jsmnParser, _jsonMsg, bufPtr->length, _tokens, _numTokens);
+				if (ret < 0)
 				{
 					error(JSMN_PARSE_ERROR, __LINE__, __FILE__);
 					_jsmnError = ret;
@@ -512,19 +506,23 @@ int jsonToRwfBase::parseJsonBuffer(const RsslBuffer *bufPtr, int offset)
 			}
 			else
 			{
-				_tokensEndPtr = _tokens + jsmnParser.toknext;
-
-				/* If the root element is an array, the messages are in each element of the array.
-				 * Move to the first message. */
-				if (_tokens->type == JSMN_ARRAY)
-					_curMsgTok = _tokens + 1;
-				else
-					_curMsgTok = _tokens;
-
-
-				return RSSL_RET_SUCCESS;
+				error(JSMN_PARSE_ERROR, __LINE__, __FILE__);
+				_jsmnError = ret;
+				_error = true;
+				return ret;
 			}
 		}
+
+		_tokensEndPtr = _tokens + jsmnParser.toknext;
+
+		/* If the root element is an array, the messages are in each element of the array.
+			* Move to the first message. */
+		if (_tokens->type == JSMN_ARRAY)
+			_curMsgTok = _tokens + 1;
+		else
+			_curMsgTok = _tokens;
+
+		return RSSL_RET_SUCCESS;
 	}
 
 	error(EMPTY_MSG, __LINE__, __FILE__);

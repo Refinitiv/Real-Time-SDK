@@ -93,24 +93,28 @@ void exitWithUsage()
 	printf("  -outputBufs <count>   \tNumber of output buffers(configures guaranteedOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxOutputBufs <count>\tMax number of output buffers(configures maxOutputBuffers in RsslBindOptions)\n");
 	printf("  -maxFragmentSize <size>\tMax size of buffers(configures maxFragmentSize in RsslBindOptions)\n");
-	printf(" -rtt turns on support of the round trip time measuring feature in the login\n");
+	printf("  -rtt turns on support of the round trip time measuring feature in the login\n");
 
 	printf("Additional encryption options:\n");
-	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers> -cipherTLSv1.3 <optional OpenSSL formatted list of TLS 1.3 ciphers>\n");
-	printf(" -libsslName specifies the name of libssl shared object\n");
-	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
-	printf(" -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
-	printf(" -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
+	printf("  -keyfile <required filename of the server private key file> \n");
+	printf("  -cert <required filname of the server certificate>\n");
+	printf("  -cipher <optional OpenSSL formatted list of ciphers>\n");
+	printf("  -cipherTLSv1.3 <optional OpenSSL formatted list of TLS 1.3 ciphers>\n");
+	printf("  -libsslName specifies the name of libssl shared object\n");
+	printf("  -libcryptoName specifies the name of libcrypto shared object\n");
+	printf("  -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
+	printf("  -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
+
 	printf(" -maxEventsInPool size of event pool\n");
-	printf(" -debugConn set 'connection' rector debug info level");
-	printf(" -debugEventQ set 'eventqueue' rector debug info level");
-	printf(" -debugTunnelStream set 'tunnelstream' debug info level");
-	printf(" -debugAll enable all levels of debug info");
-	printf(" -debugInfoInterval set time interval for debug log");
-	printf(" -sendJsonConvError enable send json conversion error to consumer");
+	printf(" -debugConn set 'connection' rector debug info level\n");
+	printf(" -debugEventQ set 'eventqueue' rector debug info level\n");
+	printf(" -debugTunnelStream set 'tunnelstream' debug info level\n");
+	printf(" -debugAll enable all levels of debug info\n");
+	printf(" -debugInfoInterval set time interval for debug log\n");
+	printf(" -sendJsonConvError enable send json conversion error to consumer\n");
 #ifdef _WIN32
-		printf("\nPress Enter or Return key to exit application:");
-		getchar();
+	printf("\nPress Enter or Return key to exit application.");
+	getchar();
 #endif
 	exit(-1);
 }

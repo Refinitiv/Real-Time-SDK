@@ -25,7 +25,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 rwfToJsonConverter::rwfToJsonConverter(int bufSize, RsslUInt16 convFlags)
-	: rwfToJsonBase(bufSize, MAX_MSG_PREQUEL, convFlags, DEFAULT_NUM_TOKENS, DEFAULT_NUM_TOKENS)
+	: rwfToJsonBase(bufSize, MAX_MSG_PREQUEL, convFlags, DEFAULT_NUM_TOKENS)
 {
 	if ((_fieldSetDefDbMem = (char*)malloc(4096)) == 0)
 		_error = 1 ;

@@ -29,6 +29,7 @@ External modules used by this version of RTSDK C/C++:
      libxml2               2.13.9
      lz4                   1.9.4 (for older than Linux7) and 1.10.0
      zlib                  1.3.1
+     jsmn                  1.1.0
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
 NOTES: 
@@ -37,7 +38,8 @@ NOTES:
 - Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (RedHat 8, RedHat 9). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - openSSL 1.1.1 and higher are required for TLS 1.3
 - Cipher suite is configurable with TLS 1.2 and it is recommended that customers use best available ciphers. With TLS 1.3, cipher suite is not yet configurable; however, default ciphers are best available.
-- Check installation guide for details regarding including external dependencies for build 
+- Check installation guide for details regarding including external dependencies for build
+- jsmn is directly embeded into the codebase as a single-header, header-only library
    
 ### System Libraries Dependencies
 

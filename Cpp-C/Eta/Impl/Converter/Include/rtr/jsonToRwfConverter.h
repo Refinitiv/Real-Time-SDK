@@ -12,7 +12,7 @@
 class jsonToRwfConverter : public jsonToRwfBase
 {
 public:
-	jsonToRwfConverter(int bufSize, unsigned int flags, int numTokens = 500, int incSize = 500);
+	jsonToRwfConverter(int bufSize, unsigned int flags, int numTokens = 500);
 	~jsonToRwfConverter();
 	RsslBuffer* errorText();
 

@@ -1123,11 +1123,6 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.outputBufferSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 
-	if (pConfigImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
-	{
-		_activeConfig.jsonTokenIncrementSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
-	}
-
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
 	{
 		_activeConfig.enableRtt = tmp > 0 ? true : false;
@@ -3093,7 +3088,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeConfig.catchUnknownJsonFids;
 			jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeConfig.closeChannelFromFailure;
 			jsonConverterOptions.outputBufferSize = _activeConfig.outputBufferSize;
-			jsonConverterOptions.jsonTokenIncrementSize = _activeConfig.jsonTokenIncrementSize;
 			jsonConverterOptions.sendJsonConvError = _activeConfig.sendJsonConvError;
 
 			if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)

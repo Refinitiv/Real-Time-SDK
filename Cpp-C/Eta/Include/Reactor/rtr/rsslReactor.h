@@ -1185,7 +1185,7 @@ typedef struct {
 	RsslBool								catchUnknownJsonFids;			/*!< When converting from JSON to RWF, catch unknown JSON field IDs. */
 	RsslBool								closeChannelFromFailure;		/*!< Closes the channel when the Reactor failed to parse JSON message or received JSON error message. */
 	RsslUInt32								outputBufferSize;				/*!< Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough */
-	RsslUInt32								jsonTokenIncrementSize;				/*!< Number of json token increment size for parsing JSON messages. */
+	RsslUInt32								jsonTokenIncrementSize;			/*!< @deprecated DEPRECATED: This is used only for backward compatibility. Not used in new implementations. */
 	RsslBool								sendJsonConvError;				/*!< Enable sending json conversion error>*/
 } RsslReactorJsonConverterOptions;
 
@@ -1200,7 +1200,6 @@ RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterO
 	pReactorJsonConverterOptions->catchUnknownJsonFids = RSSL_TRUE;
 	pReactorJsonConverterOptions->closeChannelFromFailure = RSSL_TRUE;
 	pReactorJsonConverterOptions->outputBufferSize = 65535;
-	pReactorJsonConverterOptions->jsonTokenIncrementSize = 500;
 }
 
 /**

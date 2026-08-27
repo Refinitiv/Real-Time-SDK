@@ -58,7 +58,7 @@ RSSL_RJC_API void rsslJsonUninitialize();
 typedef struct
 {
 	RsslUInt32 bufferSize; /*!< Size of the buffer that the converter will allocate for its output buffer. */
-	RsslUInt32 jsonTokenIncrementSize; /*!< Number of json token increment size for parsing JSON messages. */
+	RsslUInt32 jsonTokenIncrementSize; /*!< @deprecated DEPRECATED: This is used only for backward compatibility. Not used in new implementations. */
 	RsslBool   skipEncodingPayload; /*!< Shall the json to Rwf simple converter skips encoding the payload data */
 } RsslCreateJsonConverterOptions;
 
@@ -69,7 +69,6 @@ RTR_C_INLINE void rsslClearCreateRsslJsonConverterOptions(RsslCreateJsonConverte
 {
 	memset(pOptions, 0, sizeof(RsslCreateJsonConverterOptions));
 	pOptions->bufferSize = 65535;
-	pOptions->jsonTokenIncrementSize = 500;
 	pOptions->skipEncodingPayload = RSSL_FALSE;
 }
 
