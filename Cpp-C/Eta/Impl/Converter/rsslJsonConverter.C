@@ -408,7 +408,13 @@ RSSL_RJC_API RsslRet rsslJsonGetErrorMessage(RsslJsonConverter pConverter, RsslG
 
 	pIntConverter->reset();
 
-	if (const RsslBuffer *errorMessage = pIntConverter->generateErrorMessage(pErrorParams->errorText, pErrorParams->errorFile, pErrorParams->errorLine, pErrorParams->errorOffset, pErrorParams->errorOriginalMessage, pErrorParams->errorStreamId))
+	if (const RsslBuffer *errorMessage = pIntConverter->generateErrorMessage(
+		pErrorParams->errorText,
+		pErrorParams->errorFile,
+		pErrorParams->errorLine,
+		pErrorParams->errorOffset,
+		pErrorParams->errorOriginalMessage,
+		pErrorParams->errorStreamId))
 	{
 		pOutBuffer->length = errorMessage->length;
 		pOutBuffer->data = errorMessage->data;

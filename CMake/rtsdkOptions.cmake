@@ -112,3 +112,5 @@ option(BUILD_SANITIZERS "Enable sanitizer flags" OFF)
 
 option(BUILD_CODE_COVERAGE "Enable code coverage flags" OFF)
 
+option(ENABLE_VERBOSE_JSON_ERROR "Enable verbose JSON converter error output" OFF)
+
