@@ -83,6 +83,47 @@ class ErrorMsgTestParams
 
 class ErrorMsgParamFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<ErrorMsgTestParams>
 {
+public:
+
+	static inline bool IsValidDebugFileField(const json::Value& v)
+	{
+		// That the "File" field is present is verified by assertions in the test cases. Now verify
+		// that it matches expected values
+#if defined(ENABLE_VERBOSE_JSON_ERROR)
+		// verbose: complete file path, but check only for the suffix that we are sure of
+		const char* fileSuffixUnix = "Eta/Impl/Converter/jsonToRwfSimple.C";
+		const char* fileSuffixWin = "Eta\\Impl\\Converter\\jsonToRwfSimple.C";
+		const char* fileName = v["File"].GetString();
+
+		const size_t suffixLen = strlen(fileSuffixUnix);
+		const size_t fileNameLen = strlen(fileName);
+
+		if (fileNameLen > suffixLen)
+		{
+			return (
+				(strncmp(fileSuffixUnix, fileName + (fileNameLen - suffixLen), suffixLen) == 0)
+				|| (strncmp(fileSuffixWin, fileName + (fileNameLen - suffixLen), suffixLen) == 0));
+		}
+
+		return false;
+#else
+		// not verbose: just the base file name without path
+		const std::string fileNameBase{"jsonToRwfSimple.C"};
+		return (fileNameBase == v["File"].GetString());
+#endif
+	}
+
+	static inline bool IsValidDebugMessageField(const json::Value& v)
+	{
+#if defined(ENABLE_VERBOSE_JSON_ERROR)
+		// verbose: has "Message"
+		return (v.HasMember("Message") && v["Message"].IsString()
+				&& v["Message"].GetStringLength() != 0);
+#else
+		// not verbose: no "Message" item
+		return !(v.HasMember("Message"));
+#endif
+	}
 };
 
 /* Test that fires the specified Error and verifies the resulting Error message */
@@ -163,8 +204,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 		ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
 		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Offset"));
 		ASSERT_TRUE(_jsonDocument["Debug"]["Offset"].IsNumber());
-		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-		ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+		ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+			<< "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+		ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 
 	if(params.errorCode == jsonToRwfBase::UNEXPECTED_VALUE)
@@ -197,8 +239,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 		ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
 		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Offset"));
 		ASSERT_TRUE(_jsonDocument["Debug"]["Offset"].IsNumber());
-		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-		ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+		ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+			<< "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+		ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 	else if(params.errorCode == jsonToRwfBase::MISSING_KEY)
 	{
@@ -228,8 +271,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 		ASSERT_TRUE(_jsonDocument["Debug"]["File"].IsString());
 		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Line"));
 		ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
-		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-		ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+		ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+			<< "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+		ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 	else if(params.errorCode == jsonToRwfBase::UNEXPECTED_KEY)
 	{
@@ -261,8 +305,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 		ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
 		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Offset"));
 		ASSERT_TRUE(_jsonDocument["Debug"]["Offset"].IsNumber());
-		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-		ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+		ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+			<< "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+		ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 	else if(params.errorCode == jsonToRwfBase::TYPE_MISMATCH)
 	{
@@ -327,8 +372,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 		ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
 		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Offset"));
 		ASSERT_TRUE(_jsonDocument["Debug"]["Offset"].IsNumber());
-		ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-		ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+		ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+			<< "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+		ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 	else if(params.errorCode == jsonToRwfBase::UNEXPECTED_FID)
 	{
@@ -360,8 +406,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 	  ASSERT_TRUE(_jsonDocument["Debug"]["Line"].IsNumber());
 	  ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Offset"));
 	  ASSERT_TRUE(_jsonDocument["Debug"]["Offset"].IsNumber());
-	  ASSERT_TRUE(_jsonDocument["Debug"].HasMember("Message"));
-	  ASSERT_TRUE(_jsonDocument["Debug"]["Message"].IsString());
+	  ASSERT_TRUE(IsValidDebugFileField(_jsonDocument["Debug"]))
+		  << "Unexpected File: " << _jsonDocument["Debug"]["File"].GetString();
+	  ASSERT_TRUE(IsValidDebugMessageField(_jsonDocument["Debug"]));
 	}
 }
 

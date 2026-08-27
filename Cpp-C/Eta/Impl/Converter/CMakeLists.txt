@@ -82,6 +82,8 @@ add_library( librsslJsonConverter_shared SHARED
 									${rsslJCAdditionalFiles}
 								)
 
+rtsdk_apply_verbose_json_error(librsslJsonConverter_shared)
+
 target_include_directories(librsslJsonConverter_shared
 									PRIVATE
 										${Eta_SOURCE_DIR}/Include/Codec

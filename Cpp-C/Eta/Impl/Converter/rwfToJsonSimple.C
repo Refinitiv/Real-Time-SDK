@@ -18,6 +18,7 @@
 
 #include "rtr/rwfToJsonSimple.h"
 #include "rtr/jsonSimpleDefs.h"
+#include "rtr/rtrpath.h"
 
 static RsslDouble powHints[] = {0.00000000000001, 0.0000000000001, 0.000000000001, 0.00000000001, 0.0000000001, 0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625 };
 
@@ -2263,6 +2264,11 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 {
 	int charsToEscape = 0;
 
+#ifndef ENABLE_VERBOSE_JSON_ERROR
+	// Do not include the original message
+	_errorOriginalMessage = NULL;
+#endif
+
 	// Count up all escaped characters
 	if (_errorOriginalMessage)
 	{
@@ -2311,7 +2317,12 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 	if(_errorFile)
 	{
 		writeBufVar(&JSON_FILE, false);
+#ifdef ENABLE_VERBOSE_JSON_ERROR
 		writeSafeString(_errorFile);
+#else
+		// Use just the file name
+		writeSafeString(rtr_basename(_errorFile));
+#endif
 	}
 	if(_errorLine)
 	{
@@ -2323,11 +2334,13 @@ const RsslBuffer *rwfToJsonSimple::generateErrorMessage(char *_errorText, const 
 		writeBufVar(&JSON_OFFSET, _errorFile || _errorLine);
 		uInt32ToString(*_errorOffset);
 	}
+#ifdef ENABLE_VERBOSE_JSON_ERROR
 	if(_errorOriginalMessage)
 	{
 		writeBufVar(&JSON_MESSAGE, _errorFile || _errorLine || _errorOffset);
 		writeJsonErrorMessage(_errorOriginalMessage);
 	}
+#endif
 
 	writeOe();
 	writeOe();

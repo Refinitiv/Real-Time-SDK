@@ -313,6 +313,8 @@ else()
 		endif()
     endif()
 
+    rtsdk_apply_verbose_json_error(librssl_tmp)
+
     if (CMAKE_HOST_WIN32)
 		set_target_properties(librssl_tmp PROPERTIES 
 											ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD

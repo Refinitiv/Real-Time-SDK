@@ -21,8 +21,6 @@ include(rtsdkOptions)
 include(rtsdkInfo)
 include(rtsdkAdditionalCompilerOptions)
 
-include(rtsdkAdditionalCompilerOptions)
-
 
 if(BUILD_RTSDK-BINARYPACK)
 	include(addExternal_rtsdk-binarypack)

@@ -5,6 +5,18 @@
  *|           Copyright (C) 2023-2024 LSEG. All rights reserved.
 #]=============================================================================]
 
+# Helper function to apply the ENABLE_VERBOSE_JSON_ERROR compile definition to a target if the option is enabled.
+# This is used to control verbose error output in the JSON converter.
+function(rtsdk_apply_verbose_json_error target_name)
+	if(NOT TARGET ${target_name})
+		message(FATAL_ERROR "rtsdk_apply_verbose_json_error: target '${target_name}' does not exist")
+	endif()
+
+	if(ENABLE_VERBOSE_JSON_ERROR)
+		target_compile_definitions(${target_name} PRIVATE ENABLE_VERBOSE_JSON_ERROR)
+	endif()
+endfunction()
+
 if(CMAKE_HOST_WIN32)
 	if(NOT BUILD_ETA_JWT)
 		set(_jwtBuildFlags "/D NO_ETA_JWT_BUILD")

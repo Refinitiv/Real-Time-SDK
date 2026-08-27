@@ -55,6 +55,9 @@ endif()
 							PROPERTIES 
 								OUTPUT_NAME rsslJCtest 
 						)
+
+	rtsdk_apply_verbose_json_error( rsslJsonConverterTest )
+
 	if(CMAKE_HOST_WIN32)
 
 		# This definition is required for using google test with VS2012.
