@@ -1,15 +1,35 @@
-plugins {
-    id 'org.openjfx.javafxplugin' version '0.1.0' apply(false)
-}
-
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 apply plugin: 'application'
-if (JavaVersion.current().java11Compatible) {
-    apply plugin: 'org.openjfx.javafxplugin'
-}
+
 eclipse {
         project {
                 name = 'RTSDK-Ema-Examples'
         }
+}
+
+def javafxVersion = "17"
+configurations {
+    javafxRuntime
+}
+
+if (JavaVersion.current().java11Compatible) {
+    def currentOS = DefaultNativePlatform.currentOperatingSystem
+    def javafxClassifier
+    if (currentOS.isWindows()) {
+        javafxClassifier = 'win'
+    } else if (currentOS.isMacOsX()) {
+        javafxClassifier = System.getProperty('os.arch') == 'aarch64' ? 'mac-aarch64' : 'mac'
+    } else {
+        javafxClassifier = 'linux'
+    }
+
+    dependencies {
+        // Runtime – used exclusively by RTViewer tasks
+        javafxRuntime "org.openjfx:javafx-base:${javafxVersion}:${javafxClassifier}"
+        javafxRuntime "org.openjfx:javafx-graphics:${javafxVersion}:${javafxClassifier}"
+        javafxRuntime "org.openjfx:javafx-controls:${javafxVersion}:${javafxClassifier}"
+        javafxRuntime "org.openjfx:javafx-fxml:${javafxVersion}:${javafxClassifier}"
+    }
 }
 
 dependencies {
@@ -18,12 +38,34 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }
 
-if (JavaVersion.current().java11Compatible) {
-    javafx {
-        version = "17"
-        modules = ['javafx.controls', 'javafx.fxml']
+// Isolate RTViewer into its own source set so JavaFX never touches
+// the main (training) compile or runtime classpath.
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+            exclude '**/rtviewer/**'
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+            exclude 'rtviewer/**'
+        }
+    }
+    rtviewer {
+        java {
+            srcDirs = ['src/main/java']
+            include '**/rtviewer/**'
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+            include 'rtviewer/**'
+        }
+        // Inherits all main deps (Ema:Core, Eta:Core …) plus JavaFX
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output + configurations.javafxRuntime
+        runtimeClasspath += sourceSets.main.runtimeClasspath + configurations.javafxRuntime
     }
 }
+
 
 application {
     mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
@@ -145,15 +187,24 @@ tasks.register('runrtviewerdesktop', JavaExec) {
 
     description 'This task runs the ' + TaskDescription
 
-    dependsOn copyDictionary, copyEmaConfig
+    dependsOn copyDictionary, copyEmaConfig, rtviewerClasses
 
     jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rtviewer/desktop/logging.properties"
 
     if (JVM_OPTIONS_RTVIEWER_DESKTOP)
         jvmArgs(buildArgsList(JVM_OPTIONS_RTVIEWER_DESKTOP))
 
+    // Keep configuration phase free from JavaFX resolution.
+    // JavaFX jars are resolved only when this task is actually executed.
+    doFirst {
+        classpath = sourceSets.rtviewer.runtimeClasspath
+        if (JavaVersion.current().java11Compatible) {
+            jvmArgs "--module-path", configurations.javafxRuntime.asPath,
+                    "--add-modules", "javafx.controls,javafx.fxml"
+        }
+    }
+
     mainClass.set(exampleMainLocation)
-    classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('createRTViewerFatJar', Jar) {
@@ -161,7 +212,7 @@ tasks.register('createRTViewerFatJar', Jar) {
     group 'Run EMA RTViewer desktop'
     description 'This task builds fat jar for RTViewer'
 
-        dependsOn classes
+        dependsOn classes, rtviewerClasses
 
     manifest {
         attributes(
@@ -169,16 +220,23 @@ tasks.register('createRTViewerFatJar', Jar) {
         )
     }
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     archiveBaseName.set('RTViewer')
     archiveBaseName.convention('RTViewer')
 
     from sourceSets.main.output
+    from sourceSets.rtviewer.output
 
-    from {
-        configurations.runtimeClasspath.filter{ it.exists() }.collect{ it.isDirectory() ? it : zipTree(it) }
-    } 
+    // Resolve dependency trees only when the fat-jar task is executed.
+    def fatJarClasspathTrees = providers.provider {
+        configurations.runtimeClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) } +
+        configurations.javafxRuntime.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    doFirst {
+        from(fatJarClasspathTrees.get())
+    }
 
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 }
