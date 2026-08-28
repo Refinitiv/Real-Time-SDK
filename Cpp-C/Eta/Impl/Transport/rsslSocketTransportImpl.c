@@ -8363,15 +8363,6 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	rsslSocketChannel->sendBufSize = opts->sysSendBufSize;
 	rsslSocketChannel->recvBufSize = opts->sysRecvBufSize;
 
-	/*store user defined component version info from connect options, if it's present*/
-	if (opts->componentVersion != NULL)
-	{
-		rsslChnlImpl->connOptsCompVer.componentVersion.length = (RsslUInt32)strlen(opts->componentVersion);
-		rsslChnlImpl->connOptsCompVer.componentVersion.data = _rsslMalloc(rsslChnlImpl->connOptsCompVer.componentVersion.length);
-		MemCopyByInt(rsslChnlImpl->connOptsCompVer.componentVersion.data, opts->componentVersion, rsslChnlImpl->connOptsCompVer.componentVersion.length);
-		rsslChnlImpl->ownConnOptCompVer = RSSL_TRUE;
-	}
-
 	/* added for infra group */
 	if (opts->guaranteedOutputBuffers < 5)
 		rsslSocketChannel->numGuarOutputBufs = 5;
@@ -8905,6 +8896,14 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	_DEBUG_TRACE_CONN("connType %d intState %d\n", rsslSocketChannel->connType, rsslSocketChannel->intState)
 	if (rsslSocketChannel->blocking)
 	{
+        /* bridge through connected component version info if it wasnt already set */
+		if ((!rsslSocketChannel->componentVerLen) && (!rsslSocketChannel->componentVer))
+		{
+			/* ipc does not own this and will not free or change it */
+			rsslSocketChannel->componentVer = rsslChnlImpl->componentVer.componentVersion.data;
+			rsslSocketChannel->componentVerLen = rsslChnlImpl->componentVer.componentVersion.length;
+		}
+
 		ripcSessInProg inPr = RSSL_INIT_SESS_IN_PROG_INFO;
 		ripcSessInit ret = RIPC_CONN_IN_PROGRESS;
 
@@ -9342,10 +9341,25 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		RsslRet	retval;
 		RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 
+		if (rsslSrvrImpl->connOptsCompVer.componentVersion.length && rsslSrvrImpl->connOptsCompVer.componentVersion.data)
+		{
+			/* if we have connected component versioning, bridge it through on channel here */
+			rsslChnlImpl->connOptsCompVer.componentVersion.length = rsslSrvrImpl->connOptsCompVer.componentVersion.length;
+			rsslChnlImpl->connOptsCompVer.componentVersion.data = rsslSrvrImpl->connOptsCompVer.componentVersion.data;
+			rsslChnlImpl->ownConnOptCompVer = RSSL_FALSE;
+		}
+
+		if (rsslInitComponentVersion(rsslChnlImpl, error) != RSSL_RET_SUCCESS)
+		{
+			_rsslReleaseChannel(rsslChnlImpl);
+			return NULL;
+		}
+
 		while (rsslChnlImpl->Channel.state != RSSL_CH_STATE_ACTIVE)
 		{
 			if ((retval = rsslSocketInitChannel(rsslChnlImpl, &inProg, error)) < RSSL_RET_SUCCESS)
 			{
+				_rsslReleaseChannel(rsslChnlImpl);
 				return 0;
 			}
 		}

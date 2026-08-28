@@ -58,7 +58,6 @@ void rsslClearDebugFunctionsEx();
 
 RTR_C_INLINE void rsslDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
 RTR_C_INLINE void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
-RTR_C_INLINE RsslRet rsslInitComponentVersion(rsslChannelImpl* componentInfo, RsslError *error);
 
 /* 33 additional chars to hold time stamps (when needed) */
 #define TIME_STAMP_SIZE 33
@@ -1486,12 +1485,21 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 		}
 	}
 
-	retVal = (*(rsslChnlImpl->channelFuncs->channelConnect))(rsslChnlImpl, opts, error);
-
-	if (retVal < RSSL_RET_SUCCESS)
+	/* store user defined component version info from connect options, if it's present*/
+	if (opts->componentVersion != NULL)
 	{
-		_rsslReleaseChannel(rsslChnlImpl);
-		return NULL;
+		rsslChnlImpl->connOptsCompVer.componentVersion.length = (RsslUInt32)strlen(opts->componentVersion);
+		rsslChnlImpl->connOptsCompVer.componentVersion.data = _rsslMalloc(rsslChnlImpl->connOptsCompVer.componentVersion.length);
+		if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslConnect() Error: 0005 Memory allocation failed for component version.", __FILE__, __LINE__);
+			_rsslReleaseChannel(rsslChnlImpl);
+			return NULL;
+		}
+
+		MemCopyByInt(rsslChnlImpl->connOptsCompVer.componentVersion.data, opts->componentVersion, rsslChnlImpl->connOptsCompVer.componentVersion.length);
+		rsslChnlImpl->ownConnOptCompVer = RSSL_TRUE;
 	}
 
 	if (opts->blocking)
@@ -1499,14 +1507,23 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 		/* if we have connected component versioning, bridge it through on channel here */
 		if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
 		{
-			retVal = rsslInitComponentVersion(rsslChnlImpl, error);
+			RsslRet retVal = rsslInitComponentVersion(rsslChnlImpl, error);
 
 			if (retVal < RSSL_RET_SUCCESS)
 			{
+				error->channel = NULL;
 				_rsslReleaseChannel(rsslChnlImpl);
 				return NULL;
 			}
 		}
+	}
+
+	retVal = (*(rsslChnlImpl->channelFuncs->channelConnect))(rsslChnlImpl, opts, error);
+
+	if (retVal < RSSL_RET_SUCCESS)
+	{
+		_rsslReleaseChannel(rsslChnlImpl);
+		return NULL;
 	}
 
 	/* add rsslChannelImpl to activeChannelList */

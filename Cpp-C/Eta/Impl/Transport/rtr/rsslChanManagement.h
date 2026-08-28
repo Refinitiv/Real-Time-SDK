@@ -766,6 +766,8 @@ rsslServerImpl *_rsslNewServer();
 
 void RTR_FASTCALL _rsslReleaseChannel(rsslChannelImpl *chnl);
 void RTR_FASTCALL _rsslReleaseServer(rsslServerImpl *srvr);
+RsslRet rsslInitComponentVersion(rsslChannelImpl* rsslChnlImpl, RsslError* error);
+
 
 
 #ifdef __cplusplus

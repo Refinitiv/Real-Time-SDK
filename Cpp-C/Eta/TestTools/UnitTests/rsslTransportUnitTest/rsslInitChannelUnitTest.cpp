@@ -2312,4 +2312,477 @@ TEST_F(RsslInitChannelInvalidMsgTests, LargeExcessBeyondWireLengthFillsInputBuff
     EXPECT_EQ(RSSL_CH_STATE_CLOSED, pServerChnl->state);
 }
 
+/* =========================================================================
+ * Blocking and non-blocking modes + component version content validation tests
+ *
+ * These tests establish a blocking-mode channel pair where both the server
+ * (RsslBindOptions::componentVersion) and the client
+ * (RsslConnectOptions::componentVersion) supply a custom component version
+ * string.  After the handshake completes, rsslGetChannelInfo() is used to
+ * validate that each side received the peer's exact component version
+ * content via RsslChannelInfo::componentInfo.
+ * ========================================================================= */
+
+class RsslInitChannelComponentVersionTests : public ::testing::Test
+{
+protected:
+    RsslServer*  pServer      = nullptr;
+    RsslChannel* pServerChnl  = nullptr;
+    RsslChannel* pClientChnl  = nullptr;
+
+    virtual void SetUp() override
+    {
+        RsslError err;
+        rsslInitialize(RSSL_LOCK_GLOBAL, &err);
+    }
+
+    virtual void TearDown() override
+    {
+        RsslError err;
+        if (pClientChnl)  { rsslCloseChannel(pClientChnl,  &err); pClientChnl  = nullptr; }
+        if (pServerChnl)  { rsslCloseChannel(pServerChnl,  &err); pServerChnl  = nullptr; }
+        if (pServer)      { rsslCloseServer(pServer,        &err); pServer      = nullptr; }
+        rsslUninitialize();
+    }
+
+    /* Establishes a blocking-mode TCP socket channel pair where the server
+     * and client each supply their own componentVersion string.  Returns
+     * true once both channels reach RSSL_CH_STATE_ACTIVE.                   */
+    bool setupBlockingPairWithComponentVersions(const char* port,
+                                                const char* serverCompVer,
+                                                const char* clientCompVer)
+    {
+        RsslBindOptions bindOpts;
+        rsslClearBindOpts(&bindOpts);
+        bindOpts.serviceName    = const_cast<char*>(port);
+        bindOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+        bindOpts.majorVersion   = RSSL_RWF_MAJOR_VERSION;
+        bindOpts.minorVersion   = RSSL_RWF_MINOR_VERSION;
+        bindOpts.protocolType   = RSSL_RWF_PROTOCOL_TYPE;
+        bindOpts.serverBlocking   = RSSL_TRUE;
+        bindOpts.channelsBlocking = RSSL_TRUE;
+        bindOpts.componentVersion = const_cast<char*>(serverCompVer);
+
+        RsslError err;
+        pServer = rsslBind(&bindOpts, &err);
+        if (!pServer)
+            return false;
+
+        RsslConnectOptions connectOpts;
+        rsslClearConnectOpts(&connectOpts);
+        connectOpts.connectionType                     = RSSL_CONN_TYPE_SOCKET;
+        connectOpts.connectionInfo.unified.address     = const_cast<char*>("localhost");
+        connectOpts.connectionInfo.unified.serviceName = const_cast<char*>(port);
+        connectOpts.majorVersion                       = RSSL_RWF_MAJOR_VERSION;
+        connectOpts.minorVersion                       = RSSL_RWF_MINOR_VERSION;
+        connectOpts.protocolType                       = RSSL_RWF_PROTOCOL_TYPE;
+        connectOpts.blocking                           = RSSL_TRUE;
+        connectOpts.componentVersion                   = const_cast<char*>(clientCompVer);
+
+        /* Blocking mode: rsslConnect() and rsslAccept() both block, so run
+         * them on separate threads to avoid deadlocking each other.         */
+        BlockingConnectArg connectArg;
+        connectArg.connectOpts = connectOpts;
+
+        BlockingAcceptArg acceptArg;
+        acceptArg.pServer = pServer;
+
+        RsslThreadId connectTid, acceptTid;
+        RSSL_THREAD_START(&acceptTid,  blockingAcceptThread,  &acceptArg);
+        RSSL_THREAD_START(&connectTid, blockingConnectThread, &connectArg);
+
+        RSSL_THREAD_JOIN(connectTid);
+        RSSL_THREAD_JOIN(acceptTid);
+
+        RSSL_THREAD_DETACH(&connectTid);
+        RSSL_THREAD_DETACH(&acceptTid);
+
+        pClientChnl = connectArg.pChannel;
+        pServerChnl = acceptArg.pChannel;
+
+        if (!pClientChnl || !pServerChnl)
+            return false;
+
+        return (pServerChnl->state == RSSL_CH_STATE_ACTIVE &&
+                pClientChnl->state == RSSL_CH_STATE_ACTIVE);
+    }
+
+    /* Establishes a non-blocking-mode TCP socket channel pair where the
+     * server and client each supply their own componentVersion string.
+     * Drives rsslInitChannel() on both sides until each reaches
+     * RSSL_CH_STATE_ACTIVE.  Returns true on success.                        */
+    bool setupNonBlockingPairWithComponentVersions(const char* port,
+                                                   const char* serverCompVer,
+                                                   const char* clientCompVer)
+    {
+        RsslBindOptions bindOpts;
+        rsslClearBindOpts(&bindOpts);
+        bindOpts.serviceName    = const_cast<char*>(port);
+        bindOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+        bindOpts.majorVersion   = RSSL_RWF_MAJOR_VERSION;
+        bindOpts.minorVersion   = RSSL_RWF_MINOR_VERSION;
+        bindOpts.protocolType   = RSSL_RWF_PROTOCOL_TYPE;
+        bindOpts.serverBlocking   = RSSL_FALSE;
+        bindOpts.channelsBlocking = RSSL_FALSE;
+        bindOpts.componentVersion = const_cast<char*>(serverCompVer);
+
+        RsslError err;
+        pServer = rsslBind(&bindOpts, &err);
+        if (!pServer)
+            return false;
+
+        RsslConnectOptions connectOpts;
+        rsslClearConnectOpts(&connectOpts);
+        connectOpts.connectionType                     = RSSL_CONN_TYPE_SOCKET;
+        connectOpts.connectionInfo.unified.address     = const_cast<char*>("localhost");
+        connectOpts.connectionInfo.unified.serviceName = const_cast<char*>(port);
+        connectOpts.majorVersion                       = RSSL_RWF_MAJOR_VERSION;
+        connectOpts.minorVersion                       = RSSL_RWF_MINOR_VERSION;
+        connectOpts.protocolType                       = RSSL_RWF_PROTOCOL_TYPE;
+        connectOpts.blocking                           = RSSL_FALSE;
+        connectOpts.componentVersion                   = const_cast<char*>(clientCompVer);
+
+        pClientChnl = rsslConnect(&connectOpts, &err);
+        if (!pClientChnl)
+            return false;
+
+        RsslAcceptOptions acceptOpts;
+        rsslClearAcceptOpts(&acceptOpts);
+        const int MAX_ACCEPT_TRIES = 200;
+        for (int i = 0; i < MAX_ACCEPT_TRIES && !pServerChnl; ++i)
+        {
+            pServerChnl = rsslAccept(pServer, &acceptOpts, &err);
+            if (!pServerChnl)
+                time_sleep(10);
+        }
+        if (!pServerChnl)
+            return false;
+
+        /* Drive non-blocking init handshake for both sides */
+        const int MAX_INIT_TRIES = 500;
+        RsslInProgInfo inProg;
+
+        for (int i = 0; i < MAX_INIT_TRIES; ++i)
+        {
+            bool serverDone = (pServerChnl->state == RSSL_CH_STATE_ACTIVE);
+            bool clientDone = (pClientChnl->state == RSSL_CH_STATE_ACTIVE);
+            if (serverDone && clientDone)
+                break;
+
+            if (!serverDone)
+            {
+                rsslClearInProgInfo(&inProg);
+                rsslInitChannel(pServerChnl, &inProg, &err);
+            }
+            if (!clientDone)
+            {
+                rsslClearInProgInfo(&inProg);
+                rsslInitChannel(pClientChnl, &inProg, &err);
+            }
+            time_sleep(5);
+        }
+
+        return (pServerChnl->state == RSSL_CH_STATE_ACTIVE &&
+                pClientChnl->state == RSSL_CH_STATE_ACTIVE);
+    }
+};
+
+TEST_F(RsslInitChannelComponentVersionTests, ClientReceivesTheDefaultComponentVersionFromServer)
+{
+    bool ok = setupBlockingPairWithComponentVersions("15741", NULL, NULL);
+    ASSERT_TRUE(ok) << "Blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Client should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from server side.";
+}
+
+/* Test: After a blocking-mode handshake, the client's RsslChannelInfo
+ * componentInfo array contains the exact component version string that
+ * the server supplied via RsslBindOptions::componentVersion.               */
+TEST_F(RsslInitChannelComponentVersionTests, ClientReceivesServerComponentVersionContent)
+{
+    const char* serverCompVer = "MyRsslServer-9.9";
+    const char* clientCompVer = "MyRsslClient-1.2.3";
+
+    bool ok = setupBlockingPairWithComponentVersions("15741", serverCompVer, clientCompVer);
+    ASSERT_TRUE(ok) << "Blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Client should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from server side.";
+    EXPECT_NE(std::string::npos, receivedCompVer.find(serverCompVer))
+        << "Expected server component version content '" << serverCompVer
+        << "' to be present in received value: " << receivedCompVer;
+}
+
+TEST_F(RsslInitChannelComponentVersionTests, ServerReceivesTheDefaultComponentVersionFromClient)
+{
+    bool ok = setupBlockingPairWithComponentVersions("15742", NULL, NULL);
+    ASSERT_TRUE(ok) << "Blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pServerChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Server should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from client side.";
+}
+
+/* Test: After a blocking-mode handshake, the server's RsslChannelInfo
+ * componentInfo array contains the exact component version string that
+ * the client supplied via RsslConnectOptions::componentVersion.            */
+TEST_F(RsslInitChannelComponentVersionTests, ServerReceivesClientComponentVersionContent)
+{
+    const char* serverCompVer = "ServerSideComponent-4.5";
+    const char* clientCompVer = "ClientSideComponent-7.8.9";
+
+    bool ok = setupBlockingPairWithComponentVersions("15742", serverCompVer, clientCompVer);
+    ASSERT_TRUE(ok) << "Blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pServerChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Server should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from client side.";
+    EXPECT_NE(std::string::npos, receivedCompVer.find(clientCompVer))
+        << "Expected client component version content '" << clientCompVer
+        << "' to be present in received value: " << receivedCompVer;
+}
+
+/* Test: Blocking-mode channel pair with a very long component version
+ * string (near typical truncation boundary) still completes the handshake
+ * and the received content on the peer is a valid prefix of the original. */
+TEST_F(RsslInitChannelComponentVersionTests, BlockingChannelWithLongComponentVersionReachesActiveState)
+{
+    /* Component version strings in the RIPC handshake are limited to a
+     * single byte length (max 253 characters); use a long string within
+     * that boundary to validate correct transmission of larger content.    */
+    std::string longServerCompVer(253, 'S');
+    std::string longClientCompVer(253, 'C');
+
+    bool ok = setupBlockingPairWithComponentVersions(
+        "15744", longServerCompVer.c_str(), longClientCompVer.c_str());
+
+    ASSERT_TRUE(ok) << "Blocking channel pair with long component versions failed to reach ACTIVE";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+    ASSERT_EQ(info.componentInfoCount, 1);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+
+    /* The received content should start with the long run of 'S' characters
+     * that identifies the server's component version.                     */
+    EXPECT_NE(std::string::npos, receivedCompVer.find(std::string(233, 'S')))
+        << "Expected long server component version content to be present in: " << receivedCompVer;
+}
+
+TEST_F(RsslInitChannelComponentVersionTests, NonBlockingClientReceivesTheDefalutComponentVersionFromServer)
+{
+    bool ok = setupNonBlockingPairWithComponentVersions("15746", NULL, NULL);
+    ASSERT_TRUE(ok) << "Non-blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Client should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from server side.";
+}
+
+/* Test: After a non-blocking-mode handshake, the client's RsslChannelInfo
+ * componentInfo array contains the exact component version string that
+ * the server supplied via RsslBindOptions::componentVersion.               */
+TEST_F(RsslInitChannelComponentVersionTests, NonBlockingClientReceivesServerComponentVersionContent)
+{
+    const char* serverCompVer = "MyRsslServer-9.9.9";
+    const char* clientCompVer = "MyRsslClient-1.2";
+
+    bool ok = setupNonBlockingPairWithComponentVersions("15746", serverCompVer, clientCompVer);
+    ASSERT_TRUE(ok) << "Non-blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Client should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from server side.";
+    EXPECT_NE(std::string::npos, receivedCompVer.find(serverCompVer))
+        << "Expected server component version content '" << serverCompVer
+        << "' to be present in received value: " << receivedCompVer;
+}
+
+TEST_F(RsslInitChannelComponentVersionTests, NonBlockingServerReceivesTheDefaultComponentVersionFromClient)
+{
+    bool ok = setupNonBlockingPairWithComponentVersions("15747", NULL, NULL);
+    ASSERT_TRUE(ok) << "Non-blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pServerChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Server should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from client side.";
+}
+
+/* Test: After a non-blocking-mode handshake, the server's RsslChannelInfo
+ * componentInfo array contains the exact component version string that
+ * the client supplied via RsslConnectOptions::componentVersion.            */
+TEST_F(RsslInitChannelComponentVersionTests, NonBlockingServerReceivesClientComponentVersionContent)
+{
+    const char* serverCompVer = "ServerSideComponent-4.5.6";
+    const char* clientCompVer = "ClientSideComponent-7.8";
+
+    bool ok = setupNonBlockingPairWithComponentVersions("15747", serverCompVer, clientCompVer);
+    ASSERT_TRUE(ok) << "Non-blocking channel pair setup failed";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pServerChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+
+    ASSERT_EQ(info.componentInfoCount, 1) << "Server should have received at least one component version";
+    ASSERT_NE(nullptr, info.componentInfo);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+    EXPECT_NE(std::string::npos, receivedCompVer.find("eta"))
+        << "Expected eta product name from client side.";
+    EXPECT_NE(std::string::npos, receivedCompVer.find(clientCompVer))
+        << "Expected client component version content '" << clientCompVer
+        << "' to be present in received value: " << receivedCompVer;
+}
+
+/* Test: Non-blocking-mode channel pair with a very long component version
+ * string (near typical truncation boundary) still completes the handshake
+ * and the received content on the peer is a valid prefix of the original. */
+TEST_F(RsslInitChannelComponentVersionTests, NonBlockingChannelWithLongComponentVersionReachesActiveState)
+{
+    /* Component version strings in the RIPC handshake are limited to a
+     * single byte length (max 253 characters); use a long string within
+     * that boundary to validate correct transmission of larger content.    */
+    std::string longServerCompVer(253, 'S');
+    std::string longClientCompVer(253, 'C');
+
+    bool ok = setupNonBlockingPairWithComponentVersions(
+        "15749", longServerCompVer.c_str(), longClientCompVer.c_str());
+
+    ASSERT_TRUE(ok) << "Non-blocking channel pair with long component versions failed to reach ACTIVE";
+
+    RsslError err;
+    RsslChannelInfo info;
+    memset(&info, 0, sizeof(info));
+
+    RsslRet ret = rsslGetChannelInfo(pClientChnl, &info, &err);
+    ASSERT_EQ(RSSL_RET_SUCCESS, ret) << "rsslGetChannelInfo failed: " << err.text;
+    ASSERT_EQ(info.componentInfoCount, 1);
+    ASSERT_NE(nullptr, info.componentInfo[0]);
+
+    RsslBuffer& compVerBuf = info.componentInfo[0]->componentVersion;
+    ASSERT_NE(nullptr, compVerBuf.data);
+    std::string receivedCompVer(compVerBuf.data, compVerBuf.length);
+
+    /* The received content should start with the long run of 'S' characters
+     * that identifies the server's component version.                     */
+    EXPECT_NE(std::string::npos, receivedCompVer.find(std::string(233, 'S')))
+        << "Expected long server component version content to be present in: " << receivedCompVer;
+}
+
 

@@ -2,10 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
- *|           Copyright (C) 2022,2024 LSEG. All rights reserved.
+ *|           Copyright (C) 2018-2024,2026 LSEG. All rights reserved.
  *|-----------------------------------------------------------------------------
  */
 
+#include "rtr/rsslMsgDecoders.h"
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslSocketTransport.h"
 #include "rtr/intDataTypes.h"
@@ -13,16 +14,15 @@
 #include "rtr/rsslSeqMcastTransport.h"
 #include "rtr/rsslQueue.h"
 
-#include "rtr/rsslMessagePackage.h"
 #include "decodeRoutines.h"
 #include "xmlDump.h"
 
 #include "rtr/rsslErrors.h"
 #include "rtr/rsslAlloc.h"
-
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/bindthread.h"
+#endif
 #include "rtr/rwfNetwork.h"
-#include "curl/curl.h"
 #include "rtr/ripcssljit.h"
 
 /* for encryption/decryption helpers */
@@ -68,6 +68,13 @@ RsslLockingTypes  multiThread = 0;  /* 0 == No Locking; 1 == All locking; 2 == O
 /*  debug globals - set to 0 is off, set to 1 will print debug msgs */
 unsigned char memoryDebug = 0;
 
+/* Memory allocation function pointers - defaults to the built-in malloc/realloc/free
+ * based implementations declared in rsslAlloc.h.  These can be overwritten
+ * (e.g. by rsslTransportUnitTest) to substitute a custom allocator. */
+RsslMallocFunc  rsslMallocFunc  = _rsslMallocDefault;
+RsslReallocFunc rsslReallocFunc = _rsslReallocDefault;
+RsslFreeFunc    rsslFreeFunc    = _rsslFreeDefault;
+
 /* used to keep track of the allocated channels */
 static RsslQueue freeChannelList;
 static RsslQueue freeServerList;
@@ -85,6 +92,8 @@ static rtr_atomic_val	initMutexFucs = 0;
  */
 static RsslTransportChannelFuncs  channelTransFuncs[RSSL_MAX_TRANSPORTS];
 static RsslTransportServerFuncs   serverTransFuncs[RSSL_MAX_TRANSPORTS];
+
+RsslRet rsslReleaseBufferImpl(RsslBuffer *buffer, RsslBool isCalledByUser, RsslError *error);
 
 /* used by each transport to set its functions into the array */
 RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFuncs *funcs )
@@ -243,6 +252,8 @@ rsslChannelImpl *_rsslNewChannel()
 		}
 	}
 
+	RTR_ATOMIC_SET(chnl->isBeingClosed, 0);
+
 	mutexFuncs.staticMutexUnlock();
 
 	return chnl;
@@ -286,7 +297,7 @@ RTR_C_ALWAYS_INLINE void _rsslReleaseActiveBuffers(rsslChannelImpl *chnl)
 	while ((pLink = rsslQueueRemoveLastLink(&(chnl->activeBufferList))))
 	{
 		rsslBufImpl = RSSL_QUEUE_LINK_TO_OBJECT(rsslBufferImpl, link1, pLink);
-		rsslReleaseBuffer(&(rsslBufImpl->buffer), &error);
+		rsslReleaseBufferImpl(&(rsslBufImpl->buffer), RSSL_FALSE, &error);
 	}
 
 	return;
@@ -513,13 +524,73 @@ typedef enum {
 	traceDump = 4
 } traceOperation;
 
+RsslRet _rsslTraceCheckFile(rsslChannelImpl *rsslChnlImpl, RsslError *error)
+{
+	/* File is already open. Check if it needs to be rotated. If it does, close the old file */
+	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
+	{
+		RsslInt64 filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
+		if ((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
+		{
+			/* Max configured file size reached. Close current file */
+			fclose(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
+			rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = NULL;
+
+			/* Proceed to rotate to the new file only when such option is enabled */
+			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES)
+				rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_TRUE;
+			else
+			{
+				rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_FALSE;
+				return RSSL_RET_SUCCESS;
+			}
+		}
+	}
+
+	/* Open a new trace file if needed */
+	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL
+		&& (rsslChnlImpl->traceOptionsInfo.needNewFile == RSSL_TRUE))
+	{
+		unsigned long long hour = 0, min = 0, sec = 0, msec = 0;
+
+		/* The new file name will be the original file name with msecs and ".xml" extension
+		 * appeneded to the end */
+		xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
+
+		char* newFileNameBuf = rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName;
+		const RsslUInt32 newFileNameSize = rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize;
+		const char* msgOrigNameBuf = rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName;
+		const RsslUInt32 msgOrigNameSize = rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize;
+
+		const int numChars = snprintf(newFileNameBuf, newFileNameSize, "%*s%03llu.xml", msgOrigNameSize, msgOrigNameBuf, msec);
+		if (numChars < 0)
+		{
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> _rsslTraceCheckFile() Error: Unable to create new trace file name. "
+				"snprintf() failed\n",
+				__FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
+
+		if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
+		{
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, RsslBuffer *buffer, RsslRet *retTrace, traceOperation op, RsslError *error)
 {
 	RsslDecodeIterator dIter;
 	RsslMsg msg = RSSL_INIT_MSG;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	char message[128];
-	RsslInt64 filePos = 0;
 	rsslBufferImpl *pRsslBufferImpl = (rsslBufferImpl *)buffer;
 
 	if (buffer == NULL)
@@ -527,42 +598,9 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, 
 
 	if (*retTrace == RSSL_RET_FAILURE)
 		return;
-	
+
 	(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
-	if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-	{
-		filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-		if((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
-		{
-			unsigned long long hour = 0 , min = 0, sec = 0, msec = 0;
-			char timeVal[TIME_STAMP_SIZE];
-			int numChars = 0;
-
-			/* Close this file */
-			fclose(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-			rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = NULL;
-
-			/* and open a new one */
-			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_MULTIPLE_FILES)
-			{
-				/* The new file name will be the original file name with secs, msecs, and ".xml" extension appeneded to the end*/
-				xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
-
-				numChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
-
-				memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
-				memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize, timeVal, numChars);
-				rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars] = '\0';
-
-				rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
-
-				if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
-				{
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslTraceStartMsg() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
-				}
-			}
-		}
-	}
+	_rsslTraceCheckFile(rsslChnlImpl, error);
 	
 	/* check if we got an FD change */
 	if (*retTrace == RSSL_RET_READ_FD_CHANGE)
@@ -733,6 +771,14 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 	rsslChannelImpl *chnl=0;
 	rsslServerImpl  *srvr=0;
 	int i = 0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
+	if (RSSL_NULL_PTR(rsslInitOpts, "rsslInitializeEx", "rsslInitOpts", error))
+		return RSSL_RET_FAILURE;
 	
 	if (!initialized)
 	{
@@ -779,13 +825,18 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 		/* Initialize All transports here */
 
 		/* initialize cpuid library */
-		retVal = rsslBindThreadInitialize();
-
-		if (retVal < RSSL_RET_SUCCESS)
+#ifndef NO_ETA_CPU_BIND
+		if (rsslInitOpts->shouldInitializeCPUIDlib)
 		{
-			mutexFuncs.staticMutexUnlock();
-			return retVal;
+			retVal = rsslBindThreadInitialize(error);
+
+			if (retVal < RSSL_RET_SUCCESS)
+			{
+				mutexFuncs.staticMutexUnlock();
+				return retVal;
+			}
 		}
+#endif
 
 		/* initialize debug dump functions */
 		rsslClearDebugFunctionsEx();
@@ -863,6 +914,11 @@ RsslRet rsslSetDebugFunctions(
 	RsslError *error)
 {
 	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	mutexFuncs.staticMutexLock();
 
@@ -924,6 +980,14 @@ void rsslClearDebugFunctionsEx()
 RSSL_API RsslRet rsslSetDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
 {
 	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
+	if (RSSL_NULL_PTR(pOpts, "rsslSetDebugFunctionsEx", "pOpts", error))
+		return RSSL_RET_FAILURE;
 
 	mutexFuncs.staticMutexLock();
 
@@ -991,12 +1055,87 @@ void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 leng
 	}
 }
 
+RsslRet rsslInitComponentVersion(rsslChannelImpl *rsslChnlImpl, RsslError *error)
+{
+	RsslChannel* chnl = (RsslChannel*)rsslChnlImpl;
+	rtrUInt32 length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
+
+	if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
+	{
+		/* use our product version information */
+		/* build it first */
+		size_t rsslLinkTypeLen = strlen(rsslLinkType);
+
+		if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen)) == NULL)
+		{
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+			rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+			return RSSL_RET_FAILURE;
+		}
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionPlatform, Rssl_ComponentVersionPlatform_Len);
+		length += (rtrUInt32)Rssl_ComponentVersionPlatform_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionEnd, RSSL_ComponentVersionEnd_Len);
+		length += (rtrUInt32)RSSL_ComponentVersionEnd_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslBits, Rssl_Bits_Len);
+		length += (rtrUInt32)Rssl_Bits_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslLinkType, rsslLinkTypeLen);
+		length += (rtrUInt32)rsslLinkTypeLen;
+	}
+	else
+	{
+		/* the user passed in component version data via connect opts*/
+		/* since the string rsslComponentVersionEnd, ".rrg", begins with a period and we don't want to include that char in our
+		component version string because it's redundant in this case, subtract it from the default length */
+		rtrUInt32 defaultLength = (rtrUInt32)(RSSL_ComponentVersionStart_Len + RSSL_ComponentVersionEnd_Len - __RSZI8);
+		rtrUInt32 totalLength = rsslChnlImpl->connOptsCompVer.componentVersion.length + __RSZI8 + defaultLength;
+		rtrUInt32 userInfoLength = 0;
+
+		if (totalLength > 253)
+		{
+			/* the total component data length is too long, so truncate the user defined data */
+			totalLength = 253;
+			userInfoLength = 253 - defaultLength - __RSZI8;
+		}
+		else
+		{
+			userInfoLength = rsslChnlImpl->connOptsCompVer.componentVersion.length;
+		}
+
+		if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength)) == NULL)
+		{
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+			rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+			return RSSL_RET_FAILURE;
+		}
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
+		length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
+		/* see explanation above the declaration of defaultLength to understand the pointer arithmetic below */
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslComponentVersionEnd + __RSZI8, RSSL_ComponentVersionEnd_Len - __RSZI8);
+		length += (rtrUInt32)RSSL_ComponentVersionEnd_Len - __RSZI8;
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, "|", __RSZI8);
+		length += __RSZI8;
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslChnlImpl->connOptsCompVer.componentVersion.data, userInfoLength);
+		length += userInfoLength;
+	}
+
+	/* dont include null terminator, this will be done by layer below so it is consistent whether user gives us value or we use our own */
+	rsslChnlImpl->componentVer.componentVersion.length = length;
+	rsslChnlImpl->ownCompVer = RSSL_TRUE;
+	return RSSL_RET_SUCCESS;
+}
+
 
 /* returned ipAddr in host byte order */
 RsslRet rsslHostByName(RsslBuffer *hostName, RsslUInt32 *ipAddr)
 {
 	RsslRet retVal;
 	RsslUInt32 tempUInt;
+
+	if(hostName == NULL || ipAddr == NULL)
+		return RSSL_RET_FAILURE;
 
 	retVal = rsslGetHostByName(hostName->data, ipAddr);
 
@@ -1023,6 +1162,9 @@ RsslRet rsslGetUserName(RsslBuffer *userName)
 	char    pwd_buffer[1024];
 	struct  passwd pwd;
 #endif
+
+	if (userName == NULL || userName->data == NULL || userName->length == 0)
+		return RSSL_RET_FAILURE;
 
 #if defined(_WIN32)
 	if (!GetUserName(tempUserName, &tempUserNameSize))
@@ -1063,6 +1205,11 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 {
 	rsslServerImpl 	*rsslSrvrImpl=0;
 	int				retVal = RSSL_RET_FAILURE;
+
+	if(error == NULL)
+	{
+		return NULL;
+	}
 	
 	if (!initialized)
 	{
@@ -1076,6 +1223,15 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 
 	if (RSSL_NULL_PTR(opts->serviceName, "rsslBind", "opts->serviceName", error))
 		return NULL;
+
+	if (opts->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		/* error */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 JSON protocol Type not supported on SOCKET servers.\n", __FILE__, __LINE__);
+
+		return NULL;
+	}
 
 	/* create rssl server */
 	if ((rsslSrvrImpl = _rsslNewServer()) == 0)
@@ -1165,7 +1321,12 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 RsslChannel* rsslAccept(RsslServer *srvr, RsslAcceptOptions *opts, RsslError *error)
 {
 	rsslChannelImpl	*rsslChnlImpl=0;
-	rsslServerImpl	*rsslSrvrImpl=0;	
+	rsslServerImpl	*rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (!initialized)
 	{
@@ -1221,6 +1382,11 @@ RsslRet rsslCloseServer(RsslServer *srvr, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
 
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, (RsslChannel*)srvr, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1251,6 +1417,11 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 {
 	rsslChannelImpl	*rsslChnlImpl=0;
 	int	retVal = RSSL_RET_FAILURE;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (!initialized)
 	{
@@ -1314,6 +1485,39 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 		}
 	}
 
+	/* store user defined component version info from connect options, if it's present*/
+	if (opts->componentVersion != NULL)
+	{
+		rsslChnlImpl->connOptsCompVer.componentVersion.length = (RsslUInt32)strlen(opts->componentVersion);
+		rsslChnlImpl->connOptsCompVer.componentVersion.data = _rsslMalloc(rsslChnlImpl->connOptsCompVer.componentVersion.length);
+		if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslConnect() Error: 0005 Memory allocation failed for component version.", __FILE__, __LINE__);
+			_rsslReleaseChannel(rsslChnlImpl);
+			return NULL;
+		}
+
+		MemCopyByInt(rsslChnlImpl->connOptsCompVer.componentVersion.data, opts->componentVersion, rsslChnlImpl->connOptsCompVer.componentVersion.length);
+		rsslChnlImpl->ownConnOptCompVer = RSSL_TRUE;
+	}
+
+	if (opts->blocking)
+	{
+		/* if we have connected component versioning, bridge it through on channel here */
+		if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
+		{
+			RsslRet retVal = rsslInitComponentVersion(rsslChnlImpl, error);
+
+			if (retVal < RSSL_RET_SUCCESS)
+			{
+				error->channel = NULL;
+				_rsslReleaseChannel(rsslChnlImpl);
+				return NULL;
+			}
+		}
+	}
+
 	retVal = (*(rsslChnlImpl->channelFuncs->channelConnect))(rsslChnlImpl, opts, error);
 
 	if (retVal < RSSL_RET_SUCCESS)
@@ -1336,6 +1540,12 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 RsslRet rsslReconnectClient(RsslChannel *chnl,  RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -1357,7 +1567,28 @@ RsslRet rsslReconnectClient(RsslChannel *chnl,  RsslError *error)
 	/* Map RsslChannel to rsslChannelImpl */
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelReconnect))(rsslChnlImpl, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReconnectClient() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelReconnect))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 /* Rssl channel initialization */
@@ -1368,6 +1599,11 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	/* We may need to worry about the INPROG case of 
 	   RIPC_INPROG_NEW_FD for tunneling, etc.  */
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -1379,6 +1615,9 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	if (RSSL_NULL_PTR(chnl, "rsslInitChannel", "chnl", error))
 		return RSSL_RET_FAILURE;
 
+	if (RSSL_NULL_PTR(inProg, "rsslInitChannel", "inProg", error))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(chnl->state == RSSL_CH_STATE_CLOSED))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
@@ -1388,78 +1627,32 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	/* if we have connected component versioning, bridge it through on channel here */
 	if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
 	{
-		rtrUInt32 length = (rtrUInt32) RSSL_ComponentVersionStart_Len;
-
-		if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
-		{
-			/* use our product version information */
-			/* build it first */
-			size_t rsslLinkTypeLen = strlen(rsslLinkType);
-
-			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen)) == NULL)
-			{
-				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
-				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-				return RSSL_RET_FAILURE;
-			}
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionPlatform, Rssl_ComponentVersionPlatform_Len);
-			length += (rtrUInt32)Rssl_ComponentVersionPlatform_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionEnd, RSSL_ComponentVersionEnd_Len);
-			length += (rtrUInt32)RSSL_ComponentVersionEnd_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslBits, Rssl_Bits_Len);
-			length += (rtrUInt32)Rssl_Bits_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslLinkType, rsslLinkTypeLen);
-			length += (rtrUInt32)rsslLinkTypeLen;
-		}
-		else
-		{
-			/* the user passed in component version data via connect opts*/
-			/* since the string rsslComponentVersionEnd, ".rrg", begins with a period and we don't want to include that char in our
-			component version string because it's redundant in this case, subtract it from the default length */
-			rtrUInt32 defaultLength = (rtrUInt32)(RSSL_ComponentVersionStart_Len + RSSL_ComponentVersionEnd_Len - __RSZI8);
-			rtrUInt32 totalLength = rsslChnlImpl->connOptsCompVer.componentVersion.length + __RSZI8 + defaultLength;
-			rtrUInt32 userInfoLength = 0;
-
-			if (totalLength > 253)
-			{
-				/* the total component data length is too long, so truncate the user defined data */
-				totalLength = 253;
-				userInfoLength = 253 - defaultLength - __RSZI8;
-			}
-			else
-			{
-				userInfoLength = rsslChnlImpl->connOptsCompVer.componentVersion.length;
-			}
-
-			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength)) == NULL)
-			{
-				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
-				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-				return RSSL_RET_FAILURE;
-			}
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
-			length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
-			/* see explanation above the declaration of defaultLength to understand the pointer arithmetic below */
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslComponentVersionEnd + __RSZI8, RSSL_ComponentVersionEnd_Len - __RSZI8);
-			length += (rtrUInt32)RSSL_ComponentVersionEnd_Len - __RSZI8;
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, "|", __RSZI8);
-			length += __RSZI8;
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslChnlImpl->connOptsCompVer.componentVersion.data, userInfoLength);
-			length += userInfoLength;
-		}
-
-		/* dont include null terminator, this will be done by layer below so it is consistent whether user gives us value or we use our own */
-		rsslChnlImpl->componentVer.componentVersion.length = length;
-		rsslChnlImpl->ownCompVer = RSSL_TRUE;
+		if (rsslInitComponentVersion(rsslChnlImpl, error) != RSSL_RET_SUCCESS) return RSSL_RET_FAILURE;
 	}
 
 	ret = ((*(rsslChnlImpl->channelFuncs->initChannel))(rsslChnlImpl, inProg, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 
 	if (ret < RSSL_RET_SUCCESS)
 	{
@@ -1484,6 +1677,12 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslRet retVal = RSSL_RET_SUCCESS;
+	RsslUInt16 maxWaitCount = 0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -1498,6 +1697,26 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 	if (rsslChnlImpl->Channel.state == RSSL_CH_STATE_INACTIVE)
 		return RSSL_RET_SUCCESS;
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+		RTR_ATOMIC_SET(rsslChnlImpl->isBeingClosed, 1);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+
+		while (rsslChnlImpl->activeThreadCount > 0 && maxWaitCount < 10)
+		{
+#ifdef WIN32
+			Sleep(500);
+#else
+			struct timespec ts;
+			ts.tv_sec = 0;
+			ts.tv_nsec = 500000000;
+			nanosleep(&ts, NULL);
+#endif
+			++maxWaitCount;
+		}
+	}
 
 	if (((rsslChnlImpl->Channel.state == RSSL_CH_STATE_ACTIVE) || (rsslChnlImpl->Channel.state == RSSL_CH_STATE_INITIALIZING)))
 	{
@@ -1527,6 +1746,7 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 	{
 		free(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName);
 		rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = NULL;
+		rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = 0;
 	}
 
 	rsslClearTraceOptionsInfo(&(rsslChnlImpl->traceOptionsInfo));
@@ -1544,6 +1764,11 @@ RsslRet rsslServerIoctl(RsslServer *srvr, RsslIoctlCodes code, void *value, Rssl
 {
 	rsslServerImpl *rsslSrvrImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, (RsslChannel*)srvr, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1552,6 +1777,9 @@ RsslRet rsslServerIoctl(RsslServer *srvr, RsslIoctlCodes code, void *value, Rssl
 	}
 
 	if (RSSL_NULL_PTR(srvr, "rsslServerIoctl", "srvr", error))
+		return RSSL_RET_FAILURE;
+
+	if (RSSL_NULL_PTR(value, "rsslServerIoctl", "value", error))
 		return RSSL_RET_FAILURE;
 
 	rsslSrvrImpl = (rsslServerImpl*)srvr;
@@ -1577,6 +1805,7 @@ static void closeTraceMsgFile(RsslTraceOptionsInfo *traceOptionsInfo)
 		free(traceOptionsInfo->newTraceMsgFileName);
 	}
 	traceOptionsInfo->newTraceMsgFileName = NULL;
+	traceOptionsInfo->newTraceMsgFileNameSize = 0;
 	traceOptionsInfo->traceMsgOrigFileNameSize = 0;
 }
 
@@ -1584,6 +1813,12 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslTraceOptions *traceOptions=0;
+	RsslRet rsslRet;
+
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -1606,24 +1841,42 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 	}
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
 	
 	switch (code)
 	{
 		case RSSL_TRACE:
 			/* Open the file to log XML trace data in */
-			traceOptions = (RsslTraceOptions*)value;
-			if(traceOptions != NULL)
+			if (value != NULL)
 			{
-				unsigned long long hour = 0 , min = 0, sec = 0, msec = 0;
-				char timeVal[TIME_STAMP_SIZE];
-				int numChars = 0;
-				int needNewFile = 0;
+				RsslTraceOptions* traceOptions = (RsslTraceOptions*)value;
+
+				RsslBool needNewFile = RSSL_FALSE;
 				
 				/* tracing is only intended for RWF or JSON data */
 				if ( (rsslChnlImpl->Channel.protocolType != RSSL_RWF_PROTOCOL_TYPE) && (rsslChnlImpl->Channel.protocolType != RSSL_JSON_PROTOCOL_TYPE) )
 				{
 					_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Code RSSL_TRACE was specified, but the channel's protocolType is not RSSL_RWF_PROTOCOL_TYPE or RSSL_JSON_PROTOCOL_TYPE.\n", __FILE__, __LINE__);
+					
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -1634,11 +1887,19 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 				if (!(traceOptions->traceFlags & RSSL_TRACE_TO_FILE_ENABLE))
 				{
 					closeTraceMsgFile(&rsslChnlImpl->traceOptionsInfo);
+					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_FALSE;
+
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					return RSSL_RET_SUCCESS;
 				}
 
 				if (traceOptions->traceMsgFileName == NULL)
 				{
+					if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+						RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 					if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
 					{
 						/* user is attempting to enable file tracing for the first time without specifying a file name*/
@@ -1654,10 +1915,10 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 					|| (0 != strncmp(traceOptions->traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, strlen(traceOptions->traceMsgFileName))))
 				{
 					/* the user wants to change the output file for the XML trace. */
-					needNewFile = 1;
+					needNewFile = RSSL_TRUE;
 				}
 
-				if (needNewFile)
+				if (needNewFile == RSSL_TRUE)
 				{
 					rtrUInt32 allocated;
 
@@ -1670,6 +1931,10 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 					{
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+							RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 						return RSSL_RET_FAILURE;
 					}
 					memcpy(rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, traceOptions->traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
@@ -1677,36 +1942,37 @@ RsslRet rsslIoctl(RsslChannel *chnl, RsslIoctlCodes code, void *value, RsslError
 
 					/* malloc space for the modified file name, which includes the original name and TIME_STAMP_SIZE additional chars to hold time stamps (when needed)
 					 * and the ".xml" extension*/
-					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = (char*)malloc(rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + TIME_STAMP_SIZE * sizeof(char));
+					const RsslUInt32 newTraceMsgFileNameSize
+						= rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + TIME_STAMP_SIZE * sizeof(char) + sizeof(char);
+					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName = (char*)malloc(newTraceMsgFileNameSize);
 					if (!rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName)
 					{
+						rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = 0;
 						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to create memory to store file name\n", __FILE__, __LINE__);
+
+						if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+							RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 						return RSSL_RET_FAILURE;
 					}
-
-					memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgFileName, rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize);
-
-					/* add timestamp to the file's name */
-					xmlGetTimeFromEpoch(&hour, &min, &sec, &msec);
-					numChars = snprintf(timeVal, TIME_STAMP_SIZE, "%03llu.xml", msec);
-					memcpy(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName + rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize, timeVal, numChars);
-					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName[rsslChnlImpl->traceOptionsInfo.traceMsgOrigFileNameSize + numChars * sizeof(char)] = '\0';
-
-					rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr = fopen(rsslChnlImpl->traceOptionsInfo.newTraceMsgFileName, "a+");
-
-					if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
-					{
-						_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-						snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslIoctl() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
-						return RSSL_RET_FAILURE;
-					}
+					rsslChnlImpl->traceOptionsInfo.newTraceMsgFileNameSize = newTraceMsgFileNameSize;
+					rsslChnlImpl->traceOptionsInfo.needNewFile = RSSL_TRUE;
 				}
 			}
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			return RSSL_RET_SUCCESS;
 		break;
 		default:
-			return ((*(rsslChnlImpl->channelFuncs->channelIoctl))(rsslChnlImpl, code, value, error));
+			rsslRet = ((*(rsslChnlImpl->channelFuncs->channelIoctl))(rsslChnlImpl, code, value, error));
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+			return rsslRet;
 	}
 }	
 
@@ -1725,6 +1991,16 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	rsslChannelImpl *rsslChnlImpl=0;
 	RsslBuffer *retBuf;
 
+	if(error == NULL)
+	{
+		return NULL;
+	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(readRet, "rsslRead", "readRet", error)))
+	{
+		return NULL;
+	}
+
 	if (rtrUnlikely(!initialized))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
@@ -1734,12 +2010,6 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	}
 	
 	if (rtrUnlikely(RSSL_NULL_PTR(chnl, "rsslRead", "chnl", error)))
-	{
-		*readRet = RSSL_RET_FAILURE;
-		return NULL;
-	}
-
-	if (rtrUnlikely(RSSL_NULL_PTR(readRet, "rsslRead", "readRet", error)))
 	{
 		*readRet = RSSL_RET_FAILURE;
 		return NULL;
@@ -1770,7 +2040,27 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 	/* if its already locked, return read in progress */
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			*readRet = RSSL_RET_FAILURE;
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReadEx() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	retBuf = (*(rsslChnlImpl->channelFuncs->channelRead))(rsslChnlImpl, readOutArgs, readRet, error);
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
@@ -1780,14 +2070,18 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 			_rsslTraceEndMsg(rsslChnlImpl, readRet, RSSL_TRUE);
 		}
 		/* check if we read a ping */
-		else if ((*readRet == RSSL_RET_READ_PING) && (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_READ))
+		else if (*readRet == RSSL_RET_READ_PING)
 		{	
-			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)	/* are we tracing pings? */
+			/* are we tracing pings? */
+			if ( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_READ) 
+				&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)
+				|| (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING_ONLY) )
 			{
 				char message[128];
 
 				snprintf(message, sizeof(message), "Incoming Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 				(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+				_rsslTraceCheckFile(rsslChnlImpl, error);
 				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
 
 				snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
@@ -1820,6 +2114,11 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 	writeInArgs.writeInFlags = (RsslUInt32)writeFlags;
 	writeInArgs.rsslPriority = rsslPriority;
 
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+	
 	// API QA
 	if (save_writeFlags == 0xFF
 		|| (save_writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE))
@@ -1840,6 +2139,12 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslWrite", "buffer", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(bytesWritten, "rsslWrite", "bytesWritten", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(uncompressedBytesWritten, "rsslWrite", "uncompressedBytesWritten", error)))
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(chnl->state != RSSL_CH_STATE_ACTIVE))
@@ -1928,10 +2233,17 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 	rsslBufferImpl *rsslBufImpl=0;
 	RsslInt32 priority;
 	RsslRet ret;
-
+	RsslUInt32 allocatedBufferSize =0;
+	RsslBool hasLength =0;
+	
 	// API QA
 	static RsslUInt32 save_writeFlags = 0xFFFFFFFF;
 	// END API QA
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -1944,6 +2256,12 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		return RSSL_RET_FAILURE;
 
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslWrite", "buffer", error)))
+		return RSSL_RET_FAILURE;
+
+	hasLength = buffer->length > 0;
+
+	/* The packed buffer->data can be null when the length is zero to indicate end of packing message */
+	if (hasLength && rtrUnlikely(RSSL_NULL_PTR(buffer->data, "rsslWrite", "buffer->data", error)))
 		return RSSL_RET_FAILURE;
 	
 	if (rtrUnlikely(RSSL_NULL_PTR(writeOutArgs, "rsslWrite", "writeOutArgs", error)))
@@ -1958,7 +2276,7 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0007 Only Channels in RSSL_CH_STATE_ACTIVE state can write.\n", __FILE__, __LINE__);
 		return RSSL_RET_FAILURE;
 	}
-
+	
 	// API QA
 	if (save_writeFlags == 0xFFFFFFFF
 		|| (save_writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != (writeInArgs->writeInFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE))
@@ -1968,13 +2286,24 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 	}
 	// END API QA
 
+	rsslChnlImpl = (rsslChannelImpl*)chnl;
+
 	writeOutArgs->writeOutFlags = RSSL_WRITE_OUT_NO_FLAGS;
 	/* valid cases are a buffer with length was passed in, or it is a packed buffer and
 	   a 0 length buffer is passed in - this signifys that nothing is written into the last portion of the buffer */
-	if (rtrLikely((buffer->length > 0) || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
+	if (rtrLikely(hasLength || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
 	{
-		rsslChnlImpl = (rsslChannelImpl*)chnl;
 		rsslBufImpl = (rsslBufferImpl*)buffer;
+
+		/* Get the buffer allocated size without the packing offset if any */
+		allocatedBufferSize = rsslBufImpl->totalLength - rsslBufImpl->packingOffset;
+
+		/* Minus the total length by one to account for the ']' character at the end of buffer for the non-fragmented buffer.*/
+		if (rsslChnlImpl->Channel.protocolType == RSSL_JSON_PROTOCOL_TYPE && rsslBufImpl->fragmentationFlag == BUFFER_IMPL_NONE)
+		{
+			if (allocatedBufferSize > 0)
+				allocatedBufferSize -= 1;
+		}
 		
 		/* make sure the integrity checks out */
 		if (rtrUnlikely(rsslBufImpl->integrity != 69))
@@ -1985,11 +2314,36 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 			return RSSL_RET_BUFFER_TOO_SMALL;
 		}
 
+		/* make sure the user data length must not be larger than allocated buffer length */
+		if (rtrUnlikely(buffer->length > allocatedBufferSize))
+		{
+			/* the data has overwritten memory */
+			_rsslSetError(error, chnl, RSSL_RET_BUFFER_TOO_SMALL, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0008 Data has overflowed the allocated buffer length(%lu).\n", __FILE__, __LINE__, allocatedBufferSize);
+			return RSSL_RET_BUFFER_TOO_SMALL;
+		}
+
 		if (rtrUnlikely(rsslBufImpl->RsslChannel != rsslChnlImpl))
 		{
 			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx()  Error: 0018 Channel is not owner of buffer.\n", __FILE__, __LINE__);
 			return RSSL_RET_FAILURE;
+		}
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		{
+			RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+			if (rsslChnlImpl->isBeingClosed)
+			{
+				RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslWriteEx() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+				return RSSL_RET_FAILURE;
+			}
+
+			RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 		}
 
 		/* get priority checked for valid range */
@@ -2017,6 +2371,10 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 				_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, traceWrite, error);
 			}
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl,  writeInArgs, writeOutArgs, error);
+
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
 			{
 				_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_FALSE);
@@ -2027,6 +2385,10 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 		else
 		{
 			ret = (*(rsslChnlImpl->channelFuncs->channelWrite))(rsslChnlImpl, rsslBufImpl, writeInArgs, writeOutArgs, error);
+			
+			if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+				RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 			return ret;
 		}
 	}
@@ -2045,6 +2407,11 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 {
 	RsslRet ret;
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2065,7 +2432,26 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslFlush() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	ret =  ((*(rsslChnlImpl->channelFuncs->channelFlush))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
 	
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 		_rsslTraceClosed(rsslChnlImpl, &ret);
@@ -2077,6 +2463,12 @@ RSSL_API RsslRet rsslFlush(RsslChannel *chnl, RsslError *error)
 RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2084,6 +2476,9 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPing() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
 		return RSSL_RET_INIT_NOT_INITIALIZED;
 	}
+
+	if (rtrUnlikely(RSSL_NULL_PTR(chnl, "rsslPing", "chnl", error)))
+		return RSSL_RET_FAILURE;
 
 	/* should only be pinging from the active state */
 	if (chnl->state != RSSL_CH_STATE_ACTIVE)
@@ -2095,32 +2490,59 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPing() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
+		/* are we tracing pings? */
+		if ( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_WRITE)
+			&& (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)
+			|| (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING_ONLY) )
 		{
-			if (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_PING)	/* are we tracing pings? */
-			{
-				char message[128];
+			char message[128];
 
-				(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
-				snprintf(message, sizeof(message), "Outgoing Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
+			(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+			snprintf(message, sizeof(message), "Outgoing Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
+			_rsslTraceCheckFile(rsslChnlImpl, error);
+			_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
 
-				snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
-				(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
-
-			}
+			snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
+			_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
+			(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 		}
 	}
 
-	return ((*(rsslChnlImpl->channelFuncs->channelPing))(rsslChnlImpl, error));
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelPing))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslRet rsslRet;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2144,7 +2566,28 @@ RsslRet rsslGetChannelInfo(RsslChannel *chnl, RsslChannelInfo *info, RsslError *
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, info, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelInfo() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	rsslRet = ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, info, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return rsslRet;
 }
 
 RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslError *error)
@@ -2153,17 +2596,22 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 	RsslChannelInfo info;
 	RsslRet ret;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	if (!initialized)
 	{
 		_rsslSetError(error, chnl, RSSL_RET_INIT_NOT_INITIALIZED, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelInfo() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0001 RSSL not initialized.\n", __FILE__, __LINE__);
 		return RSSL_RET_INIT_NOT_INITIALIZED;
 	}
 
-	if (RSSL_NULL_PTR(chnl, "rsslGetChannelInfo", "chnl", error))
+	if (RSSL_NULL_PTR(chnl, "rsslGetChannelStats", "chnl", error))
 		return RSSL_RET_FAILURE;
 
-	if (RSSL_NULL_PTR(stats, "rsslGetChannelInfo", "stats", error))
+	if (RSSL_NULL_PTR(stats, "rsslGetChannelStats", "stats", error))
 		return RSSL_RET_FAILURE;
 
 	if (chnl->state != RSSL_CH_STATE_ACTIVE)
@@ -2175,14 +2623,39 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (chnl->connectionType == RSSL_CONN_TYPE_SOCKET || chnl->connectionType == RSSL_CONN_TYPE_ENCRYPTED || chnl->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
-		return rsslSocketGetChannelStats(rsslChnlImpl, stats, error);
+		RsslRet rsslRet = rsslSocketGetChannelStats(rsslChnlImpl, stats, error);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+		return rsslRet;
 	}
 	if (chnl->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST)
 	{
 		memset((void*)&info, 0, sizeof(RsslChannelInfo));
 		ret = ((*(rsslChnlImpl->channelFuncs->channelGetInfo))(rsslChnlImpl, &info, error));
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		if (ret == RSSL_RET_SUCCESS)
 		{
 			stats->multicastStats = info.multicastStats;
@@ -2196,7 +2669,11 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 	else
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStats() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetChannelStatss() Error: 0006 Only SOCKET, ENCRYPTED(non WinInet), and RELIABLE_MULTICAST channels supported by rsslGetChannelStats.\n", __FILE__, __LINE__);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		return RSSL_RET_FAILURE;
 	}
 }
@@ -2204,6 +2681,11 @@ RsslRet rsslGetChannelStats(RsslChannel *chnl, RsslChannelStats *stats, RsslErro
 RsslRet rsslGetServerInfo( RsslServer *srvr, RsslServerInfo *info, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -2233,6 +2715,12 @@ RsslRet rsslGetServerInfo( RsslServer *srvr, RsslServerInfo *info, RsslError *er
 RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
+	RsslInt32 retValue;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (!initialized)
 	{
@@ -2254,12 +2742,38 @@ RSSL_API RsslInt32 rsslBufferUsage(RsslChannel *chnl, RsslError *error)
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
-	return ((*(rsslChnlImpl->channelFuncs->channelBufferUsage))(rsslChnlImpl, error));
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferUsage() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
+	retValue = ((*(rsslChnlImpl->channelFuncs->channelBufferUsage))(rsslChnlImpl, error));
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
+	return retValue;
 }
 
 RSSL_API RsslInt32 rsslServerBufferUsage(RsslServer *srvr, RsslError *error)
 {
 	rsslServerImpl *rsslSrvrImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	if (!initialized)
 	{
@@ -2305,8 +2819,10 @@ RsslRet rsslUninitialize()
 		_rsslCleanUp();
 		rsslUnloadTransport();
 
+#ifndef NO_ETA_CPU_BIND
 		/* Uninitialize cpuid library */
 		rsslBindThreadUninitialize();
+#endif
 
 		/* uninitialize various transports */
 		rsslSocketUninitialize();
@@ -2323,6 +2839,12 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 {
 	rsslBufferImpl *rsslBufImpl = 0;
 	rsslChannelImpl *rsslChnlImpl = 0;
+	RsslBuffer* rsslBuffer = 0;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2374,6 +2896,22 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 		return NULL;
 	}
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslPackBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	if (rtrUnlikely(rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT))
 	{
 		rsslDumpOutFuncImpl((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId, chnl);
@@ -2385,6 +2923,10 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 		RsslRet ret = RSSL_RET_SUCCESS;
 		_rsslTraceStartMsg(rsslChnlImpl, rsslChnlImpl->Channel.protocolType, buffer, &ret, tracePack, error);
 		retBuffer = (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		if (retBuffer == NULL) ret = error->rsslErrorId;
 		_rsslTraceEndMsg(rsslChnlImpl, &ret, RSSL_FALSE);
 		_rsslTraceClosed(rsslChnlImpl, &ret);
@@ -2392,13 +2934,23 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 	}
 		
 	/* return from rsslPackBuffer function pointer */
-	return (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+	rsslBuffer = (*(rsslChnlImpl->channelFuncs->channelPackBuffer))(rsslChnlImpl, rsslBufImpl, error);
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+	
+	return rsslBuffer;
 }	
 
 RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool packedBuffer, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	rsslBufferImpl *rsslBufImpl = 0;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2425,17 +2977,38 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 	if (rtrUnlikely(size <= 0))
 	{
 		_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0010 Invaid buffer size specified.\n", __FILE__, __LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0010 Invalid buffer size specified.\n", __FILE__, __LINE__);
 		return NULL;
 	}
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
 
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	{
+		RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+		if (rsslChnlImpl->isBeingClosed)
+		{
+			RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslGetBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+			return NULL;
+		}
+
+		RTR_ATOMIC_INCREMENT(rsslChnlImpl->activeThreadCount);
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
+
 	rsslBufImpl = (*(rsslChnlImpl->channelFuncs->channelGetBuffer))(rsslChnlImpl, size, packedBuffer, error);
 
 	/* error is already set from within function call above */
 	if (rtrUnlikely(!rsslBufImpl))
+	{
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+
 		return NULL;
+	}
 	
 	/* common work done for all transport types */
 	rsslBufImpl->RsslChannel = rsslChnlImpl;
@@ -2448,16 +3021,25 @@ RSSL_API RsslBuffer* rsslGetBuffer(RsslChannel *chnl, RsslUInt32 size, RsslBool 
 	rsslInitQueueLink(&(rsslBufImpl->link1));
 	rsslQueueAddLinkToBack(&(rsslChnlImpl->activeBufferList), &(rsslBufImpl->link1));
 	if (rtrUnlikely(memoryDebug)) printf("adding to activeBufferList\n");
+
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
-	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	{
+		RTR_ATOMIC_DECREMENT(rsslChnlImpl->activeThreadCount);
+		(void)RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+	}
 
 	return (&(rsslBufImpl->buffer));
 }
 
-RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
+RsslRet rsslReleaseBufferImpl(RsslBuffer *buffer, RsslBool isCalledByUser, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl=0;
 	rsslBufferImpl* rsslBufImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2486,14 +3068,21 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	/* remove buffer from list */
 	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 	  (void) RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex);
+
+	if (rsslChnlImpl->isBeingClosed && isCalledByUser)
+	{
+		RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslReleaseBuffer() Error: 0007 This channel is being closed by another thread.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
 	if (rsslQueueLinkInAList(&(rsslBufImpl->link1)) == RSSL_TRUE)
 	{
 		rsslQueueRemoveLink(&(rsslChnlImpl->activeBufferList), &(rsslBufImpl->link1));
 		if (rtrUnlikely(memoryDebug))
 			printf("removing from activeBufferList\n");
 	}
-	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
-	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 
 	/* first check if I allocated the data portion of the buffer */
 	if (rsslBufImpl->owner == 1)
@@ -2506,13 +3095,18 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 		}
 
 		/* I allocated it - now free it */
-		_rsslFree(buffer->data);
+		_rsslFree(rsslBufImpl->pOwnBufferHolder);
+		rsslBufImpl->pOwnBufferHolder = NULL; 
 
 		if (rsslBufImpl->compressedBuffer.data)
 		{
 			_rsslFree(rsslBufImpl->compressedBuffer.data);
+			rsslBufImpl->compressedBuffer.data = NULL;
 		}
 	}
+
+	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+	  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 
 	(*(rsslChnlImpl->channelFuncs->channelReleaseBuffer))(rsslChnlImpl, rsslBufImpl, error);
 
@@ -2530,8 +3124,18 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	return RSSL_RET_SUCCESS;
 }
 
+RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
+{
+	return rsslReleaseBufferImpl(buffer, RSSL_TRUE, error);
+}
+
 RSSL_API RsslUInt32 rsslCalculateEncryptedSize(const RsslBuffer *bufferToEncrypt)
 {
+	if (bufferToEncrypt == NULL)
+	{
+		return 0;
+	}
+
 	return CalculateEncryptedLength(bufferToEncrypt);
 }
 
@@ -2539,6 +3143,11 @@ RSSL_API RsslRet rsslEncryptBuffer(const RsslChannel *chnl, const RsslBuffer* un
 {
 	RsslInt32 retval;
 	rsslChannelImpl *rsslChnlImpl=0;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	/* null pointer checks, ensure that shared key exists in channel */
 	if (rtrUnlikely(!initialized))
@@ -2605,6 +3214,11 @@ RSSL_API RsslRet rsslDecryptBuffer(const RsslChannel *chnl, const RsslBuffer* en
 	RsslInt32 retval;
 	rsslChannelImpl *rsslChnlImpl=0;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	/* null pointer checks, ensure that shared key exists in channel */
 	if (rtrUnlikely(!initialized))
 	{
@@ -2619,7 +3233,13 @@ RSSL_API RsslRet rsslDecryptBuffer(const RsslChannel *chnl, const RsslBuffer* en
 	if (rtrUnlikely(RSSL_NULL_PTR(encryptedInput, "rsslDecryptBuffer", "encryptedInput", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(encryptedInput->data, "rsslDecryptBuffer", "encryptedInput->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(decryptedOutput, "rsslDecryptBuffer", "decryptedOutput", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(decryptedOutput->data, "rsslDecryptBuffer", "decryptedOutput->data", error)))
 		return RSSL_RET_FAILURE;
 
 	rsslChnlImpl = (rsslChannelImpl*)chnl;
@@ -2730,19 +3350,32 @@ RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuff
 	char			*hexPtr;
 	char			*charPtr;
 	char			*oBufPtr;
-	char			*iBufCursor = bufferToHexDump->data;
+	char			*iBufCursor;
 	unsigned char	byte;
 	RsslUInt32				position = 0;
 	RsslInt32				curbyte = 0;
 	RsslInt32				eobyte = 0;
 	RsslUInt32	bufferNeeded;
 
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
+
 	/* null checks */
 	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToHexDump", "bufferToHexDump", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump->data, "rsslBufferToHexDump", "bufferToHexDump->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput, "rsslBufferToHexDump", "hexDumpOutput", error)))
 		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput->data, "rsslBufferToHexDump", "hexDumpOutput->data", error)))
+		return RSSL_RET_FAILURE;
+
+	iBufCursor = bufferToHexDump->data;
 
 	if (valuesPerLine == 0)
 	{
@@ -2853,19 +3486,32 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 	char			buf[RSSL_HEXDUMP_LINE_LEN];
 	char			*hexPtr;
 	char			*oBufPtr;
-	char			*iBufCursor = bufferToHexDump->data;
+	char			*iBufCursor;
 	unsigned char	byte;
 	RsslUInt32				position = 0;
 	RsslInt32				curbyte = 0;
 	RsslInt32				eobyte = 0;
 	RsslUInt32	bufferNeeded;
+
+	if(error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	/* null checks */
 	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToRawHexDump", "bufferToHexDump", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump->data, "rsslBufferToRawHexDump", "bufferToHexDump->data", error)))
+		return RSSL_RET_FAILURE;
+
 	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput, "rsslBufferToRawHexDump", "hexDumpOutput", error)))
 		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput->data, "rsslBufferToRawHexDump", "hexDumpOutput->data", error)))
+		return RSSL_RET_FAILURE;
+
+	iBufCursor = bufferToHexDump->data;
 
 	if (valuesPerLine == 0)
 	{
@@ -2878,7 +3524,16 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 	if (valuesPerLine > 70)
 		valuesPerLine = 70;
 	else if (valuesPerLine & 0x01)
+	{
 		valuesPerLine--;
+
+		if (valuesPerLine == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToHexDump() Error: 0002 valuesPerLine resolved to 0 after odd number adjustment.\n", __FILE__, __LINE__);
+			return RSSL_RET_FAILURE;
+		}
+	}
 
 	bufferNeeded = rsslCalculateHexDumpOutputSize(bufferToHexDump, valuesPerLine);
 
@@ -2940,8 +3595,12 @@ RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslB
 RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, RsslBuffer* buffer, RsslError *error)
 {
 	rsslChannelImpl *rsslChnlImpl = 0;
-	rsslBufferImpl *rsslBufImpl = 0;
 	RsslRet ret = RSSL_RET_SUCCESS;
+
+	if (error == NULL)
+	{
+		return RSSL_RET_FAILURE;
+	}
 
 	if (rtrUnlikely(!initialized))
 	{
@@ -2956,12 +3615,14 @@ RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, R
 	if (rtrUnlikely(RSSL_NULL_PTR(buffer, "rsslDumpBuffer", "buffer", error)))
 		return RSSL_RET_FAILURE;
 
+	if (rtrUnlikely(RSSL_NULL_PTR(buffer->data, "rsslDumpBuffer", "buffer->data", error)))
+		return RSSL_RET_FAILURE;
+
 	/* valid cases are a buffer with length was passed in, or it is a packed buffer and
 	   a 0 length buffer is passed in - this signifys that nothing is written into the last portion of the buffer */
 	if (rtrLikely((buffer->length > 0) || ((buffer->length == 0) && (((rsslBufferImpl*)buffer)->packingOffset > 0))))
 	{
 		rsslChnlImpl = (rsslChannelImpl*)channel;
-		rsslBufImpl = (rsslBufferImpl*)buffer;
 
 		if (rtrUnlikely( (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_DUMP)  && (rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT))) )
 		{
