@@ -189,6 +189,7 @@ clean.dependsOn cleanJar, cleanJavadoc
 
 test {
     systemProperty "sun.net.useExclusiveBind", "false"
+    jvmArgs "-Djava.library.path=${file('../Libs').absolutePath}"
 
     forkEvery = 1
 	// set to true to see the junit stdoutput
