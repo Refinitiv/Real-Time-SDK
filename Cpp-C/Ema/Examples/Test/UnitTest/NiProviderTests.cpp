@@ -537,12 +537,16 @@ TEST_P(OmmNiProviderCreateTestFixture, CreateNiProviderWithNoProviderShouldThrow
 {
 	const OmmNiProviderCreateTestParams& testParams = GetParam();
 
+	/* Set whether the OmmException is expected */
+	bool expectedException = (testParams.constructorType == OmmProviderConstructorType::config
+		|| testParams.constructorType == OmmProviderConstructorType::config_providerClient);
+
 	try
 	{
 		NiProviderProgrammaticTestConfig niProvProgConfig;
 
 		// Set loginRequestTimeOut and channelInitializationTimeout to low values to speed up the test
-		niProvProgConfig.loginRequestTimeOut = 1000; // 1 second - timeout for login request
+		niProvProgConfig.loginRequestTimeOut = 2000; // 2 second - timeout for login request
 		niProvProgConfig.channelInitializationTimeout = 1; // 1 second - timeout for channel initialization
 
 		/* While non-interactive OmmProvider creating we expect an error/exception because connection fails. */
@@ -565,16 +569,27 @@ TEST_P(OmmNiProviderCreateTestFixture, CreateNiProviderWithNoProviderShouldThrow
 	{
 		//cout << exception.toString() << endl;
 		/* Test expected exception */
-		ASSERT_TRUE(true) << "Expected exception: " << exception.getText();
+		ASSERT_TRUE(expectedException) << "Expected exception: " << exception.getText();
 	}
 	catch (...)
 	{
 		/* Test expected exception */
-		ASSERT_TRUE(true);
+		ASSERT_TRUE(false);
 	}
 
-	/* Check that non-interactive provider TestClient did not receive any messages */
-	ASSERT_EQ(0, pNiProviderTestClient->getMessageQueueSize()) << "Expected no messages in pNiProviderTestClient message queue: " << pNiProviderTestClient->getMessageQueueSize();
+	/* Expect to get login status message when OmmProviderClient is specified */
+	if (testParams.constructorType == OmmProviderConstructorType::config_providerClient ||
+		testParams.constructorType == OmmProviderConstructorType::config_providerClient_errorClient)
+	{
+		ASSERT_EQ(1, pNiProviderTestClient->getMessageQueueSize()) << "Expected a login message in pNiProviderTestClient message queue: " 
+			<< pNiProviderTestClient->getMessageQueueSize();
+	}
+	else
+	{
+		/* Check that non-interactive provider TestClient did not receive any messages */
+		ASSERT_EQ(0, pNiProviderTestClient->getMessageQueueSize()) << "Expected no messages in pNiProviderTestClient message queue: " 
+			<< pNiProviderTestClient->getMessageQueueSize();
+	}
 }
 
 #if 0

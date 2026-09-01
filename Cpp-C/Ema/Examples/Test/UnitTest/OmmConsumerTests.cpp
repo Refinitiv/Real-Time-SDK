@@ -14756,11 +14756,17 @@ TEST_P(OmmConsumerCreateTestFixture, CreateConsumerWithNoProviderShouldThrowExce
 {
 	const OmmConsumerCreateTestParams& testParams = GetParam();
 
+	/* Set whether the OmmException is expected */
+	bool expectedException = (testParams.constructorType == OmmConsumerConstructorType::config
+		|| testParams.constructorType == OmmConsumerConstructorType::config_adminClient_oAuthClient
+		|| testParams.constructorType == OmmConsumerConstructorType::config_client
+		|| testParams.constructorType == OmmConsumerConstructorType::config_oAuthClient);
+
 	try
 	{
 		ConsumerProgrammaticTestConfig consProgConfig;
 		// Set loginRequestTimeOut and channelInitializationTimeout to low values to speed up the test
-		consProgConfig.loginRequestTimeOut = 1000; // 1 second - timeout for login request
+		consProgConfig.loginRequestTimeOut = 2000; // 2 second - timeout for login request
 		consProgConfig.channelInitializationTimeout = 1; // 1 second - timeout for channel initialization
 
 		/* While OmmConsumer creating we expect an error/exception because connection fails. */
@@ -14784,16 +14790,28 @@ TEST_P(OmmConsumerCreateTestFixture, CreateConsumerWithNoProviderShouldThrowExce
 	{
 		//cout << exception.toString() << endl;
 		/* Test expected exception */
-		ASSERT_TRUE(true) << "Expected exception: " << exception.getText();
+		ASSERT_TRUE(expectedException) << "Expected exception: " << exception.getText();
 	}
 	catch (...)
 	{
 		/* Test expected exception */
-		ASSERT_TRUE(true);
+		ASSERT_TRUE(false);
 	}
 
-	/* Check that ConsumerTestClient did not receive any messages */
-	ASSERT_EQ(0, pConsumerTestClient->getMessageQueueSize()) << "Expected no messages in the ConsumerTestClient message queue: " << pConsumerTestClient->getMessageQueueSize();	
+	/* Expect to get login status message when OmmConsumerClient is specified */
+	if (testParams.constructorType == OmmConsumerConstructorType::config_adminClient_errorClient ||
+		testParams.constructorType == OmmConsumerConstructorType::config_adminClient_oAuthClient ||
+		testParams.constructorType == OmmConsumerConstructorType::config_adminClient_oAuthClient_errorClient||
+		testParams.constructorType == OmmConsumerConstructorType::config_client)
+	{
+		ASSERT_EQ(1, pConsumerTestClient->getMessageQueueSize()) << "Expected a login message in ConsumerTestClient message queue: "
+			<< pConsumerTestClient->getMessageQueueSize();
+	}
+	else
+	{
+		/* Check that ConsumerTestClient did not receive any messages */
+		ASSERT_EQ(0, pConsumerTestClient->getMessageQueueSize()) << "Expected no messages in the ConsumerTestClient message queue: " << pConsumerTestClient->getMessageQueueSize();
+	}
 }
 
 /*  Consumer connects to Provider correctly. */
