@@ -2134,9 +2134,13 @@ public class TestReactor {
 	{
         accept(opts, component, 5000);
 	}
-	
-	/** Associates a component with this reactor and accepts a connection. */
+
 	void accept(ConsumerProviderSessionOptions opts, TestReactorComponent component, long timeoutMsec)
+	{
+		accept(opts, component, timeoutMsec, true);
+	}
+	/** Associates a component with this reactor and accepts a connection. */
+	void accept(ConsumerProviderSessionOptions opts, TestReactorComponent component, long timeoutMsec, boolean checkChannelNull)
 	{
         ReactorAcceptOptions    acceptOpts = ReactorFactory.createReactorAcceptOptions();
         ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
@@ -2144,7 +2148,7 @@ public class TestReactor {
         if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
         {
             assertNotNull(component.server());
-            assertNull(component.reactorChannel());
+            if (checkChannelNull) assertNull(component.reactorChannel());
             
             /* Wait for server channel to trigger. */
             long stopTimeMsec = System.currentTimeMillis() + timeoutMsec;

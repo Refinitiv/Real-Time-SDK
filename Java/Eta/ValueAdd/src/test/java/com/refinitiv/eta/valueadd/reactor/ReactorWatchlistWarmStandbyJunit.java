@@ -14,7 +14,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.*;
 
+
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -510,7 +512,7 @@ public class ReactorWatchlistWarmStandbyJunit {
 			consumerRole.dictionaryMsgCallback(consumer);
 			consumerRole.defaultMsgCallback(consumer);
 			consumerRole.wsbChangeEventCallback(consumer);
-			
+
 			consumerRole.watchlistOptions().enableWatchlist(true);
 			
 			// Connect the consumer and providers.
@@ -9063,5 +9065,270 @@ public class ReactorWatchlistWarmStandbyJunit {
 		}
 	
 	}
-    
+
+	@Test
+	public void WarmStandby_LoginBased_LoginDenied_1()
+	{
+		System.out.println("\n>>>>>>>>> Running PreferredHostWarmStandby_LoginDenied_1 <<<<<<<<<<\n");
+
+		// Group 1 = Starting: 1_1, Standby 1_2
+		// Group 2 = Starting: 2_1, Standby 2_2
+
+		TestReactor consumerReactor = null;
+		TestReactor providerReactor_1_1 = null;
+		TestReactor providerReactor_2_1 = null;
+		TestReactor providerReactor_2_2 = null;
+		TestReactor providerReactor_1_2 = null;
+		Consumer consumer = null;
+		Provider provider_1_1 = null;
+		Provider provider_2_1 = null;
+		Provider provider_2_2 = null;
+		Provider provider_1_2 = null;
+
+		TestReactorEvent event;
+		ReactorChannelEvent channelEvent;
+		RDMLoginMsgEvent loginMsgEvent;
+		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+		Msg msg = CodecFactory.createMsg();
+
+
+		List<Provider> wsbGroup1 = new ArrayList<Provider>();
+		List<Provider> wsbGroup2 = new ArrayList<Provider>();
+		List<Provider> wsbGroup3 = new ArrayList<Provider>();
+
+		try
+		{
+			/* Create consumer reactor. */
+			consumerReactor = new TestReactor(false);
+			ReactorCallbackHandler consumerCallbackHandler = null;
+			Selector consumerSelector = null;
+
+			/* Create consumer. */
+			consumerCallbackHandler = new ReactorCallbackHandler(consumerSelector);
+			assertEquals(null, consumerCallbackHandler.lastChannelEvent());
+
+			consumer = new Consumer(consumerReactor);
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+			consumerRole.initDefaultRDMLoginRequest();
+			consumerRole.initDefaultRDMDirectoryRequest();
+			consumerRole.channelEventCallback(consumer);
+			consumerRole.loginMsgCallback(consumer);
+			consumerRole.directoryMsgCallback(consumer);
+			consumerRole.dictionaryMsgCallback(consumer);
+			consumerRole.defaultMsgCallback(consumer);
+
+			consumerRole.watchlistOptions().enableWatchlist(true);
+
+			// Connect the consumer and providers.
+			ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+			opts.wsbMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			opts.reconnectAttemptLimit(1);
+
+			providerReactor_1_1 = new TestReactor(true);
+			providerReactor_1_2 = new TestReactor(true);
+
+			providerReactor_2_1 = new TestReactor(true);
+			providerReactor_2_2 = new TestReactor(true);
+
+			provider_1_1 = new Provider(providerReactor_1_1);
+			ProviderRole providerRole = (ProviderRole)provider_1_1.reactorRole();
+			providerRole.channelEventCallback(provider_1_1);
+			providerRole.loginMsgCallback(provider_1_1);
+			providerRole.directoryMsgCallback(provider_1_1);
+			providerRole.dictionaryMsgCallback(provider_1_1);
+			providerRole.defaultMsgCallback(provider_1_1);
+
+			provider_1_1.bind(opts);
+
+			provider_1_2 = new Provider(providerReactor_1_2);
+			ProviderRole providerRole_1_2 = (ProviderRole)provider_1_2.reactorRole();
+			providerRole_1_2.channelEventCallback(provider_1_2);
+			providerRole_1_2.loginMsgCallback(provider_1_2);
+			providerRole_1_2.directoryMsgCallback(provider_1_2);
+			providerRole_1_2.dictionaryMsgCallback(provider_1_2);
+			providerRole_1_2.defaultMsgCallback(provider_1_2);
+			provider_1_2.bind(opts);
+
+			provider_2_1 = new Provider(providerReactor_2_1);
+			ProviderRole providerRole_2_1 = (ProviderRole)provider_2_1.reactorRole();
+			providerRole_2_1.channelEventCallback(provider_2_1);
+			providerRole_2_1.loginMsgCallback(provider_2_1);
+			providerRole_2_1.directoryMsgCallback(provider_2_1);
+			providerRole_2_1.dictionaryMsgCallback(provider_2_1);
+			providerRole_2_1.defaultMsgCallback(provider_2_1);
+			provider_2_1.bind(opts);
+
+			provider_2_2 = new Provider(providerReactor_2_2);
+			ProviderRole providerRole_2_2 = (ProviderRole)provider_2_2.reactorRole();
+			providerRole_2_2.channelEventCallback(provider_2_2);
+			providerRole_2_2.loginMsgCallback(provider_2_2);
+			providerRole_2_2.directoryMsgCallback(provider_2_2);
+			providerRole_2_2.dictionaryMsgCallback(provider_2_2);
+			providerRole_2_2.defaultMsgCallback(provider_2_2);
+			provider_2_2.bind(opts);
+
+			wsbGroup1.add(provider_1_1);
+			wsbGroup1.add(provider_1_2);
+
+			wsbGroup2.add(provider_2_1);
+			wsbGroup2.add(provider_2_2);
+
+			// Set preferred host options, with WSB group index to 0 (We have to use ioctl to change this)
+			ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+			consumerReactor.connectWsb(connectOpts, opts, consumer, wsbGroup1, wsbGroup2, null, null);
+
+			consumer.testReactor().dispatch(0);
+
+			provider_1_1.testReactor().accept(opts, provider_1_1);
+
+			/* Provider receives channel-up/channel-ready */
+			provider_1_1.testReactor().dispatch(2);
+
+			event = provider_1_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			event = provider_1_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+
+			consumer.testReactor().dispatch(1);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			provider_1_1.testReactor().dispatch(1);
+			event = provider_1_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+			/* Provider sends a default login refresh. */
+			LoginRequest loginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+
+			LoginStatus loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
+
+			loginStatus.clear();
+			loginStatus.rdmMsgType(LoginMsgType.STATUS);
+			loginStatus.userName(loginRequest.userName());
+			loginStatus.streamId(loginRequest.streamId());
+			loginStatus.applyHasState();
+			loginStatus.state().streamState(StreamStates.CLOSED);
+			loginStatus.state().dataState(DataStates.SUSPECT);
+			loginStatus.state().code(StateCodes.NONE);
+			loginStatus.state().text().data("Login denied");
+
+			submitOptions.clear();
+			assertTrue(provider_1_1.submitAndDispatch(loginStatus, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+			consumer.testReactor().dispatch(2, 2000);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type()); // Login denied
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			loginStatus = (LoginStatus)loginMsgEvent.rdmLoginMsg();
+			assertEquals(StreamStates.CLOSED, loginStatus.state().streamState());
+			assertEquals(DataStates.SUSPECT, loginStatus.state().dataState());
+			assertEquals(StateCodes.NONE, loginStatus.state().code());
+			assertEquals("Login denied", loginStatus.state().text().toString());
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+			provider_2_1.testReactor().accept(opts, provider_2_1, 2000, false); // The API should attempt to reconnect to Group 1
+
+			provider_2_1.testReactor().dispatch(2);
+
+			event = provider_2_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			event = provider_2_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
+
+			consumer.testReactor().dispatch(1);
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			channelEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
+
+			consumer.testReactor().dispatch(-1, 1500);
+
+			provider_2_1.testReactor().dispatch(-1);
+			event = provider_2_1.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REQUEST, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+
+			/* Provider sends a default login refresh. */
+			loginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
+			LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
+
+			loginRefresh.clear();
+			loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+			loginRefresh.applySolicited();
+			loginRefresh.userName(loginRequest.userName());
+			loginRefresh.streamId(loginRequest.streamId());
+			loginRefresh.applyHasAttrib();
+			loginRefresh.applyHasFeatures();
+			loginRefresh.features().applyHasSupportOptimizedPauseResume();
+			loginRefresh.features().supportOptimizedPauseResume(1);
+			loginRefresh.features().applyHasSupportViewRequests();
+			loginRefresh.features().supportViewRequests(1);
+			loginRefresh.features().applyHasSupportPost();
+			loginRefresh.features().supportOMMPost(1);
+			loginRefresh.features().applyHasSupportStandby();
+			loginRefresh.features().supportStandby(1);
+			loginRefresh.features().applyHasSupportStandbyMode();
+			loginRefresh.features().supportStandbyMode(3);
+			loginRefresh.state().streamState(StreamStates.OPEN);
+			loginRefresh.state().dataState(DataStates.OK);
+			loginRefresh.state().code(StateCodes.NONE);
+			loginRefresh.state().text().data("Login OK");
+
+			submitOptions.clear();
+			assertTrue(provider_2_1.submitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+			consumer.testReactor().dispatch(1);
+
+			/* Save the stream ID used by each component to open the login stream (may be different if the watchlist is enabled). */
+			consumer.defaultSessionLoginStreamId(consumerRole.rdmLoginRequest().streamId());
+			provider_2_1.defaultSessionLoginStreamId(loginRequest.streamId());
+
+			event = consumer.testReactor().pollEvent();
+			assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+			loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+			assertEquals(LoginMsgType.REFRESH, loginMsgEvent.rdmLoginMsg().rdmMsgType());
+			loginRefresh = (LoginRefresh)loginMsgEvent.rdmLoginMsg();
+			assertEquals(StreamStates.OPEN, loginRefresh.state().streamState());
+			assertEquals(DataStates.OK, loginRefresh.state().dataState());
+			assertEquals(StateCodes.NONE, loginRefresh.state().code());
+		}
+		finally
+		{
+			consumer.close();
+			provider_1_1.close();
+			provider_1_2.close();
+			provider_2_1.close();
+			provider_2_2.close();
+
+			consumerReactor.close();
+			providerReactor_1_1.close();
+			providerReactor_1_2.close();
+			providerReactor_2_1.close();
+			providerReactor_2_2.close();
+		}
+	}
+
 }

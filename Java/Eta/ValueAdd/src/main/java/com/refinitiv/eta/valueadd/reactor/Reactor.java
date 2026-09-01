@@ -10,7 +10,6 @@ package com.refinitiv.eta.valueadd.reactor;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.text.ParseException;
 import java.util.*;
@@ -4228,7 +4227,8 @@ public class Reactor
 				{
 					sendCallback = true;
 					statusRdmMsg.state().copy(reactorChannel.warmStandByHandlerImpl.rdmLoginState());
-				} else
+				}
+				else
 				{
 					if (statusRdmMsg.state().streamState() == StreamStates.CLOSED)
 					{
@@ -6231,6 +6231,15 @@ public class Reactor
 						if (reactorChannel.isStartingServerConfig)
 						{
 							if (reactorChannel.reconnectAttemptLimit() != 0) reactorChannel._skipReconnection = true;
+							if (reactorChannel._preferredHostOptions.isPreferredHostEnabled())
+							{
+								if (reactorChannel.getReactorConnectOptions().reactorPreferredHostOptions().warmStandbyGroupListIndex()
+										== reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupIndex())
+								{
+									reactorChannel._reconnectAttempts = reactorChannel.reconnectAttemptLimit() - 1;
+									reactorChannel._moveAwayFromPreferredGroup = true;
+								}
+							}
 						}
 						reactorChannel._tryToForceClose = true;
 						if  (sendAndHandleChannelEventCallback("Reactor.processWorkerEvent",

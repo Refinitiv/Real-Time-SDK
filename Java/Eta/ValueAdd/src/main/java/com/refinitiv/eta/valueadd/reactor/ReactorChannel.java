@@ -159,6 +159,8 @@ public class ReactorChannel extends VaNode
 	Channel oldPHStartingChannel; // This is old channel which will be closed by worker thread if any for the Preferred host feature only.
     boolean _skipReconnection;
     boolean _tryToForceClose;
+    boolean _moveAwayFromPreferredGroup = false; // this parameter is used when we are currently trying to connect to the preferred group but the connection to the starting server failed, so we have to try to connect to another group/connection list
+
     boolean _closeProviderDrivenItems;
 
 	// Original Login Request Information
@@ -469,6 +471,8 @@ public class ReactorChannel extends VaNode
 
         _skipReconnection = false;
         _tryToForceClose = false;
+        _moveAwayFromPreferredGroup = false;
+        _closeProviderDrivenItems = false;
     }
 
     @Override

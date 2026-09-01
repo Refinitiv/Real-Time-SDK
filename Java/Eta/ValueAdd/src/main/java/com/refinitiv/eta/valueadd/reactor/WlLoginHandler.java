@@ -768,6 +768,7 @@ class WlLoginHandler implements WlHandler
 					_stream.returnToPool();
 					_stream = null;
 					_loginRequestForEDP = null;
+					_loginRequest = null;
 				}
 				break;
 			case StreamStates.OPEN:

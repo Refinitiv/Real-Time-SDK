@@ -636,7 +636,7 @@ class Watchlist extends VaNode
 
     void closeProviderDrivenRequests()
     {
-        if (_itemHandler._providerRequestTable.size() > 0)
+        if (_itemHandler._providerRequestTable != null && _itemHandler._providerRequestTable.size() > 0)
         {
             Collection<RequestMsg> requests = new ArrayList<>(_itemHandler._providerRequestTable.values());
             for (RequestMsg request : requests)
@@ -654,7 +654,7 @@ class Watchlist extends VaNode
 
     void closeProviderDrivenRequests(int serviceId, String message)
     {
-        if (_itemHandler._providerRequestTable.size() > 0)
+        if (_itemHandler._providerRequestTable != null && _itemHandler._providerRequestTable.size() > 0)
         {
             Collection<RequestMsg> requests = _itemHandler._providerRequestTable.values()
                     .stream()
