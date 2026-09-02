@@ -276,7 +276,6 @@ public class Consumer
             else if ("-snapshotMpRequests".Equals(args[argsCount]))
             {
                 snapshotMpRequests = true;
-                ++argsCount;
             }
             else if ("-mbp".Equals(args[argsCount]))
             {
