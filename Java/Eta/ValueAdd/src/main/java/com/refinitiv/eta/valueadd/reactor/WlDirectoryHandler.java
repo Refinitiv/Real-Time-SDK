@@ -921,12 +921,15 @@ class WlDirectoryHandler implements WlHandler
 
                     applyActualServiceListFilter(newDirectoryRefresh);
 
-                    // Don't send update if cache was cleared and service list is empty
-                    if (isUnsolicitedAndCacheCleared && newDirectoryRefresh.serviceList().isEmpty())
+                    // Don't send update message when the service list is empty.
+                    if (newDirectoryRefresh.serviceList().isEmpty())
                     {
-                        // Put back in pool since we are finished with it
-                        _directoryRefreshPool.add(newDirectoryRefresh);
-                        continue;
+                    	if(isUnsolicitedAndCacheCleared || _receivedRefresh)
+                    	{
+                    		// Put back in pool since we are finished with it
+                    		_directoryRefreshPool.add(newDirectoryRefresh);
+                    		continue;
+                    	}
                     }
 
                     Msg callbackMsg;
@@ -1076,6 +1079,12 @@ class WlDirectoryHandler implements WlHandler
                         _directoryUpdate.serviceList());
 
                 applyActualServiceListFilter(_directoryUpdateCopy);
+                
+                /* Don't send the blank source directory update */
+                if(_directoryUpdateCopy.serviceList().isEmpty())
+                {
+                	continue;
+                }
 
                 _tempUpdateMsg.clear();
                 _watchlist.convertRDMToCodecMsg(_directoryUpdateCopy, _tempUpdateMsg);

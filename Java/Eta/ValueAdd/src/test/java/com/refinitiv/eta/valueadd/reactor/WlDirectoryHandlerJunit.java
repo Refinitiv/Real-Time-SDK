@@ -641,6 +641,50 @@ public class WlDirectoryHandlerJunit
         assertEquals(1, handleCloseUpdate.serviceList().get(0).serviceId());
         assertEquals(MapEntryActions.DELETE, handleCloseUpdate.serviceList().get(0).action());
     }
+    
+    @Test
+    public void givenRequestWithUnknownServiceName_whenReadRefreshMsg_FromUnsolicitedRefreshMsg_thenEmptyUpdateWithZeroFilterIsNotFannedOut()
+    {
+        DirectoryHandlerTestContext context = new DirectoryHandlerTestContext();
+
+        cacheServices(context.handler,
+                addedService(Provider.defaultService(), 1,
+                        Provider.defaultService().info().serviceName().toString()),
+                addedService(Provider.defaultService2(), 2,
+                        Provider.defaultService2().info().serviceName().toString()));
+
+        WlRequest wlRequest = createAndRegisterDirectoryRequest(context,
+                21,
+                Directory.ServiceFilterFlags.STATE,
+                null);
+        wlRequest.state(WlRequest.State.OPEN);
+        wlRequest.streamInfo().serviceName("UNKNOWN_SERVICE");
+
+        DirectoryRefresh receivedRefresh = createDirectoryRefresh(
+                context.handler._stream.streamId(),
+                Directory.ServiceFilterFlags.STATE,
+                false,
+                false,
+                updatedStateOnlyService(1, Provider.defaultService().info().serviceName().toString()),
+                updatedStateOnlyService(2, Provider.defaultService2().info().serviceName().toString()));
+
+        Msg refreshMsg = encodeDirectoryMsg(receivedRefresh, decodeIter);
+
+        int ret = context.handler.readRefreshMsg(context.handler._stream, decodeIter, refreshMsg, context.errorInfo);
+
+        assertEquals(ReactorCallbackReturnCodes.SUCCESS, ret);
+        assertNotNull(context.handler.service(1));
+        assertNotNull(context.handler.service(2));
+
+        ArgumentCaptor<Msg> msgCaptor = ArgumentCaptor.forClass(Msg.class);
+        ArgumentCaptor<DirectoryMsg> directoryMsgCaptor = ArgumentCaptor.forClass(DirectoryMsg.class);
+        
+        /* Do not expect to receive an update message from unsolicited refresh message with blank payload due to unmatched service name */
+        verify(context.reactor, times(0))
+                .sendAndHandleDirectoryMsgCallback(eq("WlDirectoryHandler.readRefreshMsg"),
+                        same(context.reactorChannel), nullable(TransportBuffer.class), msgCaptor.capture(),
+                        directoryMsgCaptor.capture(), same(wlRequest), same(context.errorInfo));
+    }
 
     @Test
     public void givenRequestWithUnknownServiceId_whenHandleClose_thenNoDeleteUpdateIsFannedOut()
@@ -2293,7 +2337,7 @@ public class WlDirectoryHandlerJunit
     }
 
     @Test
-    public void givenServiceIdAndLoadFilter_whenReadUpdateMsgWithoutLoadFilter_thenResultingUpdateHasEmptyPayloadAndZeroFilter()
+    public void givenServiceIdAndLoadFilter_whenReadUpdateMsgWithoutLoadFilter_thenEmptyUpdateWithZeroFilterIsNotFannedOut()
     {
         DirectoryHandlerTestContext context = new DirectoryHandlerTestContext();
 
@@ -2327,23 +2371,12 @@ public class WlDirectoryHandlerJunit
 
         ArgumentCaptor<Msg> msgCaptor = ArgumentCaptor.forClass(Msg.class);
         ArgumentCaptor<DirectoryMsg> directoryMsgCaptor = ArgumentCaptor.forClass(DirectoryMsg.class);
-        verify(context.reactor, times(1))
+        
+        /* Do not expect to receive an update message with blank payload due to unmatched filter from the provider. */
+        verify(context.reactor, times(0))
                 .sendAndHandleDirectoryMsgCallback(eq("WlDirectoryHandler.readUpdateMsg"),
                         same(context.reactorChannel), nullable(TransportBuffer.class), msgCaptor.capture(),
                         directoryMsgCaptor.capture(), same(wlRequest), same(context.errorInfo));
-
-        UpdateMsg callbackMsg = (UpdateMsg) msgCaptor.getValue();
-        DirectoryUpdate callbackUpdate = (DirectoryUpdate) directoryMsgCaptor.getValue();
-
-        assertEquals(MsgClasses.UPDATE, callbackMsg.msgClass());
-        assertTrue(callbackMsg.checkHasMsgKey());
-        assertEquals(0, callbackMsg.msgKey().filter());
-        assertUpdateServiceId(callbackMsg, callbackUpdate, 1);
-
-        assertEquals(18, callbackUpdate.streamId());
-        assertTrue(callbackUpdate.checkHasFilter());
-        assertEquals(0, callbackUpdate.filter());
-        assertTrue(callbackUpdate.serviceList().isEmpty());
     }
 
     @Test
@@ -2875,7 +2908,7 @@ public class WlDirectoryHandlerJunit
     }
 
     @Test
-    public void givenRequestWithUnknownServiceName_whenReadUpdateMsg_thenEmptyUpdateWithZeroFilterIsFannedOut()
+    public void givenRequestWithUnknownServiceName_whenReadUpdateMsg_thenEmptyUpdateWithZeroFilterIsNotFannedOut()
     {
         DirectoryHandlerTestContext context = new DirectoryHandlerTestContext();
 
@@ -2908,23 +2941,12 @@ public class WlDirectoryHandlerJunit
 
         ArgumentCaptor<Msg> msgCaptor = ArgumentCaptor.forClass(Msg.class);
         ArgumentCaptor<DirectoryMsg> directoryMsgCaptor = ArgumentCaptor.forClass(DirectoryMsg.class);
-        verify(context.reactor, times(1))
+        
+        /* Do not expect to receive an update message with blank payload due to unmatched service name */
+        verify(context.reactor, times(0))
                 .sendAndHandleDirectoryMsgCallback(eq("WlDirectoryHandler.readUpdateMsg"),
                         same(context.reactorChannel), nullable(TransportBuffer.class), msgCaptor.capture(),
                         directoryMsgCaptor.capture(), same(wlRequest), same(context.errorInfo));
-
-        UpdateMsg callbackMsg = (UpdateMsg) msgCaptor.getValue();
-        DirectoryUpdate callbackUpdate = (DirectoryUpdate) directoryMsgCaptor.getValue();
-
-        assertEquals(MsgClasses.UPDATE, callbackMsg.msgClass());
-        assertTrue(callbackMsg.checkHasMsgKey());
-        assertEquals(0, callbackMsg.msgKey().filter());
-        assertUpdateServiceId(callbackMsg, callbackUpdate, null);
-
-        assertEquals(21, callbackUpdate.streamId());
-        assertTrue(callbackUpdate.checkHasFilter());
-        assertEquals(0, callbackUpdate.filter());
-        assertTrue(callbackUpdate.serviceList().isEmpty());
     }
 
     private void assertRefreshServiceId(RefreshMsg callbackMsg, DirectoryRefresh callbackRefresh, Integer expectedServiceId)
