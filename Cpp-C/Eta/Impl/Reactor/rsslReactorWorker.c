@@ -333,12 +333,14 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	{
 		RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
 		RSSL_MUTEX_DESTROY(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
+		rsslHashTableCleanup(&pReactorWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 		free(pReactorWarmStandByHandlerImpl);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->warmstandbyChannelPool)))
 	{
 		RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
 		RSSL_MUTEX_DESTROY(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
+		rsslHashTableCleanup(&pReactorWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 		free(pReactorWarmStandByHandlerImpl);
 	}
 

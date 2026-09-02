@@ -28,6 +28,7 @@ struct RsslWatchlistStreamInfo
 {
 	const RsslBuffer	*pServiceName;	/* Service name used to request the item, if any. */
 	void				*pUserSpec;		/* Pointer user provided when requesting this item. */
+	RsslHashLink		*pHashLink;
 };
 
 RTR_C_INLINE void wlStreamInfoClear(RsslWatchlistStreamInfo *pStreamInfo)

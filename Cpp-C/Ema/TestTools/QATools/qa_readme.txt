@@ -292,6 +292,11 @@ Series300Consumer331-ConsFunc-002
 
 Series300Consumer331-ConsFunc-003
     Alters consumer to request directory with interestAfterRefresh(false) 
+	
+Series300Consumer331-ConsFunc-004
+    Alters consumer to request directory using info filter without a serviceName. 
+    Also, alters consumer to not send out item requests.
+	Also added ConsumerName into Cons331.
 
 Series300Consumer331-RequestRouting-001
    Alters consumer 331 to include printSessionInfo for testing with RequestRouting feature.
@@ -499,10 +504,59 @@ Series400Consumer430-Auth-006
 
 Series400Consumer430-Auth-007
     Alters consumer which supports an authentication to do offstream posting.
+	
+Module:  Series400Consumer470
+-----------------------------
+Series400Consumer470-ConsFunc-001
+	Alters consumer warmstanby to request 1 directory either using serviceName or serviceId with commandline the options:
+	-wsbmode for warm standby mode; 1 for login, 2 for service, default to 1.
+	-host1 for active_host.
+	-port1 for active_port.
+	-host2 for standby_host.
+	-port2 for standby_port.
+	-dicttype dictionary type; Dictionary_1 for network, Dictionary_2 for file, defaulted to Dictionary_1
+	-s Request service name (optional), defaulted to DIRECT_FEED.
+	-sid Request service id (optional, defaulted to service name if sid is unspecified).
+	-f Request source Directory filter, no default.
+	-i Request item name (optional), defaulted to LSEG.L.
 
+Series400Consumer470-ConsFunc-002
+	Alters consumer warmstanby to request 2 directory using serviceName1 and serviceName2 for each of them
+	Or using serviceId1 and serviceId2 for each of them with commandline the options:
+	-wsbmode for warm standby mode; 1 for login, 2 for service, default to 1.
+	-host1 for active_host.
+	-port1 for active_port.
+	-host2 for standby_host.
+	-port2 for standby_port.
+	-dicttype dictionary type; Dictionary_1 for network, Dictionary_2 for file, defaulted to Dictionary_1
+	-s1 Request service name 1 (optional), defaulted to ELEKTRON_DD.
+	-s2 Request service name 2 (optional), defaulted to DIRECT_FEED.
+	-sid1 Request service id 1 (optional, defaulted to service name if sid is unspecified).
+	-sid2 Request service id 2 (optional, defaulted to service name if sid is unspecified).
+	-f Request source Directory filter, no default.
+	-i Request item name (optional), defaulted to LSEG.L.
+ 
+Series400Consumer470-ConsFunc-003
+	Alters consumer warmstanby to request 2 directory using serviceName and serviceId for each of them 
+	with commandline the options:
+    -wsbmode for warm standby mode; 1 for login, 2 for service, default to 1. " << endl
+	-host1 for active_host.
+	-port1 for active_port.
+	-host2 for standby_host.
+	-port2 for standby_port. 
+	-dicttype dictionary type; Dictionary_1 for network, Dictionary_2 for file, defaulted to Dictionary_1"
+	-s Request service name (optional), defaulted to ELEKTRON_DD.
+	-sid Request service id (optional, defaulted to service name if sid is unspecified).
+	-f Request source Directory filter, no default.
+	-i Request item name (optional), defaulted to LSEG.L.
+
+Module:  Series500Consumer500
+-----------------------------	
 Series500-Consumer500-ConsFunc-001
     Alter consumer to have file config, retister client for logitn to test preferred host feature.
 
+Module:  Series500Consumer501
+-----------------------------
 Series500-Consumer501-ConsFunc-001
     Alter consumer to have programaticaly config, 3 warm standby groups with two channels each, 3 channels in channelset to test preferred host feature.
 
@@ -512,6 +566,8 @@ Series500-Consumer501-ConsFunc-002
 Series500-Consumer501-BatchView-10Consumers
     Alters the Consumer to bring miltiple consumers up and down triggering any memory issues.
 
+Module:  Series500Consumer502
+-----------------------------
 Series500-Consumer502-ConsFunc-001
     Alter consumer retister client for logitn to test preferred host feature.
 	

@@ -430,6 +430,7 @@ IProviderTestClientBase::IProviderTestClientBase(ProviderTestOptions& provOption
 	wsbActiveState = 0;
 	loginHandle = 0;
 	clientHandle = 0;
+	directoryHandle = 0;
 
 	dictionary.loadFieldDictionary("RDMFieldDictionaryTest");
 	dictionary.loadEnumTypeDictionary("enumtypeTest.def");
@@ -509,7 +510,7 @@ void IProviderTestClientBase::onGenericMsg(const GenericMsg& genericMsg, const O
 			}
 		}
 	}
-	else if (options.supportWSB == true && genericMsg.getName() == ENAME_CONS_CONN_STATUS && genericMsg.getDomainType() == MMT_DIRECTORY)
+	else if (options.supportWSB == true && genericMsg.getName() == ENAME_CONS_STATUS && genericMsg.getDomainType() == MMT_DIRECTORY)
 	{
 		const Map& map = genericMsg.getPayload().getMap();
 		map.forth();
@@ -718,6 +719,8 @@ void IProviderTestClientBase::onReqMsg(const ReqMsg& reqMsg, const OmmProviderEv
 	}
 	case MMT_DIRECTORY:
 	{
+		directoryHandle = event.getHandle();
+
 		if (options.sendDirectoryRefresh == true)
 		{
 			if (options.directoryPayload != NULL)

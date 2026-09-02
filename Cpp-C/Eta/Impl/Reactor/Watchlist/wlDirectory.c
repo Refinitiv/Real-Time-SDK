@@ -27,7 +27,7 @@ WlDirectoryRequest *wlDirectoryRequestCreate(RsslRDMDirectoryRequest *pDirectory
 	
 	// save filter from request
 	pDirectoryRequest->filter = pDirectoryReqMsg->filter;
-	
+
 	return pDirectoryRequest;
 }
 
@@ -108,13 +108,13 @@ RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirector
 	msgEvent.pStreamInfo = &streamInfo;
 
 	streamInfo.pUserSpec = pDirectoryRequest->base.pUserSpec;
+	streamInfo.pHashLink = &pDirectoryRequest->hlStreamId;
 
 	if (pDirectoryMsg)
 		pDirectoryMsg->rdmMsgBase.streamId = pDirectoryRequest->base.streamId;
 
 	if (pRsslMsg)
 		pRsslMsg->msgBase.streamId = pDirectoryRequest->base.streamId;
-
 
 	if (pDirectoryRequest->pRequestedService)
 	{

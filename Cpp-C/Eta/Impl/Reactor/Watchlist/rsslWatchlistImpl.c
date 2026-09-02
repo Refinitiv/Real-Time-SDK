@@ -1176,7 +1176,6 @@ RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 				}
 			}
 
-
 			default:
 				break;
 		}
@@ -1441,8 +1440,8 @@ static RsslRet rsslCopyRDMServiceState(RsslReactorWarmStandbyServiceImpl *pReact
 	return RSSL_RET_SUCCESS;
 }
 
-static RsslRet wlWarmStandbyServiceUpdate(RsslReactorWarmStandbyGroupImpl *pReactorWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannelImpl, WlServiceCache *pServiceCache, WlServiceCacheUpdateEvent *pEvent,
-	RsslBool* pAddNewService, RsslErrorInfo *pError)
+static RsslRet wlWarmStandbyServiceUpdate(RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl, RsslReactorChannelImpl* pReactorChannelImpl,
+	WlServiceCache* pServiceCache, WlServiceCacheUpdateEvent* pEvent, RsslBool* pAddNewService, RsslErrorInfo* pError)
 {
 	RsslQueueLink* pLink = NULL;
 	RsslHashLink* pHashLink = NULL;
@@ -1450,6 +1449,18 @@ static RsslRet wlWarmStandbyServiceUpdate(RsslReactorWarmStandbyGroupImpl *pReac
 	RsslReactorWarmStandbyServiceImpl *pReactorWarmStandbyServiceImpl = NULL;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	*pAddNewService = RSSL_FALSE;
+
+	/* For all services */
+	RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_serviceList, pLink)
+	{
+		pReactorWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+
+		/* Reset the updated service flag. */
+		pReactorWarmStandbyServiceImpl->updateServiceFilter = RDM_SVCF_NONE;
+	}
+
+	/* Reset the updated service list */
+	rsslInitQueue(&pReactorWarmStandByGroupImpl->_updateServiceList);
 
 	RSSL_QUEUE_FOR_EACH_LINK(&pServiceCache->_serviceList, pLink)
 	{
@@ -1591,6 +1602,7 @@ static RsslRet wlWarmStandbyServiceUpdate(RsslReactorWarmStandbyGroupImpl *pReac
 				}
 
 				pReactorWarmStandbyServiceImpl->updateServiceFilter |= RDM_SVCF_HAS_INFO;
+				pReactorWarmStandbyServiceImpl->serviceFilter |= RDM_SVCF_HAS_INFO;
 
 				ret = rsslCopyRDMServiceState(pReactorWarmStandbyServiceImpl, &pService->rdm.state);
 
@@ -1621,6 +1633,7 @@ static RsslRet wlWarmStandbyServiceUpdate(RsslReactorWarmStandbyGroupImpl *pReac
 				}
 
 				pReactorWarmStandbyServiceImpl->updateServiceFilter |= RDM_SVCF_HAS_STATE;
+				pReactorWarmStandbyServiceImpl->serviceFilter |= RDM_SVCF_HAS_STATE;
 				pReactorWarmStandbyServiceImpl->serviceAction = RSSL_MPEA_ADD_ENTRY;
 
 				pReactorWarmStandbyServiceImpl->serviceID = pService->rdm.serviceId;
@@ -4629,6 +4642,16 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 								rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 										"Close requested for unknown stream %d.", streamId);
 								return RSSL_RET_INVALID_DATA;
+							}
+
+							if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+							{
+								/* Remove directory stream id from directoryCallbacks table */
+								RsslHashLink* pRequestLink = rsslHashTableFind(&pReactorChannelImpl->pWarmStandByHandlerImpl->directoryCallbacksByStreamId, &streamId, &streamId);
+								if (pRequestLink)
+								{
+									rsslHashTableRemoveLink(&pReactorChannelImpl->pWarmStandByHandlerImpl->directoryCallbacksByStreamId, pRequestLink);
+								}
 							}
 
 							wlDirectoryRequestClose(&pWatchlistImpl->base, 

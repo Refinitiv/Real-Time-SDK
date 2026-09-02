@@ -133,6 +133,7 @@ public:
 	EmaString loginUserName;
 	UInt64 loginHandle;
 	UInt64 clientHandle;
+	UInt64 directoryHandle;
 	ElementList loginRefreshAttributes;
 	UInt64 wsbActiveState;
 

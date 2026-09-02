@@ -343,6 +343,7 @@ typedef struct
 	RsslUInt32						  allocationLength; /* Keeps the allocated buffer length. */
 	RsslBuffer						  directoryMemBuffer; /* Keeps track to the current location of memory */
 	RsslUInt32						  updateServiceFilter; /* This is used as indication to create source directory response for a service using the RsslRDMServiceFlags flags. */
+	RsslUInt32						  serviceFilter; /* Uses RsslRDMServiceFlags to indicate filters for this service. */
 	RsslUInt32						  serviceAction; /* Uses RsslMapEntryActions to indicate an action for this service. */
 	RsslBool						  preferredHostSwitched; // This has already been switched over during a RSSL_RCIMPL_WSBET_PREFERRED_HOST_FALLBACK_IN_GROUP event.
 
@@ -362,6 +363,7 @@ RTR_C_INLINE void rsslClearReactorWarmStandbyServiceImpl(RsslReactorWarmStandbyS
 	rsslClearBuffer(&pReactorWarmStandbyServiceImpl->directoryMemBuffer);
 	pReactorWarmStandbyServiceImpl->updateServiceFilter = 0;
 	pReactorWarmStandbyServiceImpl->serviceAction = 0;
+	pReactorWarmStandbyServiceImpl->serviceFilter = 0;
 	pReactorWarmStandbyServiceImpl->preferredHostSwitched = RSSL_FALSE;
 }
 
@@ -640,6 +642,8 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslUInt32		numOfLoginClosed;
 	RsslUInt32		numOfChannelClosed;
 	RsslBool		isChannelOpenCallbackCalled; /* This is used to indicate whether the RsslConsumerWatchlistOptions.channelOpenCallback is called only once per WSB channel */
+
+	RsslHashTable	directoryCallbacksByStreamId; /* This is used to indicate whether the RsslReactorOMMConsumerRole.directoryMsgCallback is called only once per stream id */
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
@@ -654,6 +658,19 @@ RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByH
 	rsslClearRDMLoginRefresh(&pReactorWarmStandByHandlerImpl->rdmLoginRefresh);
 	rsslClearReactorWarmStandbyChInfoImpl(&pReactorWarmStandByHandlerImpl->wsbChannelInfoImpl);
 	RSSL_MUTEX_INIT(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
+}
+
+RTR_C_INLINE void rsslClearWarmStandByStreamIdTable(RsslHashTable* pHashTable)
+{
+	RsslUInt32 i;
+
+	if (pHashTable->queueList)
+	{
+		for (i = 0; i < pHashTable->queueCount; ++i)
+		{
+			rsslInitQueue(&pHashTable->queueList[i]);
+		}
+	}
 }
 
 RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts, 
@@ -1007,6 +1024,7 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 	if (freeWarmStandbyHandler)
 	{
 		RSSL_MUTEX_DESTROY(&pWarmStandByHandler->warmStandByHandlerMutex);
+		rsslHashTableCleanup(&pWarmStandByHandler->directoryCallbacksByStreamId);
 		free(pWarmStandByHandler);
 	}
 }
@@ -1026,13 +1044,22 @@ RTR_C_INLINE RsslReactorWarmStandByHandlerImpl* _reactorTakeWSBChannelHandler(Rs
 		}
 
 		rsslClearReactorWarmStandByHandlerImpl(pReactorWarmStandByHandler);
+		if (RSSL_RET_SUCCESS != rsslHashTableInit(&pReactorWarmStandByHandler->directoryCallbacksByStreamId,
+			10, rsslHashU32Sum, rsslHashU32Compare, RSSL_TRUE, NULL))
+		{
+			free(pReactorWarmStandByHandler);
+			return NULL;
+		}
 		pReactorWarmStandByHandler->pReactorImpl = pReactorImpl;
 	}
 	else
 	{
 		pReactorWarmStandByHandler = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
 
+		RsslHashTable keepTheTable = pReactorWarmStandByHandler->directoryCallbacksByStreamId;
 		rsslClearReactorWarmStandByHandlerImpl(pReactorWarmStandByHandler);
+		pReactorWarmStandByHandler->directoryCallbacksByStreamId = keepTheTable;
+		rsslClearWarmStandByStreamIdTable(&pReactorWarmStandByHandler->directoryCallbacksByStreamId);
 		pReactorWarmStandByHandler->pReactorImpl = pReactorImpl;
 	}
 

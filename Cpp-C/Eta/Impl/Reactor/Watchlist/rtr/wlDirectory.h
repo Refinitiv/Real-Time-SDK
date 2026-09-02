@@ -44,6 +44,7 @@ typedef struct
 	WlRequestedService		*pRequestedService;	/* Service associated with this request, if any
 												 * (otherwise the request is for all services). */
 	WlDirectoryRequestState	state;			/* WlDirectoryRequestState */
+	RsslHashLink			hlStreamId;
 } WlDirectoryRequest;
 
 /* Represents a directory stream. */

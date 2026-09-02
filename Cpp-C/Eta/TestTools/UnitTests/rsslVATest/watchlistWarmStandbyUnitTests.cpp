@@ -31,6 +31,7 @@ void warmStandbyTest_SubmitPrivateStream(WatchlistWarmStandbyTestParameters para
 void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(WatchlistWarmStandbyTestParameters parameters);
 void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ServiceDown(WatchlistWarmStandbyTestParameters parameters);
 void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestParameters parameters, RsslBool isSameService);
+void warmStandbyTest_DirectoryRequest(WatchlistWarmStandbyTestParameters parameters, RsslBool isSameService);
 void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseActiveThenStandby(WatchlistWarmStandbyTestParameters parameters);
 void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup_CloseStandbyThenActive(WatchlistWarmStandbyTestParameters parameters);
 
@@ -179,6 +180,16 @@ TEST_P(WatchlistWarmStandbyUnitTest, AggregateSourceDirectoryResponse_WithDiffer
 TEST_P(WatchlistWarmStandbyUnitTest, AggregateSourceDirectoryResponse_WithSameService_ForBothServers)
 {
 	warmStandbyTest_AggregateSourceDirectoryResponse(GetParam(), RSSL_TRUE);
+}
+
+TEST_P(WatchlistWarmStandbyUnitTest, DirectoryRequest_WithDifferentService_ForBothServers)
+{
+	warmStandbyTest_DirectoryRequest(GetParam(), RSSL_FALSE);
+}
+
+TEST_P(WatchlistWarmStandbyUnitTest, DirectoryRequest_WithSameService_ForBothServers)
+{
+	warmStandbyTest_DirectoryRequest(GetParam(), RSSL_TRUE);
 }
 
 TEST_P(WatchlistWarmStandbyUnitTest, FailOverFromWSBToAnotherWSB_CloseActiveThenStandby)
@@ -4192,6 +4203,225 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 
 	/* Consumer should receive no more message. */
 	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	wtfFinishTest();
+}
+
+void warmStandbyTest_DirectoryRequest(WatchlistWarmStandbyTestParameters parameters, RsslBool isSameService)
+{
+	RsslReactorSubmitMsgOptions opts;
+	WtfEvent* pEvent;
+	RsslRDMDirectoryRefresh* pDirectoryRefresh;
+	WtfSetupWarmStandbyOpts connOpts;
+	RsslReactorWarmStandbyGroup		reactorWarmstandByGroup;
+	RsslReactorWarmStandbyServerInfo standbyServer;
+
+	WtfWarmStandbyExpectedMode warmStandbyExpectedMode[2];
+	RsslRDMService rdmService[2]; /* index 0 is service for active server and 1 for standby server. */
+	RsslRDMDirectoryRequest directoryRequest;
+	RsslRDMDirectoryClose directoryClose;
+
+	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		warmStandbyExpectedMode[0].warmStandbyMode = RDM_LOGIN_SERVER_TYPE_ACTIVE;
+		warmStandbyExpectedMode[1].warmStandbyMode = RDM_LOGIN_SERVER_TYPE_STANDBY;
+	}
+	else
+	{
+		warmStandbyExpectedMode[0].warmStandbyMode = RDM_DIRECTORY_SERVICE_TYPE_ACTIVE;
+		warmStandbyExpectedMode[1].warmStandbyMode = isSameService ? RDM_DIRECTORY_SERVICE_TYPE_STANDBY : RDM_DIRECTORY_SERVICE_TYPE_ACTIVE;
+	}
+
+	ASSERT_TRUE(wtfStartTest());
+
+	wtfClearSetupWarmStandbyConnectionOpts(&connOpts);
+	connOpts.provideDefaultServiceLoad = RSSL_TRUE;
+
+	/* Set warm standby configuration with one active server and one stand by server */
+	rsslClearReactorWarmStandbyGroup(&reactorWarmstandByGroup);
+
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
+	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+	}
+
+	rsslClearReactorWarmStandbyServerInfo(&standbyServer);
+
+	standbyServer.reactorConnectInfo.rsslConnectOptions.connectionType = parameters.connectionType;
+	standbyServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	standbyServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14012");
+	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
+
+	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		standbyServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
+	}
+
+	reactorWarmstandByGroup.standbyServerCount = 1;
+	reactorWarmstandByGroup.standbyServerList = &standbyServer;
+	reactorWarmstandByGroup.warmStandbyMode = parameters.warmStandbyMode;
+
+	connOpts.warmStandbyGroupCount = 1;
+	connOpts.reactorWarmStandbyGroupList = &reactorWarmstandByGroup;
+
+	if (isSameService)
+	{
+		wtfSetService1Info(&rdmService[0]);
+		wtfSetService1Info(&rdmService[1]);
+	}
+	else
+	{
+		wtfSetService1Info(&rdmService[0]);
+		wtfSetService2Info(&rdmService[1]);
+	}
+
+	/* Setup warm standby connections and source directory information. */
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_TRUE, parameters.connectionType, parameters.multiLoginMsg);
+
+	/* Stream Id for requesting item source directory. */
+	const RsslInt32 WTF_DIRECTORY_ITEM_STREAM_ID = 5;
+	const void* WTF_ITEM_DIRECTORY_USER_SPEC_PTR = (void*)0x55558888;
+
+	/* Consumer requests directory. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, WTF_DIRECTORY_ITEM_STREAM_ID);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == WTF_DIRECTORY_ITEM_STREAM_ID);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	if (isSameService)
+	{
+		ASSERT_EQ(pDirectoryRefresh->serviceCount, 1);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].serviceId, rdmService[0].serviceId);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].action, RSSL_MPEA_ADD_ENTRY);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].flags, RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_INFO);
+	}
+	else
+	{
+		ASSERT_EQ(pDirectoryRefresh->serviceCount, 2);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].serviceId, rdmService[0].serviceId);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].action, RSSL_MPEA_ADD_ENTRY);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[0].flags, RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_INFO);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[1].serviceId, rdmService[1].serviceId);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[1].action, RSSL_MPEA_ADD_ENTRY);
+		ASSERT_EQ(pDirectoryRefresh->serviceList[1].flags, RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_INFO);
+	}
+
+	/* Consumer should receive no more message. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	/* Consumer closes directory request. */
+	rsslClearRDMDirectoryClose(&directoryClose);
+	directoryClose.rdmMsgBase.streamId = WTF_DIRECTORY_ITEM_STREAM_ID;
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryClose;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider received no messages. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	/* Consumer requests directory for specific service id. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, WTF_DIRECTORY_ITEM_STREAM_ID);
+	directoryRequest.serviceId = (RsslUInt16)rdmService[0].serviceId;
+	directoryRequest.flags |= RDM_DR_RQF_HAS_SERVICE_ID;
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == WTF_DIRECTORY_ITEM_STREAM_ID);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+
+	/* Consumer receives directory refresh with 1 service with specific service id. */
+	ASSERT_EQ(pDirectoryRefresh->serviceCount, 1);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].serviceId, rdmService[0].serviceId);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].action, RSSL_MPEA_ADD_ENTRY);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].flags, RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_INFO);
+
+	/* Consumer should receive no more message. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	/* Consumer closes directory request. */
+	rsslClearRDMDirectoryClose(&directoryClose);
+	directoryClose.rdmMsgBase.streamId = WTF_DIRECTORY_ITEM_STREAM_ID;
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryClose;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider received no messages. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
+
+	/* Consumer requests directory for specific service name. */
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, WTF_DIRECTORY_ITEM_STREAM_ID);
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+	opts.pServiceName = &service1Name;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+
+	/* Consumer receives directory refresh. */
+	wtfDispatch(WTF_TC_CONSUMER, 100);
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pDirectoryRefresh = (RsslRDMDirectoryRefresh*)wtfGetRdmMsg(pEvent));
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == WTF_DIRECTORY_ITEM_STREAM_ID);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
+	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
+	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
+	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+
+	/* Consumer receives directory refresh with 1 service with specific service id. */
+	ASSERT_EQ(pDirectoryRefresh->serviceCount, 1);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].serviceId, rdmService[0].serviceId);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].action, RSSL_MPEA_ADD_ENTRY);
+	ASSERT_EQ(pDirectoryRefresh->serviceList[0].flags, RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_INFO);
+
+	/* Consumer should receive no more message. */
+	ASSERT_FALSE(pEvent = wtfGetEvent());
+
+	/* Consumer closes directory request. */
+	rsslClearRDMDirectoryClose(&directoryClose);
+	directoryClose.rdmMsgBase.streamId = WTF_DIRECTORY_ITEM_STREAM_ID;
+	rsslClearReactorSubmitMsgOptions(&opts);
+	opts.pRDMMsg = (RsslRDMMsg*)&directoryClose;
+	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+	/* Provider received no messages. */
+	wtfDispatch(WTF_TC_PROVIDER, 100);
+	ASSERT_TRUE(!wtfGetEvent());
 
 	wtfFinishTest();
 }

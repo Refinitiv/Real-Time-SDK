@@ -138,11 +138,11 @@ static void _reactorCleanupWSBRecoveryMsg(RsslReactorChannelImpl* pReactorChanne
 static RsslRet _reactorSendPreferredHostOptionsEvent(RsslReactorChannel* pReactorChannel, RsslPreferredHostOptions* pPreferredHostOpts, RsslErrorInfo* pError);
 
 // Handles a per-channel service-based fallback when fallBackWithInWSBGroup is enabled.
-RsslRet _preferredHostFallbackForWSBService(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pCurrentChannel, RsslReactorWarmStandbyGroupImpl* pWarmStandbyGroupImpl, RsslErrorInfo* pError);
+static RsslRet _preferredHostFallbackForWSBService(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pCurrentChannel, RsslReactorWarmStandbyGroupImpl* pWarmStandbyGroupImpl, RsslErrorInfo* pError);
 
 // Performs the Service-based switch from a previous active to the next active when channel is down.
 // Prerequsites: The WSB Handler is SERVICE_BASED, nothing is null.
-RsslRet _WSBServiceSwitchActiveToStandbyChannelDown(RsslReactorChannelImpl* pReactorChannelImpl, RsslReactorWarmStandbyGroupImpl* pWarmStandbyGroupImpl, RsslReactorWarmStandByHandlerImpl* pWarmStandByHandlerImpl, RsslBool sendMsg, RsslErrorInfo* pError, RsslRet* pRet);
+static RsslRet _WSBServiceSwitchActiveToStandbyChannelDown(RsslReactorChannelImpl* pReactorChannelImpl, RsslReactorWarmStandbyGroupImpl* pWarmStandbyGroupImpl, RsslReactorWarmStandByHandlerImpl* pWarmStandByHandlerImpl, RsslBool sendMsg, RsslErrorInfo* pError, RsslRet* pRet);
 
 /* Options for _reactorProcessMsg. */
 typedef struct
@@ -1077,6 +1077,12 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 			return NULL;
 		}
 		rsslClearReactorWarmStandByHandlerImpl(pNewWSChannel);
+		if (RSSL_RET_SUCCESS != rsslHashTableInit(&pNewWSChannel->directoryCallbacksByStreamId,
+			10, rsslHashU32Sum, rsslHashU32Compare, RSSL_TRUE, pError))
+		{
+			free(pNewWSChannel);
+			return NULL;
+		}
 		pNewWSChannel->pReactorImpl = pReactorImpl;
 
 		rsslQueueAddLinkToBack(&pReactorImpl->warmstandbyChannelPool, &pNewWSChannel->reactorQueueLink);
@@ -2831,6 +2837,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 			}
 
 			rsslClearReactorChannelImpl(pReactorImpl, &pWarmStandByHandlerImpl->mainReactorChannelImpl);
+			rsslClearWarmStandByStreamIdTable(&pWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 			pWarmStandByHandlerImpl->mainReactorChannelImpl.pWarmStandByHandlerImpl = pWarmStandByHandlerImpl;
 			pWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER;
 			pWarmStandByHandlerImpl->warmStandbyGroupList[pWarmStandByHandlerImpl->currentWSyGroupIndex].currentStartingServerIndex = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
@@ -4623,6 +4630,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 						GetNextWSBGroup(pWarmStandByHandlerImpl);
 						
 						/* Clears the current state and starting the servers of another warm standby group. */
+						rsslClearWarmStandByStreamIdTable(&pWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 						pWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER;
 						
 						ret = _reactorQueuedWSBGroupRecoveryMsg(pWarmStandByHandlerImpl, &errorInfo);
@@ -4749,6 +4757,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 					GetNextWSBGroup(pWarmStandByHandlerImpl);
 
 					/* Clears the current state and starting the servers of another warm standby group. */
+					rsslClearWarmStandByStreamIdTable(&pWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 					pWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER;
 					if (pReactorChannel->pWarmStandByHandlerImpl->queuedRecoveryMessage == RSSL_TRUE)
 					{
@@ -5849,6 +5858,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								if (_reactorHandlesWarmStandby(pReactorChannel) == RSSL_FALSE)
 								{
 									/* Clears the current state and starting the servers of another warm standby group. */
+									rsslClearWarmStandByStreamIdTable(&pReactorChannel->pWarmStandByHandlerImpl->directoryCallbacksByStreamId);
 									pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex = pReactorChannel->preferredHostOptions.warmStandbyGroupListIndex;
 									pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER;
 									pWsbGroupImpl = &pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex];
@@ -8701,47 +8711,341 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								RsslReactorWarmStandbyServiceImpl* pWarmStandbyServiceImpl = NULL;
 								RsslBool isAllChannelClosed = isWarmStandbyChannelClosed(pReactorWarmStandByHandlerImpl, NULL);
 
+								RsslHashLink* pRequestLink = rsslHashTableFind(&pReactorChannel->pWarmStandByHandlerImpl->directoryCallbacksByStreamId, &pRdmMsg->rdmMsgBase.streamId, &pRdmMsg->rdmMsgBase.streamId);
+								if (pRequestLink)
+								{
+									WlDirectoryRequest* pRequest = RSSL_HASH_LINK_TO_OBJECT(WlDirectoryRequest, hlStreamId, pRequestLink);
+								}
+								else
+								{
+									if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP) == 0)
+									{
+										/* Provide source directory response from the original Source Refresh. */
+
+										pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+										_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+
+										_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+										*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
+										_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+										RsslWatchlistStreamInfo* pWlStreamInfo = (RsslWatchlistStreamInfo*)pStreamInfo;
+										WlDirectoryRequest* pRequest = RSSL_HASH_LINK_TO_OBJECT(WlDirectoryRequest, hlStreamId, pWlStreamInfo->pHashLink);
+										rsslHashTableInsertLink(&pReactorChannel->pWarmStandByHandlerImpl->directoryCallbacksByStreamId, pWlStreamInfo->pHashLink, &pRequest->base.streamId, &pRequest->base.streamId);
+									}
+									else
+									{
+										/* Create source directory response from the aggregated service list. */
+										RsslRDMDirectoryRefresh directoryRefresh;
+										RsslUInt32 index = 0;
+										RsslQueueLink* pLink = NULL;
+										RsslWatchlistStreamInfo* pWlStreamInfo = (RsslWatchlistStreamInfo*)pStreamInfo;
+										WlDirectoryRequest* pDirectoryRequest = RSSL_HASH_LINK_TO_OBJECT(WlDirectoryRequest, hlStreamId, pWlStreamInfo->pHashLink);
+										WlRequestedService* pRequestedService = pDirectoryRequest->pRequestedService;
+
+										rsslClearRDMDirectoryRefresh(&directoryRefresh);
+
+										directoryRefresh.rdmMsgBase = pDirectoryResponse->rdmMsgBase;
+										directoryRefresh.rdmMsgBase.rdmMsgType = RDM_DR_MT_REFRESH;
+										directoryRefresh.serviceCount = 0;
+										directoryRefresh.serviceList = NULL;
+										directoryRefresh.filter = pDirectoryRequest->filter;
+
+										if (pReactorWarmStandByGroupImpl->_serviceList.count > 0)
+										{
+											if (pRequestedService) /* Requested service only */
+											{
+												if (pRequestedService->flags & WL_RSVC_HAS_NAME)
+												{
+													RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_serviceList, pLink)
+													{
+														pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+
+														if (pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_INFO)
+														{
+															if (pWarmStandbyServiceImpl->rdmServiceInfo.serviceName.length == pRequestedService->serviceName.length &&
+																memcmp(pWarmStandbyServiceImpl->rdmServiceInfo.serviceName.data, pRequestedService->serviceName.data, pRequestedService->serviceName.length) == 0)
+															{
+																directoryRefresh.serviceCount = 1;
+																break;
+															}
+														}
+													}
+												}
+												else if (pRequestedService->flags & WL_RSVC_HAS_ID)
+												{
+													RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_serviceList, pLink)
+													{
+														pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+
+														if (pWarmStandbyServiceImpl->serviceID == pRequestedService->serviceId)
+														{
+															directoryRefresh.serviceCount = 1;
+															directoryRefresh.flags |= RDM_DR_RFF_HAS_SERVICE_ID;
+															directoryRefresh.serviceId = (RsslUInt16)pRequestedService->serviceId;
+															break;
+														}
+													}
+												}
+												if (directoryRefresh.serviceCount > 0 && pWarmStandbyServiceImpl)
+												{
+													directoryRefresh.serviceList = (RsslRDMService*)malloc(directoryRefresh.serviceCount * sizeof(RsslRDMService));
+													if (directoryRefresh.serviceList)
+													{
+														index = 0;
+
+														rsslClearRDMService(&directoryRefresh.serviceList[index]);
+														directoryRefresh.serviceList[index].action = pWarmStandbyServiceImpl->serviceAction;
+														directoryRefresh.serviceList[index].serviceId = pWarmStandbyServiceImpl->serviceID;
+
+														/* Checks whether the source directory refresh has service info and the request filter set */
+														if ((pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_INFO) != 0 &&
+															(pDirectoryRequest->filter == 0 ||
+																(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_INFO_FILTER) != 0))
+														{
+															directoryRefresh.serviceList[index].info = pWarmStandbyServiceImpl->rdmServiceInfo;
+															directoryRefresh.serviceList[index].flags |= RDM_SVCF_HAS_INFO;
+														}
+
+														/* Checks whether the source directory refresh has service state and the request filter set */
+														if ((pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_STATE) != 0 &&
+															(pDirectoryRequest->filter == 0 ||
+																(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_STATE_FILTER) != 0))
+														{
+															directoryRefresh.serviceList[index].state = pWarmStandbyServiceImpl->rdmServiceState;
+															directoryRefresh.serviceList[index].flags |= RDM_SVCF_HAS_STATE;
+														}
+													}
+												}
+											}
+											else /* Full service list */
+											{
+												directoryRefresh.serviceCount = pReactorWarmStandByGroupImpl->_serviceList.count;
+												directoryRefresh.serviceList = (RsslRDMService*)malloc(directoryRefresh.serviceCount * sizeof(RsslRDMService));
+												if (directoryRefresh.serviceList)
+												{
+													index = 0;
+
+													RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_serviceList, pLink)
+													{
+														pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+
+														rsslClearRDMService(&directoryRefresh.serviceList[index]);
+														directoryRefresh.serviceList[index].action = pWarmStandbyServiceImpl->serviceAction;
+														directoryRefresh.serviceList[index].serviceId = pWarmStandbyServiceImpl->serviceID;
+
+														/* Checks whether the source directory refresh has service info and the request filter set */
+														if ((pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_INFO) != 0 &&
+															(pDirectoryRequest->filter == 0 ||
+																(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_INFO_FILTER) != 0))
+														{
+															directoryRefresh.serviceList[index].info = pWarmStandbyServiceImpl->rdmServiceInfo;
+															directoryRefresh.serviceList[index].flags |= RDM_SVCF_HAS_INFO;
+														}
+
+														/* Checks whether the source directory refresh has service state and the request filter set */
+														if ((pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_STATE) != 0 &&
+															(pDirectoryRequest->filter == 0 ||
+																(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_STATE_FILTER) != 0))
+														{
+															directoryRefresh.serviceList[index].state = pWarmStandbyServiceImpl->rdmServiceState;
+															directoryRefresh.serviceList[index].flags |= RDM_SVCF_HAS_STATE;
+														}
+
+														++index;
+													}
+												}
+											}
+										}
+
+										if (directoryRefresh.serviceCount > 0 && directoryRefresh.serviceList == NULL)
+										{
+											RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+											rsslClearReactorWarmStandbyEvent(pEvent);
+
+											pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP;
+											pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+											pEvent->pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+
+											if (pEvent->pReactorErrorInfoImpl)
+											{
+												rsslClearReactorErrorInfoImpl(pEvent->pReactorErrorInfoImpl);
+												rsslSetErrorInfo(&pEvent->pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for source directory refresh message.");
+											}
+
+											if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+												return RSSL_RET_FAILURE;
+										}
+										else
+										{
+											directoryEvent.baseMsgEvent.pRsslMsgBuffer = NULL;
+											directoryEvent.baseMsgEvent.pRsslMsg = NULL;
+											directoryEvent.baseMsgEvent.pStreamInfo = (RsslStreamInfo*)pStreamInfo;
+											directoryEvent.baseMsgEvent.pFTGroupId = NULL;
+											directoryEvent.baseMsgEvent.pSeqNum = NULL;
+											directoryEvent.pRDMDirectoryMsg = (RsslRDMDirectoryMsg*)&directoryRefresh;
+
+											pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
+											_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
+
+											_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+											*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
+											_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+											rsslInitQueue(&pReactorWarmStandByGroupImpl->_updateServiceList);
+
+											rsslHashTableInsertLink(&pReactorChannel->pWarmStandByHandlerImpl->directoryCallbacksByStreamId, pWlStreamInfo->pHashLink, &pDirectoryRequest->base.streamId, &pDirectoryRequest->base.streamId);
+
+											if (directoryRefresh.serviceList != NULL)
+											{
+												free(directoryRefresh.serviceList);
+											}
+										}
+									}
+								}
+
 								if ((pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP) == 0 && !isAllChannelClosed)
 								{
-									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
-									_reactorSetupMainWSBReactorChannel(pCallbackChannel, pReactorChannel);
-
-									_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-									*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
-									_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
-
-									while ((pLink = rsslQueueRemoveFirstLink(&pReactorWarmStandByGroupImpl->_updateServiceList)))
+									/* Reset the updated service list */
+									RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_serviceList, pLink)
 									{
-										pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, updateQLink, pLink);
+										pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
 										/* Reset the service flag. */
 										pWarmStandbyServiceImpl->updateServiceFilter = RDM_SVCF_NONE;
 									}
 
 									rsslInitQueue(&pReactorWarmStandByGroupImpl->_updateServiceList);
-
 								}
 								else
 								{
-									/* Handles source dirctory update for the delete action generated by watchlist when the channel down. */
+									/* Handles source directory update for the delete action generated by watchlist when the channel down. */
 									if (!pReactorChannel->isLoggedOutFromWSB && isRsslChannelActive(pReactorChannel) == RSSL_FALSE)
 									{
 										RsslWatchlistImpl* pWatchlistImpl = (RsslWatchlistImpl*)pReactorChannel->pWatchlist;
 										_reactorWSDirectoryUpdateFromChannelDown(pReactorWarmStandByGroupImpl, pReactorChannel, pWatchlistImpl->base.pServiceCache);
 									}
 
-									/* Create source directory response from the update servie list if any. */
+									/* Create source directory response from the update service list if any. */
 									if (pReactorWarmStandByGroupImpl->_updateServiceList.count > 0)
 									{
 										RsslRDMDirectoryUpdate directoryUpdate;
 										RsslUInt32 index = 0;
 										RsslQueueLink* pLink = NULL;
+
+										RsslWatchlistStreamInfo* pWlStreamInfo = (RsslWatchlistStreamInfo*)pStreamInfo;
+										WlDirectoryRequest* pDirectoryRequest = RSSL_HASH_LINK_TO_OBJECT(WlDirectoryRequest, hlStreamId, pWlStreamInfo->pHashLink);
+										WlRequestedService* pRequestedService = pDirectoryRequest->pRequestedService;
+
 										rsslClearRDMDirectoryUpdate(&directoryUpdate);
 
 										directoryUpdate.rdmMsgBase = pDirectoryResponse->rdmMsgBase;
 										directoryUpdate.rdmMsgBase.rdmMsgType = RDM_DR_MT_UPDATE;
 
-										directoryUpdate.serviceList = (RsslRDMService*)malloc(pReactorWarmStandByGroupImpl->_updateServiceList.count * sizeof(RsslRDMService));
-										if (directoryUpdate.serviceList == NULL)
+										if (pRequestedService) /* Requested service only */
+										{
+											if (pRequestedService->flags & WL_RSVC_HAS_NAME)
+											{
+												RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_updateServiceList, pLink)
+												{
+													pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, updateQLink, pLink);
+
+													if (pWarmStandbyServiceImpl->serviceFilter & RDM_SVCF_HAS_INFO)
+													{
+														if (pWarmStandbyServiceImpl->rdmServiceInfo.serviceName.length == pRequestedService->serviceName.length &&
+															memcmp(pWarmStandbyServiceImpl->rdmServiceInfo.serviceName.data, pRequestedService->serviceName.data, pRequestedService->serviceName.length) == 0)
+														{
+															directoryUpdate.serviceCount = 1;
+															break;
+														}
+													}
+												}
+											}
+											else if (pRequestedService->flags & WL_RSVC_HAS_ID)
+											{
+												RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_updateServiceList, pLink)
+												{
+													pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, updateQLink, pLink);
+
+													if (pWarmStandbyServiceImpl->serviceID == pRequestedService->serviceId)
+													{
+														directoryUpdate.serviceCount = 1;
+														directoryUpdate.flags |= RDM_DR_UPF_HAS_SERVICE_ID;
+														directoryUpdate.serviceId = (RsslUInt16)pRequestedService->serviceId;
+														break;
+													}
+												}
+											}
+											if (directoryUpdate.serviceCount > 0 && pWarmStandbyServiceImpl)
+											{
+												directoryUpdate.serviceList = (RsslRDMService*)malloc(directoryUpdate.serviceCount * sizeof(RsslRDMService));
+												if (directoryUpdate.serviceList)
+												{
+													index = 0;
+
+													rsslClearRDMService(&directoryUpdate.serviceList[index]);
+													directoryUpdate.serviceList[index].action = pWarmStandbyServiceImpl->serviceAction;
+													directoryUpdate.serviceList[index].serviceId = pWarmStandbyServiceImpl->serviceID;
+
+													/* Checks whether the source directory update has service info and the request filter set */
+													if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_INFO) != 0 &&
+														(pDirectoryRequest->filter == 0 ||
+															(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_INFO_FILTER) != 0))
+													{
+														directoryUpdate.serviceList[index].info = pWarmStandbyServiceImpl->rdmServiceInfo;
+														directoryUpdate.serviceList[index].flags |= RDM_SVCF_HAS_INFO;
+													}
+
+													/* Checks whether the source directory update has service state and the request filter set */
+													if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_STATE) != 0 &&
+														(pDirectoryRequest->filter == 0 ||
+															(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_STATE_FILTER) != 0))
+													{
+														directoryUpdate.serviceList[index].state = pWarmStandbyServiceImpl->rdmServiceState;
+														directoryUpdate.serviceList[index].flags |= RDM_SVCF_HAS_STATE;
+													}
+												}
+											}
+										}
+										else /* Full service list */
+										{
+											directoryUpdate.serviceCount = pReactorWarmStandByGroupImpl->_updateServiceList.count;
+											directoryUpdate.serviceList = (RsslRDMService*)malloc(directoryUpdate.serviceCount * sizeof(RsslRDMService));
+											if (directoryUpdate.serviceList)
+											{
+												index = 0;
+
+												RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByGroupImpl->_updateServiceList, pLink)
+												{
+													pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, updateQLink, pLink);
+
+													rsslClearRDMService(&directoryUpdate.serviceList[index]);
+													directoryUpdate.serviceList[index].action = pWarmStandbyServiceImpl->serviceAction;
+													directoryUpdate.serviceList[index].serviceId = pWarmStandbyServiceImpl->serviceID;
+
+													/* Checks whether the source directory update has service info and the request filter set */
+													if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_INFO) != 0 &&
+														(pDirectoryRequest->filter == 0 ||
+															(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_INFO_FILTER) != 0))
+													{
+														directoryUpdate.serviceList[index].info = pWarmStandbyServiceImpl->rdmServiceInfo;
+														directoryUpdate.serviceList[index].flags |= RDM_SVCF_HAS_INFO;
+													}
+
+													/* Checks whether the source directory update has service state and the request filter set */
+													if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_STATE) != 0 &&
+														(pDirectoryRequest->filter == 0 ||
+															(pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_STATE_FILTER) != 0))
+													{
+														directoryUpdate.serviceList[index].state = pWarmStandbyServiceImpl->rdmServiceState;
+														directoryUpdate.serviceList[index].flags |= RDM_SVCF_HAS_STATE;
+													}
+
+													++index;
+												}
+											}
+										}
+
+										if (directoryUpdate.serviceCount > 0 && directoryUpdate.serviceList == NULL)
 										{
 											RsslReactorWarmStandbyEvent* pEvent = (RsslReactorWarmStandbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
 											rsslClearReactorWarmStandbyEvent(pEvent);
@@ -8759,38 +9063,8 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 											if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
 												return RSSL_RET_FAILURE;
 										}
-										else
+										else if (directoryUpdate.serviceCount > 0)
 										{
-											directoryUpdate.serviceCount = pReactorWarmStandByGroupImpl->_updateServiceList.count;
-											index = 0;
-
-											while ((pLink = rsslQueueRemoveFirstLink(&pReactorWarmStandByGroupImpl->_updateServiceList)))
-											{
-												pWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, updateQLink, pLink);
-
-												rsslClearRDMService(&directoryUpdate.serviceList[index]);
-												directoryUpdate.serviceList[index].action = pWarmStandbyServiceImpl->serviceAction;
-												directoryUpdate.serviceList[index].flags = pWarmStandbyServiceImpl->updateServiceFilter;
-												directoryUpdate.serviceList[index].serviceId = pWarmStandbyServiceImpl->serviceID;
-
-												/* Chckes whether the source directory update has service info */
-												if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_INFO) != 0)
-												{
-													directoryUpdate.serviceList[index].info = pWarmStandbyServiceImpl->rdmServiceInfo;
-												}
-
-												/* Chckes whether the source directory update has service state */
-												if ((pWarmStandbyServiceImpl->updateServiceFilter & RDM_SVCF_HAS_STATE) != 0)
-												{
-													directoryUpdate.serviceList[index].state = pWarmStandbyServiceImpl->rdmServiceState;
-												}
-
-												/* Reset the service flag. */
-												pWarmStandbyServiceImpl->updateServiceFilter = RDM_SVCF_NONE;
-
-												++index;
-											}
-
 											directoryEvent.baseMsgEvent.pRsslMsgBuffer = NULL;
 											directoryEvent.baseMsgEvent.pRsslMsg = NULL;
 											directoryEvent.baseMsgEvent.pStreamInfo = (RsslStreamInfo*)pStreamInfo;
@@ -8804,8 +9078,6 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 											_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
 											*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pCallbackChannel, &directoryEvent);
 											_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
-
-											rsslInitQueue(&pReactorWarmStandByGroupImpl->_updateServiceList);
 
 											if (directoryUpdate.serviceList != NULL)
 											{
@@ -8897,6 +9169,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 									break;
 								case RDM_DR_MT_STATUS: 
 									pServiceList = NULL; 
+									serviceCount = 0;
 									pState = (directoryResponse.status.flags & RDM_DR_STF_HAS_STATE) ? &directoryResponse.status.state : NULL;
 									break;
 								default: 
@@ -9530,7 +9803,6 @@ RsslRet _reactorWatchlistMsgCallback(RsslWatchlist *pWatchlist, RsslWatchlistMsg
 	}
 
 	return _reactorProcessMsg(pReactorImpl, pReactorChannel, &processOpts);
-
 }
 
 static RsslRet _processRsslRwfMessage(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslReadOutArgs*readOutArgs, RsslBuffer *pMsgBuf, RsslErrorInfo *pError)
@@ -12350,7 +12622,6 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl* pReactorChannel, 
 			RsslReactorOAuthCredential* tmpOAuthCredArray = NULL;
 			RsslReactorOAuthCredential* tmpOAuthCred = pConsRole->pOAuthCredential;
 			RsslRDMLoginRequest* tmpLoginMsg = pConsRole->pLoginRequest;
-			RsslReactorSessionMgmtVersion tmpSessionVersion = RSSL_RC_SESSMGMT_NONE;
 			RsslBool copySensitiveData = isWarmStandby;
 			RsslBool copiedLogin = RSSL_FALSE;		/* Set to true if there is no login list but a login message set on the channel role */
 
@@ -12645,8 +12916,6 @@ static RsslRet _reactorChannelCopyRoleForWarmStandBy(RsslReactorChannelImpl* pRe
 			RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = pReactorChannel->currentConnectionOpts;
 			RsslUInt8 i = 0;
 			RsslRDMLoginRequest* tmpLoginMsg = pConsRole->pLoginRequest;
-			RsslReactorSessionMgmtVersion tmpSessionVersion = RSSL_RC_SESSMGMT_NONE;
-
 
 			if (pConsRole->pLoginRequestList)
 			{
@@ -15157,6 +15426,7 @@ static RsslRet _reactorWSWriteWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRe
 	ret = RSSL_RET_SUCCESS;
 
 	RSSL_MUTEX_LOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+
 	/* Submits to all channels that belongs to the warm standby feature except logged out channel */
 	RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, pLink)
 	{
@@ -15257,6 +15527,7 @@ static RsslRet _reactorWSWriteWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRe
 			break; 
 		}
 	}
+
 	RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 
 	if (submitCount == 0)
@@ -15465,6 +15736,18 @@ static void _reactorWSDirectoryUpdateFromChannelDown(RsslReactorWarmStandbyGroup
 	RsslHashLink* pHashLink = NULL;
 	RDMCachedService* pService = NULL;
 	RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = NULL;
+
+	/* For all services */
+	RSSL_QUEUE_FOR_EACH_LINK(&pWarmStandbyGroupImpl->_serviceList, pLink)
+	{
+		pReactorWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+
+		/* Reset the updated service flag. */
+		pReactorWarmStandbyServiceImpl->updateServiceFilter = RDM_SVCF_NONE;
+	}
+
+	/* Reset the updated service list */
+	rsslInitQueue(&pWarmStandbyGroupImpl->_updateServiceList);
 
 	RSSL_QUEUE_FOR_EACH_LINK(&pServiceCache->_serviceList, pLink)
 	{
@@ -16472,7 +16755,6 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 		{
 			/* The current pReactorChannel is preferred */
 			/* Do not fallback to this channel */
-			RsslReactorChannelEventImpl* pEvent = NULL;
 			rsslSetErrorInfo(&pReactorChannelImpl->channelWorkerCerr, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__,
 				"Channel is already connected to the Preferred Host.");
 			if ((ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr)) != RSSL_RET_SUCCESS)
@@ -16495,7 +16777,6 @@ RSSL_VA_API RsslRet rsslReactorFallbackToPreferredHost(RsslReactorChannel* pReac
 	{
 		/* The current pReactorChannel is preferred */
 		/* Do not fallback to this channel */
-		RsslReactorChannelEventImpl* pEvent = NULL;
 		if ((ret = _reactorSendPreferredHostNoFallback(pReactorImpl, pReactorChannelImpl, pError)) != RSSL_RET_SUCCESS)
 		{
 			return (reactorUnlockInterface(pReactorImpl), ret);
@@ -16577,8 +16858,6 @@ RsslBool isCurrentReactorChannelPreferred(RsslReactorChannelImpl* pReactorChanne
 
 	if (pPreferredHostOpts->enablePreferredHostOptions == RSSL_TRUE)
 	{
-		RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = pReactorChannelImpl->currentConnectionOpts;
-
 		if (_reactorHandlesWarmStandby(pReactorChannelImpl))
 		{
 			if (pReactorChannelImpl->pWarmStandByHandlerImpl->currentWSyGroupIndex == pPreferredHostOpts->warmStandbyGroupListIndex)
@@ -16597,7 +16876,7 @@ RsslBool isCurrentReactorChannelPreferred(RsslReactorChannelImpl* pReactorChanne
 }
 
 // Handles a per-channel service-based fallback when fallBackWithInWSBGroup is enabled.
-RsslRet _preferredHostFallbackForWSBService(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pCurrentChannel, RsslReactorWarmStandbyGroupImpl *pWarmStandbyGroupImpl, RsslErrorInfo *pError)
+static RsslRet _preferredHostFallbackForWSBService(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pCurrentChannel, RsslReactorWarmStandbyGroupImpl *pWarmStandbyGroupImpl, RsslErrorInfo *pError)
 {
 	RsslReactorChannelImpl* pOldChannel;
 	RDMCachedService* pCachedService;
@@ -16719,7 +16998,7 @@ RsslRet _writeDebugInfoFallbackToPreferredHost(RsslReactorImpl* pReactorImpl, Rs
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet _WSBServiceSwitchActiveToStandbyChannelDown(RsslReactorChannelImpl *pReactorChannelImpl, RsslReactorWarmStandbyGroupImpl *pWarmStandbyGroupImpl, RsslReactorWarmStandByHandlerImpl* pWarmStandByHandlerImpl, RsslBool sendMsg, RsslErrorInfo* pError, RsslRet* pRet)
+static RsslRet _WSBServiceSwitchActiveToStandbyChannelDown(RsslReactorChannelImpl *pReactorChannelImpl, RsslReactorWarmStandbyGroupImpl *pWarmStandbyGroupImpl, RsslReactorWarmStandByHandlerImpl* pWarmStandByHandlerImpl, RsslBool sendMsg, RsslErrorInfo* pError, RsslRet* pRet)
 {
 	RsslQueueLink* pServiceLink = NULL, * pChannelLink = NULL;
 	RsslReactorChannelImpl* pSubmitReactorChannel;
@@ -16761,9 +17040,7 @@ RsslRet _WSBServiceSwitchActiveToStandbyChannelDown(RsslReactorChannelImpl *pRea
 						{
 							RsslRDMDirectoryConsumerStatus	consumerStatus;
 							RsslRDMConsumerStatusService  consumerStatusService;
-							RsslQueueLink* pLink = NULL;
 							RsslHashLink* pHashLink = NULL;
-							RsslReactorWarmStandbyServiceImpl* pActiveWarmStandbyServiceImpl = NULL;
 							RDMCachedService* pService = NULL;
 
 							pHashLink = rsslHashTableFind(&pServiceCache->_servicesById, &pReactorWarmStandbyServiceImpl->serviceID, NULL);

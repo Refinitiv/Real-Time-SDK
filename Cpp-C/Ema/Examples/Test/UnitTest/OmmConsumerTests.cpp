@@ -64,6 +64,122 @@ void setupSingleServiceMap(Map& map, EmaString serviceName, UInt64 serviceId)
 		complete()).complete();
 }
 
+void createProgramaticConfig(Map& configDb)
+{
+	Map elementMap;
+	ElementList elementList;
+
+	elementList.addAscii("DefaultConsumer", "Consumer_8");
+
+	elementMap.addKeyAscii("Consumer_8", MapEntry::AddEnum, ElementList()
+		.addAscii("WarmStandbyChannelSet", "WarmStandbyChannel_1")
+		.addUInt("XmlTraceToStdout", 0)
+		.addUInt("XmlTraceToFile", 0)
+		.addAscii("Logger", "Logger_1")
+		.addAscii("Dictionary", "Dictionary_2")
+		.complete())
+		.complete();
+
+	elementList.addMap("ConsumerList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	elementMap.addKeyAscii("Channel_1", MapEntry::AddEnum, ElementList()
+		.addEnum("ChannelType", 0)
+		.addUInt("ConnectionPingTimeout", 50000)
+		.addAscii("Host", "localhost")
+		.addAscii("Port", "15000")
+		.addUInt("TcpNodelay", 0).complete());
+
+	elementMap.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
+		.addEnum("ChannelType", 0)
+		.addUInt("ConnectionPingTimeout", 50000)
+		.addAscii("Host", "localhost")
+		.addAscii("Port", "15001")
+		.addUInt("TcpNodelay", 0).complete());
+
+	elementMap.complete();
+
+	elementList.addMap("ChannelList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	elementMap.addKeyAscii("Server_Info_1", MapEntry::AddEnum, ElementList()
+		.addAscii("Channel", "Channel_1")
+		.addAscii("PerServiceNameSet", "DIRECT_FEED").complete());
+
+	elementMap.addKeyAscii("Server_Info_2", MapEntry::AddEnum, ElementList()
+		.addAscii("Channel", "Channel_2").complete());
+
+	elementMap.complete();
+
+	elementList.addMap("WarmStandbyServerInfoList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("WarmStandbyServerInfoGroup", MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	elementMap.addKeyAscii("WarmStandbyChannel_1", MapEntry::AddEnum, ElementList()
+		.addAscii("StartingActiveServer", "Server_Info_1")
+		.addAscii("StandbyServerSet", "Server_Info_2")
+		.addEnum("WarmStandbyMode", 2) /* 2 for service based while 1 for login based warm standby */
+		.complete()).complete();
+
+	elementList.addMap("WarmStandbyList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("WarmStandbyGroup", MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	//logger: no log messages
+	elementMap
+		.addKeyAscii(
+			"Logger_1", refinitiv::ema::access::MapEntry::AddEnum,
+			refinitiv::ema::access::ElementList().addEnum("LoggerType", 1).addEnum("LoggerSeverity", 4).complete())
+		.complete();
+
+	elementList.addMap("LoggerList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("LoggerGroup", refinitiv::ema::access::MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	//dictionary
+	elementMap
+		.addKeyAscii(
+			"Dictionary_1", refinitiv::ema::access::MapEntry::AddEnum,
+			refinitiv::ema::access::ElementList().addEnum("DictionaryType", 1).complete())
+		.addKeyAscii(
+			"Dictionary_2", refinitiv::ema::access::MapEntry::AddEnum,
+			refinitiv::ema::access::ElementList().addEnum("DictionaryType", 0)
+			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionaryTest")
+			.addAscii("EnumTypeDefFileName", "./enumtypeTest.def").complete()).complete();
+
+	elementList.addMap("DictionaryList", elementMap);
+
+	elementList.complete();
+	elementMap.clear();
+
+	configDb.addKeyAscii("DictionaryGroup", refinitiv::ema::access::MapEntry::AddEnum, elementList);
+	elementList.clear();
+
+	configDb.complete();
+}
+
 /* This test runs through serviceList structure functionality, testing the clear function and all of the setters.
  */
 TEST_F(OmmConsumerTest, ServiceListStructureTest)
@@ -11978,6 +12094,318 @@ TEST_F(OmmConsumerTest, RequestRoutingWSBSingleItemRecovery)
 	catch (...)
 	{
 		ASSERT_TRUE(false) << "uncaught exception in test";
+	}
+}
+
+TEST_F(OmmConsumerTest, WarmStandbyDirectoryRequest)
+{
+	Map serviceMap;
+	setupSingleServiceMap(serviceMap, "DIRECT_FEED", 2);
+	ProviderTestOptions provTestOptions;
+	provTestOptions.directoryPayload = &serviceMap;
+
+	IProviderTestClientBase provClient1(provTestOptions);
+
+	OmmIProviderConfig provConfig1("EmaConfigTest.xml");
+	provConfig1.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15000");
+
+	IProviderTestClientBase provClient2(provTestOptions);
+
+	OmmIProviderConfig provConfig2("EmaConfigTest.xml");
+	provConfig2.adminControlDirectory(OmmIProviderConfig::UserControlEnum).providerName("TestProvider_15001");
+
+	ConsumerTestOptions consTestOptions;
+	ConsumerTestClientBase consClientDirectory(consTestOptions);
+
+	try
+	{
+		ReqMsg consRequest;
+		Msg* msg;
+
+		OmmProvider prov1(provConfig1, provClient1);
+		OmmProvider prov2(provConfig2, provClient2);
+
+		Map configMap;
+		createProgramaticConfig(configMap);
+		OmmConsumer cons(OmmConsumerConfig().config(configMap).username("user"));
+
+		testSleep(1000);
+
+		ASSERT_EQ(provClient1.wsbActiveState, 0);
+		ASSERT_EQ(provClient2.wsbActiveState, 1);
+
+		provClient1.clear();
+		provClient2.clear();
+
+		UInt64 directoryHandle = cons.registerClient(
+			refinitiv::ema::access::ReqMsg()
+			.domainType(refinitiv::ema::rdm::MMT_DIRECTORY)
+			.initialImage(true)
+			.serviceName("DIRECT_FEED"),
+			consClientDirectory);
+
+		testSleep(500);
+
+		/* to receive Consumer Directory Refresh */
+		ASSERT_EQ(consClientDirectory.getMessageQueueSize(), 1);
+
+		msg = consClientDirectory.popMsg();
+
+		ASSERT_NE(msg, nullptr);
+		ASSERT_EQ(msg->getDataType(), DataType::RefreshMsgEnum);
+		ASSERT_EQ(msg->getDomainType(), MMT_DIRECTORY);
+		ASSERT_EQ(msg->getPayload().getDataType(), DataType::MapEnum);
+
+		const Map& refreshPayload = msg->getPayload().getMap();
+
+		EXPECT_TRUE(refreshPayload.forth());
+
+		{
+			const MapEntry& mapEntry = refreshPayload.getEntry();
+
+			ASSERT_EQ(mapEntry.getKey().getUInt(), 2);
+			EXPECT_EQ(mapEntry.getLoadType(), DataType::FilterListEnum);
+			const FilterList& filter = mapEntry.getFilterList();
+			ASSERT_TRUE(filter.forth());
+
+			const FilterEntry& infoFilter = filter.getEntry();
+
+			ASSERT_EQ(infoFilter.getAction(), FilterEntry::SetEnum);
+			ASSERT_EQ(infoFilter.getFilterId(), SERVICE_INFO_FILTER);
+			ASSERT_EQ(infoFilter.getLoadType(), DataType::ElementListEnum);
+
+			const ElementList& infoList = infoFilter.getElementList();
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& name = infoList.getEntry();
+
+			ASSERT_EQ(name.getName(), ENAME_NAME);
+			ASSERT_EQ(name.getAscii(), "DIRECT_FEED");
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& vendor = infoList.getEntry();
+
+			ASSERT_EQ(vendor.getName(), ENAME_VENDOR);
+			ASSERT_EQ(vendor.getAscii(), "company");
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& capabilities = infoList.getEntry();
+			ASSERT_EQ(capabilities.getName(), ENAME_CAPABILITIES);
+			ASSERT_EQ(capabilities.getLoadType(), DataType::ArrayEnum);
+
+			const OmmArray& capabilitiesArray = capabilities.getArray();
+
+			ASSERT_TRUE(capabilitiesArray.forth());
+			const OmmArrayEntry* arrayEntry = &capabilitiesArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::UIntEnum);
+			ASSERT_EQ(arrayEntry->getUInt(), MMT_DICTIONARY);
+
+			ASSERT_TRUE(capabilitiesArray.forth());
+			arrayEntry = &capabilitiesArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::UIntEnum);
+			ASSERT_EQ(arrayEntry->getUInt(), MMT_MARKET_PRICE);
+
+			ASSERT_TRUE(capabilitiesArray.forth());
+			arrayEntry = &capabilitiesArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::UIntEnum);
+			ASSERT_EQ(arrayEntry->getUInt(), MMT_MARKET_BY_PRICE);
+
+			ASSERT_TRUE(capabilitiesArray.forth());
+			arrayEntry = &capabilitiesArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::UIntEnum);
+			ASSERT_EQ(arrayEntry->getUInt(), MMT_SYMBOL_LIST);
+
+			ASSERT_TRUE(capabilitiesArray.forth());
+			arrayEntry = &capabilitiesArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::UIntEnum);
+			ASSERT_EQ(arrayEntry->getUInt(), MMT_SYSTEM);
+
+			ASSERT_FALSE(capabilitiesArray.forth());
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& dictionariesProvided = infoList.getEntry();
+			ASSERT_EQ(dictionariesProvided.getName(), ENAME_DICTIONARYS_PROVIDED);
+			ASSERT_EQ(dictionariesProvided.getLoadType(), DataType::ArrayEnum);
+
+			const OmmArray& dictionariesProvidedArray = capabilities.getArray();
+
+			ASSERT_TRUE(dictionariesProvidedArray.forth());
+			arrayEntry = &dictionariesProvidedArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::AsciiEnum);
+			ASSERT_EQ(arrayEntry->getAscii(), "RWFFld");
+
+			ASSERT_TRUE(dictionariesProvidedArray.forth());
+			arrayEntry = &dictionariesProvidedArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::AsciiEnum);
+			ASSERT_EQ(arrayEntry->getAscii(), "RWFEnum");
+
+			ASSERT_FALSE(dictionariesProvidedArray.forth());
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& dictionariesUsed = infoList.getEntry();
+			ASSERT_EQ(dictionariesUsed.getName(), ENAME_DICTIONARYS_USED);
+			ASSERT_EQ(dictionariesUsed.getLoadType(), DataType::ArrayEnum);
+
+			const OmmArray& dictionariesUsedArray = capabilities.getArray();
+
+			ASSERT_TRUE(dictionariesUsedArray.forth());
+			arrayEntry = &dictionariesUsedArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::AsciiEnum);
+			ASSERT_EQ(arrayEntry->getAscii(), "RWFFld");
+
+			ASSERT_TRUE(dictionariesUsedArray.forth());
+			arrayEntry = &dictionariesUsedArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::AsciiEnum);
+			ASSERT_EQ(arrayEntry->getAscii(), "RWFEnum");
+
+			ASSERT_FALSE(dictionariesUsedArray.forth());
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& qos = infoList.getEntry();
+			ASSERT_EQ(qos.getName(), ENAME_QOS);
+			ASSERT_EQ(qos.getLoadType(), DataType::ArrayEnum);
+
+			const OmmArray& qosArray = qos.getArray();
+
+			ASSERT_TRUE(qosArray.forth());
+			arrayEntry = &qosArray.getEntry();
+			ASSERT_EQ(arrayEntry->getLoadType(), DataType::QosEnum);
+			ASSERT_EQ(arrayEntry->getQos().getTimeliness(), OmmQos::RealTimeEnum);
+			ASSERT_EQ(arrayEntry->getQos().getRate(), OmmQos::TickByTickEnum);
+			ASSERT_FALSE(qosArray.forth());
+
+			ASSERT_TRUE(infoList.forth());
+
+			const ElementEntry& itemList = infoList.getEntry();
+			ASSERT_EQ(itemList.getName(), ENAME_ITEM_LIST);
+			ASSERT_EQ(itemList.getLoadType(), DataType::AsciiEnum);
+			ASSERT_EQ(itemList.getAscii(), "ItemList");
+
+			ASSERT_FALSE(infoList.forth());
+
+			ASSERT_TRUE(filter.forth());
+
+			const FilterEntry& stateFilter = filter.getEntry();
+
+			ASSERT_EQ(stateFilter.getAction(), FilterEntry::SetEnum);
+			ASSERT_EQ(stateFilter.getFilterId(), SERVICE_STATE_FILTER);
+			ASSERT_EQ(stateFilter.getLoadType(), DataType::ElementListEnum);
+
+			const ElementList& stateList = stateFilter.getElementList();
+
+			ASSERT_TRUE(stateList.forth());
+
+			const ElementEntry& state = stateList.getEntry();
+
+			ASSERT_EQ(state.getName(), ENAME_SVC_STATE);
+			ASSERT_EQ(state.getUInt(), SERVICE_UP);
+
+			ASSERT_FALSE(stateList.forth());
+
+			ASSERT_FALSE(filter.forth());
+		}
+
+		ASSERT_FALSE(refreshPayload.forth());
+
+		provClient1.activeRequests.clear();
+		provClient1.clear();
+		provClient2.clear();
+
+		/* Sending directory update #1 to delete the service ID 2. */
+		prov1.submit(UpdateMsg().domainType(MMT_DIRECTORY).filter(SERVICE_STATE_FILTER).
+			payload(Map().
+				addKeyUInt(2, MapEntry::UpdateEnum, FilterList().
+					add(SERVICE_STATE_ID, FilterEntry::UpdateEnum, ElementList().
+						addUInt(ENAME_SVC_STATE, SERVICE_DOWN).
+						complete()).
+					complete()).
+				complete()), provClient1.directoryHandle);
+
+		testSleep(2000);
+
+		/* WSB switched service to Standby Provider, which is active now */
+		ASSERT_EQ(provClient1.wsbActiveState, 1);
+		ASSERT_EQ(provClient2.wsbActiveState, 0);
+
+		provClient1.clear();
+		provClient2.clear();
+
+		/* no Consumer Directory Update received */
+		ASSERT_EQ(consClientDirectory.getMessageQueueSize(), 0);
+
+		/* Sending directory update #2 to delete the service ID 2. */
+		prov2.submit(UpdateMsg().domainType(MMT_DIRECTORY).filter(SERVICE_STATE_FILTER).
+			payload(Map().
+				addKeyUInt(2, MapEntry::UpdateEnum, FilterList().
+					add(SERVICE_STATE_ID, FilterEntry::UpdateEnum, ElementList().
+						addUInt(ENAME_SVC_STATE, SERVICE_DOWN).
+						complete()).
+					complete()).
+				complete()), provClient2.directoryHandle);
+
+		testSleep(2000);
+
+		/* Both Providers received WSB state 'standby' */
+		ASSERT_EQ(provClient1.wsbActiveState, 1);
+		ASSERT_EQ(provClient2.wsbActiveState, 1);
+
+		provClient1.clear();
+		provClient2.clear();
+
+		/* to receive Consumer Directory Update */
+		ASSERT_EQ(consClientDirectory.getMessageQueueSize(), 1);
+
+		msg = consClientDirectory.popMsg();
+
+		ASSERT_NE(msg, nullptr);
+		ASSERT_EQ(msg->getDataType(), DataType::UpdateMsgEnum);
+		ASSERT_EQ(msg->getDomainType(), MMT_DIRECTORY);
+		ASSERT_EQ(msg->getPayload().getDataType(), DataType::MapEnum);
+
+		const Map& updatePayload = msg->getPayload().getMap();
+
+		EXPECT_TRUE(updatePayload.forth());
+
+		{
+			const MapEntry& mapEntry = updatePayload.getEntry();
+
+			ASSERT_EQ(mapEntry.getKey().getUInt(), 2);
+			EXPECT_EQ(mapEntry.getLoadType(), DataType::FilterListEnum);
+			const FilterList& filter = mapEntry.getFilterList();
+
+			ASSERT_TRUE(filter.forth());
+
+			const FilterEntry& stateFilter = filter.getEntry();
+
+			ASSERT_EQ(stateFilter.getAction(), FilterEntry::SetEnum);
+			ASSERT_EQ(stateFilter.getFilterId(), SERVICE_STATE_FILTER);
+			ASSERT_EQ(stateFilter.getLoadType(), DataType::ElementListEnum);
+
+			const ElementList& stateList = stateFilter.getElementList();
+
+			ASSERT_TRUE(stateList.forth());
+
+			const ElementEntry& state = stateList.getEntry();
+
+			ASSERT_EQ(state.getName(), ENAME_SVC_STATE);
+			ASSERT_EQ(state.getUInt(), SERVICE_DOWN);
+
+			ASSERT_FALSE(stateList.forth());
+
+			ASSERT_FALSE(filter.forth());
+		}
+
+		ASSERT_FALSE(updatePayload.forth());
+	}
+	catch (...)
+	{
+		GTEST_FAIL() << "uncaught exception in test";
 	}
 }
 
