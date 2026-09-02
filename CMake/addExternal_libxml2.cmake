@@ -119,6 +119,8 @@ if((NOT libxml2_USE_INSTALLED) AND
 		list(APPEND _config_options "-DLIBXML2_WITH_ICONV=OFF"
 									"-DCMAKE_DEBUG_POSTFIX:STRING=d")
 	else()
+		list(APPEND _config_options "-DLIBXML2_WITH_ICONV=OFF")
+
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")

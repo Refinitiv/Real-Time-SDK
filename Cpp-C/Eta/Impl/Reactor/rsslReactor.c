@@ -18,6 +18,7 @@
 #ifndef NO_ETA_JWT_BUILD
 #include "l8w8jwt/encode.h"
 #include "l8w8jwt/version.h"
+#include "l8w8jwt/util.h"
 #endif
 
 #include <assert.h>

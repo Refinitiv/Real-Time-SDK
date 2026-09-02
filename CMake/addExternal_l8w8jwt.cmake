@@ -18,11 +18,11 @@ if(NOT l8w8jwt_url)
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.6.0" CACHE STRING "l8w8jwt tag")
+	set(l8w8jwt_tag "2.7.0" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.6.0" CACHE STRING "l8w8jwt version")
+	set(l8w8jwt_version "2.7.0" CACHE STRING "l8w8jwt version")
 endif()
 
 #Starting with version 2.6.0, l8w8jwt moved to mbedtls 4.0+.  That mbedtls version has additional build configuration that that is not build specific. 
