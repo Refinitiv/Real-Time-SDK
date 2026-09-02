@@ -10,9 +10,6 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-using System;
-using System.Collections.Generic;
-using Xunit;
 using static LSEG.Eta.Rdm.Directory;
 
 namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
@@ -1151,6 +1148,260 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
         }
 
         [Fact]
+        public void WatchlistDirectoryRefreshClearCacheServiceNameTest()
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
+            consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+
+            var serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            var serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            var serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            var actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+
+            var expectedServiceIndex = 1;
+
+            var directoryRequest1 = CreateDirectoryRequest(null, ALL_FILTERS);
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest1, msg));
+            submitOptions.ServiceName = serviceNames[expectedServiceIndex];
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            providerReactor.Dispatch(1);
+            TestReactorEvent evt = providerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            ReactorMsgEvent msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+            RDMDirectoryMsgEvent dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            var eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+            for (int i = 0; i < eventCount; i++)
+            {
+                consumerReactor.PollEvent();
+            }
+
+            // final unsolicited refresh with clear cache flag
+            directoryRefresh = CreateDirectoryRefresh(
+                ["DIRECT_FEED3"],
+                [3],
+                [ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE],
+                [MapEntryActions.ADD],
+                solicited: false,
+                ServiceFilterFlags.INFO | ServiceFilterFlags.STATE,
+                clearCache: true,
+                StreamStates.OPEN, DataStates.OK);
+            
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+
+            // update containing delete action for previous service
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.UPDATE, dirEvent.Msg.MsgClass);
+            var update = dirEvent.DirectoryMsg.DirectoryUpdate;
+            Assert.Single(update.ServiceList);
+            var service = update.ServiceList[0];
+            Assert.Equal(serviceIds[expectedServiceIndex], service.ServiceId);
+            Assert.Equal(MapEntryActions.DELETE, service.Action);
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
+        [Fact]
+        public void WatchlistDirectoryRefreshClearCache2UpdatesTest()
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
+            consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+            var directoryRequest1 = CreateDirectoryRequest(null, ALL_FILTERS);
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest1, msg));
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            providerReactor.Dispatch(1);
+            TestReactorEvent evt = providerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            ReactorMsgEvent msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+            RDMDirectoryMsgEvent dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            var serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            var serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            var serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            var actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            var eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+            for (int i = 0; i < eventCount; i++)
+            {
+                consumerReactor.PollEvent();
+            }
+
+            // final unsolicited refresh with clear cache flag
+            directoryRefresh = CreateDirectoryRefresh(
+                ["DIRECT_FEED3"],
+                [3],
+                [ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE],
+                [MapEntryActions.ADD],
+                solicited: false,
+                ServiceFilterFlags.INFO | ServiceFilterFlags.STATE,
+                clearCache: true,
+                StreamStates.OPEN, DataStates.OK);
+            
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            eventCount = 2;
+            consumerReactor.Dispatch(eventCount);
+
+            // first update containing delete actions for all previous services
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.UPDATE, dirEvent.Msg.MsgClass);
+            var update = dirEvent.DirectoryMsg.DirectoryUpdate;
+            Assert.Equal(5, update.ServiceList.Count);
+            for (int serviceIndex = 0; serviceIndex < serviceIds.Count; serviceIndex++)
+            {
+                var service = update.ServiceList[serviceIndex];
+                Assert.Equal(serviceIds[serviceIndex], service.ServiceId);
+                Assert.Equal(MapEntryActions.DELETE, service.Action);
+            }
+
+            // second update containing add action for the new service
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.UPDATE, dirEvent.Msg.MsgClass);
+            update = dirEvent.DirectoryMsg.DirectoryUpdate;
+            Assert.Single(update.ServiceList);
+            Assert.Equal(MapEntryActions.ADD, update.ServiceList[0].Action);
+            Assert.Equal(3, update.ServiceList[0].ServiceId);
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
+        [Fact]
+        public void WatchlistDirectoryRefreshServiceIdTest()
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
+            consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+            var serviceIdToRequest = 7191;
+            var directoryRequest1 = CreateDirectoryRequest(serviceIdToRequest, ALL_FILTERS);
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest1, msg));
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            providerReactor.Dispatch(1);
+
+            var msgEvent = providerReactor.PollReactorEvent<ReactorMsgEvent>();
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+            var dirEvent = Assert.IsType<RDMDirectoryMsgEvent>(msgEvent);
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            var serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            var serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            var serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            var actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            consumerReactor.Dispatch(1);
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.REFRESH, dirEvent.Msg.MsgClass);
+            var refresh = dirEvent.DirectoryMsg.DirectoryRefresh;
+            Assert.Single(refresh.ServiceList);
+            Assert.Equal(serviceIdToRequest, refresh.ServiceList[0].ServiceId);
+
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
+        [Fact]
         public void WatchlistDirectoryGenericTest()
         {
             ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
@@ -1332,6 +1583,132 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
                 msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
                 Assert.Equal(MsgClasses.UPDATE, msgEvent.Msg.MsgClass);
             }
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
+        public static TheoryData<long?, long> WatchlistDirectoryRefreshAsUpdateTestData()
+        {
+            return new TheoryData<long?, long> {
+                { ALL_FILTERS, ALL_FILTERS },
+                { ServiceFilterFlags.INFO | ServiceFilterFlags.STATE, ServiceFilterFlags.INFO | ServiceFilterFlags.STATE },
+                { null, 0 },
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(WatchlistDirectoryRefreshAsUpdateTestData))]
+        public void WatchlistDirectoryRefreshAsUpdateFilterTest(long? initialRequestFilter, long expectedServiceFilter)
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+            var directoryRequest = new DirectoryRequest();
+            if (initialRequestFilter.HasValue)
+            {
+                directoryRequest.Filter = initialRequestFilter.Value;
+            }
+            directoryRequest.StreamId = 2;
+
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest, msg));
+            submitOptions.ServiceName = "IDN_RDF";
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            submitOptions.Clear();
+
+            // Watchlist requested a directory, provide it
+            providerReactor.Dispatch(1);
+            TestReactorEvent evt = providerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            ReactorMsgEvent msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+
+            RDMDirectoryMsgEvent dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            List<string> serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            List<int> serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            List<ServiceFlags> serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            List<MapEntryActions> actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            consumerReactor.Dispatch(1);
+
+            evt = consumerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REFRESH, msgEvent.Msg.MsgClass);
+
+            dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+
+            dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REFRESH, dirMsg.DirectoryMsgType);
+
+            DirectoryRefresh dirRefresh = dirMsg.DirectoryRefresh;
+            Assert.NotNull(dirRefresh);
+            Assert.Equal(2, dirRefresh.StreamId);
+
+            Assert.Equal(directoryRequest.Filter == 0 ? 63 : directoryRequest.Filter, dirRefresh.Filter);
+            Assert.Single(dirRefresh.ServiceList);
+            Assert.Equal(460, dirRefresh.ServiceList[0].ServiceId);
+
+            serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_STATE,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA | ServiceFlags.HAS_STATE,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA | ServiceFlags.HAS_STATE,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_STATE
+            };
+            actions = new List<MapEntryActions> { MapEntryActions.UPDATE, MapEntryActions.UPDATE, MapEntryActions.UPDATE, MapEntryActions.UPDATE, MapEntryActions.UPDATE };
+
+            directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            consumerReactor.Dispatch(1);
+
+            evt = consumerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.UPDATE, msgEvent.Msg.MsgClass);
+            Assert.Equal(expectedServiceFilter == 0 ? 63 : expectedServiceFilter, msgEvent.Msg.MsgKey.Filter);
+
 
             TestReactorSession.CloseSession(consumer, provider);
             consumerReactor.Close();
@@ -1736,6 +2113,186 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             consumerReactor.Close();
             providerReactor.Close();
         }
+
+        [Fact]
+        public void WatchlistDirectoryRefreshClearCacheWhenServiceIdUnknownTest()
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
+            consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+            var unknownServiceId = 3;
+            var directoryRequest1 = CreateDirectoryRequest(unknownServiceId, ALL_FILTERS);
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest1, msg));
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            providerReactor.Dispatch(1);
+            TestReactorEvent evt = providerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            ReactorMsgEvent msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+            RDMDirectoryMsgEvent dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            var serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            var serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            var serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            var actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            var eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+            for (int i = 0; i < eventCount; i++)
+            {
+                consumerReactor.PollEvent();
+            }
+
+            // final unsolicited refresh with clear cache flag
+            directoryRefresh = CreateDirectoryRefresh(
+                ["DIRECT_FEED3"],
+                [unknownServiceId],
+                [ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE],
+                [MapEntryActions.ADD],
+                solicited: false,
+                ServiceFilterFlags.INFO | ServiceFilterFlags.STATE,
+                clearCache: true,
+                StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+
+            // signle update containing add action for the new service
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.UPDATE, dirEvent.Msg.MsgClass);
+            var update = dirEvent.DirectoryMsg.DirectoryUpdate;
+            Assert.Single(update.ServiceList);
+            Assert.Equal(MapEntryActions.ADD, update.ServiceList[0].Action);
+            Assert.Equal(unknownServiceId, update.ServiceList[0].ServiceId);
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
+        [Fact]
+        public void WatchlistDirectoryRefreshClearCacheWhenServiceNameUnknownTest()
+        {
+            ReactorSubmitOptions submitOptions = new ReactorSubmitOptions();
+            submitOptions.Clear();
+
+            SetUp(out var consumer, out var provider, out var consumerReactor, out var providerReactor);
+
+            consumer.ReactorChannel.Watchlist.LoginHandler = new MockLoginHandler();
+            consumer.ReactorChannel.Watchlist.ItemHandler = new MockItemHandler();
+
+            consumer.ReactorChannel.Watchlist.DirectoryHandler.LoginStreamOpen(out _);
+
+            var unknownServiceName = "DIRECT_FEED3";
+            var directoryRequest1 = CreateDirectoryRequest(null, ALL_FILTERS);
+            submitOptions.ServiceName = unknownServiceName;
+            Msg msg = new Msg();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRequest1, msg));
+            Assert.Equal(ReactorReturnCode.SUCCESS, consumer.Submit(msg, submitOptions));
+
+            providerReactor.Dispatch(1);
+            TestReactorEvent evt = providerReactor.PollEvent();
+
+            Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
+            ReactorMsgEvent msgEvent = (ReactorMsgEvent)evt.ReactorEvent;
+            Assert.Equal(MsgClasses.REQUEST, msgEvent.Msg.MsgClass);
+            RDMDirectoryMsgEvent dirEvent = msgEvent as RDMDirectoryMsgEvent;
+            Assert.NotNull(dirEvent);
+            DirectoryMsg dirMsg = dirEvent.DirectoryMsg;
+            Assert.NotNull(dirMsg);
+            Assert.Equal(DirectoryMsgType.REQUEST, dirMsg.DirectoryMsgType);
+            DirectoryRequest dirRequest = dirMsg.DirectoryRequest;
+            Assert.NotNull(dirRequest);
+            Assert.Equal(ALL_FILTERS, dirRequest.Filter);
+
+            var serviceNames = new List<string> { "IDN_RDF", "ELEKTRON_DD", "QPR0V1", "QPR0V2", "NI_PUB" };
+            var serviceIds = new List<int> { 460, 7191, 7001, 7002, 37397 };
+            var serviceFlags = new List<ServiceFlags>() { ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_DATA,
+                ServiceFlags.HAS_INFO | ServiceFlags.HAS_LINK | ServiceFlags.HAS_LOAD
+            };
+            var actions = new List<MapEntryActions> { MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD, MapEntryActions.ADD };
+
+            var directoryRefresh = CreateDirectoryRefresh(serviceNames, serviceIds, serviceFlags, actions, true, ALL_FILTERS, false, StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            var eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+            for (int i = 0; i < eventCount; i++)
+            {
+                consumerReactor.PollEvent();
+            }
+
+            // final unsolicited refresh with clear cache flag
+            directoryRefresh = CreateDirectoryRefresh(
+                [unknownServiceName],
+                [3],
+                [ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE],
+                [MapEntryActions.ADD],
+                solicited: false,
+                ServiceFilterFlags.INFO | ServiceFilterFlags.STATE,
+                clearCache: true,
+                StreamStates.OPEN, DataStates.OK);
+
+            msg.Clear();
+            submitOptions.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, consumer.ReactorChannel.Watchlist.ConvertRDMToCodecMsg(directoryRefresh, msg));
+            provider.SubmitAndDispatch(msg, submitOptions);
+
+            eventCount = 1;
+            consumerReactor.Dispatch(eventCount);
+
+            // signle update containing add action for the new service
+            dirEvent = consumerReactor.PollReactorEvent<RDMDirectoryMsgEvent>();
+            Assert.Equal(MsgClasses.UPDATE, dirEvent.Msg.MsgClass);
+            var update = dirEvent.DirectoryMsg.DirectoryUpdate;
+            Assert.Single(update.ServiceList);
+            Assert.Equal(MapEntryActions.ADD, update.ServiceList[0].Action);
+            Assert.Equal(3, update.ServiceList[0].ServiceId);
+
+            TestReactorSession.CloseSession(consumer, provider);
+            consumerReactor.Close();
+            providerReactor.Close();
+        }
+
         private void SetUp(out Consumer consumer, out Provider provider, out TestReactor consumerReactor, out TestReactor providerReactor)
         {
             consumerReactor = new TestReactor();
@@ -1830,13 +2387,16 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             return directoryUpdate;
         }
 
-        public static DirectoryRequest CreateDirectoryRequest(int serviceId, long filter, int streamId = 2)
+        public static DirectoryRequest CreateDirectoryRequest(int? serviceId, long filter, int streamId = 2)
         {
             DirectoryRequest directoryRequest = new DirectoryRequest();
 
             directoryRequest.StreamId = streamId;
-            directoryRequest.HasServiceId = true;
-            directoryRequest.ServiceId = serviceId;
+            if (serviceId.HasValue)
+            {
+                directoryRequest.HasServiceId = true;
+                directoryRequest.ServiceId = serviceId.Value;
+            }
             directoryRequest.Filter = filter;
 
             return directoryRequest;

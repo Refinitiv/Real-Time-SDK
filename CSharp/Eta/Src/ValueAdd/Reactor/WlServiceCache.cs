@@ -138,7 +138,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             errorInfo = null;
             wlService = new WlService();
-            wlService.RdmService = GetRdmServiceFormPool();
+            wlService.RdmService = GetRdmServiceFromPool();
             service.Copy(wlService!.RdmService!);
             
             if (!m_ServicesByIdTable.TryAdd(service.ServiceId, wlService))
@@ -239,48 +239,50 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </summary>
         /// <param name="directoryRefresh">the <see cref="DirectoryRefresh"/> message</param>
         /// <param name="serviceName">the service name</param>
-        public void FillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh, string serviceName)
+        /// <param name="isUnsolicitedAndCacheCleared"></param>
+        public void FillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh, string serviceName, bool isUnsolicitedAndCacheCleared)
         {
-            Service service;
             if (serviceName != null)
             {
                 if (m_ServicesByNameTable.TryGetValue(serviceName, out var wlService))
                 {
-                    if (wlService != null)
-                    {
-                        service = GetRdmServiceFormPool();
-                        wlService!.RdmService!.Copy(service);
-                        directoryRefresh.ServiceList.Add(service);
-                        SetFilterFlagsRefresh(directoryRefresh.Filter, directoryRefresh.ServiceList.First());
-                    }
-                }                
+                    AddCachedServiceToRefresh(directoryRefresh, wlService, isUnsolicitedAndCacheCleared);
+                }
             }
             else if (directoryRefresh.HasServiceId)
             {
                 if (m_ServicesByIdTable.TryGetValue(directoryRefresh.ServiceId, out var wlService))
                 {
-                    if (wlService != null)
-                    {
-                        service = GetRdmServiceFormPool();
-                        wlService!.RdmService!.Copy(service);
-                        directoryRefresh.ServiceList.Add(service);
-                        SetFilterFlagsRefresh(directoryRefresh.Filter, directoryRefresh.ServiceList.First());
-                    }
-                }               
+                    AddCachedServiceToRefresh(directoryRefresh, wlService, isUnsolicitedAndCacheCleared);
+                }
             }
             else
             {
                 if (ServiceList.Count > 0)
                 {
-                    // Copy the service services here.
+                    // Copy all services here.
                     foreach (var wlService in ServiceList)
                     {
-                        service = GetRdmServiceFormPool();
-                        wlService.RdmService!.Copy(service);
-                        SetFilterFlagsRefresh(directoryRefresh.Filter, service);
-                        directoryRefresh.ServiceList.Add(service);
+                        AddCachedServiceToRefresh(directoryRefresh, wlService, isUnsolicitedAndCacheCleared);
                     }
                 }               
+            }
+
+            if (directoryRefresh.ServiceList.Count == 0)
+            {
+                directoryRefresh.Filter = 0;
+            }
+        }
+
+        private void AddCachedServiceToRefresh(DirectoryRefresh directoryRefresh, WlService? cachedService, bool isUnsolicitedAndCacheCleared)
+        {
+            if (cachedService != null && cachedService.RdmService != null &&
+                (!isUnsolicitedAndCacheCleared || cachedService.RdmService.Action == MapEntryActions.ADD))
+            {
+                var service = GetRdmServiceFromPool();
+                cachedService.RdmService.Copy(service);
+                SetFilterFlagsRefresh(directoryRefresh.Filter, service);
+                directoryRefresh.ServiceList.Add(service);
             }
         }
 
@@ -292,7 +294,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private void AddServiceToUpdateMsgServiceList(Service s, DirectoryUpdate directoryUpdate)
         {
-            Service service = GetRdmServiceFormPool();
+            Service service = GetRdmServiceFromPool();
 
             s.Copy(service);
             int ret = SetFilterFlagsUpdate(directoryUpdate.Filter, service, s);
@@ -340,6 +342,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 {
                     AddServiceToUpdateMsgServiceList(services[i], directoryUpdate);
                 }
+            }
+
+            if (directoryUpdate.ServiceList.Count == 0)
+            {
+                directoryUpdate.Filter = 0;
             }
         }
 
@@ -478,7 +485,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Either gets a free Rdm Service instance from the pool or creates a new one if the pool is empty
         /// </summary>
         /// <returns>Free <see cref="Rdm.Service"/> instance</returns>
-        public Service GetRdmServiceFormPool()
+        public Service GetRdmServiceFromPool()
         {
             Service service;
             if (ServicePool.Count == 0)

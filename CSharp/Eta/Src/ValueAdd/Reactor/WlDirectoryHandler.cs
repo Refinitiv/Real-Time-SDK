@@ -169,7 +169,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     if (request.ReqState == WlRequest.State.PENDING_REFRESH)
                     {
                         request.ReqState = WlRequest.State.OPEN;
-                        if ((ret = SendRefreshMsg(request, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                        if ((ret = SendRefreshMsg(request, null, out errorInfo)) < ReactorReturnCode.SUCCESS)
                         {
                             return ret;
                         }
@@ -417,7 +417,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     if (!m_ReceivedRefresh)
                     {
                         m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.REFRESH;
-                        if ((ret = SendRefreshMsg(request, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                        if ((ret = SendRefreshMsg(request, msg, out errorInfo)) < ReactorReturnCode.SUCCESS)
                         {
                             break;
                         }
@@ -425,7 +425,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     else
                     {
                         m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.UPDATE;
-                        if ((ret = SendRefreshAsUpdateMsg(request, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                        if ((ret = SendRefreshAsUpdateMsg(request, msg, out errorInfo)) < ReactorReturnCode.SUCCESS)
                         {
                             break;
                         }
@@ -438,7 +438,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         break; // Update messages with DELETE action have already been sent and there are no services in the list, so do nothing
                     }
                     m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.UPDATE;
-                    if ((ret = SendRefreshAsUpdateMsg(request, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                    if ((ret = SendRefreshAsUpdateMsg(request, msg, out errorInfo)) < ReactorReturnCode.SUCCESS)
                     {
                         break;
                     }
@@ -548,19 +548,20 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return ret;
         }
 
-        internal ReactorReturnCode SendRefreshMsg(WlRequest wlRequest, out ReactorErrorInfo? errorInfo)
+        internal ReactorReturnCode SendRefreshMsg(WlRequest wlRequest, IRefreshMsg? msg, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode ret;
             m_DirectoryMsg.Clear();
 
-            FillDirectoryRefreshFromRequestMsg(m_DirectoryMsg!.DirectoryRefresh!, wlRequest.RequestMsg);
-            m_ServiceCache.FillDirectoryRefreshServiceListFromCache(m_DirectoryMsg!.DirectoryRefresh!, wlRequest!.WatchlistStreamInfo!.ServiceName!);
+            FillDirectoryRefreshFromRequestMsg(m_DirectoryMsg!.DirectoryRefresh!, wlRequest);
+            var isUnsolicitedAndCacheCleared = msg != null && msg.CheckClearCache() && !msg.CheckSolicited();
+            m_ServiceCache.FillDirectoryRefreshServiceListFromCache(m_DirectoryMsg!.DirectoryRefresh!, wlRequest!.WatchlistStreamInfo!.ServiceName!, isUnsolicitedAndCacheCleared);
 
             m_TempRefreshMsg.Clear();
             m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryRefresh!, (Msg)m_TempRefreshMsg);
 
             // use filter from user request
-            long returnFilter = GetResultingFilter(wlRequest.RequestMsg.MsgKey.Filter, m_DirectoryMsg!.DirectoryRefresh!.Filter);
+            long returnFilter = GetResultingFilter(ResolveEffectiveFilter(wlRequest.RequestMsg), m_DirectoryMsg!.DirectoryRefresh!.Filter);
             if (m_TempRefreshMsg.CheckHasMsgKey())
                 m_TempRefreshMsg.MsgKey.Filter = returnFilter;
             m_DirectoryMsg!.DirectoryRefresh!.Filter = returnFilter;
@@ -577,16 +578,17 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return ret;
         }
 
-        internal ReactorReturnCode SendRefreshAsUpdateMsg(WlRequest wlRequest, out ReactorErrorInfo? errorInfo)
+        internal ReactorReturnCode SendRefreshAsUpdateMsg(WlRequest wlRequest, IRefreshMsg msg, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode ret;
             m_DirectoryMsg.Clear();
             m_DirectoryRefresh2.Clear();
 
-            FillDirectoryRefreshFromRequestMsg(m_DirectoryRefresh2, wlRequest.RequestMsg);
-            m_ServiceCache.FillDirectoryRefreshServiceListFromCache(m_DirectoryRefresh2, wlRequest!.WatchlistStreamInfo!.ServiceName!);
+            FillDirectoryRefreshFromRequestMsg(m_DirectoryRefresh2, wlRequest);
+            var isUnsolicitedAndCacheCleared = msg.CheckClearCache() && !msg.CheckSolicited();
+            m_ServiceCache.FillDirectoryRefreshServiceListFromCache(m_DirectoryRefresh2, wlRequest!.WatchlistStreamInfo!.ServiceName!, isUnsolicitedAndCacheCleared);
 
-            if (m_DirectoryRefresh2.ServiceList.Count == 0) // no updated services for this user request, don't send empty update
+            if (isUnsolicitedAndCacheCleared && m_DirectoryRefresh2.ServiceList.Count == 0) // no updated services for this user request, don't send empty update
             {
                 errorInfo = null;
                 return ReactorReturnCode.SUCCESS;
@@ -596,15 +598,18 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_DirectoryMsg!.DirectoryUpdate!.HasFilter = true;
             m_DirectoryMsg!.DirectoryUpdate!.Filter = m_DirectoryRefresh2.Filter;
             m_DirectoryMsg!.StreamId = m_DirectoryRefresh2.StreamId;
-            m_DirectoryMsg!.DirectoryUpdate!.HasServiceId = true;
-            m_DirectoryMsg!.DirectoryUpdate!.ServiceId = m_DirectoryRefresh2.ServiceId;
+            if (m_DirectoryRefresh2.HasServiceId)
+            {
+                m_DirectoryMsg!.DirectoryUpdate!.HasServiceId = true;
+                m_DirectoryMsg!.DirectoryUpdate!.ServiceId = m_DirectoryRefresh2.ServiceId;
+            }
             m_DirectoryMsg!.Flags = (int)m_DirectoryRefresh2.Flags;
 
             m_TempUpdateMsg.Clear();
             m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
 
             // use filter from user request
-            long returnFilter = GetResultingFilter(wlRequest.RequestMsg.MsgKey.Filter, m_DirectoryRefresh2.Filter);
+            long returnFilter = GetResultingFilter(ResolveEffectiveFilter(wlRequest.RequestMsg), m_DirectoryRefresh2.Filter);
             if (m_TempUpdateMsg.CheckHasMsgKey())
                 m_TempUpdateMsg.MsgKey.Filter = returnFilter;
             m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
@@ -658,23 +663,130 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return m_ServiceCache.ServiceId(serviceName);
         }
 
-        internal void FillDirectoryRefreshFromRequestMsg(DirectoryRefresh directoryRefresh, IRequestMsg requestMsg)
+        private long ResolveEffectiveFilter(IRequestMsg requestMsg)
         {
+            return requestMsg.MsgKey.CheckHasFilter() && requestMsg.MsgKey.Filter != 0
+                ? GetResultingFilter(requestMsg.MsgKey.Filter, m_DirectoryRefresh.Filter)
+                : m_DirectoryRefresh.Filter;
+        }
+
+        private bool IsAllServicesRequest(WlRequest wlRequest)
+        {
+            var msgKey = wlRequest.RequestMsg.MsgKey;
+            return wlRequest.WatchlistStreamInfo.ServiceName == null && !msgKey.CheckHasServiceId();
+        }
+
+        private int RequestedServiceId(WlRequest wlRequest)
+        {
+            var requestMsg = wlRequest.RequestMsg;
+            if (requestMsg.MsgKey.CheckHasServiceId())
+            {
+                return requestMsg.MsgKey.ServiceId;
+            }
+
+            var serviceName = wlRequest.WatchlistStreamInfo.ServiceName;
+            return serviceName != null
+                ? m_ServiceCache.ServiceId(serviceName)
+                : (int)ReactorReturnCode.PARAMETER_INVALID;
+        }
+
+        private void ApplyRequestedServiceId(DirectoryRefresh directoryRefresh, WlRequest wlRequest)
+        {
+            int serviceId = RequestedServiceId(wlRequest);
+            if (serviceId >= 0)
+            {
+                directoryRefresh.HasServiceId = true;
+                directoryRefresh.ServiceId = serviceId;
+            }
+        }
+
+        private void ApplyRequestedServiceId(DirectoryUpdate directoryUpdate, WlRequest wlRequest)
+        {
+            int serviceId = RequestedServiceId(wlRequest);
+            if (serviceId >= 0)
+            {
+                directoryUpdate.HasServiceId = true;
+                directoryUpdate.ServiceId = serviceId;
+            }
+        }
+
+        private bool AddDeleteServicesForRequest(DirectoryUpdate directoryUpdate, WlRequest wlRequest)
+        {
+            var requestedAllServices = IsAllServicesRequest(wlRequest);
+            var resolvedServiceId = RequestedServiceId(wlRequest);
+
+            if (!requestedAllServices && resolvedServiceId >= 0)
+            {
+                directoryUpdate.HasServiceId = true;
+                directoryUpdate.ServiceId = resolvedServiceId;
+            }
+
+            var initialServiceCount = directoryUpdate.ServiceList.Count;
+            foreach (var cachedService in m_ServiceCache.ServiceList)
+            {
+                var cachedServiceId = cachedService!.RdmService!.ServiceId;
+                // Only add services requested by the user, or all services when no specific service was requested.
+                if (!requestedAllServices && cachedServiceId != resolvedServiceId)
+                    continue;
+
+                var service = m_ServiceCache.GetRdmServiceFromPool();
+                // Only serviceId and DELETE action are required to create an update message.
+                service.ServiceId = cachedServiceId;
+                service.Action = MapEntryActions.DELETE;
+                directoryUpdate.ServiceList.Add(service);
+            }
+
+            return directoryUpdate.ServiceList.Count > initialServiceCount;
+        }
+
+        private ReactorReturnCode CallbackDeleteUpdateForRequest(WlRequest wlRequest, string callbackLocation, bool useFilterFromUserRequest, out ReactorErrorInfo? errorInfo)
+        {
+            var ret = ReactorReturnCode.SUCCESS;
+            errorInfo = null;
+
+            m_DirectoryMsg.DirectoryMsgType = DirectoryMsgType.UPDATE;
+            m_DirectoryMsg.Clear();
+            m_DirectoryMsg.StreamId = wlRequest.RequestMsg.StreamId;
+
+            if (AddDeleteServicesForRequest(m_DirectoryMsg.DirectoryUpdate!, wlRequest))
+            {
+                m_TempUpdateMsg.Clear();
+                m_Watchlist.ConvertRDMToCodecMsg(m_DirectoryMsg.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
+
+                // use filter from user request
+                if (useFilterFromUserRequest && m_DirectoryMsg!.DirectoryUpdate!.HasFilter)
+                {
+                    long returnFilter = GetResultingFilter(wlRequest.RequestMsg.MsgKey.Filter, m_DirectoryMsg!.DirectoryUpdate!.Filter);
+                    m_TempUpdateMsg.MsgKey.Filter = returnFilter;
+                    m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
+                }
+
+                var streamId = m_TempUpdateMsg.StreamId;
+                ret =
+                    m_Watchlist.StreamIdToWlRequestDict?.TryGetValue(streamId, out var wlAnotherRequest) ?? false
+                        ? CallbackUserWithMsgBase(callbackLocation, m_TempUpdateMsg, m_DirectoryMsg,
+                            wlAnotherRequest, out errorInfo)
+                        : ReactorReturnCode.FAILURE;
+            }
+
+            m_ServiceCache.ReturnServicesToPool(m_DirectoryMsg.DirectoryUpdate!.ServiceList);
+            m_DirectoryUpdate.Clear();
+
+            return ret;
+        }
+
+        internal void FillDirectoryRefreshFromRequestMsg(DirectoryRefresh directoryRefresh, WlRequest wlRequest)
+        {
+            var requestMsg = wlRequest.RequestMsg;
+
             directoryRefresh.StreamId = requestMsg.StreamId;
-            if (requestMsg.MsgKey.CheckHasFilter())
-                directoryRefresh.Filter = requestMsg.MsgKey.Filter;
-            else
-                directoryRefresh.Filter = m_DirectoryRefresh.Filter;
+            directoryRefresh.Filter = ResolveEffectiveFilter(requestMsg);
 
             directoryRefresh.Solicited = true;
             directoryRefresh.State.DataState(m_DirectoryRefresh.State.DataState());
             directoryRefresh.State.StreamState(m_DirectoryRefresh.State.StreamState());
 
-            if (requestMsg.MsgKey.CheckHasServiceId())
-            {
-                directoryRefresh.HasServiceId = true;
-                directoryRefresh.ServiceId = requestMsg.MsgKey.ServiceId;
-            }
+            ApplyRequestedServiceId(directoryRefresh, wlRequest);
         }
 
         internal void FillDirectoryUpdateFromRequestMsg(DirectoryUpdate directoryUpdate, WlRequest wlRequest)
@@ -691,20 +803,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 directoryUpdate.Filter = m_DirectoryUpdate.Filter != 0 ? m_DirectoryUpdate.Filter : ALL_FILTERS;
             }
 
-            if (wlRequest.RequestMsg.MsgKey.CheckHasServiceId())
-            {
-                directoryUpdate.HasServiceId = true;
-                directoryUpdate.ServiceId = wlRequest.RequestMsg.MsgKey.ServiceId;
-            }
-            else if (wlRequest.WatchlistStreamInfo.ServiceName != null)
-            {
-                int serviceId = m_ServiceCache.ServiceId(wlRequest.WatchlistStreamInfo.ServiceName);
-                if (serviceId >= 0)
-                {
-                    directoryUpdate.HasServiceId = true;
-                    directoryUpdate.ServiceId = serviceId;
-                }
-            }
+            ApplyRequestedServiceId(directoryUpdate, wlRequest);
         }
 
         internal ReactorReturnCode FanoutStatus()
@@ -770,7 +869,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public void DeleteAllServices(bool isChannelDown, out ReactorErrorInfo? errorInfo)
         {
             errorInfo = null;
-            Service rdmService;
 
             m_DirectoryStream.ChannelDown();
             if (m_DirectoryStream.State.StreamState() == StreamStates.OPEN)
@@ -795,39 +893,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     {
                         request.ReqState = WlRequest.State.PENDING_REFRESH;
                     }
-                    m_DirectoryMsg.StreamId = request.RequestMsg.StreamId;
-                    foreach (var service in m_ServiceCache.ServiceList)
-                    {
-                        // Only add services that the user requested (or all services if zero) to the serviceList of the update
-                        if (service!.RdmService!.ServiceId == request.RequestMsg.MsgKey.ServiceId || request.RequestMsg.MsgKey.ServiceId == 0)
-                        {
-                            rdmService = m_ServiceCache.GetRdmServiceFormPool();
-                            service!.RdmService!.Copy(rdmService);
-                            rdmService.Action = MapEntryActions.DELETE;
-
-                            m_DirectoryMsg!.DirectoryUpdate!.ServiceList.Add(rdmService);
-                        }
-                    }
-
-                    m_TempUpdateMsg.Clear();
-                    m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
-                    long returnFilter = GetResultingFilter(request.RequestMsg.MsgKey.Filter, m_DirectoryMsg!.DirectoryUpdate!.Filter);
-                    if (m_TempUpdateMsg.CheckHasMsgKey())
-                        m_TempUpdateMsg.MsgKey.Filter = returnFilter;
-                    if (m_DirectoryMsg!.DirectoryUpdate!.HasFilter)
-                        m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
-
-                    if (CallbackUserWithMsgBase("WlDirectoryHandler.DeleteAllServices",
-                        (Msg)m_TempUpdateMsg,
-                        m_DirectoryMsg,
-                        m_Watchlist!.StreamIdToWlRequestDict![m_TempUpdateMsg.StreamId],
-                        out errorInfo)
-                        < ReactorReturnCode.SUCCESS)
+                    if (CallbackDeleteUpdateForRequest(
+                        request,
+                        "WlDirectoryHandler.DeleteAllServices",
+                        useFilterFromUserRequest: false,
+                        out errorInfo) < ReactorReturnCode.SUCCESS)
                     {
                         break;
                     }
-
-                    m_DirectoryMsg.Clear();
                     request = m_DirectoryStream.UserRequestDlList.Forth();
                 }
 
@@ -847,7 +920,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
             var request = m_DirectoryStream.UserRequestDlList.Start();
             while (request != null)
             {
-                if (SendActionDeleteUpdateMsg(request, out errorInfo) < ReactorReturnCode.SUCCESS)
+                if (CallbackDeleteUpdateForRequest(
+                    request,
+                    "WlDirectoryHandler.HandleClose",
+                    useFilterFromUserRequest: true,
+                    out errorInfo) < ReactorReturnCode.SUCCESS)
                 {
                     return;
                 }
@@ -855,56 +932,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             m_ServiceCache.ClearCache(false);
-        }
-
-        private ReactorReturnCode SendActionDeleteUpdateMsg(WlRequest request, out ReactorErrorInfo? errorInfo)
-        {
-            m_DirectoryMsg!.DirectoryUpdate!.StreamId = request.RequestMsg.StreamId;
-
-            if (request.RequestMsg.MsgKey.ServiceId == 0)
-            {
-                foreach (var service in m_ServiceCache.ServiceList)
-                {
-                    var s = m_ServiceCache.GetRdmServiceFormPool();
-                    service!.RdmService!.Copy(s);
-                    s.Action = MapEntryActions.DELETE;
-                    m_DirectoryMsg!.DirectoryUpdate!.ServiceList.Add(s);
-                }
-            }
-            else
-            {
-                foreach (var service in m_ServiceCache.ServiceList)
-                {
-                    if (request.RequestMsg.MsgKey.ServiceId == service!.RdmService!.ServiceId)
-                    {
-                        var s = m_ServiceCache.GetRdmServiceFormPool();
-                        service!.RdmService!.Copy(s);
-                        s.Action = MapEntryActions.DELETE;
-                        m_DirectoryMsg!.DirectoryUpdate!.ServiceList.Add(s);
-                    }
-                }
-            }
-
-            m_TempUpdateMsg.Clear();
-            m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
-
-            // use filter from user request
-            if (m_DirectoryMsg!.DirectoryUpdate!.HasFilter)
-            {
-                long returnFilter = GetResultingFilter(request.RequestMsg.MsgKey.Filter, m_DirectoryMsg!.DirectoryUpdate!.Filter);
-                m_TempUpdateMsg.MsgKey.Filter = returnFilter;
-                m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
-            }
-
-            var ret = CallbackUserWithMsgBase("WlDirectoryHandler.HandleClose",
-                                            (Msg)m_TempUpdateMsg,
-                                            m_DirectoryMsg,
-                                            m_Watchlist!.StreamIdToWlRequestDict![m_TempUpdateMsg.StreamId],
-                                            out errorInfo);
-
-            m_ServiceCache.ReturnServicesToPool(m_DirectoryMsg!.DirectoryUpdate!.ServiceList);
-
-            return ret;
         }
 
         public ReactorReturnCode LoginStreamOpen(out ReactorErrorInfo? errorInfo)

@@ -26,3 +26,4 @@ using Xunit;
 [assembly: Guid("67c70a96-de21-46c9-86c7-0c062e8e3529")]
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true, MaxParallelThreads = 1)]
+[assembly: CaptureConsole]

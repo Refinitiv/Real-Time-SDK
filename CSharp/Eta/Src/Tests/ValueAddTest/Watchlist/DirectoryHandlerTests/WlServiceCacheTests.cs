@@ -137,7 +137,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             directoryRefresh.StreamId = 5;
             directoryRefresh.Filter = Rdm.Directory.ServiceFilterFlags.INFO | Rdm.Directory.ServiceFilterFlags.LINK;
 
-            serviceCache.FillDirectoryRefreshServiceListFromCache(directoryRefresh, "Service2");
+            serviceCache.FillDirectoryRefreshServiceListFromCache(directoryRefresh, "Service2", false);
 
             Assert.Single(directoryRefresh.ServiceList);
             Assert.Equal(2, directoryRefresh.ServiceList[0].ServiceId);

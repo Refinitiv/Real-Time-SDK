@@ -146,6 +146,14 @@ internal class AppClient : IOmmConsumerClient
 					case DataTypes.ERROR :
 						Console.WriteLine(elementEntry.OmmErrorValue().ErrorCode +" (" + elementEntry.OmmErrorValue().ErrorCodeAsString() + ")");
 						break;
+                                                // APIQA
+						case DataTypes.STATE :
+					             Console.WriteLine(elementEntry.OmmStateValue());
+						     break;
+						case DataTypes.BUFFER :
+                                                     Console.WriteLine(elementEntry.OmmBufferValue());
+						     break;
+                                               // END APIQA
 					default :
 						Console.WriteLine();
 						break;
@@ -201,31 +209,74 @@ internal class AppClient : IOmmConsumerClient
 		}
 	}
 	
-	void Decode(Map map)
-	{
-		foreach(MapEntry mapEntry in map)
-		{
-			//APIQA
-			Console.WriteLine("Action: " + mapEntry.MapActionAsString() + ", key = " + mapEntry.Key.UInt());
-			//END APIQA
+		void Decode(Map map)
+{
+    foreach (MapEntry mapEntry in map)
+    {
+        switch (mapEntry.Key.DataType)
+        {
+            case DataTypes.BUFFER:
+                Console.WriteLine("Action = "
+                        + mapEntry.MapActionAsString()
+                        + ", key = "
+                        + mapEntry.Key.Buffer());
+                break;
 
-			switch (mapEntry.LoadType)
-			{
-				case DataTypes.FILTER_LIST :
-					Decode(mapEntry.FilterList());
-					break;
-				default:
-					Console.WriteLine();
-					break;
-			}
-		}
-	}
+            case DataTypes.ASCII:
+                Console.WriteLine("Action = "
+                        + mapEntry.MapActionAsString()
+                        + ", key = "
+                        + mapEntry.Key.Ascii());
+                break;
 
-	void Decode(FilterList filterList)
+            case DataTypes.RMTES:
+                Console.WriteLine("Action = "
+                        + mapEntry.MapActionAsString()
+                        + ", key = "
+                        + mapEntry.Key.Rmtes());
+                break;
+
+            case DataTypes.UINT:
+                Console.WriteLine("Action = "
+                        + mapEntry.MapActionAsString()
+                        + ", key = "
+                        + mapEntry.Key.UInt());
+                break;
+
+            default:
+                Console.WriteLine("Action = "
+                        + mapEntry.MapActionAsString()
+                        + ", key datatype = "
+                        + DataType.AsString(mapEntry.Key.DataType));
+                break;
+        }
+
+        switch (mapEntry.LoadType)
+        {
+            case DataTypes.FILTER_LIST:
+                Decode(mapEntry.FilterList());
+                break;
+
+            case DataTypes.ELEMENT_LIST:
+                Decode(mapEntry.ElementList());
+                break;
+
+            case DataTypes.MAP:
+                Decode(mapEntry.Map());
+                break;
+
+            default:
+                Console.WriteLine();
+                break;
+        }
+    }
+}	
+
+void Decode(FilterList filterList)
 	{
 		foreach(FilterEntry filterEntry in filterList)
 		{
-			Console.WriteLine("ID: " + filterEntry.FilterId
+                      Console.WriteLine("ID: " + filterEntry.FilterId
 					+ " Action = " + filterEntry.FilterActionAsString() 
 					+ " DataType: " + DataType.AsString(filterEntry.LoadType) + " Value: ");
 

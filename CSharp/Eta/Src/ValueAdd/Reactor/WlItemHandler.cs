@@ -1003,7 +1003,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             PendingRequestByIdDict.Remove(wlService.RdmService!.ServiceId, out pendingRequestList);
             if (pendingRequestList is null)
             {
-                PendingRequestByNameDict.Remove(wlService.RdmService!.Info.ServiceName.ToString(), out pendingRequestList);
+                PendingRequestByNameDict.Remove(wlService.RdmService!.Info.ServiceName.ToString() ?? "", out pendingRequestList);
             }
 
             // handle request
