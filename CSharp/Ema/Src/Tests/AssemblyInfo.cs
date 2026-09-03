@@ -6,5 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true, MaxParallelThreads = 1)]
+using Xunit.Sdk;
+using Xunit.v3;
+
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly), Parallelization(Mode = ParallelMode.None, MaxThreads = 1)]
 [assembly: CaptureConsole]

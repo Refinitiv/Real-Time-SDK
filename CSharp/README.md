@@ -17,23 +17,23 @@ External modules used by this version of RTSDK CSharp:
 
     Dependency                                 Version
     ----------                                 -------
-    Cronos                                     0.11.1
+    Cronos                                     0.13.0
     K4os.Compression.LZ4                       1.3.8
     Microsoft.Csharp                           4.5.0
-    Microsoft.IdentityModel.Abstractions       8.16.0
-    Microsoft.IdentityModel.Jsonwebtokens      8.16.0
-    Microsoft.IdentityModel.Logging            8.16.0
-    Microsoft.IdentityModel.Tokens             8.16.0
+    Microsoft.IdentityModel.Abstractions       8.22.0
+    Microsoft.IdentityModel.Jsonwebtokens      8.22.0
+    Microsoft.IdentityModel.Logging            8.22.0
+    Microsoft.IdentityModel.Tokens             8.22.0
     Microsoft.Netcore.Platforms                5.0.0
-    NLog                                       6.1.0
-    NLog.Extensions.Logging                    6.1.1
-    System.IdentityModel.Tokens.Jwt            8.16.0
+    NLog                                       6.2.0
+    NLog.Extensions.Logging                    6.2.0
+    System.IdentityModel.Tokens.Jwt            8.22.0
 
 
 # Software Requirements
 - .NET 8 using Visual Studio 2022
 - .NET 10 using Visual Studio 2026 (18.0 or higher)
-- xUnit.v3 for unit testing
+- xUnit.v3 4.0 for unit testing
 
 NOTE: the default .NET version used for build may be altered in this file: CSharp/Directory.Build.props
 

@@ -9,7 +9,8 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Xunit;
+using Xunit.Sdk;
+using Xunit.v3;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
@@ -25,5 +26,5 @@ using Xunit;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("67c70a96-de21-46c9-86c7-0c062e8e3529")]
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true, MaxParallelThreads = 1)]
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly), Parallelization(Mode = ParallelMode.None, MaxThreads = 1)]
 [assembly: CaptureConsole]
