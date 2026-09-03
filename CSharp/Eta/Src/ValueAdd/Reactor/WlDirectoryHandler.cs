@@ -580,7 +580,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         internal ReactorReturnCode SendRefreshAsUpdateMsg(WlRequest wlRequest, IRefreshMsg msg, out ReactorErrorInfo? errorInfo)
         {
-            ReactorReturnCode ret;
+            ReactorReturnCode ret = ReactorReturnCode.SUCCESS;
             m_DirectoryMsg.Clear();
             m_DirectoryRefresh2.Clear();
 
@@ -605,24 +605,29 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             m_DirectoryMsg!.Flags = (int)m_DirectoryRefresh2.Flags;
 
-            m_TempUpdateMsg.Clear();
-            m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
+            if (m_DirectoryMsg!.DirectoryUpdate!.ServiceList != null && m_DirectoryMsg!.DirectoryUpdate!.ServiceList.Count > 0)
+            {
+                m_TempUpdateMsg.Clear();
+                m_Watchlist!.ConvertRDMToCodecMsg(m_DirectoryMsg!.DirectoryUpdate!, (Msg)m_TempUpdateMsg);
 
-            // use filter from user request
-            long returnFilter = GetResultingFilter(ResolveEffectiveFilter(wlRequest.RequestMsg), m_DirectoryRefresh2.Filter);
-            if (m_TempUpdateMsg.CheckHasMsgKey())
-                m_TempUpdateMsg.MsgKey.Filter = returnFilter;
-            m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
+                // use filter from user request
+                long returnFilter = GetResultingFilter(ResolveEffectiveFilter(wlRequest.RequestMsg), m_DirectoryRefresh2.Filter);
+                if (m_TempUpdateMsg.CheckHasMsgKey())
+                    m_TempUpdateMsg.MsgKey.Filter = returnFilter;
+                m_DirectoryMsg!.DirectoryUpdate!.Filter = returnFilter;
 
 
-            // callback user
-            ret = CallbackUserWithMsgBase("WlDirectoryHandler.FanoutRefreshAsUpdateMsg",
-                m_TempUpdateMsg,
-                m_DirectoryMsg!,
-                wlRequest,
-                out errorInfo);
+                // callback user
+                ret = CallbackUserWithMsgBase("WlDirectoryHandler.FanoutRefreshAsUpdateMsg",
+                    m_TempUpdateMsg,
+                    m_DirectoryMsg!,
+                    wlRequest,
+                    out errorInfo);
 
-            m_ServiceCache.ReturnServicesToPool(m_DirectoryRefresh2.ServiceList);
+                m_ServiceCache.ReturnServicesToPool(m_DirectoryRefresh2.ServiceList);
+            }
+            else
+                errorInfo = null;
 
             return ret;
         }
@@ -634,7 +639,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_DirectoryMsg.Clear();
 
             FillDirectoryUpdateFromRequestMsg(m_DirectoryMsg!.DirectoryUpdate!, wlRequest);
-            m_ServiceCache.FillDirectoryUpdateServiceListFromUpdateMsgServices(m_DirectoryMsg!.DirectoryUpdate!, m_DirectoryUpdate.ServiceList);
+            m_ServiceCache.FillDirectoryUpdateServiceListFromUpdateMsgServices(m_DirectoryMsg!.DirectoryUpdate!, wlRequest.WatchlistStreamInfo.ServiceName, m_DirectoryUpdate.ServiceList);
 
             // fanout only if we have a service in the directoryUpdate
             if (m_DirectoryMsg!.DirectoryUpdate!.ServiceList.Count > 0)

@@ -194,7 +194,7 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             directoryUpdate.StreamId = 5;
             directoryUpdate.Filter = Rdm.Directory.ServiceFilterFlags.INFO | Rdm.Directory.ServiceFilterFlags.LINK;
 
-            serviceCache.FillDirectoryUpdateServiceListFromUpdateMsgServices(directoryUpdate, serviceList);
+            serviceCache.FillDirectoryUpdateServiceListFromUpdateMsgServices(directoryUpdate, "Service2", serviceList);
 
             Assert.Single(directoryUpdate.ServiceList);
             Assert.Equal(2, directoryUpdate.ServiceList[0].ServiceId);
@@ -202,6 +202,60 @@ namespace LSEG.Eta.Tests.ValueAddTest.Watchlist.DirectoryHandlerTests
             Assert.True(directoryUpdate.ServiceList[0].HasLink);
             Assert.False(directoryUpdate.ServiceList[0].HasData);
             Assert.False(directoryUpdate.ServiceList[0].HasLoad);
+        }
+
+        [Theory]
+        [Category("WlServiceCacheTest")]
+        [InlineData(null)]
+        [InlineData("Service3")]
+        public void TestFillDirectoryUpdateServiceListFromUpdateMsgServicesWhenServiceNotInCache(string serviceNameNotInCache)
+        {
+            int servicesAdded = 0;
+            int servicesUpdated = 0;
+            int servicesDeleted = 0;
+
+            WlServiceCache serviceCache = new WlServiceCache();
+            serviceCache.ServiceAddedCallback = wlService => servicesAdded++;
+            serviceCache.ServiceUpdatedCallback = (wlService, arg) => servicesUpdated++;
+            serviceCache.ServiceRemovedCallback = (wlService, arg) => servicesDeleted++;
+
+            List<Service> serviceList = new List<Service>();
+
+            Service service1 = new Service();
+            service1.ServiceId = 1;
+            ServiceBuilder.BuildRDMService(service1, ServiceFlags.HAS_INFO | ServiceFlags.HAS_DATA | ServiceFlags.HAS_STATE,
+                Codec.MapEntryActions.ADD,
+                Codec.FilterEntryActions.SET);
+            if (service1.HasInfo)
+            {
+                service1.Info.ServiceName.Data("Service1");
+            }
+
+            Service service2 = new Service();
+            service2.ServiceId = 2;
+            ServiceBuilder.BuildRDMService(service2, ServiceFlags.HAS_INFO | ServiceFlags.HAS_DATA | ServiceFlags.HAS_LOAD | ServiceFlags.HAS_LINK,
+                Codec.MapEntryActions.UPDATE,
+                Codec.FilterEntryActions.SET);
+            if (service2.HasInfo)
+            {
+                service2.Info.ServiceName.Data("Service2");
+            }
+
+            serviceList.Add(service1);
+            serviceList.Add(service2);
+
+            ReactorErrorInfo errorInfo;
+            serviceCache.ProcessServiceList(serviceList, out errorInfo);
+
+            DirectoryUpdate directoryUpdate = new DirectoryUpdate();
+            directoryUpdate.ServiceId = 3;
+            directoryUpdate.HasServiceId = true;
+            directoryUpdate.StreamId = 5;
+            directoryUpdate.Filter = Rdm.Directory.ServiceFilterFlags.INFO | Rdm.Directory.ServiceFilterFlags.LINK;
+
+            serviceCache.FillDirectoryUpdateServiceListFromUpdateMsgServices(directoryUpdate, serviceNameNotInCache, serviceList);
+
+            Assert.Empty(directoryUpdate.ServiceList);
         }
     }
 }

@@ -320,15 +320,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Fills DirectoryUpdate message based on the list of services received
         /// </summary>
         /// <param name="directoryUpdate">the <see cref="DirectoryUpdate"/> message</param>
+        /// <param name="serviceName">the name of the service</param>
         /// <param name="services">the list of services</param>
-        public void FillDirectoryUpdateServiceListFromUpdateMsgServices(DirectoryUpdate directoryUpdate, List<Service> services)
+        public void FillDirectoryUpdateServiceListFromUpdateMsgServices(DirectoryUpdate directoryUpdate, string? serviceName, List<Service> services)
         {
-            Service s;
-            if (directoryUpdate.HasServiceId)
+            var requestedAllServices = serviceName == null && !directoryUpdate.HasServiceId;
+            if (!requestedAllServices)
             {
                 for (int i = 0; i < services.Count; i++)
                 {
-                    s = services[i];
+                    var s = services[i];
                     if (s.ServiceId == directoryUpdate.ServiceId)
                     {
                         AddServiceToUpdateMsgServiceList(s, directoryUpdate);
