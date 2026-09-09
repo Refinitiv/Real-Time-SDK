@@ -4054,13 +4054,13 @@ public class OmmEnhancedSymbolListTests
             assertTrue(itemNames.contains("itemA") && itemNames.contains("itemB") && itemNames.contains("itemC"));
             assertTrue(streamIds.contains(-1) && streamIds.contains(-2) && streamIds.contains(-3));
 
-            Thread.sleep(3000);
+            Thread.sleep(6000);
 
             // Call the method to fallback but the preferred group is not up yet.
             System.out.println("\nCalls fallbackPreferredHost() to fallback to WarmStandbyChannel_2(Do nothing)");
             consumer.fallbackPreferredHost();
 
-            Thread.sleep(3000);
+            Thread.sleep(6000);
 
             count = consumerClient.queueSize();
             // Checks for PH START and COMPLETE events
