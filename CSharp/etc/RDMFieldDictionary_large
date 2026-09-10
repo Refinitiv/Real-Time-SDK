@@ -4,14 +4,14 @@
 ! LSEG. LSEG may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.73_RealTimeDistributionSystem_26.61		08/10/2026
-!	* Modified 08/10/2026 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.73.
+!   Version	 4.20.74_RealTimeDistributionSystem_26.71		09/07/2026
+!	* Modified 09/07/2026 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.74.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.73_RealTimeDistributionSystem
+!   Version: 4.20.74_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.73
-!tag Build     1
-!tag Date      20-May-2026
+!tag Version   4.20.74
+!tag Build     3
+!tag Date      05-Aug-2026
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -32749,34 +32749,72 @@ TURN_AFT2  "AFTER HOUR TRNOVR2" 11225  NULL        PRICE              17  REAL64
 !
 ! Trade turnover during the second after-hours trading session.
 !
-PRERL2235  "PRED REAL 2235"     11226  NULL        PRICE              17  REAL64           9
-PRERL2236  "PRED REAL 2236"     11227  NULL        PRICE              17  REAL64           9
-PRERL2237  "PRED REAL 2237"     11228  NULL        PRICE              17  REAL64           9
-PRERL2238  "PRED REAL 2238"     11229  NULL        PRICE              17  REAL64           9
-PRERL2239  "PRED REAL 2239"     11230  NULL        PRICE              17  REAL64           9
-PRERL2240  "PRED REAL 2240"     11231  NULL        PRICE              17  REAL64           9
-PRERL2241  "PRED REAL 2241"     11232  NULL        PRICE              17  REAL64           9
-PRERL2242  "PRED REAL 2242"     11233  NULL        PRICE              17  REAL64           9
-PRERL2243  "PRED REAL 2243"     11234  NULL        PRICE              17  REAL64           9
-PRERL2244  "PRED REAL 2244"     11235  NULL        PRICE              17  REAL64           9
-PRERL2245  "PRED REAL 2245"     11236  NULL        PRICE              17  REAL64           9
-PRERL2246  "PRED REAL 2246"     11237  NULL        PRICE              17  REAL64           9
-PRERL2247  "PRED REAL 2247"     11238  NULL        PRICE              17  REAL64           9
-PRERL2248  "PRED REAL 2248"     11239  NULL        PRICE              17  REAL64           9
-PRERL2249  "PRED REAL 2249"     11240  NULL        PRICE              17  REAL64           9
-PRERL2250  "PRED REAL 2250"     11241  NULL        PRICE              17  REAL64           9
-PRERL2251  "PRED REAL 2251"     11242  NULL        PRICE              17  REAL64           9
-PRERL2252  "PRED REAL 2252"     11243  NULL        PRICE              17  REAL64           9
-PRERL2253  "PRED REAL 2253"     11244  NULL        PRICE              17  REAL64           9
-PRERL2254  "PRED REAL 2254"     11245  NULL        PRICE              17  REAL64           9
-PRERL2255  "PRED REAL 2255"     11246  NULL        PRICE              17  REAL64           9
-PRERL2256  "PRED REAL 2256"     11247  NULL        PRICE              17  REAL64           9
-PRERL2257  "PRED REAL 2257"     11248  NULL        PRICE              17  REAL64           9
-PRERL2258  "PRED REAL 2258"     11249  NULL        PRICE              17  REAL64           9
-PRERL2259  "PRED REAL 2259"     11250  NULL        PRICE              17  REAL64           9
-PRERL2260  "PRED REAL 2260"     11251  NULL        PRICE              17  REAL64           9
-PRERL2261  "PRED REAL 2261"     11252  NULL        PRICE              17  REAL64           9
-PRERL2262  "PRED REAL 2262"     11253  NULL        PRICE              17  REAL64           9
+A_CLT_1    "ASK COLLATERAL PRC" 11226  NULL        PRICE              17  REAL64           9
+!
+! Ask collateral price.
+!
+B_CLT_1    "BID COLLATERAL PRC" 11227  NULL        PRICE              17  REAL64           9
+!
+! Bid collateral price.
+!
+CLT_PRC1   "COLLATERAL PRICE"   11228  NULL        PRICE              17  REAL64           9
+!
+! Last collateral price.
+!
+CLT_AMT    "COLLATERAL AMT"     11229  NULL        PRICE              17  REAL64           9
+!
+! Collateral amount reported in CLT_PRC1.
+!
+A_COLL_1   "BEST COLL ASK 1"    11230  NULL        PRICE              17  REAL64           9
+!
+! The best ask collateral price level.
+!
+A_COLL_2   "BEST COLL ASK 2"    11231  NULL        PRICE              17  REAL64           9
+A_COLL_3   "BEST COLL ASK 3"    11232  NULL        PRICE              17  REAL64           9
+A_COLL_4   "BEST COLL ASK 4"    11233  NULL        PRICE              17  REAL64           9
+A_COLL_5   "BEST COLL ASK 5"    11234  NULL        PRICE              17  REAL64           9
+A_COLL_6   "BEST COLL ASK 6"    11235  NULL        PRICE              17  REAL64           9
+A_COLL_7   "BEST COLL ASK 7"    11236  NULL        PRICE              17  REAL64           9
+A_COLL_8   "BEST COLL ASK 8"    11237  NULL        PRICE              17  REAL64           9
+A_COLL_9   "BEST COLL ASK 9"    11238  NULL        PRICE              17  REAL64           9
+A_COLL_10  "BEST COLL ASK 10"   11239  NULL        PRICE              17  REAL64           9
+!
+! The best ask collateral price for the nth price level. Note that these fields are 
+! not rippled.
+!
+B_COLL_1   "BEST COLL BID 1"    11240  NULL        PRICE              17  REAL64           9
+!
+! The best bid collateral price level.
+!
+B_COLL_2   "BEST COLL BID 2"    11241  NULL        PRICE              17  REAL64           9
+B_COLL_3   "BEST COLL BID 3"    11242  NULL        PRICE              17  REAL64           9
+B_COLL_4   "BEST COLL BID 4"    11243  NULL        PRICE              17  REAL64           9
+B_COLL_5   "BEST COLL BID 5"    11244  NULL        PRICE              17  REAL64           9
+B_COLL_6   "BEST COLL BID 6"    11245  NULL        PRICE              17  REAL64           9
+B_COLL_7   "BEST COLL BID 7"    11246  NULL        PRICE              17  REAL64           9
+B_COLL_8   "BEST COLL BID 8"    11247  NULL        PRICE              17  REAL64           9
+B_COLL_9   "BEST COLL BID 9"    11248  NULL        PRICE              17  REAL64           9
+B_COLL_10  "BEST COLL BID 10"   11249  NULL        PRICE              17  REAL64           9
+!
+! The best bid collateral price for the nth price level. Note that these fields are 
+! not rippled.
+!
+ORDER_CLT  "ORDER COLLATERAL"   11250  NULL        PRICE              17  REAL64           9
+!
+! The collateral price of the order.
+!
+OPN_AVDVOL "OPEN AVD VOL"       11251  NULL        PRICE              17  REAL64           9
+!
+! Open Auction Total AVD Trade Volume (Auction Volume Discovery).
+!
+INT_AVDVOL "INTRA AVD VOL"      11252  NULL        PRICE              17  REAL64           9
+!
+! Intraday Auction Total AVD Trade Volume (Auction Volume Discovery).
+!
+CLS_AVDVOL "CLOSE AVD VOL"      11253  NULL        PRICE              17  REAL64           9
+!
+! Closing Auction Total AVD Trade Volume (Auction Volume Discovery).
+!
 PRERL2263  "PRED REAL 2263"     11254  NULL        PRICE              17  REAL64           9
 PRERL2264  "PRED REAL 2264"     11255  NULL        PRICE              17  REAL64           9
 PRERL2265  "PRED REAL 2265"     11256  NULL        PRICE              17  REAL64           9
@@ -33439,11 +33477,11 @@ PER_TRD_N  "PERMIT TRD NATIVE"  11707  NULL        ALPHANUMERIC        8  RMTES_
 !
 ODD_A_MMID "ODD ASK MKT MKR ID" 11708  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 !
-! Ask odd lot trade market maker ID
+! Ask odd lot quote market maker ID
 !
 ODD_B_MMID "ODD BID MKT MKR ID" 11709  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 !
-! Bid odd lot trade market maker ID
+! Bid odd lot quote market maker ID
 !
 BOLO_IND   "BOLO INDICATOR"     11710  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 !
@@ -37571,7 +37609,7 @@ ODD_B_EXID "ODD BID EXCH ID"    13647  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Identifier of the exchange where the Bid odd lot trade originated.
 !
-CTRY_INCP  "CNTRY OF INCORP"    13648  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+CTRY_INCP  "CNTRY OF INCORP"    13648  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
 ! The country of the legal jurisdiction in which the issuer was incorporated, 
 ! regardless of its principal place of business.
@@ -39861,7 +39899,11 @@ INDCAL2_NS "INDAUC CAL2 TIM NS" 14718  NULL        INTEGER            15  TIME  
 ! A secondary field for the time when indicative auction price was calculated by the 
 ! data provider.
 !
-PRE_289_NS "PRED TIME NS 289"   14719  NULL        INTEGER            15  TIME             8
+MET_EST_NS "MET VAL EST NS"     14719  NULL        INTEGER            15  TIME             8
+!
+! Metric effective start time in nanoseconds. Start time of content used to calculate 
+! value.
+!
 PRE_290_NS "PRED TIME NS 290"   14720  NULL        INTEGER            15  TIME             8
 PRE_291_NS "PRED TIME NS 291"   14721  NULL        INTEGER            15  TIME             8
 PRE_292_NS "PRED TIME NS 292"   14722  NULL        INTEGER            15  TIME             8

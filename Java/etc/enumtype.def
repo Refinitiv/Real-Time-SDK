@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.73
-!tag Build_RDMD  4.20.73
-!tag DT_Version  26.61
-!tag Date        3-Aug-2026
+!tag RT_Version  4.20.74
+!tag Build_RDMD  4.20.74
+!tag DT_Version  26.71
+!tag Date        7-Sep-2026
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4296,6 +4296,7 @@ CAN_COND    6585
   32767        "AOD"   Auction on Demand
   32768        "DLT"   Delta Trade At Market
   32769        "NPF"   Non Price Forming Trade
+  32770        "OTT"   Out-of-Time Reported Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6822,6 +6823,7 @@ COUNTRY     4036
 DOMICILE    4037
 INPUT_ORGN 13570
 CLR_CTRY   13580
+CTRY_INCP  13648
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8986,6 +8988,9 @@ ODD_B_EXID 13647
    1839        "CXM"   CIX Trading - ASPEN MIDPOINT
    1840        "GNA"   GRANARIA S.A.
    1841        "LPM"   Limpid Markets Ltd
+   1842        "XPS"   Xpansiv Limited
+   1843        "OBX"   OBX Oil Brokerage Limited
+   1844        "KLH"   Kalshi Inc.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20070,6 +20075,7 @@ CNTR_SZ_UT 13611
     451      "RTFC "   Renewable transport fuel certificate
     452      "AKI  "   Anti-Knock Index
     453      "CK/ER"   kg CO2 equivalent/Euro Cents
+    454      "GPUh "   GPU-hour
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20633,6 +20639,7 @@ CB_INST_LV 13493
       1   "D       "   Dynamic Circuit Breaker Breached
       2   "S       "   Static Circuit Breaker Breached
       3   "DS      "   Dynamic & Static Circuit Breaker Breached
+      4   "EXCB    "   Extended Circuit Breaker Breached
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23511,6 +23518,9 @@ CMD_TYPE   13618
    1904   "UCO     "   Used Cooking Oil
    1905   "UCOME   "   Used Cooking Oil Methyl Ester
    1906   "SOLAREGY"   Solar Energy
+   1907   "WAOIL   "   Waste Acid Oil
+   1908   "WFEEDST "   Waste Feedstocks
+   1909   "POME    "   Palm Oil Mill Effluent
    2000   "BAROM   "   Barometric Pressure
    2001   "CLOUD   "   Cloud
    2002   "CLOUDCOV"   Cloud Cover
@@ -23970,15 +23980,6 @@ ASC_RATE   13641
       3   "ESTR    "   Euro Short-Term Rate
       4   "SARON   "   Swiss Average Rate Overnight
       5   "TONAR   "   Tokyo Overnight Average Rate
-!
-! ACRONYM    FID
-! -------    ---
-!
-CTRY_INCP  13648
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   Undefined
 !
 ! ACRONYM    FID
 ! -------    ---
