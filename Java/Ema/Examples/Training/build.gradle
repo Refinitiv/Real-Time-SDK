@@ -1,0 +1,110 @@
+apply plugin: 'application'
+
+eclipse {
+    project {
+        name = 'RTSDK-Ema-Examples-Training'
+    }
+}
+
+dependencies {
+    implementation project(':Ema:Core')
+    implementation project(':Eta:Core')
+}
+
+application {
+    mainClass = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
+}
+
+tasks.register('createExtraRunApp', CreateStartScripts) {
+    mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    applicationName = 'iprovider100'
+    classpath += files('build/classes/java')
+}
+
+tasks.register('copyDictionary') {
+    outputs.files files('../../../etc').asFileTree.files.collect { "./${it.name}" }
+
+    doLast {
+        copy {
+            from '../../../etc'
+            into '.'
+        }
+    }
+}
+
+tasks.register('copyEmaConfig') {
+    outputs.file layout.projectDirectory.file('EmaConfig.xml')
+
+    doLast {
+        copy {
+            from '../../EmaConfig.xml'
+            into '.'
+        }
+    }
+}
+
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
+}
+
+tasks.register('deleteEmaConfig', Delete) {
+    delete "$projectDir/EmaConfig.xml"
+}
+
+run.dependsOn copyDictionary, copyEmaConfig
+clean.dependsOn deleteDictionary, deleteEmaConfig
+
+def jvmOptions = '-Xms512m -Xmx1024m'
+
+/* Automatically generates tasks for all Training example applications. */
+def trainingSourceDirectory = file('src/main/java').toPath()
+
+fileTree(trainingSourceDirectory.toFile()) {
+    include '**/*.java'
+}.collect { trainingSourceDirectory.relativize(it.parentFile.toPath()).toString() }.each {
+    def exampleMainLocation = it.replace(File.separator, '.')
+    def taskNumber = exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1).replaceAll('\\D+', '')
+    def taskDescription = exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1)
+    def exampleType
+    def taskName
+    def exampleMainClass
+
+    if (exampleMainLocation.contains('niprovider')) {
+        taskName = 'runniprovider' + taskNumber
+        taskDescription = 'NiProvider ' + taskDescription
+        exampleMainClass = exampleMainLocation + '.NiProvider'
+        exampleType = 'Non Interactive Provider'
+    } else if (exampleMainLocation.contains('consumer')) {
+        taskName = 'runconsumer' + taskNumber
+        taskDescription = 'Consumer ' + taskDescription
+        exampleMainClass = exampleMainLocation + '.Consumer'
+        exampleType = 'Consumer'
+    } else if (exampleMainLocation.contains('iprovider')) {
+        taskName = 'runiprovider' + taskNumber
+        taskDescription = 'IProvider ' + taskDescription
+        exampleMainClass = exampleMainLocation + '.IProvider'
+        exampleType = 'Interactive Provider'
+    } else {
+        return
+    }
+
+    tasks.register(taskName, JavaExec) {
+        group = 'Run EMA ' + exampleType + ' Application Examples'
+        description = 'This task runs the ' + taskDescription
+        dependsOn copyDictionary, copyEmaConfig
+
+        if (jvmOptions) {
+            jvmArgs(buildArgsList(jvmOptions))
+        }
+
+        workingDir = projectDir
+        mainClass.set(exampleMainClass)
+        classpath = sourceSets.main.runtimeClasspath
+    }
+}
+
+

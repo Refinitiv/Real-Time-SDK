@@ -191,8 +191,10 @@ Issue the following command to get a list of all example names.
       
     ETA Windows: gradlew.bat Eta:Applications:Examples:tasks --all
     ETA Linux: ./gradlew Eta:Applications:Examples:tasks --all
-    EMA Windows: gradlew.bat Ema:Examples:tasks --all
-    EMA Linux: ./gradlew Ema:Examples:tasks --all
+    EMA Training Windows: gradlew.bat Ema:Examples:Training:tasks --all
+    EMA Training Linux: ./gradlew Ema:Examples:Training:tasks --all
+    EMA RTViewer Windows: gradlew.bat Ema:Examples:RTViewer:tasks --all
+    EMA RTViewer Linux: ./gradlew Ema:Examples:RTViewer:tasks --all
 
 ETA example, the following command runs the VAConsumer example.
         

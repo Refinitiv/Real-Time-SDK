@@ -1,0 +1,107 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.1.0' apply(false)
+}
+
+apply plugin: 'application'
+if (JavaVersion.current().java11Compatible) {
+    apply plugin: 'org.openjfx.javafxplugin'
+}
+
+eclipse {
+    project {
+        name = 'RTSDK-Ema-Examples-RTViewer'
+    }
+}
+
+dependencies {
+    implementation project(':Ema:Core')
+    implementation project(':Eta:Core')
+}
+
+if (JavaVersion.current().java11Compatible) {
+    javafx {
+        version = '17'
+        modules = ['javafx.controls', 'javafx.fxml']
+    }
+}
+
+application {
+    mainClass = 'com.refinitiv.ema.examples.rtviewer.desktop.RTViewerDesktopMain'
+}
+
+jar {
+    archiveBaseName.set('RTViewer-classes')
+}
+
+tasks.register('copyDictionary') {
+    outputs.files files('../../../etc').asFileTree.files.collect { "./${it.name}" }
+
+    doLast {
+        copy {
+            from '../../../etc'
+            into '.'
+        }
+    }
+}
+
+tasks.register('copyEmaConfig') {
+    outputs.file layout.projectDirectory.file('EmaConfig.xml')
+
+    doLast {
+        copy {
+            from '../../EmaConfig.xml'
+            into '.'
+        }
+    }
+}
+
+tasks.register('deleteDictionary', Delete) {
+    delete "$projectDir/RDMFieldDictionary"
+    delete "$projectDir/RDMFieldDictionary_large"
+    delete "$projectDir/enumtype.def"
+}
+
+tasks.register('deleteEmaConfig', Delete) {
+    delete "$projectDir/EmaConfig.xml"
+}
+
+run.dependsOn copyDictionary, copyEmaConfig
+clean.dependsOn deleteDictionary, deleteEmaConfig
+
+def jvmOptions = '-Xms1g -Xmx2g'
+
+tasks.register('runrtviewerdesktop', JavaExec) {
+    group = 'Run EMA RTViewer desktop'
+    description = 'This task runs RTViewerDesktop'
+    dependsOn copyDictionary, copyEmaConfig
+    jvmArgs '-Djava.util.logging.config.file=src/main/resources/rtviewer/desktop/logging.properties'
+
+    if (jvmOptions) {
+        jvmArgs(buildArgsList(jvmOptions))
+    }
+
+    mainClass.set('com.refinitiv.ema.examples.rtviewer.desktop.RTViewerDesktopMain')
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('createRTViewerFatJar', Jar) {
+    group = 'Run EMA RTViewer desktop'
+    description = 'This task builds fat jar for RTViewer'
+    dependsOn classes
+
+    manifest {
+        attributes('Main-Class': 'com.refinitiv.ema.examples.rtviewer.desktop.RTViewerDesktopMain')
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName.set('RTViewer')
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+}
+
+

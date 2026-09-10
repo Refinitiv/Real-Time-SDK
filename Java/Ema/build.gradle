@@ -13,7 +13,8 @@ apply plugin: 'com.gradleup.shadow'
 
 dependencies {
     implementation project(':Ema:Core')
-    implementation project(':Ema:Examples')
+    implementation project(':Ema:Examples:Training')
+    implementation project(':Ema:Examples:RTViewer')
     implementation project(':Eta:Core')
     implementation project(':Eta:ValueAdd')
     implementation project(':Eta:ValueAddCache')
