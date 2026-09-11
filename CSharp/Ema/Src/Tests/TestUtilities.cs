@@ -112,4 +112,7 @@ internal class TestUtilities
     public static TEnum GetInvalidEnumValue<TEnum>()
         where TEnum : struct, System.Enum
         => GetInvalidEnumValue<TEnum, int>();
+
+    public static string NormalizeLineEndings(string text) =>
+        System.Text.RegularExpressions.Regex.Replace(text, @"(\r\n|\r|\n)", "\n");
 }

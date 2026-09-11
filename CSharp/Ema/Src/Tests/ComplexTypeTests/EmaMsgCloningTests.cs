@@ -83,9 +83,6 @@ namespace LSEG.Ema.Access.Tests.ComplexTypeTests
                                 NormalizeLineEndings(PayloadString),
                                 NormalizeLineEndings(clonedMsgString));
                         });
-
-            static string NormalizeLineEndings(string text) =>
-                System.Text.RegularExpressions.Regex.Replace(text, @"(\r\n|\r|\n)", "\n");
         }
 
         private CloningPropertyDef<TMsg> PropEncodedAttrib<TMsg>()

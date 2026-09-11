@@ -149,7 +149,7 @@ namespace LSEG.Ema.Access.Tests.Domain.Directory
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
+            Assert.Equal(NormalizeLineEndings(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
 DomainType: Directory Domain
 ServiceList:
     [
@@ -249,7 +249,7 @@ DoNotCache: True
 Complete: True
 Solicited: True
 ServiceId: 65000
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]
@@ -262,7 +262,7 @@ ServiceId: 65000
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"Filter: NONE
+            Assert.Equal(NormalizeLineEndings(@"Filter: NONE
 DomainType: Directory Domain
 ServiceList:
     [
@@ -273,7 +273,7 @@ DoNotCache: False
 Complete: False
 Solicited: False
 ServiceId: <no value>
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
     }
 }

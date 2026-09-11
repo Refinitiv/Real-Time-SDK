@@ -139,7 +139,7 @@ namespace LSEG.Ema.Access.Tests.Domain.Directory
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
+            Assert.Equal(NormalizeLineEndings(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
 DomainType: Directory Domain
 ServiceList:
     [
@@ -235,7 +235,7 @@ ServiceList:
 SequenceNumber: 123
 DoNotCache: True
 DoNotConflate: True
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]
@@ -248,14 +248,14 @@ DoNotConflate: True
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"Filter: NONE
+            Assert.Equal(NormalizeLineEndings(@"Filter: NONE
 DomainType: Directory Domain
 ServiceList:
     [
     ]
 DoNotCache: False
 DoNotConflate: False
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]

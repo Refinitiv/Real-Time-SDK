@@ -110,13 +110,13 @@ namespace LSEG.Ema.Access.Tests.Domain.Directory
             // Act
             var actualString = domainMsg.ToString();
             // Assert
-            Assert.Equal(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
+            Assert.Equal(NormalizeLineEndings(@"Filter: SERVICE_INFO_FILTER, SERVICE_GROUP_FILTER, SERVICE_LINK_FILTER
 DomainType: Directory Domain
 ServiceId: 123
 ServiceName: TestService
 InitialImage: False
 InterestAfterRefresh: False
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]
@@ -128,11 +128,11 @@ InterestAfterRefresh: False
             // Act
             var actualString = domainMsg.ToString();
             // Assert
-            Assert.Equal(@"Filter: ALL
+            Assert.Equal(NormalizeLineEndings(@"Filter: ALL
 DomainType: Directory Domain
 InitialImage: True
 InterestAfterRefresh: True
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Theory]

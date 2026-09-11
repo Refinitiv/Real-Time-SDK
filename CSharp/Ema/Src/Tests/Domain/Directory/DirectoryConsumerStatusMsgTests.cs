@@ -126,7 +126,7 @@ namespace LSEG.Ema.Access.Tests.Domain.Directory
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"DomainType: Directory Domain
+            Assert.Equal(NormalizeLineEndings(@"DomainType: Directory Domain
 ConsumerServiceStatusList:
     [
         ConsumerStatusService:
@@ -143,7 +143,7 @@ ConsumerServiceStatusList:
         EndConsumerStatusService
     ]
 SequenceNumber: 123
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]
@@ -156,11 +156,11 @@ SequenceNumber: 123
             var actualString = domainMsg.ToString();
 
             // Assert
-            Assert.Equal(@"DomainType: Directory Domain
+            Assert.Equal(NormalizeLineEndings(@"DomainType: Directory Domain
 ConsumerServiceStatusList:
     [
     ]
-", actualString);
+"), NormalizeLineEndings(actualString));
         }
 
         [Fact]
