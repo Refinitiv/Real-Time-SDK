@@ -29,10 +29,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The maximum number of items the Consumer is allowed to open from this service.
         /// </summary>
+        /// <returns>Returns the open limit.</returns>
         public ulong OpenLimit() => m_OpenLimit.Value;
         /// <summary>
         /// The maximum number of items the Consumer is allowed to open from this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLoad OpenLimit(ulong value)
         {
             m_OpenLimit.Value = value;
@@ -49,11 +52,14 @@ namespace LSEG.Ema.Domain.Directory
         /// The maximum number of items the Consumer may have outstanding
         /// (i.e. waiting for a RefreshMsg) from this service.
         /// </summary>
+        /// <returns>Returns the open window.</returns>
         public ulong OpenWindow() => m_OpenWindow.Value;
         /// <summary>
         /// The maximum number of items the Consumer may have outstanding
         /// (i.e. waiting for a RefreshMsg) from this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLoad OpenWindow(ulong value)
         {
             m_OpenWindow.Value = value;
@@ -69,11 +75,14 @@ namespace LSEG.Ema.Domain.Directory
         /// The load factor - a number indicating the current workload of
         /// the source providing the data.
         /// </summary>
+        /// <returns>Returns the load factor.</returns>
         public ushort LoadFactor() => m_LoadFactor.Value;
         /// <summary>
         /// The load factor - a number indicating the current workload of
         /// the source providing the data.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLoad LoadFactor(ushort value)
         {
             m_LoadFactor.Value = value;

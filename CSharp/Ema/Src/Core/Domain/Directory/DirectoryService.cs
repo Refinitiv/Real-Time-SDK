@@ -44,10 +44,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Action associated with this service.
         /// </summary>
+        /// <returns>The action associated with this service.</returns>
         public DirectoryMapAction Action() => m_Action;
         /// <summary>
         /// Action associated with this service.
         /// </summary>
+        /// <param name="value">The action to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Action(DirectoryMapAction value)
         {
             if (!System.Enum.IsDefined(value))
@@ -85,11 +88,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Number identifying this service.
         /// It's not a part of encoded data.
         /// </summary>
+        /// <returns>A 16-bit unsigned integer representing the service identifier.</returns>
         public ushort ServiceId() => m_ServiceId;
         /// <summary>
         /// Number identifying this service.
         /// It's not a part of encoded data.
         /// </summary>
+        /// <param name="value">A 16-bit unsigned integer representing the service identifier.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService ServiceId(ushort value)
         {
             m_ServiceId = value;
@@ -99,10 +105,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// List of group filters for this service.
         /// </summary>
+        /// <returns>A list of <see cref="DirectoryServiceGroup"/> representing the group filters for this service.</returns>
         public IList<DirectoryServiceGroup> GroupStateList() => m_GroupStateList;
         /// <summary>
         /// List of group filters for this service.
         /// </summary>
+        /// <param name="value">A list of <see cref="DirectoryServiceGroup"/> representing the group filters for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService GroupStateList(IList<DirectoryServiceGroup> value)
         {
             if (value == null)
@@ -115,6 +124,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// List of group filters for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the list of <see cref="DirectoryServiceGroup"/> representing the group filters for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService GroupStateList(Action<IFluentListBuilder<DirectoryServiceGroup>> buildAction)
         {
             if (buildAction == null)
@@ -127,6 +138,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Info filter for this service.
         /// </summary>
+        /// <returns>The <see cref="DirectoryServiceInfo"/> instance representing the info filter for this service.</returns>
         public DirectoryServiceInfo Info()
         {
             if (!HasInfo)
@@ -136,6 +148,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Info filter for this service.
         /// </summary>
+        /// <param name="value">The <see cref="DirectoryServiceInfo"/> instance to set as the info filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Info(DirectoryServiceInfo value)
         {
             if (value == null)
@@ -147,6 +161,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Info filter for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the <see cref="DirectoryServiceInfo"/> instance representing the info filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Info(Action<DirectoryServiceInfo> buildAction)
         {
             if (buildAction == null)
@@ -159,6 +175,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// State filter for this service.
         /// </summary>
+        /// <returns>The <see cref="DirectoryServiceState"/> instance representing the state filter for this service.</returns>
         public DirectoryServiceState State()
         {
             if (!HasState)
@@ -168,6 +185,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// State filter for this service.
         /// </summary>
+        /// <param name="value">The <see cref="DirectoryServiceState"/> instance to set as the state filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService State(DirectoryServiceState value)
         {
             if (value == null)
@@ -179,6 +198,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// State filter for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the <see cref="DirectoryServiceState"/> instance representing the state filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService State(Action<DirectoryServiceState> buildAction)
         {
             if (buildAction == null)
@@ -191,6 +212,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Load filter for this service.
         /// </summary>
+        /// <returns>The <see cref="DirectoryServiceLoad"/> instance representing the load filter for this service.</returns>
         public DirectoryServiceLoad Load()
         {
             if (!HasLoad)
@@ -200,6 +222,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Load filter for this service.
         /// </summary>
+        /// <param name="value">The <see cref="DirectoryServiceLoad"/> instance to set as the load filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Load(DirectoryServiceLoad value)
         {
             if (value == null)
@@ -211,6 +235,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Load filter for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the <see cref="DirectoryServiceLoad"/> instance representing the load filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Load(Action<DirectoryServiceLoad> buildAction)
         {
             if (buildAction == null)
@@ -223,6 +249,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Data filter for this service.
         /// </summary>
+        /// <returns>The <see cref="DirectoryServiceData"/> instance representing the data filter for this service.</returns>
         public DirectoryServiceData Data()
         {
             if (!HasData)
@@ -232,6 +259,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Data filter for this service.
         /// </summary>
+        /// <param name="value">The <see cref="DirectoryServiceData"/> instance to set as the data filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Data(DirectoryServiceData value)
         {
             if (value == null)
@@ -243,6 +272,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Data filter for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the <see cref="DirectoryServiceData"/> instance representing the data filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Data(Action<DirectoryServiceData> buildAction)
         {
             if (buildAction == null)
@@ -255,6 +286,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Link filter for this service.
         /// </summary>
+        /// <returns>The <see cref="DirectoryServiceLinkInfo"/> instance representing the link filter for this service.</returns>
         public DirectoryServiceLinkInfo Link()
         {
             if (!HasLink)
@@ -264,6 +296,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Link filter for this service.
         /// </summary>
+        /// <param name="value">The <see cref="DirectoryServiceLinkInfo"/> instance to set as the link filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Link(DirectoryServiceLinkInfo value)
         {
             if (value == null)
@@ -275,6 +309,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Link filter for this service.
         /// </summary>
+        /// <param name="buildAction">An action to build the <see cref="DirectoryServiceLinkInfo"/> instance representing the link filter for this service.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Link(Action<DirectoryServiceLinkInfo> buildAction)
         {
             if (buildAction == null)
@@ -371,6 +407,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Clears an RDMService.
         /// </summary>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService Clear()
         {
             m_Action = DirectoryMapAction.ADD;
@@ -393,7 +430,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Copies the contents from another DirectoryService instance.
         /// </summary>
         /// <param name="source">The source DirectoryService to copy from.</param>
-        /// <returns>The current DirectoryService instance to support method chaining.</returns>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryService CopyFrom(DirectoryService source)
         {
             m_Action = source.m_Action;

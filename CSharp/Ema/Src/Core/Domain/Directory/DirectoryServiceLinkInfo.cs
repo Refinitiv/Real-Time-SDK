@@ -40,11 +40,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Link information elements - List of entries with information
         /// about upstream sources.
         /// </summary>
+        /// <returns>Returns the list of directory service links.</returns>
         public IList<DirectoryServiceLink> LinkList() => m_LinkList;
         /// <summary>
         /// Link information elements - List of entries with information
         /// about upstream sources.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLinkInfo LinkList(IList<DirectoryServiceLink> value)
         {
             if (value == null)
@@ -58,6 +61,8 @@ namespace LSEG.Ema.Domain.Directory
         /// Link information elements - List of entries with information
         /// about upstream sources.
         /// </summary>
+        /// <param name="buildAction">the action to build the list</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLinkInfo LinkList(Action<IFluentListBuilder<DirectoryServiceLink>> buildAction)
         {
             if (buildAction == null)

@@ -61,7 +61,11 @@
     </PlugInConfigurations>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="LSEG.Ema.Access" isDocumented="True">Ema.Access contains the implementation of the EMA API.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="LSEG.Ema.Domain.Login" isDocumented="True">Ema.Domain contains Login administrative domain helpers used to encode and decode messages.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="LSEG.Ema.Domain" isDocumented="True">Ema.Domain contains domain helpers used to encode and decode messages.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="LSEG.Ema.Domain (Group)" isGroup="True" isDocumented="True">Ema.Domain contains domain helpers used to encode and decode messages.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="LSEG.Ema.Domain.Common" isDocumented="True">Ema.Domain.Common contains common abstactions used in other domains.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="LSEG.Ema.Domain.Directory" isDocumented="True">Ema.Domain.Directory contains Directory administrative domain helpers used to encode and decode messages.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="LSEG.Ema.Domain.Login" isDocumented="True">Ema.Domain.Login contains Login administrative domain helpers used to encode and decode messages.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Ema.Rdm" isDocumented="True">Ema.Rdm contains Data Dictionary helper classes and other enumerations used with RDM data.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <ProjectSummary>&amp;lt%3bp&amp;gt%3bThis is the Enterprise Message API %28EMA%29, an easy-to-use, performant, open source message layer API. The Enterprise Message API helps developers by allowing them to develop applications with significantly less code. &amp;lt%3b/p&amp;gt%3b

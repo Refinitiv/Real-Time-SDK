@@ -37,10 +37,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the ID of the service to request the directory from.
         /// </summary>
+        /// <returns>A 16-bit unsigned integer representing the service identifier.</returns>
         public ushort ServiceId() => m_ServiceId.Value;
         /// <summary>
         /// Sets the ID of the service to request the directory from.
         /// </summary>
+        /// <param name="value">A 16-bit unsigned integer representing the service identifier.</param>
+        /// <returns>The current instance of <see cref="DirectoryRequestMsg"/> to support method chaining.</returns>
         public DirectoryRequestMsg ServiceId(ushort value)
         {
             m_ServiceId.Value = value;
@@ -50,10 +53,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the Name of the service to request the directory from.
         /// </summary>
+        /// <returns>A string representing the service name.</returns>
         public string ServiceName() => m_ServiceName.Value;
         /// <summary>
         /// Sets the Name of the service to request the directory from.
         /// </summary>
+        /// <param name="value">A string representing the service name.</param>
+        /// <returns>The current instance of <see cref="DirectoryRequestMsg"/> to support method chaining.</returns>
         public DirectoryRequestMsg ServiceName(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -74,10 +80,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets or sets the presence of initial image flag.
         /// </summary>
+        /// <returns>True if the initial image flag is set; otherwise, false.</returns>
         public bool InitialImage() => m_InitialImage;
         /// <summary>
         /// Sets the presence of initial image flag.
         /// </summary>
+        /// <param name="value">True to set the initial image flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRequestMsg InitialImage(bool value)
         {
             m_InitialImage = value;
@@ -87,10 +96,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the presence of interest after refresh flag.
         /// </summary>
+        /// <returns>True if the interest after refresh flag is set; otherwise, false.</returns>
         public bool InterestAfterRefresh() => m_InterestAfterRefresh;
         /// <summary>
         /// Sets the presence of interest after refresh flag.
         /// </summary>
+        /// <param name="value">True to set the interest after refresh flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRequestMsg InterestAfterRefresh(bool value)
         {
             m_InterestAfterRefresh = value;

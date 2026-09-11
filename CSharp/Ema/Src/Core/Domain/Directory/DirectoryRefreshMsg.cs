@@ -43,10 +43,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets sequence number of this message.
         /// </summary>
+        /// <returns>The sequence number of this message.</returns>
         public long SequenceNumber() => m_SequenceNumber.Value;
         /// <summary>
         /// Sets sequence number of this message.
         /// </summary>
+        /// <param name="value">The sequence number to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg SequenceNumber(long value)
         {
             m_SequenceNumber.Value = value;
@@ -56,10 +59,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets or sets the presence of clear cache flag.
         /// </summary>
+        /// <returns>True if the clear cache flag is set; otherwise, false.</returns>
         public bool ClearCache() => m_ClearCache;
         /// <summary>
         /// Gets or sets the presence of clear cache flag.
         /// </summary>
+        /// <param name="value">True to set the clear cache flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg ClearCache(bool value)
         {
             m_ClearCache = value;
@@ -69,10 +75,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the presence of do not cache flag.
         /// </summary>
+        /// <returns>True if the do not cache flag is set; otherwise, false.</returns>
         public bool DoNotCache() => m_DoNotCache;
         /// <summary>
         /// Sets the presence of do not cache flag.
         /// </summary>
+        /// <param name="value">True to set the do not cache flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg DoNotCache(bool value)
         {
             m_DoNotCache = value;
@@ -82,10 +91,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets or sets the presence of complete flag.
         /// </summary>
+        /// <returns>True if the complete flag is set; otherwise, false.</returns>
         public bool Complete() => m_Complete;
         /// <summary>
         /// Gets or sets the presence of complete flag.
         /// </summary>
+        /// <param name="value">True to set the complete flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg Complete(bool value)
         {
             m_Complete = value;
@@ -95,10 +107,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the presence of solicited flag.
         /// </summary>
+        /// <returns>True if the solicited flag is set; otherwise, false.</returns>
         public bool Solicited() => m_Solicited;
         /// <summary>
         /// Sets the presence of solicited flag.
         /// </summary>
+        /// <param name="value">True to set the solicited flag; otherwise, false.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg Solicited(bool value)
         {
             m_Solicited = value;
@@ -108,11 +123,14 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets state for the directory refresh message.
         /// </summary>
+        /// <returns>The current state of the directory refresh message.</returns>
         public OmmState State() => m_State.Value();
 
         /// <summary>
         /// Sets state for the directory refresh message.
         /// </summary>
+        /// <param name="value">The state to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg State(OmmState value)
         {
             m_State.Value(value);
@@ -122,6 +140,11 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sets state for the directory refresh message.
         /// </summary>
+        /// <param name="streamState">The stream state to set.</param>
+        /// <param name="dataState">The data state to set.</param>
+        /// <param name="statusCode">The status code to set.</param>
+        /// <param name="statusText">The status text to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryRefreshMsg State(int streamState, int dataState, int statusCode, string statusText)
         {
             m_State.Value(streamState, dataState, statusCode, statusText);

@@ -50,10 +50,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The list of Consumer Service Status elements.
         /// </summary>
+        /// <returns>The list of Consumer Service Status elements.</returns>
         public IList<DirectoryConsumerStatusService> ConsumerServiceStatusList() => m_ConsumerServiceStatusList;
         /// <summary>
         /// The list of Consumer Service Status elements.
         /// </summary>
+        /// <param name="value">The list of Consumer Service Status elements to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusMsg ConsumerServiceStatusList(IList<DirectoryConsumerStatusService> value)
         {
             if (value == null)
@@ -65,6 +68,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The list of Consumer Service Status elements.
         /// </summary>
+        /// <param name="buildAction">The action to build the list of Consumer Service Status elements.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusMsg ConsumerServiceStatusList(Action<IFluentListBuilder<DirectoryConsumerStatusService>> buildAction)
         {
             if (buildAction == null)
@@ -76,10 +81,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sequence number of this message.
         /// </summary>
+        /// <returns>The sequence number of this message.</returns>
         public long SequenceNumber() => m_SequenceNumber.Value;
         /// <summary>
         /// Sequence number of this message.
         /// </summary>
+        /// <param name="value">The sequence number to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusMsg SequenceNumber(long value)
         {
             m_SequenceNumber.Value = value;

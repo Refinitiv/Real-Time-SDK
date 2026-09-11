@@ -32,10 +32,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Upstream source name. It's not a part of encoded data.
         /// </summary>
+        /// <returns>Returns the upstream source name.</returns>
         public string Name() => m_Name;
         /// <summary>
         /// Upstream source name. It's not a part of encoded data.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLink Name(string value)
         {
             if (value == null)
@@ -47,10 +50,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Type of this service link.
         /// </summary>
+        /// <returns>Returns the type of this service link.</returns>
         public UpstreamSourceType Type() => m_Type.Value;
         /// <summary>
         /// Type of this service link.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLink Type(UpstreamSourceType value)
         {
             if (!System.Enum.IsDefined(value))
@@ -67,6 +73,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Flag indicating whether the source is up or down.
         /// </summary>
+        /// <returns>Returns true if the source is up, false otherwise.</returns>
         public bool IsLinkUp()
         {
             return m_IsLinkUp;
@@ -74,6 +81,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Flag indicating whether the source is up or down.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLink IsLinkUp(bool value)
         {
             m_IsLinkUp = value;
@@ -83,10 +92,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Code indicating additional information about the status of the source.
         /// </summary>
+        /// <returns>Returns the link code.</returns>
         public LinkCode LinkCode() => m_LinkCode.Value;
         /// <summary>
         /// Code indicating additional information about the status of the source.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLink LinkCode(LinkCode value)
         {
             if (!System.Enum.IsDefined(value))
@@ -104,11 +116,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Text further describing the state provided by the linkState and
         /// linkCode members.
         /// </summary>
+        /// <returns>Returns the link text.</returns>
         public string Text() => m_Text.Value;
         /// <summary>
         /// Text further describing the state provided by the linkState and
         /// linkCode members.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceLink Text(string value)
         {
             if (value == null)

@@ -29,12 +29,14 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Returns status to be applied to all items whose ItemGroup matches the Group element.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns status to be applied to all items whose ItemGroup matches the Group element.</returns>
         public OmmState Status() => m_Status.Value();
 
         /// <summary>
         /// Sets status to be applied to all items whose ItemGroup matches the Group element.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceGroup Status(OmmState value)
         {
             m_Status.Value(value);
@@ -44,6 +46,11 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sets status to be applied to all items whose ItemGroup matches the Group element.
         /// </summary>
+        /// <param name="streamState">the stream state to set</param>
+        /// <param name="dataState">the data state to set</param>
+        /// <param name="statusCode">the status code to set</param>
+        /// <param name="statusText">the status text to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceGroup Status(int streamState, int dataState, int statusCode, string statusText)
         {
             m_Status.Value(streamState, dataState, statusCode, statusText);
@@ -58,10 +65,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Group for this service with the user specified buffer.
         /// </summary>
+        /// <returns>Returns the group buffer.</returns>
         public EmaBuffer Group() => m_Group;
         /// <summary>
         /// Group for this service with the user specified buffer.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceGroup Group(EmaBuffer value)
         {
             if (value == null)
@@ -73,6 +83,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Group for this service with the user specified buffer.
         /// </summary>
+        /// <returns>Returns the merged to group buffer.</returns>
         public EmaBuffer MergedToGroup()
         {
             if (!HasMergedToGroup)
@@ -82,6 +93,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Group for this service with the user specified buffer.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceGroup MergedToGroup(EmaBuffer value)
         {
             if (value == null)

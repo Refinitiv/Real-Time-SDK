@@ -30,10 +30,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets sequence number of this message.
         /// </summary>
+        /// <returns>Returns the sequence number of this message.</returns>
         public long SequenceNumber() => m_SequenceNumber.Value;
         /// <summary>
         /// Sets sequence number of this message.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryUpdateMsg SequenceNumber(long value)
         {
             m_SequenceNumber.Value = value;
@@ -64,10 +67,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the presence of do not cache flag.
         /// </summary>
+        /// <returns>Returns true if the do not cache flag is set, false otherwise.</returns>
         public bool DoNotCache() => m_DoNotCache;
         /// <summary>
         /// Sets the presence of do not cache flag.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryUpdateMsg DoNotCache(bool value)
         {
             m_DoNotCache = value;
@@ -77,10 +83,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets the presence of do not conflate flag.
         /// </summary>
+        /// <returns>Returns true if the do not conflate flag is set, false otherwise.</returns>
         public bool DoNotConflate() => m_DoNotConflate;
         /// <summary>
         /// Sets the presence of do not conflate flag.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryUpdateMsg DoNotConflate(bool value)
         {
             m_DoNotConflate = value;

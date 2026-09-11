@@ -29,10 +29,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The state of the service.
         /// </summary>
+        /// <returns>Returns true if the service is up, false otherwise.</returns>
         public bool IsServiceUp() => m_IsServiceUp;
         /// <summary>
         /// The state of the service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceState IsServiceUp(bool value)
         {
             m_IsServiceUp = value;
@@ -42,10 +45,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Flag indicating whether the service is accepting item requests.
         /// </summary>
+        /// <returns>Returns true if the service is accepting item requests, false otherwise.</returns>
         public bool AcceptingRequests() => m_AcceptingRequests.Value;
         /// <summary>
         /// Flag indicating whether the service is accepting item requests.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceState AcceptingRequests(bool value)
         {
             m_AcceptingRequests.Value = value;
@@ -58,13 +64,15 @@ namespace LSEG.Ema.Domain.Directory
         public bool HasAcceptingRequests => m_AcceptingRequests.HasValue;
 
         /// <summary>
-        /// Returns status to be applied to all items being provided by this service.
+        /// Status to be applied to all items being provided by this service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns status to be applied to all items being provided by this service.</returns>
         public OmmState Status() => m_Status.Value();
         /// <summary>
         /// Sets status to be applied to all items being provided by this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceState Status(OmmState value)
         {
             m_Status.Value(value);
@@ -73,6 +81,11 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sets status to be applied to all items being provided by this service.
         /// </summary>
+        /// <param name="streamState">the stream state to set</param>
+        /// <param name="dataState">the data state to set</param>
+        /// <param name="statusCode">the status code to set</param>
+        /// <param name="statusText">the status text to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceState Status(int streamState, int dataState, int statusCode, string statusText)
         {
             m_Status.Value(streamState, dataState, statusCode, statusText);

@@ -69,7 +69,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets the unique identifier for the service associated with this instance.
         /// </summary>
         /// <param name="value">A 16-bit unsigned integer representing the service identifier.</param>
-        /// <returns>The current instance of <see cref="DirectoryStatusMsg"/> to support method chaining.</returns>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryStatusMsg ServiceId(ushort value)
         {
             m_ServiceId.Value = value;
@@ -79,10 +79,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets clear cache flag.
         /// </summary>
+        /// <returns>Returns true if the clear cache flag is set, false otherwise.</returns>
         public bool ClearCache() => m_ClearCache;
         /// <summary>
         /// Sets clear cache flag.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryStatusMsg ClearCache(bool value)
         {
             m_ClearCache = value;
@@ -92,11 +95,14 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets state for the directory status message.
         /// </summary>
+        /// <returns>Returns the state for the directory status message.</returns>
         public OmmState State() => m_State.Value();
 
         /// <summary>
         /// Sets state for the directory status message.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryStatusMsg State(OmmState value)
         {
             m_State.Value(value);
@@ -106,6 +112,11 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sets state for the directory status message.
         /// </summary>
+        /// <param name="streamState">the stream state to set</param>
+        /// <param name="dataState">the data state to set</param>
+        /// <param name="statusCode">the status code to set</param>
+        /// <param name="statusText">the status text to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryStatusMsg State(int streamState, int dataState, int statusCode, string statusText)
         {
             m_State.Value(streamState, dataState, statusCode, statusText);
@@ -115,6 +126,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets permission data associated with all contents on the stream.
         /// </summary>
+        /// <returns>Returns the permission data associated with all contents on the stream.</returns>
         public EmaBuffer PermissionData()
         {
             if (!HasPermissionData)
@@ -125,6 +137,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Sets permission data associated with all contents on the stream.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryStatusMsg PermissionData(EmaBuffer value)
         {
             if (value == null)

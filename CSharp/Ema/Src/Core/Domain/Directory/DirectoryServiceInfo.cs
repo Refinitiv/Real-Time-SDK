@@ -56,10 +56,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Service name that identifies this service.
         /// </summary>
+        /// <returns>Returns the service name that identifies this service.</returns>
         public string ServiceName() => m_ServiceName;
         /// <summary>
         /// Service name that identifies this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo ServiceName(string value)
         {
             m_ServiceName = value;
@@ -69,10 +72,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Vendor name of data provided by this service.
         /// </summary>
+        /// <returns>Returns the vendor name of data provided by this service.</returns>
         public string Vendor() => m_Vendor.Value;
         /// <summary>
         /// Vendor name of data provided by this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo Vendor(string value)
         {
             m_Vendor.Value = value;
@@ -88,11 +94,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Flag that indicates whether the service is provided directly by a
         /// publisher or consolidated from multiple sources.
         /// </summary>
+        /// <returns>Returns true if the service is provided directly by a publisher or consolidated from multiple sources.</returns>
         public bool IsSource() => m_IsSource.Value;
         /// <summary>
         /// Flag that indicates whether the service is provided directly by a
         /// publisher or consolidated from multiple sources.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo IsSource(bool value)
         {
             m_IsSource.Value = value;
@@ -108,11 +117,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Flag that indicates whether items can be requested using a
         /// QoS range(using both the qos and worstQos members of a <see cref="LSEG.Ema.Access.RequestMsg"/>).
         /// </summary>
+        /// <returns>Returns true if items can be requested using a QoS range.</returns>
         public bool SupportsQosRange() => m_SupportsQosRange.Value;
         /// <summary>
         /// Flag that indicates whether items can be requested using a
         /// QoS range(using both the qos and worstQos members of a <see cref="LSEG.Ema.Access.RequestMsg"/>).
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo SupportsQosRange(bool value)
         {
             m_SupportsQosRange.Value = value;
@@ -127,10 +139,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Flag that indicates whether Snapshot(requests without the STREAMING flag) can be made when the OpenLimit is reached.
         /// </summary>
+        /// <returns>Returns true if Snapshot(requests without the STREAMING flag) can be made when the OpenLimit is reached.</returns>
         public bool SupportsOutOfBandSnapshots() => m_SupportsOutOfBandSnapshots.Value;
         /// <summary>
         /// Flag that indicates whether Snapshot(requests without the STREAMING flag) can be made when the OpenLimit is reached.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo SupportsOutOfBandSnapshots(bool value)
         {
             m_SupportsOutOfBandSnapshots.Value = value;
@@ -145,10 +160,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Flag that indicates whether the service accepts messages related to Source Mirroring.
         /// </summary>
+        /// <returns>Returns true if the service accepts messages related to Source Mirroring.</returns>
         public bool AcceptingConsumerStatus() => m_AcceptingConsumerStatus.Value;
         /// <summary>
         /// Flag that indicates whether the service accepts messages related to Source Mirroring.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo AcceptingConsumerStatus(bool value)
         {
             m_AcceptingConsumerStatus.Value = value;
@@ -164,11 +182,14 @@ namespace LSEG.Ema.Domain.Directory
         /// List of item names a Consumer can request to get a symbol list
         /// of all item names available from this service.
         /// </summary>
+        /// <returns>Returns the list of item names available from this service.</returns>
         public string ItemList() => m_ItemList.Value;
         /// <summary>
         /// List of item names a Consumer can request to get a symbol list
         /// of all item names available from this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo ItemList(string value)
         {
             m_ItemList.Value = value;
@@ -184,11 +205,14 @@ namespace LSEG.Ema.Domain.Directory
         /// List of capabilities the service supports. Capability in the
         /// list is populated by <see cref="LSEG.Ema.Rdm.EmaRdm"/>.
         /// </summary>
+        /// <returns>Returns the list of capabilities supported by this service.</returns>
         public IList<ulong> CapabilitiesList() => m_CapabilitiesList;
         /// <summary>
         /// List of capabilities the service supports. Capability in the
         /// list is populated by <see cref="LSEG.Ema.Rdm.EmaRdm"/>.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo CapabilitiesList(IList<ulong> value)
         {
             if (value == null)
@@ -202,6 +226,8 @@ namespace LSEG.Ema.Domain.Directory
         /// List of capabilities the service supports. Capability in the
         /// list is populated by <see cref="LSEG.Ema.Rdm.EmaRdm"/>.
         /// </summary>
+        /// <param name="buildAction">the action to build the list</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo CapabilitiesList(Action<IFluentListBuilder<ulong>> buildAction)
         {
             if (buildAction == null)
@@ -214,6 +240,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Dictionary names provided by this service.
         /// </summary>
+        /// <returns>Returns the list of dictionary names provided by this service.</returns>
         public IList<string> DictionariesProvidedList()
         {
             if (!HasDictionariesProvidedList)
@@ -223,6 +250,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Dictionary names provided by this service.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo DictionariesProvidedList(IList<string> value)
         {
             if (value == null)
@@ -236,6 +265,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Dictionary names provided by this service.
         /// </summary>
+        /// <param name="buildAction">the action to build the list</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo DictionariesProvidedList(Action<IFluentListBuilder<string>> buildAction)
         {
             if (buildAction == null)
@@ -255,6 +286,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Dictionary names that a consumer will require to decode the
         /// service's market data content.
         /// </summary>
+        /// <returns>Returns the list of dictionary names that a consumer will require to decode the service's market data content.</returns>
         public IList<string> DictionariesUsedList()
         {
             if (!HasDictionariesUsedList)
@@ -265,6 +297,8 @@ namespace LSEG.Ema.Domain.Directory
         /// Dictionary names that a consumer will require to decode the
         /// service's market data content.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo DictionariesUsedList(IList<string> value)
         {
             if (value == null)
@@ -279,6 +313,8 @@ namespace LSEG.Ema.Domain.Directory
         /// Dictionary names that a consumer will require to decode the
         /// service's market data content.
         /// </summary>
+        /// <param name="buildAction">the action to build the list</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo DictionariesUsedList(Action<IFluentListBuilder<string>> buildAction)
         {
             if (buildAction == null)
@@ -297,6 +333,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// List of qualities of service that this service provides.
         /// </summary>
+        /// <returns>Returns the list of qualities of service that this service provides.</returns>
         public IList<OmmQos> QosList()
         {
             if (!HasQosList)
@@ -308,6 +345,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// List of qualities of service that this service provides.
         /// </summary>
+        /// <param name="value">the value to set</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo QosList(IList<DirectoryQos> value)
         {
             if (value == null)
@@ -321,6 +360,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// List of qualities of service that this service provides.
         /// </summary>
+        /// <param name="buildAction">the action to build the list</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceInfo QosList(Action<IFluentListBuilder<DirectoryQos>> buildAction)
         {
             if (buildAction == null)

@@ -37,12 +37,15 @@ namespace LSEG.Ema.Domain.Directory
         /// Filter indicating which filters may appear on this stream. Where
         /// possible, this should match the consumer's request.
         /// </summary>
+        /// <returns>The current filter value.</returns>
         public virtual DirectoryFilters Filter() => m_Filter;
 
         /// <summary>
         /// Filter indicating which filters may appear on this stream. Where
         /// possible, this should match the consumer's request.
         /// </summary>
+        /// <param name="value">The filter value to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public virtual TSelf Filter(DirectoryFilters value)
         {
             m_Filter = value;
@@ -52,6 +55,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Gets message based on RDM.
         /// </summary>
+        /// <returns>The message based on RDM.</returns>
         public TMessage Message()
         {
             ClearMessage();
@@ -62,6 +66,8 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Creates or sets message based on RDM.
         /// </summary>
+        /// <param name="value">The message to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public TSelf Message(TMessage value)
         {
             if (value == null)
@@ -78,6 +84,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Clears the current contents of the message and prepares it for re-use.
         /// </summary>
+        /// <returns>The current instance to support method chaining.</returns>
         public virtual TSelf Clear()
         {
             m_Filter = default;
@@ -109,24 +116,26 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Converts <see cref="DirectoryMsg{TMessage, TSelf}"/> to corresponding <see cref="Msg"/> descendant.
         /// </summary>
-        /// <param name="directoryMsg"></param>
+        /// <param name="directoryMsg">The DirectoryMsg instance to convert.</param>
+        /// <returns>The corresponding TMessage instance.</returns>
         public static implicit operator TMessage(DirectoryMsg<TMessage, TSelf> directoryMsg) => directoryMsg.Message();
 
         /// <summary>
         /// Converts <see cref="DirectoryMsg{TMessage, TSelf}"/> to corresponding <see cref="Msg"/>.
         /// </summary>
-        /// <param name="directoryMsg"></param>
+        /// <param name="directoryMsg">The DirectoryMsg instance to convert.</param>
+        /// <returns>The corresponding Msg instance.</returns>
         public static implicit operator Msg(DirectoryMsg<TMessage, TSelf> directoryMsg) => directoryMsg.Message();
 
         /// <summary>
         /// Decodes values from <paramref name="message"/> into current object properties.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The message from which to decode values.</param>
         protected abstract void DecodeFrom(TMessage message);
         /// <summary>
         /// Encodes values to <paramref name="message"/> from current object properties.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The message to which to encode values.</param>
         protected abstract void EncodeTo(TMessage message);
 
         /// <summary>

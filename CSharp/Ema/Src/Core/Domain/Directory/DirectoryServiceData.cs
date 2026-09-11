@@ -86,10 +86,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Directory content type. Populated by <see cref="ContentType" />.
         /// </summary>
+        /// <returns>The content type of this service data.</returns>
         public ContentType Type() => m_Type;
         /// <summary>
         /// Directory content type. Populated by <see cref="ContentType" />.
         /// </summary>
+        /// <param name="value">The content type to set for this service data.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData Type(ContentType value)
         {
             var intValue = (int)value;
@@ -105,6 +108,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Data object representing the encoded data, to be applied to all items being provided by this
         /// service.
         /// </summary>
+        /// <returns>The data object representing the encoded data.</returns>
         public Data Data()
         {
             if (m_Data == null)
@@ -118,6 +122,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents int type for this service.
         /// </summary>
         /// <param name="data">the data.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsInt(long data)
         {
             var ommData = new OmmInt();
@@ -134,6 +139,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents unsigned int type for this service.
         /// </summary>
         /// <param name="data">the data.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsUInt(ulong data)
         {
             var ommData = new OmmUInt();
@@ -150,6 +156,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents float type for this service.
         /// </summary>
         /// <param name="data">the data.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsFloat(float data)
         {
             var ommData = new OmmFloat();
@@ -166,6 +173,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents double type for this service.
         /// </summary>
         /// <param name="data">the data.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsDouble(double data)
         {
             var ommData = new OmmDouble();
@@ -182,13 +190,14 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents buffer type for this service.
         /// </summary>
         /// <param name="data">the data</param>
-        public DirectoryServiceData DataAsBuffer(ByteBuffer data)
+        /// <returns>The current instance to support method chaining.</returns>
+        public DirectoryServiceData DataAsBuffer(EmaBuffer data)
         {
             if (data == null)
                 throw new OmmInvalidUsageException("data can not be null", OmmInvalidUsageException.ErrorCodes.INVALID_ARGUMENT);
 
             var ommData = new OmmBuffer();
-            ommData.Value.AssignFrom(data.Contents, 0, data.Position);
+            ommData.Value.CopyFrom(data.Contents.AsSpan());
 
             m_Data = ommData;
             return this;
@@ -198,6 +207,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents ascii type for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsAscii(string data)
         {
             if (data == null)
@@ -212,6 +222,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents utf8 string type for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsUtf8(string data)
         {
             if (data == null)
@@ -226,6 +237,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents Rmtes string type for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsRmtes(Access.RmtesBuffer data)
         {
             if (data == null)
@@ -242,6 +254,7 @@ namespace LSEG.Ema.Domain.Directory
         /// </summary>
         /// <param name="mantissa">the mantissa</param>
         /// <param name="magnitudeType">the magnitude type</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsReal(long mantissa, int magnitudeType)
         {
             if (magnitudeType < RealHints.EXPONENT_14 || magnitudeType > RealHints.NOT_A_NUMBER)
@@ -265,6 +278,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <param name="year">the year</param>
         /// <param name="month">the month</param>
         /// <param name="day">the day</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsDate(int year, int month, int day)
         {
             var ommData = new OmmDate();
@@ -283,6 +297,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents date type for this service.
         /// </summary>
         /// <param name="date">the date</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsDate(DateOnly date)
         {
             var ommData = new OmmDate();
@@ -306,6 +321,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <param name="millisecond">the millisecond</param>
         /// <param name="microsecond">the microsecond</param>
         /// <param name="nanosecond">the nanosecond</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
         {
             var ommData = new OmmTime();
@@ -327,6 +343,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents time type for this service.
         /// </summary>
         /// <param name="time">the time</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsTime(TimeOnly time)
         {
             var ommData = new OmmTime();
@@ -356,6 +373,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <param name="millisecond">the millisecond</param>
         /// <param name="microsecond">the microsecond</param>
         /// <param name="nanosecond">the nanosecond</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
         {
             var ommData = new OmmTime();
@@ -380,6 +398,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents date and time type for this service.
         /// </summary>
         /// <param name="dateTime">the date time</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsDateTime(System.DateTime dateTime)
         {
             var ommData = new OmmTime();
@@ -405,6 +424,7 @@ namespace LSEG.Ema.Domain.Directory
         /// </summary>
         /// <param name="timeliness">the timeliness</param>
         /// <param name="rate">the rate</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsQos(uint timeliness, uint rate)
         {
             var ommQos = new OmmQos().Populate(timeliness, rate);
@@ -421,6 +441,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <param name="statusCode">represents OmmState StatusCode</param>
         /// <param name="statusText">represents OmmState StatusText</param>
         /// <exception cref="OmmInvalidUsageException"></exception>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsState(int streamState, int dataState, int statusCode, string statusText)
         {
             if (statusText == null)
@@ -446,6 +467,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents enum type for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsEnum(ushort data)
         {
             var ommData = new OmmEnum();
@@ -462,6 +484,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that represents array type for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsArray(OmmArray data)
         {
             if (data == null)
@@ -478,6 +501,7 @@ namespace LSEG.Ema.Domain.Directory
         /// Sets encoded data that inherits from ComplexType for this service.
         /// </summary>
         /// <param name="data">the data</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryServiceData DataAsComplexType(ComplexType data)
         {
             if (data == null)
@@ -761,7 +785,7 @@ namespace LSEG.Ema.Domain.Directory
                     DataAsDouble(((OmmDouble)data).Value);
                     break;
                 case Access.DataType.DataTypes.BUFFER:
-                    DataAsBuffer(((OmmBuffer)data)?.m_bodyBuffer?.Data()!);
+                    DataAsBuffer(((OmmBuffer)data).Value);
                     break;
                 case Access.DataType.DataTypes.ASCII:
                     DataAsAscii(((OmmAscii)data).Value);

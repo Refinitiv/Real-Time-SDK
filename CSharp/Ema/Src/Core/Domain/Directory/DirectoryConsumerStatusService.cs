@@ -29,10 +29,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// ID of the service this status concerns.
         /// </summary>
+        /// <returns>The ID of the service this status concerns.</returns>
         public ushort ServiceId() => m_ServiceId;
         /// <summary>
         /// ID of the service this status concerns.
         /// </summary>
+        /// <param name="value">The ID of the service to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusService ServiceId(ushort value)
         {
             m_ServiceId = value;
@@ -42,10 +45,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Action associated with this status.
         /// </summary>
+        /// <returns>The action associated with this status.</returns>
         public DirectoryMapAction Action() => m_Action;
         /// <summary>
         /// Action associated with this status.
         /// </summary>
+        /// <param name="value">The action to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusService Action(DirectoryMapAction value)
         {
             m_Action = value;
@@ -60,10 +66,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The Source Mirroring Mode for this service.
         /// </summary>
+        /// <returns>The Source Mirroring Mode for this service.</returns>
         public SourceMirroringMode SourceMirroringMode() => m_SourceMirroringMode.Value;
         /// <summary>
         /// The Source Mirroring Mode for this service.
         /// </summary>
+        /// <param name="value">The Source Mirroring Mode to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusService SourceMirroringMode(SourceMirroringMode value)
         {
             m_SourceMirroringMode.Value = value;
@@ -78,10 +87,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// The Warm Standby Mode for this service.
         /// </summary>
+        /// <returns>The Warm Standby Mode for this service.</returns>
         public WarmStandbyDirectoryServiceType WarmStandbyMode() => m_WarmStandbyMode.Value;
         /// <summary>
         /// The Warm Standby Mode for this service.
         /// </summary>
+        /// <param name="value">The Warm Standby Mode to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusService WarmStandbyMode(WarmStandbyDirectoryServiceType value)
         {
             m_WarmStandbyMode.Value = value;
@@ -91,6 +103,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Resets object to its initial state.
         /// </summary>
+        /// <returns>The current instance to support method chaining.</returns>
         public DirectoryConsumerStatusService Clear()
         {
             m_ServiceId = 0;

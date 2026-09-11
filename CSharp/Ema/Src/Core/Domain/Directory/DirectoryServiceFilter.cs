@@ -14,6 +14,8 @@ namespace LSEG.Ema.Domain.Directory
     /// <summary>
     /// The RDM Service Filter. Contains information provided by the Source Directory filter.
     /// </summary>
+    /// <typeparam name="T">The type of the complex data associated with this filter.</typeparam>
+    /// <typeparam name="TSelf">The type of the derived filter class.</typeparam>
     public abstract class DirectoryServiceFilter<T, TSelf>
         where T : ComplexType
         where TSelf : DirectoryServiceFilter<T, TSelf>
@@ -24,10 +26,13 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Action associated with this service filter.
         /// </summary>
+        /// <returns>The action associated with this service filter.</returns>
         public DirectoryFilterAction Action() => m_Action;
         /// <summary>
         /// Action associated with this service filter.
         /// </summary>
+        /// <param name="value">The action to set for this service filter.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public TSelf Action(DirectoryFilterAction value)
         {
             if (!System.Enum.IsDefined(value))
@@ -39,6 +44,7 @@ namespace LSEG.Ema.Domain.Directory
         /// <summary>
         /// Clears the current contents of the message and prepares it for re-use.
         /// </summary>
+        /// <returns>The current instance to support method chaining.</returns>
         public virtual TSelf Clear()
         {
             m_Action = DirectoryFilterAction.SET;

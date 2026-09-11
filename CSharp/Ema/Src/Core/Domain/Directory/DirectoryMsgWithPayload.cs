@@ -44,12 +44,15 @@ namespace LSEG.Ema.Domain.Directory
         /// Service elements will be set to Service elements from list in the
         /// parameter passed in.
         /// </summary>
+        /// <returns>The list of DirectoryService instances.</returns>
         public IList<DirectoryService> ServiceList() => m_ServiceList.Value;
         /// <summary>
         /// Sets service entries into the directory message. This object's
         /// Service elements will be set to Service elements from list in the
         /// parameter passed in.
         /// </summary>
+        /// <param name="value">The list of DirectoryService instances to set.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public TSelf ServiceList(IList<DirectoryService> value)
         {
             if (value == null)
@@ -63,6 +66,8 @@ namespace LSEG.Ema.Domain.Directory
         /// Service elements will be set to Service elements from list in the
         /// parameter passed in.
         /// </summary>
+        /// <param name="buildAction">The action to build the list of DirectoryService instances.</param>
+        /// <returns>The current instance to support method chaining.</returns>
         public TSelf ServiceList(Action<IFluentListBuilder<DirectoryService>> buildAction)
         {
             if (buildAction == null)
