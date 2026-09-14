@@ -735,7 +735,7 @@ TEST_F(RsslWebSocketReadTests, OpcodeWrite_Close_ChannelTransitionsFromActive)
     ASSERT_TRUE(driveToActive()) << "Client channel not ACTIVE";
 
     /* Close frame: 2-byte status code 1000 (0x03 0xE8) */
-    char closePayload[2] = { 0x03, static_cast<char>(0xE8) };
+    char closePayload[2] = { 0x03, (char)(0xE8) };
     ASSERT_TRUE(serverSend(WS_OPC_CLOSE, true, closePayload, 2))
         << "serverSend(CLOSE) failed";
 
@@ -1367,7 +1367,7 @@ TEST_F(RsslWebSocketReadTests, Negative_CloseFrame_ReturnsFailureNullBuffer)
     ASSERT_TRUE(driveToActive()) << "Client channel not ACTIVE";
 
     /* Close frame with normal-closure status code 1000 (0x03 0xE8) */
-    char closePayload[2] = { 0x03, static_cast<char>(0xE8) };
+    char closePayload[2] = { 0x03, (char)(0xE8) };
     ASSERT_TRUE(serverSend(WS_OPC_CLOSE, true, closePayload, 2))
         << "serverSend(CLOSE) failed";
 
@@ -1780,7 +1780,7 @@ TEST_F(RsslWebSocketReadTests, Negative_BackToBackCloseFrames_NoCrash)
     ASSERT_TRUE(connectClient()) << "rsslConnect failed";
     ASSERT_TRUE(driveToActive()) << "Client channel not ACTIVE";
 
-    char closePayload[2] = { 0x03, static_cast<char>(0xE8) }; /* 1000 */
+    char closePayload[2] = { 0x03, (char)(0xE8) }; /* 1000 */
     ASSERT_TRUE(serverSend(WS_OPC_CLOSE, true, closePayload, 2));
     ASSERT_TRUE(serverSend(WS_OPC_CLOSE, true, closePayload, 2));
 
@@ -1820,7 +1820,7 @@ TEST_F(RsslWebSocketReadTests, Negative_DataFrameThenCloseInOneTCPSegment_DataTh
         /* BINARY frame */
         0x82, 0x06, 'H', 'e', 'l', 'l', 'o', '!',
         /* CLOSE frame, status 1000 */
-        0x88, 0x02, 0x03, static_cast<unsigned char>(0xE8)
+        0x88, 0x02, 0x03, 0xE8
     };
     serverSendBytes(combined, sizeof(combined));
 
@@ -1895,7 +1895,7 @@ TEST_F(RsslWebSocketReadTests, Negative_FragmentInterruptedByClose_NoCrash)
     /* Step 2: interleave a PING (allowed by RFC) */
     ASSERT_TRUE(serverSend(WS_OPC_PING, true, nullptr, 0));
     /* Step 3: CLOSE instead of CONT */
-    char closePayload[2] = { 0x03, static_cast<char>(0xE8) };
+    char closePayload[2] = { 0x03, (char)(0xE8) };
     ASSERT_TRUE(serverSend(WS_OPC_CLOSE, true, closePayload, 2));
 
     RsslError err;
@@ -2727,18 +2727,18 @@ TEST_F(RsslWebSocketReadTests, Crash_CloseDataCloseSequence_NoCrash)
     ASSERT_TRUE(connectClient()) << "rsslConnect failed";
     ASSERT_TRUE(driveToActive()) << "Client channel not ACTIVE";
 
-    char closePayload[2] = { 0x03, static_cast<char>(0xE8) }; /* 1000 */
+    char closePayload[2] = { 0x03, (char)(0xE8) }; /* 1000 */
     unsigned char combined[2 + 4 + 6 + 4 + 4] = {};
     /* CLOSE #1 */
     combined[0] = 0x88; combined[1] = 0x02;
-    combined[2] = 0x03; combined[3] = static_cast<unsigned char>(0xE8);
+    combined[2] = 0x03; combined[3] = 0xE8;
     /* DATA frame between the two closes */
     combined[4] = 0x82; combined[5] = 0x04;
     combined[6] = 'D';  combined[7] = 'A';
     combined[8] = 'T';  combined[9] = 'A';
     /* CLOSE #2 */
     combined[10] = 0x88; combined[11] = 0x02;
-    combined[12] = 0x03; combined[13] = static_cast<unsigned char>(0xE8);
+    combined[12] = 0x03; combined[13] = 0xE8;
     serverSendBytes(combined, 14);
 
     RsslError err;
@@ -4124,7 +4124,7 @@ TEST_F(RsslWebSocketReadCompressedTests, CompCrash_CompressedCloseFrame_ReturnsF
 
     /* FIN=1, RSV1=1 (0x40), opcode=CLOSE(0x08) → byte0 = 0x80|0x40|0x08 = 0xC8
      * payload: 2-byte status code 1000 (0x03 0xE8)                       */
-    unsigned char frame[] = { 0xC8, 0x02, 0x03, static_cast<unsigned char>(0xE8) };
+    unsigned char frame[] = { 0xC8, 0x02, 0x03, 0xE8 };
     serverSendBytes(frame, sizeof(frame));
 
     RsslError err;

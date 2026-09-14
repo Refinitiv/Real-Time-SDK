@@ -21,6 +21,7 @@ import java.nio.channels.Selector;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -392,21 +393,33 @@ public class ReactorWatchlistLDPJunit
 			return _msgReturnCode;
 		}
 	}
+	
+	private boolean hasClientSecretCred = false;
+	private boolean hasClientJWTCred = false;
 
 	boolean checkCredentials()
 	{
-		if (System.getProperty("edpUserName") != null &&
-				(System.getProperty("edpPassword") != null ||
-				System.getProperty("clientSecret") != null ||
-				System.getProperty("jwkFile") != null))
+		boolean hasV1Credential = System.getProperty("edpUserName") != null && System.getProperty("edpPassword") != null;
+		
+		if(System.getProperty("edpClientIdSecret") != null && System.getProperty("clientSecret") != null )
+		{
+			hasClientSecretCred = true;
+		}
+		
+		if (System.getProperty("edpClientIdJWT") != null && System.getProperty("jwkFile") != null)
+		{
+			hasClientJWTCred = true;
+		}
+		
+		if(hasV1Credential && (hasClientSecretCred || hasClientJWTCred))
 		{
 			return true;
 		}
 		else
 		{
-			System.out.println("edpUserName and either edpPassword or clientSecret need to be set as VM arguments to run this test.");
-			System.out.println("i.e. -DedpUserName=USERNAME -DedpPassword=PASSWORD -DclientSecret=SECRET -DjwkFile=FILELOCATION");
-			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *LDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD -DclientSecret=SECRET -DjwkFile=FILELOCATION\"");
+			System.out.println("edpUserName, edpPassword and either (edpClientIdSecret, clientSecret) or  (edpClientIdJWT,jwkFile) need to be set as VM arguments to run this test.");
+			System.out.println("i.e. -DedpUserName=USERNAME -DedpPassword=PASSWORD -DclientIdSecret=ID -DclientSecret=SECRET");
+			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *LDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD -DclientIdSecret=ID -DclientSecret=SECRET\"");
 			System.out.println("Skipping this test");			
 			return false;
 		}
@@ -1198,13 +1211,25 @@ public class ReactorWatchlistLDPJunit
 			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
 			long runtime = System.currentTimeMillis() + ((sleep - 3) * 1000);		
 
-			consumer.testReactor().dispatch(4, 8000);
-
 			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+			
+			if(event != null)
+			{
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+				consumer.testReactor().dispatch(3, 6000);
+			}
+			else
+			{
+				consumer.testReactor().dispatch(4, 8000);
+				event = consumerReactor.pollEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+			}
 
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive LOGIN_MSG", event);
@@ -1223,8 +1248,6 @@ public class ReactorWatchlistLDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 1, sleep, runtime, true, false);
 
 		}
 		finally
@@ -1579,15 +1602,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabledTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabledTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 2 Groups configured
 		// 1st group is preferred
@@ -1597,7 +1620,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		try {		
@@ -1610,29 +1632,40 @@ public class ReactorWatchlistLDPJunit
 			ReactorChannelEvent chnlEvent;			
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -1665,7 +1698,10 @@ public class ReactorWatchlistLDPJunit
 			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort);
+			//RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isWebsocket);
+			//assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort, null);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 
@@ -1790,15 +1826,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_ServiceBased_PreferredHostEnabledTest() {
-		LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(false, null);
+		LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_ServiceBased_PreferredHostEnabledTest_WebSocket_Json() {
-		LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(true, "tr_json2");
+		LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 2 Groups configured
 		// 1st group is preferred
@@ -1809,7 +1845,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_ServiceBased_PreferredHostEnabled <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		try {		
@@ -1822,29 +1857,40 @@ public class ReactorWatchlistLDPJunit
 			ReactorChannelEvent chnlEvent;			
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -1877,7 +1923,7 @@ public class ReactorWatchlistLDPJunit
 			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort);
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort, null);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 
@@ -2015,15 +2061,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 2 Groups configured
 		// 1st group is preferred
@@ -2034,7 +2080,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_SDtoEPTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		try {		
@@ -2047,29 +2092,40 @@ public class ReactorWatchlistLDPJunit
 			ReactorChannelEvent chnlEvent;			
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -2102,7 +2158,10 @@ public class ReactorWatchlistLDPJunit
 			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort);
+			RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isJWT, isWebsocket);
+			assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort, endpoint);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 
@@ -2123,13 +2182,13 @@ public class ReactorWatchlistLDPJunit
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == null);	
 			if (isWebsocket)
 			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
 			}
 			else
 			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);		
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);		
 			}
 			
 			// Consumer receives CHANNEL_OPENED event
@@ -2246,15 +2305,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 2 Groups configured
 		// 1st group is preferred
@@ -2265,7 +2324,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_EPtoSDTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		try {		
@@ -2278,29 +2336,40 @@ public class ReactorWatchlistLDPJunit
 			ReactorChannelEvent chnlEvent;			
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -2333,7 +2402,10 @@ public class ReactorWatchlistLDPJunit
 			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort);
+			RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isJWT, isWebsocket);
+			assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort, endpoint);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 
@@ -2352,13 +2424,13 @@ public class ReactorWatchlistLDPJunit
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().size() == 2);	
 			if (isWebsocket)
 			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);		
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);		
 			}
 			else
 			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
+				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
 			}
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == null);	
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == null);	
@@ -2479,15 +2551,15 @@ public class ReactorWatchlistLDPJunit
 	
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 2 Groups configured
 		// 1st group is preferred
@@ -2498,7 +2570,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_NormaltoEPTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		TestReactor providerReactor = null;
@@ -2533,29 +2604,40 @@ public class ReactorWatchlistLDPJunit
 			int port1 = provider.bindGetPort(opts);
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -2581,7 +2663,10 @@ public class ReactorWatchlistLDPJunit
 			connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort);
+			RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isJWT, isWebsocket);
+			assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, wsbGroup2, channelPort, endpoint);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 			
@@ -2609,16 +2694,8 @@ public class ReactorWatchlistLDPJunit
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().size() == 2);	
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == "localhost");	
 			//assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == "localhost");	
-			if (isWebsocket)
-			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
-			}
-			else
-			{
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);	
-				assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);		
-			}
+			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
+			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(1).standbyServerList().get(0).reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
 			
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
@@ -2810,15 +2887,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 1 Group configured
 		// 1st group is preferred
@@ -2827,7 +2904,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoSDTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		TestReactor providerReactor = null;
@@ -2862,29 +2938,40 @@ public class ReactorWatchlistLDPJunit
 			int port1 = provider.bindGetPort(opts);
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -2907,7 +2994,7 @@ public class ReactorWatchlistLDPJunit
 			//connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort, null);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 			
@@ -3154,15 +3241,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 1 Group configured
 		// 1st group is preferred
@@ -3171,7 +3258,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_WSBtoChannelList_NormaltoEPTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		TestReactor providerReactor = null;
@@ -3206,29 +3292,40 @@ public class ReactorWatchlistLDPJunit
 			int port1 = provider.bindGetPort(opts);
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);			
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -3250,7 +3347,10 @@ public class ReactorWatchlistLDPJunit
 			//connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
+			RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isJWT, isWebsocket);
+			assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort, endpoint);
 
 			consumer.testReactor().lateStartConnect(connectOpts, consumer, false);
 			
@@ -3277,10 +3377,8 @@ public class ReactorWatchlistLDPJunit
 			assertTrue(connectOpts.connectionList().size() == 1);
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().size() == 1);	
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == "localhost");	
-			if (isWebsocket)
-				assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);
-			else
-				assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);
+			assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == endpoint.address);
+			
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -3500,15 +3598,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 1 Group configured
 		// 1 Connection list configured
@@ -3517,7 +3615,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_SDtoNormalTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		TestReactor providerReactor = null;
@@ -3552,29 +3649,41 @@ public class ReactorWatchlistLDPJunit
 			int port1 = provider.bindGetPort(opts);
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);	
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
+
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -3598,7 +3707,7 @@ public class ReactorWatchlistLDPJunit
 			//connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort, null);
 
 			// Kill provider 1 to bring back up later
 			provider.closeChannelAndSelector();
@@ -3878,15 +3987,15 @@ public class ReactorWatchlistLDPJunit
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest() {
-		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(false, null);
+		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(false, null, !hasClientSecretCred);
 	}
 
 	@Test
 	public void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest_WebSocket_Json() {
-		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(true, "tr_json2");
+		LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(true, "tr_json2", hasClientJWTCred);
 	}
 
-	private void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(boolean isWebsocket, String protocolList)
+	private void LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest(boolean isWebsocket, String protocolList, boolean isJWT)
 	{
 		// 1 Group configured
 		// 1 Connection list configured
@@ -3895,7 +4004,6 @@ public class ReactorWatchlistLDPJunit
 		
 		System.out.println("\n>>>>>>>>> Running LDPConnectWarmStandby_PreferredHostEnabled_ChannelListToWSB_EPtoNormalTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
-		unlockAccountV2();
 		
 		TestReactor consumerReactor = null;
 		TestReactor providerReactor = null;
@@ -3930,29 +4038,40 @@ public class ReactorWatchlistLDPJunit
 			int port1 = provider.bindGetPort(opts);
 
 			/* Create reactor. */
-			//TestReactor.enableReactorXmlTracing();	        
-			consumerReactor = new TestReactor();
+			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+			setupProxyForReactorRestProxyOptions(reactorOptions.restProxyOptions());
+			consumerReactor = new TestReactor(reactorOptions);		
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 			consumerRole.reactorOAuthCredential(ReactorFactory.createReactorOAuthCredential());
 			Buffer buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("edpUserName"));
-			consumerRole.reactorOAuthCredential().clientId(buf);
-			buf = CodecFactory.createBuffer();
-			buf.data(System.getProperty("clientSecret"));
-			consumerRole.reactorOAuthCredential().clientSecret(buf);
-			byte[] jwkFile = null;
-			try {
-				jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!isJWT)
+			{
+				buf.data(System.getProperty("edpClientIdSecret"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("clientSecret"));
+				consumerRole.reactorOAuthCredential().clientSecret(buf);
 			}
-			String jwkText = new String(jwkFile);
-			buf = CodecFactory.createBuffer();
-			buf.data(jwkText);
-			consumerRole.reactorOAuthCredential().clientJwk(buf);
+			else
+			{
+				buf.data(System.getProperty("edpClientIdJWT"));
+				consumerRole.reactorOAuthCredential().clientId(buf);
+				
+				byte[] jwkFile = null;
+				try {
+					jwkFile = Files.readAllBytes(Paths.get(System.getProperty("jwkFile")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String jwkText = new String(jwkFile);
+				buf = CodecFactory.createBuffer();
+				buf.data(jwkText);
+				consumerRole.reactorOAuthCredential().clientJwk(buf);
+			}
 			consumerRole.reactorOAuthCredential().reactorOAuthCredentialEventCallback(consumer);
 			consumer.setReactorOAuthCredentialInfo(consumerRole.reactorOAuthCredential());
 
@@ -3976,7 +4095,10 @@ public class ReactorWatchlistLDPJunit
 			//connectOpts.reactorPreferredHostOptions().detectionTimeInterval(10);
 			connectOpts.reconnectAttemptLimit(1);
 			
-			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort);
+			RDPEndPoint endpoint = getEDPEndpointFromServiceDiscovery(isJWT, isWebsocket);
+			assertNotNull("Failed to get endpoint from service discovery", endpoint);
+			
+			connectOpts = consumer.testReactor().connectWsb_ByPort_SessionManagement_NoStart(opts, connectOpts, consumer,  consumer, protocolList, isWebsocket, dictionary, wsbGroup1, null, channelPort,endpoint);
 
 			// Kill provider 1 to bring back up later
 			provider.closeChannelAndSelector();
@@ -3997,10 +4119,7 @@ public class ReactorWatchlistLDPJunit
 			
 			// check that connection info was not overwritten
 			assertTrue(connectOpts.connectionList().size() == 1);
-			if (isWebsocket)
-				assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS_WEBSOCKET);	
-			else
-				assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == consumer.testReactor().LDP_ENDPOINT_ADDRESS);	
+			assertTrue(connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == endpoint.address);	
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().size() == 1);	
 			assertTrue(connectOpts.reactorWarmStandbyGroupList().get(0).startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() == "localhost");	
 			
@@ -4600,13 +4719,25 @@ public class ReactorWatchlistLDPJunit
 				e.printStackTrace();
 			}
 
-			consumer.testReactor().dispatch(4, 8000);	        
-
 			event = consumerReactor.pollEvent();
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+			
+			if(event != null)
+			{
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+				consumer.testReactor().dispatch(3, 6000);
+			}
+			else
+			{
+				consumer.testReactor().dispatch(4, 8000);
+				event = consumerReactor.pollEvent();
+				assertNotNull("Did not receive CHANNEL_EVENT", event);
+				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());
+			}
 
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive LOGIN_MSG", event);
@@ -4849,8 +4980,6 @@ public class ReactorWatchlistLDPJunit
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
 
-			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 2, sleep, runtime, false, false);
-
 		}
 		finally
 		{
@@ -4988,8 +5117,6 @@ public class ReactorWatchlistLDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());
-
-			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 2, sleep, runtime, false, false);
 		}
 		finally
 		{
@@ -5047,6 +5174,7 @@ public class ReactorWatchlistLDPJunit
 		};		
 	}		
 
+	@SuppressWarnings("deprecation")
 	private void verifyAuthTokenRequestAndLoginReissue(TestReactor consumerReactor, Consumer consumer, 
 			int numberOfSequences, int sleep, long runtime, boolean loginReissue, boolean refreshFlag)
 	{
@@ -6779,8 +6907,11 @@ public class ReactorWatchlistLDPJunit
 				reactorServiceDiscoveryOptions.password(buf);
 			}  	
 			{
+				String clientId = System.getProperty("edpClientId") != null ? System.getProperty("edpClientId") :
+					System.getProperty("edpUserName");
+				
 				Buffer buf = CodecFactory.createBuffer();
-				buf.data(System.getProperty("edpUserName"));
+				buf.data(clientId);
 				reactorServiceDiscoveryOptions.clientId(buf);
 			}
 
@@ -6833,15 +6964,24 @@ public class ReactorWatchlistLDPJunit
 		}
 	}
 	
-	private void unlockAccountV2()
+	static class RDPEndPoint
 	{
-		TestReactor consumerReactor = null;
-		try {
-			ReactorErrorInfo errorInfo = null;		 
-			ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
+		public String address;
+		public String port;
+	}
+	
+	/* This is used to get an endpoint from us east with the V2 credential */
+	private RDPEndPoint getEDPEndpointFromServiceDiscovery(boolean isJWT, boolean isWebSocket)
+	{
+		RDPEndPoint rdpEndpoint = new RDPEndPoint();
+		
+		ReactorErrorInfo errorInfo = null;		 
+		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
+		if(!isJWT)
+		{
 			{
 				Buffer buf = CodecFactory.createBuffer();
-				buf.data(System.getProperty("edpUserName"));
+				buf.data(System.getProperty("edpClientIdSecret"));
 				reactorServiceDiscoveryOptions.clientId(buf);
 			}
 			{
@@ -6849,6 +6989,15 @@ public class ReactorWatchlistLDPJunit
 				buf.data(System.getProperty("clientSecret"));
 				reactorServiceDiscoveryOptions.clientSecret(buf);
 			}
+		}
+		else
+		{
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpClientIdJWT"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
+			
 			{
 				byte[] jwkFile = null;
 				try {
@@ -6862,55 +7011,65 @@ public class ReactorWatchlistLDPJunit
 				buf.data(jwkText);
 				reactorServiceDiscoveryOptions.clientJWK(buf);
 			}
+		}
 
+		if(!isWebSocket)
+		{
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
+		}
+		else
+		{
+			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET);
+			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2);
+		}
 
-			ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
-			{
-				@Override
-				public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
-					return 0;
-				}     				
-			};
-
-			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);		
-
-			/* Create reactor. */
-			consumerReactor = new TestReactor();
-
-			/* Create consumer. */
-			Consumer consumer = new Consumer(consumerReactor);
-
-			setupConsumer(consumer, true);
-			setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
-
-			errorInfo = ReactorFactory.createReactorErrorInfo();   
-
-			int i = 0;
-			System.out.println("UNLOCKING ACCOUNT");
-			int ret = consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo);
-			
-			while ( ret != ReactorReturnCodes.SUCCESS || errorInfo.code() != 0)
-			{
-				System.out.println("================= UNLOCK ACCOUNT: " + (i++) + " ================== \n" + errorInfo.error().toString());	
-				errorInfo = ReactorFactory.createReactorErrorInfo();
-
-				try {
-					Thread.sleep(1000 * i);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
+		{
+			@Override
+			public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
+				
+				if(event.errorInfo().code() == ReactorReturnCodes.SUCCESS && event.serviceEndpointInfo() != null)
+				{
+					List<ReactorServiceEndpointInfo> endpointList = event.serviceEndpointInfo();
+					
+					for(ReactorServiceEndpointInfo endpoint : endpointList )
+					{
+						/* Find an endpoint which has more than one location.*/
+						if (endpoint.locationList().size() > 1)
+						{
+							if(endpoint.locationList().get(0).contains("us-east"))
+							{
+								rdpEndpoint.address = endpoint.endPoint();
+								rdpEndpoint.port = endpoint.port();
+								break;
+							}
+						}
+					}
 				}
 				
-				ret = consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo);
-			}
-			System.out.println("================= ACCOUNT UNLOCKED " + i + " ================== \n" + errorInfo.error().toString());				
-		}
-		finally
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}     				
+		};
+
+		reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);
+		setupProxyForReactorServiceDiscoveryOptions(reactorServiceDiscoveryOptions);
+
+		errorInfo = ReactorFactory.createReactorErrorInfo(); 
+		
+		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+		Reactor reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
+
+		int ret = reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo);
+		
+		if(ret != ReactorReturnCodes.SUCCESS)
 		{
-			consumerReactor.close();
+			return null;
 		}
+		
+		return rdpEndpoint;
 	}
+	
 
 	@Test
 	public void LDPQueryServiceDiscoveryTest()

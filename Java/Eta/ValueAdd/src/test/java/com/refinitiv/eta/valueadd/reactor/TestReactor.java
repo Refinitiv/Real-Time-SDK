@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.Queue;
 
 import com.refinitiv.eta.codec.*;
-
+import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
@@ -38,6 +38,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
+import com.refinitiv.eta.valueadd.reactor.ReactorWatchlistLDPJunit.RDPEndPoint;
 /*
  * This class represents a single Reactor.
  * It providers simple ways to connect components (such as a consumer and provider)
@@ -77,11 +78,10 @@ public class TestReactor {
     
     final String DEFAULT_SERVICE = "DEFAULT_SERVICE";
     
-    final String LDP_ENDPOINT_ADDRESS = "us-east-1-aws-1-med.optimized-pricing-api.refinitiv.net";
-    final String LDP_ENDPOINT_PORT = "14002";
-
-    final String LDP_ENDPOINT_ADDRESS_WEBSOCKET = "us-east-1-aws-3-lrg.optimized-pricing-api.refinitiv.net";
-    final String LDP_ENDPOINT_PORT_WEBSOCKET = "443";
+    /* Specify proxy options from the ReactorOptions*/
+    Buffer proxyHost;
+    Buffer proxyPort;
+    
 	/** Creates a TestReactor. */
 	public TestReactor()
 	{
@@ -105,6 +105,8 @@ public class TestReactor {
 	/** Creates a TestReactor. */
 	public TestReactor(ReactorOptions reactorOptions)
 	{
+		proxyHost = reactorOptions.restProxyOptions().proxyHostName();
+		proxyPort = reactorOptions.restProxyOptions().proxyPort();
 		
 		_eventQueue = new LinkedList<TestReactorEvent>();
 		_componentList = new LinkedList<TestReactorComponent>();
@@ -1094,8 +1096,22 @@ public class TestReactor {
 
     }
 	
+	private void applyProxyOptions(ConnectOptions connectOptions)
+	{
+		if (proxyHost != null && proxyPort != null)
+		{
+			if(proxyHost.length() > 0 && proxyPort.length() > 0)
+			{
+				connectOptions.tunnelingInfo().HTTPproxy(true);
+				connectOptions.tunnelingInfo().HTTPproxyHostName(proxyHost.toString());
+				connectOptions.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort.toString()));
+			}
+		}
+	}
+	
 	/** Associates a component with this reactor and opens a connection using session management. */
-	ReactorConnectOptions connectWsb_ByPort_SessionManagement_NoStart(ConsumerProviderSessionOptions opts, ReactorConnectOptions rcOpts, TestReactorComponent component, Consumer consumer, String protocolList, boolean isWebsocket, DataDictionary dictionary, List<Integer> wsbGroup1, List<Integer> wsbGroup2, Integer channelPort)
+	ReactorConnectOptions connectWsb_ByPort_SessionManagement_NoStart(ConsumerProviderSessionOptions opts, ReactorConnectOptions rcOpts, TestReactorComponent component, Consumer consumer, String protocolList, boolean isWebsocket, 
+			DataDictionary dictionary, List<Integer> wsbGroup1, List<Integer> wsbGroup2, Integer channelPort, RDPEndPoint edpEndpoint)
 	{
 		ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
 		rcOpts.copy(connectOpts);
@@ -1135,15 +1151,8 @@ public class TestReactor {
 	        }
 	        else if (channelPort == 2)
 	        {
-	        	String address = LDP_ENDPOINT_ADDRESS;
-	        	if (isWebsocket)
-	        	{
-	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
-		        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
-	        	}
-	        	else
-		        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
-	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(address);
+	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(edpEndpoint.port));	
+	        	connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(edpEndpoint.address);
 
 	        }
 	        
@@ -1202,7 +1211,12 @@ public class TestReactor {
 			}
 
 			if (channelPort == 0 || channelPort == 2)
+			{
 				connectOpts.connectionList().get(0).enableSessionManagement(true);
+			
+				/* Applies proxy options when establishing connection with RTO*/
+				applyProxyOptions(connectOpts.connectionList().get(0).connectOptions());
+			}
 			connectOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);	
         }
         
@@ -1230,15 +1244,8 @@ public class TestReactor {
 	        }
 	        else if (wsbGroup1.get(0) == 2)
 	        {
-	        	String address = LDP_ENDPOINT_ADDRESS;
-	        	if (isWebsocket)
-	        	{
-	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;	
-		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
-	        	}
-	        	else
-		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
-	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(edpEndpoint.port);	
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(edpEndpoint.address);
 	        }
 	        
 	        // Handle session management options
@@ -1296,7 +1303,12 @@ public class TestReactor {
 			}
 
 			if (wsbGroup1.get(0) == 0 || wsbGroup1.get(0) == 2)
+			{
 				wsbGroup.startingActiveServer().reactorConnectInfo().enableSessionManagement(true);
+				
+				/* Applies proxy options when establishing connection with RTO*/
+				applyProxyOptions(wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions());
+			}
 			wsbGroup.startingActiveServer().reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
 	        
 	        for(int i = 1; i < wsbGroup1.size(); i++)
@@ -1320,15 +1332,8 @@ public class TestReactor {
 		        }
 		        else if (wsbGroup1.get(1) != null && wsbGroup1.get(1) == 2)
 		        {
-		        	String address = LDP_ENDPOINT_ADDRESS;
-		        	if (isWebsocket)
-		        	{
-		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
-			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
-		        	}
-		        	else
-			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
-		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(edpEndpoint.port));	
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(edpEndpoint.address);
 		        }
 		        
 		     // Handle session management options
@@ -1382,7 +1387,12 @@ public class TestReactor {
 				}
 
 				if (wsbGroup1.get(1) == 0 || wsbGroup1.get(1) == 2)
+				{
 					wsbServerInfo.reactorConnectInfo().enableSessionManagement(true);
+					
+					/* Applies proxy options when establishing connection with RTO*/
+					applyProxyOptions(wsbServerInfo.reactorConnectInfo().connectOptions());
+				}
 				wsbServerInfo.reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
 		        
 		        wsbGroup.standbyServerList().add(wsbServerInfo);
@@ -1415,15 +1425,8 @@ public class TestReactor {
 	        }
 	        else if (wsbGroup2.get(0) == 2)
 	        {
-	        	String address = LDP_ENDPOINT_ADDRESS;
-	        	if (isWebsocket)
-	        	{
-	        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
-		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
-	        	}
-	        	else
-		        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
-	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(edpEndpoint.port));		
+	        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(edpEndpoint.address);
 	        }
 	        
 	        // Handle session management options
@@ -1479,7 +1482,12 @@ public class TestReactor {
 			}
 
 			if (wsbGroup2.get(0) == 0 || wsbGroup2.get(0) == 2)
+			{
 				wsbGroup.startingActiveServer().reactorConnectInfo().enableSessionManagement(true);
+				
+				/* Applies proxy options when establishing connection with RTO*/
+				applyProxyOptions(wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions());
+			}
 			wsbGroup.startingActiveServer().reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
 	        
 	        for(int i = 1; i < wsbGroup2.size(); i++)
@@ -1503,15 +1511,8 @@ public class TestReactor {
 		        }
 		        else if (wsbGroup2.get(1) != null && wsbGroup2.get(1) == 2)
 		        {
-		        	String address = LDP_ENDPOINT_ADDRESS;
-		        	if (isWebsocket)
-		        	{
-		        		address = LDP_ENDPOINT_ADDRESS_WEBSOCKET;
-			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT_WEBSOCKET));	
-		        	}
-		        	else
-			        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(LDP_ENDPOINT_PORT));	
-		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(address);
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(edpEndpoint.port));	
+		        	wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(edpEndpoint.address);
 		        }
 		        
 		        // Handle session management options
@@ -1568,7 +1569,12 @@ public class TestReactor {
 				}
 
 				if (wsbGroup2.get(1) == 0 || wsbGroup2.get(1) == 2)
-				wsbServerInfo.reactorConnectInfo().enableSessionManagement(true);
+				{
+					wsbServerInfo.reactorConnectInfo().enableSessionManagement(true);
+					
+					/* Applies proxy options when establishing connection with RTO*/
+					applyProxyOptions(wsbServerInfo.reactorConnectInfo().connectOptions());
+				}
 				wsbServerInfo.reactorConnectInfo().reactorAuthTokenEventCallback(consumer);	
 		        
 		        wsbGroup.standbyServerList().add(wsbServerInfo);
@@ -1581,6 +1587,7 @@ public class TestReactor {
 
     }
 	
+
 	/** Associates a component with this reactor and opens a connection. */
 	void connectWsb(ReactorConnectOptions connectOpts, ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, List<Provider> wsbGroup3, List<Provider> channelList)
 	{

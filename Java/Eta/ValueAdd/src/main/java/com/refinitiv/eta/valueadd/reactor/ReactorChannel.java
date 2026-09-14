@@ -2425,6 +2425,9 @@ public class ReactorChannel extends VaNode
             }
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
             
+        	/* Ensure that the proxy options are set. */
+        	_tokenSession.setProxyInfo(_currentConnectInfo, _reactor.reactorOptions().restProxyOptions());
+            
             if(_tokenSession.authTokenInfo().tokenVersion() == TokenVersion.V2)
             {
             	_tokenSession.resetSessionMgntState();

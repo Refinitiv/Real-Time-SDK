@@ -66,46 +66,39 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         public HttpClient GetHttpClient(ReactorRestConnectOptions restConnetOptions)
         {
-            if(!httpClientDict.TryGetValue(restConnetOptions.ProxyOptions, out HttpClient? httpClient))
+            if (!httpClientDict.TryGetValue(restConnetOptions.ProxyOptions, out HttpClient? httpClient))
             {
-                if(!string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyHostName) && !string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyPort))
+                // Proxy settings
+                IWebProxy? proxy = null;
+                var proxyOptions = restConnetOptions.ProxyOptions;
+                if (!string.IsNullOrEmpty(proxyOptions.ProxyHostName) && !string.IsNullOrEmpty(proxyOptions.ProxyPort))
                 {
-                    NetworkCredential? networkCredential = null;
+                    var networkCredential =
+                        (!string.IsNullOrEmpty(proxyOptions.ProxyUserName) && !string.IsNullOrEmpty(proxyOptions.ProxyPassword))
+                            ? new NetworkCredential(proxyOptions.ProxyUserName, proxyOptions.ProxyPassword)
+                            : null;
 
-                    if(!string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyUserName) && !string.IsNullOrEmpty(restConnetOptions.ProxyOptions.ProxyPassword))
+                    proxy = new WebProxy
                     {
-                        networkCredential = new NetworkCredential(restConnetOptions.ProxyOptions.ProxyUserName, restConnetOptions.ProxyOptions.ProxyPassword); // proxy authentication 
-                    }
-
-                    var proxy = new WebProxy
-                    {
-                        Address = new Uri($"http://{restConnetOptions.ProxyOptions.ProxyHostName}:{restConnetOptions.ProxyOptions.ProxyPort}"),
+                        Address = new Uri($"http://{proxyOptions.ProxyHostName}:{proxyOptions.ProxyPort}"),
                         Credentials = networkCredential
                     };
-
-                    var m_ClientHandler = new HttpClientHandler();
-                    m_ClientHandler.AutomaticDecompression = System.Net.DecompressionMethods.All;
-                    m_ClientHandler.AllowAutoRedirect = false;
-                    m_ClientHandler.Proxy = proxy;
-                    m_ClientHandler.CheckCertificateRevocationList = true;
-                    httpClient = new HttpClient(m_ClientHandler);
-
-                    httpClient.Timeout = TimeSpan.FromMilliseconds(m_Reactor.m_ReactorOptions.GetRestRequestTimeout());
-
-                    httpClientDict.Add(restConnetOptions.ProxyOptions, httpClient);
                 }
-                else
+
+                var clientHandler = new HttpClientHandler
                 {
-                    /* No proxy */
-                    var m_ClientHandler = new HttpClientHandler();
-                    m_ClientHandler.AutomaticDecompression = System.Net.DecompressionMethods.All;
-                    m_ClientHandler.AllowAutoRedirect = false;
-                    httpClient = new HttpClient(m_ClientHandler);
+                    AutomaticDecompression = System.Net.DecompressionMethods.All,
+                    AllowAutoRedirect = false,
+                    CheckCertificateRevocationList = true,
+                    Proxy = proxy
+                };
 
-                    httpClient.Timeout = TimeSpan.FromMilliseconds(m_Reactor.m_ReactorOptions.GetRestRequestTimeout());
+                httpClient = new HttpClient(clientHandler)
+                {
+                    Timeout = TimeSpan.FromMilliseconds(m_Reactor.m_ReactorOptions.GetRestRequestTimeout())
+                };
 
-                    httpClientDict.Add(restConnetOptions.ProxyOptions, httpClient);
-                }
+                httpClientDict.Add(restConnetOptions.ProxyOptions, httpClient);
             }
 
             return httpClient;
