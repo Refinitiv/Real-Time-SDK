@@ -259,7 +259,7 @@ static RsslRet decodeDataType(RsslDecodeIterator *pIter, RsslUInt8 dataType,
 	RsslBuffer fidRealBuf;
 	RsslBuffer fidStateBuf;
 	RsslBuffer fidQosBuf;
-	RsslRet ret;
+	RsslRet ret = RSSL_RET_SUCCESS;
 
 	switch (dataType)
 	{
