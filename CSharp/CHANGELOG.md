@@ -10,18 +10,48 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.4.0.L2 aka EMA/ETA 3.5.1.L2 aka 3.5.1.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.4.1.L1 aka EMA/ETA 3.5.2.L1 aka 3.5.2.0
 ----------------------------------------------------------------------------------------
+This release introduces Enhanced SymbolList in EMA. In addition, this release serves as a maintenance release with fixes.
 
-This is a maintenance release with qualification done on Ubuntu 24.04 and fixes for issues.
+Customer Issues Resolved
+------------------------
+- [Case Number: 15932040] - [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling
+- [Case Number: 16257007] - [RTSDK-10946] - Conflicting Operation model between EMA Java example 410 Horizontal Scaling example code and readme
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.4.1.L1 (Sep 16, 2026)
+---------------------------------------------
+
+EMA CSharp 3.5.2.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-9849] - Implementation of Directory Message Level class helpers
+- [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling [Case Number: 15932040] 
+- [RTSDK-10946] - Conflicting Operation model between EMA Java example 410 Horizontal Scaling example code and readme [Case Number: 16257007] 
+
+ETA CSharp 3.5.2.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-923] - TransportPerf example now clears WriteArgs when appropriate
+
+Both ETA and EMA CSharp 3.5.2.L1 Issues Resolved
+------------------------------------------------
+- [RTSDK-426] - New Feature: Support for Enhanced SymbolList in EMA; this includes fixes to ETA
+- [RTSDK-9943] - Qualification on Rocky Linux 8 & 9
+- [RTSDK-10589] - C# Coverity issues fixes
+- [RTSDK-10733] - Update to C# dependencies: NLog, Cronos, Microsoft.IdentityModel.Tokens, System.IdentityModel.Tokens (see C# README.md)
+- [RTSDK-10742] - Fixed response issues within the source directory domain that occurred when a request either included service filters or specified a service name/ID.
+- [RTSDK-10762] - Qualification on Hygon c86 architecture on Galaxy Kylin V10 for supported .NET versions
+- [RTSDK-10966] - Fixed issue with the payload of Update messages for Source Directory containing data for services not requested
+
+---------------------------------------------
 RTSDK CSharp Release 2.4.0.L2 (May 6, 2026)
 ---------------------------------------------
+
+This is a maintenance release with qualification done on Ubuntu 24.04 and fixes for issues.
 
 ETA CSharp 3.5.1.L2 Issues Resolved
 -----------------------------------

@@ -22,12 +22,10 @@ External modules used by this version of RTSDK Java:
     commons-lang3             3.20.0
     commons-logging           1.4.0
     commons-text              1.15.0
-    Conscrypt OpenJDK Uber    2.6.1
+    conscrypt OpenJDK Uber    2.6.1
     jackson-annotations       2.22
-    jackson-core              2.22.1
-    jackson-databind          2.22.1
-    Jakarta XML Binding API   4.0.4
-    Jakarta Activation API    2.1.4
+    jackson-core              2.22.2
+    jackson-databind          2.22.2
     jose4j                    0.9.6
     json                      20260719
     httpclient5               5.6.4
@@ -40,7 +38,7 @@ External modules used by this version of RTSDK Java:
     xpp3                      1.1.4c
 
 Additional dependencies used for testing:
-    mockito-core              5.23.0
+    mockito-core              5.23.0 (included in mockito-all)
     hamcrest                  3.0
     junit                     4.13.2
 
@@ -52,8 +50,12 @@ Additional dependencies used for testing:
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
+or
+
+- Hygon c86
+
 #### Supported Java Version 
-The LSEG Real-Time-SDK supports Oracle JDK 11, 17 & 21, OpenJDK 11, 17 & 21, Amazon Corretto 11.
+The LSEG Real-Time-SDK supports Oracle JDK 11, 17 & 21, OpenJDK 11, 17, 21 & 25, Amazon Corretto 11.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. 
 
@@ -81,6 +83,7 @@ Compilers (only on OSs supported by Microsoft for JNI libraries):
     Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
     Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
     Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
+    Microsoft Visual Studio 14.5 (2026) 64-bit (JNI Libraries)
 
 NOTE: To obtain JNI Libraries for deprecated versions, VS 2013, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
 
@@ -93,17 +96,16 @@ Platforms:
     Ubuntu 24.04 64-bit Qualification
     Galaxy Kylin 10, 64-bit
     Amazon Linux 2023, 64-bit
+    Rocky Linux 8.X, 64-bit
+    Rocky Linux 9.X, 64-bit
 
 #### Tested Versions
 
 This release has been tested with the following:
 
-    Oracle Java SE 11 (JDK 11)
-    Oracle Java SE 17 (JDK 17)
-    Oracle Java SE 21 (JDK 21)
-    Oracle OpenJDK 11
-    Oracle OpenJDK 17
-    Oracle OpenJDK 21
+    Temurin OpenJDK 11
+    Temurin OpenJDK 17
+    Temurin OpenJDK 21
     Temurin OpenJDK 25
     Amazon Corretto 11
 
@@ -141,8 +143,8 @@ NOTE: Connectivity to Real-Time Direct is supported for Level 1 and Level 2 data
 
 This release has been tested with the following:
 
-- ADS 3.9.1
-- ADH 3.9.1
+- ADS 3.9.2
+- ADH 3.9.2
 - DACS 8.1 
 
 # Documentation
@@ -228,40 +230,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
     <dependency>
         <groupId>com.refinitiv.ema</groupId>
         <artifactId>ema</artifactId>
-        <version>3.10.0.1</version>
+        <version>3.10.1.0</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta</groupId>
         <artifactId>eta</artifactId>
-        <version>3.10.0.1</version>
+        <version>3.10.1.0</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.valueadd</groupId>
         <artifactId>etaValueAdd</artifactId>
-        <version>3.10.0.1</version>
+        <version>3.10.1.0</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.valueadd.cache</groupId>
         <artifactId>etaValueAddCache</artifactId>
-        <version>3.10.0.1</version>
+        <version>3.10.1.0</version>
     </dependency>
 
     <dependency>
         <groupId>com.refinitiv.eta.ansi</groupId>
         <artifactId>ansipage</artifactId>
-        <version>3.10.0.1</version>
+        <version>3.10.1.0</version>
     </dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-    compile group: 'com.refinitiv.ema', name: 'ema', version: '3.10.0.1'
-    compile group: 'com.refinitiv.eta', name: 'eta', version: '3.10.0.1'
-    compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.10.0.1'
-    compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.10.0.1'
-    compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.10.0.1'
+    compile group: 'com.refinitiv.ema', name: 'ema', version: '3.10.1.0'
+    compile group: 'com.refinitiv.eta', name: 'eta', version: '3.10.1.0'
+    compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.10.1.0'
+    compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.10.1.0'
+    compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.10.1.0'
 
 # Developing 
 

@@ -9,19 +9,73 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.4.0.G1 aka EMA/ETA 3.10.0.G1 aka 3.10.0.2
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.4.1.L1 aka EMA/ETA 3.10.1.L1 aka 3.10.1.0
 ----------------------------------------------------------------------------------------
-
-This is a maintenace release for RTSDK Java with customer issue fixes. 
+This release introduces an enhancement to the WarmStandby feature to obtain state of active and standby channels either by calling GetChannelInfo or by subscribing to Change-Events. EMA Source Directory message classes helpers are implemented with this release. Also introduced in this release is support for Enhanced SymbolList in EMA. In addition, a number of customer issues have been addressed.
 
 Customer Issues Resolved
 ------------------------
-- [GitHub #345] - [RTSDK-10732] - Update to Java dependencies 
-- [Case Number: 16228717] - [RTSDK-10928] - Fix to Invalid IPC Mount error code caused due to fragmented HTTP tunneling message and resulting in failure to connect to server 
+- [Case Number: 15932040] - [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling
+- [Case Number: 16097419] - [RTSDK-10835] - EMA Java: Subscribing and unsubscribing quickly with view leads to not always receive the latest view image 
+- [Case Number: 16129587] - [RTSDK-10843] - Fix for EMAJ Programmatic Configuration processing improperly overriding ChannelSet configuration when setting method-based Configuration options for OmmConsumer and OmmNiProviders 
+- [Case Number: 16151792] - [RTSDK-10861] - EMA Java: NullPointerException inside the library when using views 
+- [Case Number: 16222691] - [RTSDK-10895] - Fix OmmJsonConverterExceptionImpl when using USER thread model on RTO websocket connection 
+- [Case Number: 16257007] - [RTSDK-10946] - Conflicting Operation model between EMA Java example 410 Horizontal Scaling example code and readme 
+- [Case Number: 16373299] - [RTSDK-11037] - ETA ValueAdd Java is pulling in Mockito as a compile-time dependency 
+- [GitHub #338] - [RTSDK-10728] - ETA/EMAJ Websocket JSON fails to parse MultiPart Dictionary Response 
+- [GitHub #343] - [RTSDK-10941] - Remove JavaFX dependency from general EMAJ Examples and apply only to RTViewer 
+- [GitHub #348] - [RTSDK-11058] - EMAJ ChannelDown warning is incorrectly logged at error level 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.4.1.L1 (Sep 16, 2026)
+--------------------------------------------
+
+EMA Java 3.10.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-466] - Implementation of Directory Message Level class helpers
+- [RTSDK-2657] - EMAJ fills in serviceName in source directory message fanout
+- [RTSDK-3461] - Fixed support for INFINITE_WAIT dispatch times in EMAJ
+- [RTSDK-8610] - Enhanced EMAJ Item Close Handling to return InvalidUsageException when channel is closed
+- [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling [Case Number: 15932040] 
+- [RTSDK-10828] - EMAJ The payload of response messages for Source Directory depends on what is used in request message - serviceId or serviceName
+- [RTSDK-10831] - EMAJ Source Directory domain: incorrect handling of unsolicited refresh with clearCache flag
+- [RTSDK-10834] - EMAJ fixed rare Websocket JSON conversion timing issue
+- [RTSDK-10835] - EMA Java: Subscribing and unsubscribing quickly with view leads to not always receive the latest view image [Case Number: 16097419]
+- [RTSDK-10843] - Fix for EMAJ Programmatic Configuration processing improperly overriding ChannelSet configuration when setting method-based Configuration options for OmmConsumer and OmmNiProviders [Case Number: 16129587]
+- [RTSDK-10861] - EMA Java: NullPointerException inside the library when using views [Case Number: 16151792]
+- [RTSDK-10875] - EMAJ Source Directory domain: incorrect handling of unsolicited refresh for services with delete action
+- [RTSDK-10895] - Fix OmmJsonConverterExceptionImpl when using USER thread model on RTO websocket connection [Case Number: 16222691]
+- [RTSDK-10941] - Remove JavaFX dependency from general EMAJ Examples and apply only to RTViewer [GitHub #343]
+- [RTSDK-10946] - Conflicting Operation model between EMA Java example 410 Horizontal Scaling example code and readme [Case Number: 16257007]
+-  [RTSDK-11058] - EMAJ ChannelDown warning is incorrectly logged at error level [GitHub #348]
+
+ETA Java 3.10.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-923] - TransportPerf example now clears WriteArgs when appropriate
+- [RTSDK-1331] - Added JNIChannel Unit Tests, skipped automatically without appropriate libraries in place
+- [RTSDK-10273] - ETAJ Update for ConnectNak handling in RIPC
+- [RTSDK-10743] - Helper to set optional permData on Source Directory Status Message is missing in implementation
+- [RTSDK-10760] - Fixed Enum type dictionary size in ReactorWatchlistJUnitNew
+- [RTSDK-11037] - ETA ValueAdd Java is pulling in Mockito as a compile-time dependency [Case Number: 16373299]
+- [RTSDK-11045] - Fixed ReactorWatchlistLDPJunit to support both V1 and V2(ClientSecret and JWT) credentials in the command line arguments
+
+Both ETA Java and EMA Java 3.10.1.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-199] - Pausing symbollist stream causes it to not respond to "ADD"s
+- [RTSDK-425] - ETA/EMA Java reference documentation (javadoc) is missing default values
+- [RTSDK-9943] - Qualification on Rocky Linux 8 & 9
+- [RTSDK-10209] - New Feature: Support for Enhanced SymbolList in EMA; this includes fixes to ETA
+- [RTSDK-10261] - New feature: WarmStandby getChannelInformation for active AND standby channels and Channel-Change Events
+- [RTSDK-10407] - Fix for ETAJ VA Reactor invalid index exception thrown when attempting to connect to a preferred host which gets login denied
+- [RTSDK-10728] - ETA/EMAJ Websocket JSON fails to parse MultiPart Dictionary Response [GitHub #338]
+- [RTSDK-10738] - Fix to issue with successive batch snapshot requests with overlapping item where first request times out
+- [RTSDK-10744] - Source Directory filter is not cached correctly resulting in EMA not seeing the right filter & invalid unsolicited refresh processing
+- [RTSDK-10762] - Qualification on Hygon c86 architecture using Galaxy Kylin V10 for supported OpenJDK versions
+- [RTSDK-10817] - Fix synchronization in Converter library's UtilQueueConcurrent
 
 --------------------------------------------
 RTSDK Java Release 2.4.0.G1 (Aug 20, 2026)
@@ -759,7 +813,7 @@ Both ETA Java and EMA Java 3.6.2.L1 Issues Resolved
 
 
 --------------------------------------------
-RTSDK Java Release 2.0.1.G1 (April 21, 2021)
+RTSDK Java Release 2.0.1.G1 (Apr 21, 2021)
 --------------------------------------------
 
 New Features Added
@@ -788,7 +842,7 @@ Both ETA Java and EMA Java 3.6.1.G1 Issues Resolved
 - [RTSDK-4813] - EMAJ/ETAJ:  Update Readme.md file to add Jackson parser as an external dependency
 
 --------------------------------------------
-RTSDK Java Release 2.0.1.L1 (March 4, 2021)
+RTSDK Java Release 2.0.1.L1 (Mar 4, 2021)
 --------------------------------------------
 
 New Features Added
@@ -894,7 +948,7 @@ Both ETA Java and EMA Java 3.6.0.L1 Issues Resolved
 - [RTSDK-4395] - Rebrand: Differentiate between RTSDK product and ETA/EMA library versions
 
 --------------------------------------------
-RTSDK Java Release 1.5.1.L1 (Sept 4, 2020)
+RTSDK Java Release 1.5.1.L1 (Sep 4, 2020)
 --------------------------------------------
 
 New Features Added
@@ -1032,7 +1086,7 @@ RTSDK Java Release 1.3.1.G2 (Oct 18, 2019)
 N/A; Changes are limited to RTSDK C/C++ ONLY
 
 --------------------------------------------
-RTSDK Java Release 1.3.1.G1 (Sept 25, 2019)
+RTSDK Java Release 1.3.1.G1 (Sep 25, 2019)
 --------------------------------------------
 
 EMA Java 3.3.1.G1 Issues Resolved
@@ -1052,7 +1106,7 @@ Both ETA Java and EMA Java 3.3.1.G1 Issues Resolved
 - [RTSDK-3468] Add RDP Auth proactive token renewal with password grant prior to refresh token expiration
 
 --------------------------------------------
-RTSDK Java Release 1.3.1.L1 (July 31, 2019)
+RTSDK Java Release 1.3.1.L1 (Jul 31, 2019)
 --------------------------------------------
 
 New Features Added
@@ -1084,7 +1138,7 @@ Both ETA Java and EMA Java 3.3.1.L1 Issues Resolved
 - [RTSDK-3410] Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
 
 --------------------------------------------
-RTSDK Java Release 1.3.0.G1 (April 16, 2019)
+RTSDK Java Release 1.3.0.G1 (Apr 16, 2019)
 --------------------------------------------
 
 EMA Java 3.3.0.G1 Issues Resolved
@@ -1097,7 +1151,7 @@ ETA Java 3.3.0.L1 Issues Resolved
 - [RTSDK-3196] Fix to Watchlist consumer for -tunnel 
 
 --------------------------------------------
-RTSDK Java Release 1.3.0.L1 (March 26, 2019)
+RTSDK Java Release 1.3.0.L1 (Mar 26, 2019)
 --------------------------------------------
 
 New Features Added
@@ -1126,7 +1180,7 @@ ETA Java 3.3.0.L1 Issues Resolved
 - [RTSDK-2624] DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
 
 --------------------------------------------
-RTSDK Java Release 1.2.2.L1 (November 15, 2018)
+RTSDK Java Release 1.2.2.L1 (Nov 15, 2018)
 --------------------------------------------
 
 New Features Added
@@ -1154,7 +1208,7 @@ ETA Java 3.2.2.L1 Issues Resolved
 - [RTSDK-2555] Include latest jdacsUpalib.jar in RTSDK [Case Number:  06042800 and 06041830]
 
 --------------------------------------------
-RTSDK Java Release 1.2.1.L1 (August 15, 2018)
+RTSDK Java Release 1.2.1.L1 (Aug 15, 2018)
 --------------------------------------------
 
 New Features Added
@@ -1207,7 +1261,7 @@ ETA Java 3.2.0.G1 Issues Resolved
 - [RTSDK-1545] Patterns created for each instance rather than once [GitHub Pull Request #53]
 
 -------------------------------------------
-RTSDK Java Release 1.2.0.L1 (April 27, 2018)
+RTSDK Java Release 1.2.0.L1 (Apr 27, 2018)
 -------------------------------------------
 
 New Features Added

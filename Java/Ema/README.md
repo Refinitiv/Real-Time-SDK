@@ -72,16 +72,12 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.10.0.2.jar         ema3.10.0.G1
+    ema-3.10.1.0.jar         ema3.10.1.L1
 
-    NOTE: ema-3.10.0.2-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
+    NOTE: ema-3.10.1.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
 
 # EMA Java Issues and Workarounds
  
-- ESDK-475 When using DirectoryMsg.decode(), Source Directory FilterActions of Update may be overwritten with Set
-
-- ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
-
 - Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates. Users can upgrade to a higher JRE version if they encounter problems.
 
 - EMA can not download dictionary from a LSEG Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
@@ -97,23 +93,23 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.10.0
-    Load Number: 2
-    Load ID: ema3.10.0.L2.java
-        Supersedes: ema3.9.2.L1.java
+    Release Number: 3.10.1
+    Load Number: 0
+    Load ID: ema3.10.1.L1.java
+        Supersedes: ema3.10.0.L2.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.73_RealTimeDistributionSystem_26.61 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.74_RealTimeDistributionSystem_26.71 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2025.1.1, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2026.3.0, https://www.blackducksoftware.com/
     SemGrep 1.136.0, https://semgrep.dev/
 
 # Notes

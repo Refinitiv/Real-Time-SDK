@@ -92,20 +92,20 @@ Shared libraries are available for use and contain the same functionality as the
 
 #### Windows
 
-Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application.  The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com.  This will show the shared library dependencies and where they are being resolved to.  
+Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application. The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com. This will show the shared library dependencies and where they are being resolved to.  
 
 ##### Static Library Manifest
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.10.0.L2
+    libema.lib                ema3.10.1.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.10.0.L2
-    libema.dll                ema3.10.0.L2
+    libema.lib                ema3.10.1.L1
+    libema.dll                ema3.10.1.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.10.0.L2
+    libema.a                    ema3.10.1.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.10.0.L2          libema.so.26          ema3.10.0.L2
+    libema.so.3.10.1.L1          libema.so.26          ema3.10.1.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -155,26 +155,26 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.10.0
-    Load Number: 2
-    Windows Load ID: ema3.10.0.L2.win
-        Supersedes: ema3.9.2.L1.win
-    Linux Load ID: ema3.10.0.L2.linux
-        Supersedes: ema3.9.2.L1.linux
+    Release Number: 3.10.1
+    Load Number: 1
+    Windows Load ID: ema3.10.1.L1.win
+        Supersedes: ema3.10.0.L2.win
+    Linux Load ID: ema3.10.1.L1.linux
+        Supersedes: ema3.10.0.L2.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.74_RealTimeDistributionSystem_26.71 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2025.1.1, https://www.blackducksoftware.com/
-    Coverity, 2023.12.2, https://scan.coverity.com/
+    Black Duck by Synopsis, 2026.3.0, https://www.blackducksoftware.com/
+    Coverity, 2024.12.0, https://scan.coverity.com/
 
 # Notes:
 - This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

@@ -7,24 +7,70 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyAccount and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.4.0.L2 aka EMA/ETA 3.10.0.L2 aka 3.10.0.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.4.1.L1 aka EMA/ETA 3.10.1.L1 aka 3.10.1.0
 ----------------------------------------------------------------------------------------
-
-This release of RTSDK supports the NIProvider Multi-Connect Fannout feature (Session Handline) in EMA which permits user to configure a NIProvider session which prompts API to fanout any submits of messages to all specificied connections. In addition, this release also has customer issue fixes and several minor enhancements. In this release, qualification of Ubuntu 24.04 is completed and support for Visual Studio 2015 is dropped.
+This release introduces support for Visual Studio 2026. Qualifications were completed on Rocky Linux 8 and 9. In addition, this release also serves as a maintenance release with several fixes for customer issues and bolstered unit testing. 
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #322] - [RTSDK-10365] - Introduces configurable limits on object pools sizes 
-- [GitHub #325] - [RTSDK-10386] - rsslNumericStringToReal returns SUCCESS code while failing to encode certain values
-- [GitHub #333, #334, #335] - [RTSDK-10616] - Warnings fixed
+- [Case Number: 15932040] - [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling 
+- [Case Number: 15975167] - [RTSDK-10752] - Fix to not receiving Directory domain stream for registered client with WarmStandby configuration 
+- [Case Number: 15984499] - [RTSDK-10766] - RSSL Trace Log does not contain date information 
+- [Case Number: 16069305] - [RTSDK-10804] - Fixed missing component version with server and client channels on the blocking mode
+- [GitHub #334] - [RTSDK-10598] - Fix for warnings due to recommended compiler options
+- [GitHub #338] - [RTSDK-10727] - Optimization to jsmn library usage: use jsmn_parse with no tokens to determine the required number of tokens 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.4.1.L1 (Sep 16, 2026)
+--------------------------------------------
+
+EMA C++ 3.10.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-402] - Fixes to memory leaks in the EMA unit test application
+- [RTSDK-2586] - EMAC++ NiProvider registers login on OmmProvider constructor and does not receive statusMsg event when connection is not UP
+- [RTSDK-10705] - Adds checks for data decoder pools
+- [RTSDK-10711] - Updated Cons210 examples to demonstrate Delete action handling [Case Number: 15932040]
+- [RTSDK-10752] - Fix to not receiving Directory domain stream for registered client with WarmStandby configuration [Case Number: 15975167]
+- [RTSDK-10867] - Fix to EmaUnitTest to expect a status message: LoginBasedPreferredHostFallBackWithInCurrentWSBGroupAndAPIIsOnPreferredHost_DetectionTimeInterval
+
+ETA C 3.10.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-34] - ProvPerf with reactor & multi-thread crashes when ConsPerf is terminated
+- [RTSDK-8183] - Consumer creates empty trace log files with RSSL_TRACE_TO_FILE_ENABLE and RSSL_TRACE_PING_ONLY
+- [RTSDK-9713] - Allow to use PCT mapping to occur despite a CPU core being used on 100%
+- [RTSDK-10655] - Fix for buffer overflow in rsslCopyMsg
+- [RTSDK-10727] - Optimization to jsmn library usage: use jsmn_parse with no tokens to determine the required number of tokens [GitHub #338]
+- [RTSDK-10758] - ETAC WatchlistConsumer example crashes with warmstandby and active server is not up at start
+- [RTSDK-10766] - RSSL Trace Log does not contain date information [Case Number: 15984499]
+- [RTSDK-10768] - Adds unit tests and fixes. Areas for validation: compression/fragmentation/Packing for websocket message
+- [RTSDK-10779] - ETA Transport Unit tests intermittent failure
+- [RTSDK-10804] - Fix for missing component version with server and client channels on the blocking mode [Case Number: 16069305]
+
+Both ETA C and EMA C++ 3.10.1.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-4154] - Added Cmake option to enable verbose JSON Parse errors
+- [RTSDK-9943] - Qualify Rocky Linux 8 & 9
+- [RTSDK-10305] - Support Visual Studio 2026
+- [RTSDK-10185] - Ubuntu 24.04 Compiler warnings with GCC 13.3
+- [RTSDK-10598] - Fix for warnings due to recommended compiler options [GitHub #334]
+- [RTSDK-10672] - Update to libxml2
+- [RTSDK-10700] - Adds fixes for race conditions and unit tests. Areas for validation: compression/fragmentation/Packing for RWF message
+- [RTSDK-10731] - Update to C/C++ dependencies: curl, libxml2, zlib
+- [RTSDK-10762] - Qualification on Hygon c86 architecture: used RHEL8 libraries on Galaxy Kylin V10 OS installed on c86 hardware
+- [RTSDK-10767] - Failing to release lock pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex in function rsslReactorChannelIoctl
+- [RTSDK-10829] - Added fixes and unit test cases to test with websocket cookies and HTTP header callback method
+- [RTSDK-10944] - Fix to libxml2 cmake to properly regenerate on 2nd run
+- [RTSDK-11015] - Update to JWT, curl and libxml2 dependencies
+
+--------------------------------------------
 RTSDK C++/C Release 2.4.0.L2 (May 6, 2026)
 --------------------------------------------
+
+This release of RTSDK supports the NIProvider Multi-Connect Fannout feature (Session Handline) in EMA which permits user to configure a NIProvider session which prompts API to fanout any submits of messages to all specificied connections. In addition, this release also has customer issue fixes and several minor enhancements. In this release, qualification of Ubuntu 24.04 is completed and support for Visual Studio 2015 is dropped.
 
 EMA C++ 3.10.0.L2 Issues Resolved
 --------------------------------
@@ -990,7 +1036,7 @@ Both ETA C and EMA C++ 3.6.0.L1 Issues Resolved
 - [RTSDK-4395] - Rebrand: Differentiate between RTSDK product and ETA/EMA library versions
 
 ---------------------------------------------
-RTSDK C++/C Release 1.5.1.L1 (Sept 4, 2020)
+RTSDK C++/C Release 1.5.1.L1 (Sep 4, 2020)
 ---------------------------------------------
 
 New Features Added
@@ -1157,7 +1203,7 @@ Both ETA C and EMA C++ 3.3.1.G2 Issues Resolved
 - [RTSDK-2562] Shared pool buffers actively queued upon client disconnection are not cleaned up correctly [Case Number: 07010347]
 
 ---------------------------------------------
-RTSDK C++/C Release 1.3.1.G1 (Sept 25, 2019)
+RTSDK C++/C Release 1.3.1.G1 (Sep 25, 2019)
 ---------------------------------------------
 
 EMA C++ 3.3.1.G1 Issues Resolved
@@ -1174,7 +1220,7 @@ Both ETA C and EMA C++ 3.3.1.G1 Issues Resolved
 - [RTSDK-3468] Add RDP Auth proactive token renewal with password grant prior to refresh token expiration
 
 ---------------------------------------------
-RTSDK C++/C Release 1.3.1.L1 (July 31, 2019)
+RTSDK C++/C Release 1.3.1.L1 (Jul 31, 2019)
 ---------------------------------------------
 
 New Features Added
@@ -1218,7 +1264,7 @@ Both ETA C and EMA C++ 3.3.1.L1 Issues Resolved
 - [RTSDK-3410] Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
 
 ---------------------------------------------
-RTSDK C++/C Release 1.3.0.G1 (April 16, 2019)
+RTSDK C++/C Release 1.3.0.G1 (Apr 16, 2019)
 ---------------------------------------------
 
 EMA/ETA C/C++ 3.3.0.G1 Issues Resolved
@@ -1227,7 +1273,7 @@ EMA/ETA C/C++ 3.3.0.G1 Issues Resolved
 - [RTSDK-3239] CMake fix for build of cjson libraries
 
 ---------------------------------------------
-RTSDK C++/C Release 1.3.0.L1 (March 26, 2019)
+RTSDK C++/C Release 1.3.0.L1 (Mar 26, 2019)
 ---------------------------------------------
 
 New Features Added
@@ -1271,7 +1317,7 @@ ETA C 3.3.0.L1 Issues Resolved
 - [RTSDK-2605] Remove references to TS1 Parser
 
 ---------------------------------------------
-RTSDK C++/C Release 1.2.2.L1 (November 15, 2018)
+RTSDK C++/C Release 1.2.2.L1 (Nov 15, 2018)
 ---------------------------------------------
 
 New Features Added
@@ -1296,7 +1342,7 @@ ETA C 3.2.2.L1 Issues Resolved
 - [RTSDK-2550] ETA RDM Usage guide section 6.2.4 shows market price update instead of status [Developer Community]
 
 ---------------------------------------------
-RTSDK C++/C Release 1.2.1.L1 (August 15, 2018)
+RTSDK C++/C Release 1.2.1.L1 (Aug 15, 2018)
 ---------------------------------------------
 
 New Features Added
@@ -1347,7 +1393,7 @@ ETA C 3.2.0.G1 Issues Resolved
 - [RTSDK-1573] rsslNumericStringToReal() conversion error [GitHub #62]
 
 --------------------------------------------
-RTSDK C++/C Release 1.2.0.L1 (April 27, 2018)
+RTSDK C++/C Release 1.2.0.L1 (Apr 27, 2018)
 --------------------------------------------
 
 New Features Added

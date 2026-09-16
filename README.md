@@ -29,18 +29,15 @@ GitHub PDF format docs per API:
 - [Enterprise Message API - CSharp Edition](CSharp/Ema/Docs)
 - [Enterprise Transport API - CSharp Edition](CSharp/Eta/Docs)
 
-LSEG Developer Portal documentation section contains docs in PDF format for both C++ and Java:
+LSEG Developers Portal documentation section contains docs in PDF format for C++, C# and Java:
 
 - [C++/C](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-cc/documentation)
 - [Java](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-java/documentation)
 - [CSharp](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-csharp/documentation)
 
-Documentation is also available in **HTML format** on a package or LSEG Developer Portal. 
+Documentation is also available in **HTML format** in archives. These archives are available for download on LSEG Developers Portal. 
 
-Packages are available for download in Developer Portal. If viewing docs included with a locally installed package, please consider hosting the HTML docs in an internal portal, using Internet Explorer, or, modifying security settings with Firefox, etc., to do so. HTML documentation is also available on Developer Portal for download in documentation sections.
-
-
-# Developing 
+# Developing
 If you discover any issues with this project, please feel free to create an Issue.
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 We will review issues and pull requests to determine any appropriate changes.

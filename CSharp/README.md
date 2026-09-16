@@ -17,18 +17,21 @@ External modules used by this version of RTSDK CSharp:
 
     Dependency                                 Version
     ----------                                 -------
-    Cronos                                     0.13.0
+    Cronos                                     0.13.1
     K4os.Compression.LZ4                       1.3.8
-    Microsoft.Csharp                           4.5.0
+    Microsoft.Bcl.Cryptography                 10.0.2
+    Microsoft.Extentions.Configuration         10.0.0
+    Microsoft.Extentions                       10.0.11
+    Microsoft.Aspnetcore.App.Ref               8.0.24
+    Microsoft.NetCore                          8.0.24
     Microsoft.IdentityModel.Abstractions       8.22.0
     Microsoft.IdentityModel.Jsonwebtokens      8.22.0
     Microsoft.IdentityModel.Logging            8.22.0
     Microsoft.IdentityModel.Tokens             8.22.0
-    Microsoft.Netcore.Platforms                5.0.0
+    Microsoft.Netcore.Platforms                8.0.24
     NLog                                       6.2.0
     NLog.Extensions.Logging                    6.2.0
     System.IdentityModel.Tokens.Jwt            8.22.0
-
 
 # Software Requirements
 - .NET 8 using Visual Studio 2022
@@ -48,6 +51,8 @@ On the following platforms .NET SDK 8.X and 10.X were used in test
     Ubuntu 24.04 64-bit
     Galaxy Kylin 10 64-bit
     Amazon Linux 2023 64-bit
+    Rocky Linux 8.X 64-bit
+    Rocky Linux 9.X 64-bit
 
 ### Encryption Support
 
@@ -73,8 +78,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.9.1
-- ADH 3.9.1
+- ADS 3.9.2
+- ADH 3.9.2
 - DACS 8.1
 
 # Documentation
@@ -179,11 +184,11 @@ You can download RTSDK libraries and dependencies from NuGet. Choose the appropr
 
     <dependency>
             <ItemGroup>
-                <PackageReference Include="LSEG.Eta.Core" Version="3.5.1.1"/>
-                <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.1.1"/>
-                <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.1.1"/>
-                <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.1.1"/>
-                <PackageReference Include="LSEG.Ema.Core" Version="3.5.1.1"/>
+                <PackageReference Include="LSEG.Eta.Core" Version="3.5.2.0"/>
+                <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.5.2.0"/>
+                <PackageReference Include="LSEG.Eta.Ansi" Version="3.5.2.0"/>
+                <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.5.2.0"/>
+                <PackageReference Include="LSEG.Ema.Core" Version="3.5.2.0"/>
             </ItemGroup/>
     </dependency>
 

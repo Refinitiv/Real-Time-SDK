@@ -85,24 +85,24 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Message API - CSharp Edition
-    Release Number: 3.5.1
-    Load Number: 2
-    Load ID: emacsharp3.5.1.L2.all
-        Supersedes: emacsharp3.5.1.L1.all 
+    Release Number: 3.5.2
+    Load Number: 1
+    Load ID: emacsharp3.5.2.L1.all
+        Supersedes: emacsharp3.5.1.L2.all 
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.72_RealTimeDistributionSystem_26.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.74_RealTimeDistributionSystem_26.71 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2025.12.0.1338, https://www.blackducksoftware.com/
-    Coverity, 2024.12.0, https://scan.coverity.com/ 
+    Black Duck by Synopsis, 2026.3.0, https://www.blackducksoftware.com/
+    Coverity, 2024.12.0, https://scan.coverity.com/
     SemGrep 1.136.0, https://semgrep.dev/
 
 # Notes

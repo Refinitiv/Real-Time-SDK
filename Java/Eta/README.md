@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.10.0.2.jar               eta3.10.0.G1       The ETA - Java Edition library.  Includes
+    eta-3.10.1.0.jar               eta3.10.1.L1     The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.10.0.2.jar       eta3.10.0.G1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.10.1.0.jar       eta3.10.1.L1     The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.10.0.2.jar  eta3.10.0.G1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.10.1.0.jar  eta3.10.1.L1     The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.10.0.2.jar     eta3.10.0.G1       The RWF/JSON Converter library.
+    etajConverter-3.10.1.0.jar     eta3.10.1.L1     The RWF/JSON Converter library.
 
-    jDacsEtalib.jar               dacs7.12         The ETA Java DACS library.
+    jDacsEtalib.jar                dacs8.10         The ETA Java DACS library.
 
-    ansipage-3.10.0.2.jar          eta3.10.0.G1       The ANSI decoders and encoders.
+    ansipage-3.10.1.0.jar          eta3.10.1.L1     The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.10.0.G1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs         eta3.10.1.L1     The JNI libraries for Reliable Multicast
                                                     Transport, Shared Memory Transport and 
                                                     ValueAdd cache.  
 
@@ -157,10 +157,6 @@ The distribution contains several JAR files and other non-Java libraries, intend
 - Although the examples use float and double for simplicity, these data types should never be used for precise values like currency. Use java.math.BigDecimal instead. Refer to the float and double section in: http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
 
 - ETA Java uses the Oracle JDK OperatingSystemMXBean for Performance Tool CPU and Memory usage statistics. The Oracle JDK OperatingSystemMXBean is incompatible with the some alternate JDK implementations.
-
-- ESDK-307 When using DirectoryMsg.decode(), Source Directory FilterActions of Update may be overwritten with Set
-
-- ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
 
 - ETA can not download dictionary from a LSEG Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
 
@@ -181,23 +177,23 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6212
     LSEG Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.10.0
-    Load Number: 2
-    Load ID: etaj3.10.0.L2.all
-        Supersedes: etaj3.9.2.L1.all
+    Release Number: 3.10.1
+    Load Number: 1
+    Load ID: etaj3.10.1.L1.all
+        Supersedes: etaj3.10.0.L2.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: LSEG Security Compliant
-    Template Version Supported: v4.20.73_RealTimeDistributionSystem_26.61 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.74_RealTimeDistributionSystem_26.71 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2025.1.1, https://www.blackducksoftware.com/
+    Black Duck by Synopsis, 2026.3.0, https://www.blackducksoftware.com/
     SemGrep 1.136.0, https://semgrep.dev/
 
 # Notes:

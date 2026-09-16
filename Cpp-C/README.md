@@ -17,19 +17,19 @@ External modules used by this version of RTSDK C/C++:
 
      Dependency          Version
      ----------          -------
-     openSSL               1.0.1e
      openSSL               1.1.1a
      openSSL               3.0.X  * 
      openSSL               3.1.X  ** 
-     ccron                 2.0.0
+     ccron                 2.1.0
      cJSON                 1.7.19
-     curl                  8.17.0 (for older than Linux8) and 8.21.0
-     googletest            1.12.1 
+     curl                  8.17.0 (for older than or Linux8) and 8.22.0 
+     googletest            1.21.1 
      l8w8jwt               2.7.0
-     libxml2               2.13.9
-     lz4                   1.9.4 (for older than Linux7) and 1.10.0
-     zlib                  1.3.1
+     libxml2               2.15.4
+     lz4                   1.10.0
+     zlib                  1.3.2
      jsmn                  1.1.0
+
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
 NOTES: 
@@ -37,7 +37,7 @@ NOTES:
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
 - Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (RedHat 8, RedHat 9). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - openSSL 1.1.1 and higher are required for TLS 1.3
-- Cipher suite is configurable with TLS 1.2 and it is recommended that customers use best available ciphers. With TLS 1.3, cipher suite is not yet configurable; however, default ciphers are best available.
+- Cipher suite is configurable and it is recommended that customers use best available ciphers.
 - Check installation guide for details regarding including external dependencies for build
 - jsmn is directly embeded into the codebase as a single-header, header-only library
    
@@ -75,8 +75,12 @@ Linux system libraries used by RTSDK C/C++:
 - Red Hat Enterprise Server 8.X, 64-bit
 - Red Hat Enterprise Server 9.X, 64-bit
 - Ubuntu 24.04, 64-bit
+- Rocky Linux 8.X, 64-bit
+- Rocky Linux 9.X, 64-bit
 - Galaxy Kylin 10, 64-bit (TCP qualification only; multicast transport not tested)
 - Amazon Linux 2023, 64-bit
+
+- Hygon c86 Architecture: Galaxy Kylin 10, 64-bit (TCP qualification only; multicast transport not tested)
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -103,6 +107,7 @@ Compilers (only on OSs supported by Microsoft):
      Microsoft Visual Studio 14.1 (2017) 64-bit 
      Microsoft Visual Studio 14.2 (2019) 64-bit 
      Microsoft Visual Studio 14.3 (2022) 64-bit 
+     Microsoft Visual Studio 14.5 (2026) 64-bit 
 
 NOTE: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
@@ -113,12 +118,13 @@ NOTE:
 
 Platforms & Compilers:
 
-     GCC compiler suite version 7.3.0 or higher for Galaxy Kylin 10, 64-bit, qualification with RH8 library build
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
+     GCC compiler suite version 8.5.0 or higher for Rocky Linux 8.10, 64-bit, qualification with RH8 library build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
      GCC compiler suite version 11.4.1 or higher for Red Hat Enterprise Server 9.X, 64-bit, Native build
      GCC compiler suite version 11.4.1 or higher for Amazon Linux 2023, 64-bit, qualification with RH9 library build
-     GCC compiler suite version 13.2.0 or higher for Ubuntu 24.04, 64-bit, qualification with RH9 library build
+     GCC compiler suite version 11.5.0 or higher for Rocky Linux 9.6, 64-bit, qualification with RH9 library build
+     GCC compiler suite version 13.3.0 or higher for Ubuntu 24.04, 64-bit, qualification with RH9 library build
 
 * Eta VACache library built 
 
@@ -132,20 +138,27 @@ NOTE:
 This release has been tested with supported valid OS/compiler combinations.
 
 ##### Linux
-This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
+This release has been tested with the following 64-bit x64 based operating systems on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
      OS                                           GCC Version     Use-Prebuilt Library     Use-Natively Build Library
      --------------------------------             ------------    --------------------     ----------------------------          
-     Galaxy Kylin 10 64-bit                       GCC 7.3.0       RHEL8_64_GCC831          KYL10_64_GCC730
-     Red Hat Enterprise Linux Server 8.X 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
-     Galaxy Kylin 10 64-bit                       GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
-     Red Hat Enterprise Linux Server 8.X 64-bit   GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
-     Red Hat Enterprise Linux Server 9.2 64-bit   GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
-     Amazon Linux 2023 64-bit                     GCC 11.4.1      RHEL9_64_GCC1141         AMA2023_64_GCC1141
-     Red Hat Enterprise Linux Server 9.2 64-bit   GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
-     Ubuntu 24.04 64-bit                          GCC 13.2.0      RHEL9_64_GCC1320         UBU24_64_GCC1320
+     Red Hat Enterprise Linux Server 8.X          GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Galaxy Kylin 10                              GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
+     Rocky Linux 8.10                             GCC 8.5.0       RHEL8_64_GCC831          ROC8_64_GCC850
+     Red Hat Enterprise Linux Server 8.X          GCC 9.2.1       RHEL8_64_GCC831          RHEL8_64_GCC921
+     Red Hat Enterprise Linux Server 9.2          GCC 11.4.1      RHEL9_64_GCC1141         RHEL9_64_GCC1141
+     Amazon Linux 2023                            GCC 11.4.1      RHEL9_64_GCC1141         AMA2023_64_GCC1141
+     Rocky Linux 9.6                              GCC 11.5.0      RHEL9_64_GCC1141         ROC9_64_GCC1150 
+     Red Hat Enterprise Linux Server 9.2          GCC 12.2.1      RHEL9_64_GCC1141         RHEL9_64_GCC1221
+     Ubuntu 24.04                                 GCC 13.3.0      RHEL9_64_GCC1330         UBU24_64_GCC1330
 
      n/a = This is not a tested combination
+
+This release has been tested with the following 64-bit Hygon (c86) based operating systems on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects this use cases: using pre-built libraries to build applications. 
+
+     OS                                           GCC Version     Use-Prebuilt Library     Use-Natively Build Library
+     --------------------------------             ------------    --------------------     ----------------------------          
+     Galaxy Kylin 10                              GCC 8.4.0       RHEL8_64_GCC831          KYL10_64_GCC840
 
 #### Proxy Authentication Support
 
@@ -182,8 +195,8 @@ NOTE: Connectivity to Data Feed Direct (LDFD) is supported for Level 1 and Level
 
 This release has been tested with the following:
 
-- ADS 3.9.1 
-- ADH 3.9.1
+- ADS 3.9.2 
+- ADH 3.9.2
 - DACS 8.1
 
 # Documentation
