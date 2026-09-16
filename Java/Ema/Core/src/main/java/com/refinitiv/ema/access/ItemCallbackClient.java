@@ -3015,7 +3015,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming Msg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
@@ -3029,7 +3029,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming RefreshMsg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onRefreshMsg(_refreshMsg, _eventImpl);
@@ -3043,7 +3043,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming UpdateMsg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onUpdateMsg(_updateMsg, _eventImpl);
@@ -3057,7 +3057,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming StatusMsg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onStatusMsg(_statusMsg, _eventImpl);
@@ -3071,7 +3071,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming GenericMsg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onGenericMsg(_genericMsg, _eventImpl);
@@ -3085,7 +3085,7 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 			StringBuilder tempErr = _baseImpl.strBuilder();
 			tempErr.append("An incoming AckMsg to a closed OmmConsumerClient has been dropped.");
 			if (_baseImpl.loggerClient().isErrorEnabled())
-				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 			return;
 		}
 		_eventImpl._item.client().onAckMsg(_ackMsg, _eventImpl);

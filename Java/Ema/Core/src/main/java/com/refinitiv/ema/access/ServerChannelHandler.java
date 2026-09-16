@@ -360,7 +360,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                     .append(errorInfo.error().sysError()).append(OmmLoggerClient.CR).append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
                     .append("Error text ").append(errorInfo.error().text());
 
-                    _serverImpl.loggerClient().error(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.WARNING));
+                    _serverImpl.loggerClient().warn(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.WARNING));
                 }
                 
                 if ( _serverImpl.state() != OmmServerBaseImpl.OmmImplState.UNINITIALIZING)

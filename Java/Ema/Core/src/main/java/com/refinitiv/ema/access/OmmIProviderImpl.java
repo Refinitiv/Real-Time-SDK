@@ -896,7 +896,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				text.append(itemInfo.handle().value()).append(", client handle = ")
 				.append(itemInfo.clientSession().clientHandle().value()).append(".");
 				
-				loggerClient().error(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.TRACE));
+				loggerClient().trace(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.TRACE));
 			}
 			
 			msgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
@@ -961,7 +961,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 									.append(itemInfo.handle().value()).append(", client handle ")
 									.append(itemInfo.clientSession().clientHandle().value()).append(" as refresh message is required first.");
 							
-									loggerClient().error(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.WARNING));
+									loggerClient().warn(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.WARNING));
 								}
 
 								continue;
@@ -1051,7 +1051,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 							.append(itemInfo.handle().value()).append(", client handle ")
 							.append(itemInfo.clientSession().clientHandle().value()).append(" as refresh message is required first.");
 					
-							loggerClient().error(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.WARNING));
+							loggerClient().warn(formatLogMessage(instanceName() , _strBuilder.toString(), Severity.WARNING));
 						}
 
 						continue;

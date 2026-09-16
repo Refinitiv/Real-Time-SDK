@@ -1334,7 +1334,7 @@ class ConsumerSession<T> extends BaseSession<T> implements DirectoryServiceClien
 	        	temp.append("The specified service name " + serviceName + " does not exist for " + sessionChannelInfo.sessionChannelConfig().name + ". Droping this PosgMsg.")
 	        		.append(OmmLoggerClient.CR);
 	        	
-	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.WARNING));
+	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
 		}
 		else if (rsslPostMsg.checkHasMsgKey() && rsslPostMsg.msgKey().checkHasServiceId())
@@ -1351,7 +1351,7 @@ class ConsumerSession<T> extends BaseSession<T> implements DirectoryServiceClien
 	        	temp.append("The specified service Id " + rsslPostMsg.msgKey().serviceId() + " does not exist for " + sessionChannelInfo.sessionChannelConfig().name + ". Droping this PosgMsg.")
 	        		.append(OmmLoggerClient.CR);
 	        	
-	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.WARNING));
+	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
 		}
 		else
@@ -1363,7 +1363,7 @@ class ConsumerSession<T> extends BaseSession<T> implements DirectoryServiceClien
 	        	temp.append("Niether service Id or name is specified for the PostMsg. Droping this PosgMsg from "  + sessionChannelInfo.sessionChannelConfig().name + ".")
 	        		.append(OmmLoggerClient.CR);
 	        	
-	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.WARNING));
+	        	_ommBaseImpl.loggerClient().error(_ommBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
 		}
 		
