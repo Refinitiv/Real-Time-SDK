@@ -1,4 +1,4 @@
-/*|-----------------------------------------------------------------------------
+﻿/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
  *|                See the project's LICENSE.md for details.
@@ -1847,8 +1847,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                             tempWlItemStream.SendMsg(tempWlItemStream.RequestMsg, submitOptions, true, out errorInfo);
 
-                            // Remove the RequestMsgFlags.NO_REFRESH flag if it is set temporary in the SendMsg() method.
-                            if (!needRefresh)
+                            // Restore the flag: NO_REFRESH is only set for this priority-update
+                            // re-issue, so it must be cleared again when the stream did not already
+                            // carry it. Leaving it set makes the next request re-issued for this
+                            // item ask for no refresh, and that request never receives an image.
+                            if (needRefresh)
                             {
                                 tempWlItemStream.RequestMsg.Flags &= ~RequestMsgFlags.NO_REFRESH;
                             }
